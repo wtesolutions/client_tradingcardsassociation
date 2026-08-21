@@ -49,9 +49,9 @@
     </div>
     <div class="card elev-md" style="max-width:380px;justify-self:end;width:100%;">
       <h2 class="card-title" style="margin-top:0;">Member sign in</h2>
-      <form onsubmit="return false" style="display:grid;gap:var(--space-4);margin-top:var(--space-4);">
-        <div class="field"><label for="me">Email address</label><input class="input" id="me" type="email" autocomplete="email" /></div>
-        <div class="field"><label for="mp">Password</label><input class="input" id="mp" type="password" autocomplete="current-password" /></div>
+      <form id="login-form" style="display:grid;gap:var(--space-4);margin-top:var(--space-4);">
+        <div class="field"><label for="me">Email address</label><input class="input" id="me" type="email" autocomplete="email" required /></div>
+        <div class="field"><label for="mp">Password</label><input class="input" id="mp" type="password" autocomplete="current-password" required /></div>
         <button type="submit" class="btn btn-primary btn-block">Sign in →</button>
         <a href="#" class="fine" style="text-decoration:none;">Forgot your password?</a>
       </form>
@@ -77,5 +77,15 @@
     <span><a href="mailto:info@tradingcardsassociation.com">info@tradingcardsassociation.com</a> · @NTCA · <a href="members.html">Member login</a></span>
   </div></footer>
 </div>
+<script>
+/* Mockup sign-in: any email + password opens the member-area preview. */
+document.getElementById('login-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var email = document.getElementById('me').value.trim();
+  if (!email || !document.getElementById('mp').value) return;
+  sessionStorage.setItem('ntca-member', email);
+  location.href = 'members-area.html';
+});
+</script>
 </body>
 </html>
