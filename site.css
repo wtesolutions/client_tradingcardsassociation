@@ -386,7 +386,7 @@ img, video, image-slot { max-width: 100%; }
 
 /* ── teaser landing — the "it's coming" page ─────────────────────────── */
 .teaser-body { min-height: 100svh; display: grid; place-items: center; }
-.teaser { max-width: 560px; padding: calc(2 * var(--leading)) var(--edge);
+.teaser { width: min(720px, 100%); padding: calc(2 * var(--leading)) var(--edge);
   text-align: center; display: flex; flex-direction: column; align-items: center; }
 .teaser-logo { width: clamp(160px, 30vw, 240px); height: auto;
   filter: drop-shadow(0 16px 48px color-mix(in srgb, var(--color-accent) 35%, transparent)); }
@@ -410,3 +410,25 @@ img, video, image-slot { max-width: 100%; }
 #invite-form[hidden] { display: none; }
 #invite-form .input { max-width: 200px; min-height: 44px; text-transform: uppercase; }
 #invite-error { color: #e08585; margin-top: var(--space-3); }
+
+/* native teaser form — replaces the boxed Jotform iframe */
+.teaser-form { display: grid; gap: var(--space-3); width: 100%; max-width: 620px;
+  margin-top: calc(1.25 * var(--leading)); }
+.tf-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+@media (max-width: 599.98px) { .tf-row { grid-template-columns: 1fr; } }
+.teaser-form .input { min-height: 46px; font-size: 15px; }
+.teaser-form select.input { appearance: none; -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-neutral-500) 50%),
+    linear-gradient(135deg, var(--color-neutral-500) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 55%, calc(100% - 13px) 55%;
+  background-size: 5px 5px; background-repeat: no-repeat; padding-right: 34px; }
+.teaser-form select.input:invalid, .teaser-form select.input option[value=""] {
+  color: color-mix(in srgb, var(--color-text) 45%, transparent); }
+.teaser-form select.input option { color: var(--color-text); background: var(--color-surface); }
+.tf-submit { min-height: 46px; font-size: 16px; }
+
+/* native invite disclosure on the teaser */
+.teaser-invite details { width: 100%; }
+.teaser-invite summary { cursor: pointer; list-style: none; display: inline-block;
+  text-decoration: underline; text-underline-offset: 3px; color: var(--color-accent); }
+.teaser-invite summary::-webkit-details-marker { display: none; }
