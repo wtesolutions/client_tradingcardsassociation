@@ -317,3 +317,41 @@ image-slot { border: 1px solid var(--color-neutral-800); border-radius: var(--ra
 }
 /* media never overflows its column */
 img, video, image-slot { max-width: 100%; }
+
+/* ── hobby shop directory band — the bright promotional field ────────── */
+.band-dir { position: relative;
+  background:
+    radial-gradient(820px 400px at 12% -30%, color-mix(in srgb, var(--color-accent-300) 45%, transparent), transparent 62%),
+    radial-gradient(900px 460px at 95% 130%, color-mix(in srgb, var(--color-accent-2-400) 38%, transparent), transparent 60%),
+    linear-gradient(118deg, var(--color-accent-700), var(--color-accent-600) 52%, var(--color-accent-2-600));
+  padding: calc(2.5 * var(--leading)) 0; }
+.band-dir .band-kicker { display: block; font-size: 13px; line-height: var(--half);
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-100);
+  margin: 0 0 calc(var(--leading) - var(--half)); }
+.band-dir .band-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: clamp(28px, 3.2vw, 44px); line-height: 1.15; letter-spacing: -0.012em;
+  color: #fff; margin: 0; max-width: 22ch; text-box: trim-both cap alphabetic; }
+.band-dir .band-sub { font-size: 15.5px; line-height: var(--leading); max-width: 62ch;
+  color: color-mix(in srgb, #fff 88%, transparent);
+  margin: calc(var(--leading) - 1cap) 0 0; }
+.band-dir .cta-row { margin-top: calc(1.25 * var(--leading)); }
+.btn-light { background: #fff; border-color: #fff; color: var(--color-accent-800);
+  font-size: 16px; padding: 12px 22px;
+  transition: box-shadow .15s ease, transform .15s ease; }
+.btn-light:hover { color: var(--color-accent-700);
+  box-shadow: 0 0 0 3px color-mix(in srgb, #fff 35%, transparent), 0 8px 28px rgba(0,0,0,.35); }
+.btn-light:active { transform: translateY(1px); }
+.btn-light-ghost { border-color: color-mix(in srgb, #fff 55%, transparent); color: #fff;
+  font-size: 16px; padding: 12px 22px; }
+.btn-light-ghost:hover { background: color-mix(in srgb, #fff 12%, transparent); border-color: #fff; color: #fff; }
+
+/* shop directory page */
+.dir-tools { display: flex; gap: var(--space-3); flex-wrap: wrap;
+  margin-top: calc(1.5 * var(--leading)); max-width: 640px; }
+.dir-tools .input { flex: 2; min-width: 220px; }
+.dir-tools select.input { flex: 1; min-width: 150px; }
+.dir-count { margin-top: var(--space-3); }
+.dir-card .card-body { line-height: 21px; }
+.dir-card .card-meta a { color: inherit; text-decoration: none; }
+.dir-card .card-meta a:hover { color: var(--color-accent); }
+.dir-card .star { color: var(--color-accent); }

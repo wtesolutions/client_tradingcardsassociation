@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hobby Shop Directory | NTCA</title>
+<link rel="stylesheet" href="./ds/styles.css" />
+<meta name="description" content="Find a local trading card shop near you in the NTCA Hobby Shop Directory — hobby shops, card stores and collectibles dealers across the country." />
+<link rel="icon" href="./ntca-logo.png" />
+<link rel="stylesheet" href="./site.css" />
+<script src="./nav.js" defer></script>
+</head>
+<body>
+<nav class="nav">
+  <a class="nav-brand" href="index.html"><img src="./ntca-logo.png" alt="NTCA emblem" /><span>NTCA<em>National Trading Card Association</em></span></a>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open menu"><svg class="i-open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg><svg class="i-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+  <a href="index.html">Home</a>
+  <div class="menu">
+    <a href="about.html" class="has-mega">About</a>
+    <div class="mega" style="min-width:440px;">
+      <a href="about.html"><span class="m-title">Our Mission</span><span class="m-desc">One Association. One Community. A Shared Future.</span></a>
+      <a href="about.html#history"><span class="m-title">History of the Hobby</span><span class="m-desc">From tobacco inserts to modern collectibles.</span></a>
+      <a href="news.html"><span class="m-title">News &amp; Announcements</span><span class="m-desc">Updates as the organization takes shape.</span></a>
+      <a href="contact.html"><span class="m-title">Contact Us</span><span class="m-desc">Questions, committees and advisory interest.</span></a>
+    </div>
+  </div>
+  <div class="menu">
+    <a href="directory.html" class="has-mega">The Network</a>
+    <div class="mega" style="min-width:560px;">
+      <a href="directory.html#association"><span class="m-title">NTCA — The Association</span><span class="m-desc">The central governing body of the hobby.</span></a>
+      <a href="directory.html#foundation"><span class="m-title">Foundation</span><span class="m-desc">501(c)(3) education and charitable arm.</span></a>
+      <a href="directory.html#conference"><span class="m-title">Annual Conference</span><span class="m-desc">The premier annual gathering.</span></a>
+      <a href="directory.html#halloffame"><span class="m-title">Hall of Fame</span><span class="m-desc">Honoring the hobby's legacy.</span></a>
+      <a href="directory.html#advocacy"><span class="m-title">Advocacy Network / PAC</span><span class="m-desc">A unified voice for the community.</span></a>
+      <a href="directory.html#international"><span class="m-title">International TCA</span><span class="m-desc">Connecting the global community.</span></a>
+    </div>
+  </div>
+  <a href="events.html">Events</a>
+  <a href="gallery.html">Gallery</a>
+  <a href="join.html">Join Us</a>
+  <a href="members.html">Members</a>
+  <a class="btn btn-primary" href="join.html">Become an Insider</a>
+</nav>
+<div class="wrap">
+  <section class="page-head">
+    <span class="kicker">Hobby Shop Directory</span>
+    <h1>Find your local card shop.</h1>
+    <p class="lede">Hobby shops are the heartbeat of collecting. Search the NTCA's growing directory of card shops and collectibles dealers, and support the stores that keep the hobby alive in your community.</p>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="dir-tools">
+      <input class="input" id="dir-search" type="search" placeholder="Search by shop name or city&hellip;" aria-label="Search shops" />
+      <select class="input" id="dir-state" aria-label="Filter by state">
+        <option value="">All states</option>
+        <option value="AL">AL</option>
+        <option value="AZ">AZ</option>
+        <option value="CA">CA</option>
+        <option value="CT">CT</option>
+        <option value="FL">FL</option>
+        <option value="GA">GA</option>
+        <option value="IA">IA</option>
+        <option value="IL">IL</option>
+        <option value="KY">KY</option>
+        <option value="MD">MD</option>
+        <option value="ME">ME</option>
+        <option value="MN">MN</option>
+        <option value="MO">MO</option>
+        <option value="NJ">NJ</option>
+        <option value="NV">NV</option>
+        <option value="NY">NY</option>
+        <option value="OH">OH</option>
+        <option value="ON">ON</option>
+        <option value="OR">OR</option>
+        <option value="PA">PA</option>
+        <option value="SD">SD</option>
+        <option value="TN">TN</option>
+        <option value="TX">TX</option>
+        <option value="WA">WA</option>
+        <option value="WI">WI</option>
+      </select>
+    </div>
+    <p class="fine dir-count" id="dir-count"></p>
+    <div class="cards" id="dir-grid">
+      <div class="card elev-sm dir-card" data-state="CA" data-search="burbank sportscards burbank ca 91505">
+        <span class="card-kicker">Burbank, CA</span>
+        <p class="card-title">Burbank Sportscards</p>
+        <p class="card-body">935 N Hollywood Way<br />Burbank, CA 91505</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.87 &middot; <a href="tel:8188432600">818-843-2600</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="OH" data-search="medina sportscards &amp; collectibles medina oh 44256">
+        <span class="card-kicker">Medina, OH</span>
+        <p class="card-title">Medina Sportscards &amp; Collectibles</p>
+        <p class="card-body">110 W. Washington St.<br />Medina, OH 44256</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.98 &middot; <a href="tel:3307252273">330-725-2273</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="MD" data-search="the dugoutzone ellicott city md 21042">
+        <span class="card-kicker">Ellicott City, MD</span>
+        <p class="card-title">The DugoutZone</p>
+        <p class="card-body">9011 Chevrolet Drive Suite 14<br />Ellicott City, MD 21042</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.96 &middot; <a href="tel:4104618664">410-461-8664</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="CA" data-search="gamesandcards.com eagle rock ca 90041">
+        <span class="card-kicker">Eagle Rock, CA</span>
+        <p class="card-title">GamesandCards.com</p>
+        <p class="card-body">1716 Colorado Blvd<br />Eagle Rock, CA 90041</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 5.00 &middot; <a href="tel:3233415600">323-341-5600</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="WA" data-search="woody&#x27;s sports cards monroe wa 98272">
+        <span class="card-kicker">Monroe, WA</span>
+        <p class="card-title">Woody&#x27;s Sports Cards</p>
+        <p class="card-body">19916 Old Owen Road #160<br />Monroe, WA 98272</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.82 &middot; <a href="tel:4254718837">425-471-8837</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="FL" data-search="wonder water sports cards, comics &amp; gaming! clearwater fl 33761">
+        <span class="card-kicker">Clearwater, FL</span>
+        <p class="card-title">Wonder Water Sports Cards, Comics &amp; Gaming!</p>
+        <p class="card-body">29113 US Hwy 19 North<br />Clearwater, FL 33761</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 5.00 &middot; <a href="tel:7277994855">727-799-4855</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="TN" data-search="7th inning stretch: sportscards, comics &amp; gaming cosby tn 37722">
+        <span class="card-kicker">Cosby, TN</span>
+        <p class="card-title">7th Inning Stretch: Sportscards, Comics &amp; Gaming</p>
+        <p class="card-body">P.O. Box 214<br />Cosby, TN 37722</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.96 &middot; <a href="tel:3523627411">352-362-7411</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="MO" data-search="1,000,000 baseball cards manchester mo 63011">
+        <span class="card-kicker">Manchester, MO</span>
+        <p class="card-title">1,000,000 Baseball Cards</p>
+        <p class="card-body">14560 Manchester Rd #23<br />Manchester, MO 63011</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.69 &middot; <a href="tel:6365274424">636-527-4424</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="MN" data-search="southpaw cards centerville mn 55038">
+        <span class="card-kicker">Centerville, MN</span>
+        <p class="card-title">Southpaw Cards</p>
+        <p class="card-body">1774 Partridge Place<br />Centerville, MN 55038</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.97 &middot; <a href="tel:6513361620">651-336-1620</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="IL" data-search="jim &amp; steve&#x27;s sportscard shop gurnee il 60031">
+        <span class="card-kicker">Gurnee, IL</span>
+        <p class="card-title">Jim &amp; Steve&#x27;s Sportscard Shop</p>
+        <p class="card-body">3500 Grand Ave<br />Gurnee, IL 60031</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.64 &middot; <a href="tel:8472441981">847-244-1981</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="IL" data-search="au sports memorabilia inc. morton grove il 60053">
+        <span class="card-kicker">Morton Grove, IL</span>
+        <p class="card-title">AU Sports Memorabilia Inc.</p>
+        <p class="card-body">6006 Dempster St<br />Morton Grove, IL 60053</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.94 &middot; <a href="tel:8476478311">847-647-8311</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="MO" data-search="mac&#x27;s collectibles springfield mo 65807">
+        <span class="card-kicker">Springfield, MO</span>
+        <p class="card-title">Mac&#x27;s Collectibles</p>
+        <p class="card-body">913 E Redwood St<br />Springfield, MO 65807</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 3.15 &middot; <a href="tel:4172345136">417-234-5136</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="NV" data-search="steve taft sparks nv 89436">
+        <span class="card-kicker">Sparks, NV</span>
+        <p class="card-title">Steve Taft</p>
+        <p class="card-body">2898 Carbon Court<br />Sparks, NV 89436</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 5.00 &middot; <a href="tel:7754322645">775-432-2645</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="CA" data-search="bakersfield.cards bakersfield ca 93301">
+        <span class="card-kicker">Bakersfield, CA</span>
+        <p class="card-title">Bakersfield.cards</p>
+        <p class="card-body">1201 20th Street<br />Bakersfield, CA 93301</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.88 &middot; <a href="tel:6613233900">661-323-3900</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="OH" data-search="ziggy&#x27;s eastpointe sportscards north canton oh 44720">
+        <span class="card-kicker">North Canton, OH</span>
+        <p class="card-title">Ziggy&#x27;s Eastpointe Sportscards</p>
+        <p class="card-body">6834-A Wales Crossing St. N.W.<br />North Canton, OH 44720</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.73 &middot; <a href="tel:3303241140">330-324-1140</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="NY" data-search="the collector&#x27;s friend rensselaer ny 12144">
+        <span class="card-kicker">Rensselaer, NY</span>
+        <p class="card-title">The Collector&#x27;s Friend</p>
+        <p class="card-body">528 3rd Ave Ext<br />Rensselaer, NY 12144</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.83 &middot; <a href="tel:5182383818">518-238-3818</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="IA" data-search="big mac sportscards davenport ia 52806">
+        <span class="card-kicker">Davenport, IA</span>
+        <p class="card-title">Big Mac Sportscards</p>
+        <p class="card-body">6112 Scott St<br />Davenport, IA 52806</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.84 &middot; <a href="tel:5633860876">563-386-0876</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="IL" data-search="triple i sportscards inc moline il 61265">
+        <span class="card-kicker">Moline, IL</span>
+        <p class="card-title">Triple I Sportscards Inc</p>
+        <p class="card-body">1729 5th Ave<br />Moline, IL 61265</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.86 &middot; <a href="tel:3097644631">309-764-4631</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="NY" data-search="card shack lynbrook ny 11563">
+        <span class="card-kicker">Lynbrook, NY</span>
+        <p class="card-title">Card Shack</p>
+        <p class="card-body">9 Atlantic Ave<br />Lynbrook, NY 11563</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.88 &middot; <a href="tel:5165615100">516-561-5100</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="CA" data-search="chicagocards.com pittsburg ca 94565">
+        <span class="card-kicker">Pittsburg, CA</span>
+        <p class="card-title">ChicagoCards.com</p>
+        <p class="card-body">163 East 4th Street Unit D<br />Pittsburg, CA 94565</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.96 &middot; <a href="tel:6306189938">630-618-9938</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="SD" data-search="triple play sports cards sioux falls sd 57105">
+        <span class="card-kicker">Sioux Falls, SD</span>
+        <p class="card-title">Triple Play Sports Cards</p>
+        <p class="card-body">3816 S Western Ave<br />Sioux Falls, SD 57105</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.94 &middot; <a href="tel:6053324815">605-332-4815</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="IL" data-search="baseball card connection effingham il 62401">
+        <span class="card-kicker">Effingham, IL</span>
+        <p class="card-title">Baseball Card Connection</p>
+        <p class="card-body">313 W Jefferson Avenue<br />Effingham, IL 62401</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.91 &middot; <a href="tel:2173422539">217-342-2539</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="NY" data-search="the dugout sportscards &amp; comics fairport ny 14450">
+        <span class="card-kicker">Fairport, NY</span>
+        <p class="card-title">The Dugout Sportscards &amp; Comics</p>
+        <p class="card-body">49 Neuchatel Lane<br />Fairport, NY 14450</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 5.00 &middot; <a href="tel:5857660227">585-766-0227</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="TX" data-search="superior sports investments arlington tx 76006">
+        <span class="card-kicker">Arlington, TX</span>
+        <p class="card-title">Superior Sports Investments</p>
+        <p class="card-body">2201 Brookhollow Plaza Dr #145<br />Arlington, TX 76006</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.40 &middot; <a href="tel:6827068990">682-706-8990</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="NY" data-search="card gallery rockville centre ny 11571">
+        <span class="card-kicker">Rockville Centre, NY</span>
+        <p class="card-title">Card Gallery</p>
+        <p class="card-body">P.O. Box 1024<br />Rockville Centre, NY 11571</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.95 &middot; <a href="tel:5164629780">516-462-9780</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="MN" data-search="three stars sportscards bloomington mn 55420">
+        <span class="card-kicker">Bloomington, MN</span>
+        <p class="card-title">Three Stars Sportscards</p>
+        <p class="card-body">8806 Lyndale Ave. S.<br />Bloomington, MN 55420</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.98 &middot; <a href="tel:9525137166">952-513-7166</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="PA" data-search="the fairfield company mckean pa 16426">
+        <span class="card-kicker">McKean, PA</span>
+        <p class="card-title">The FairField Company</p>
+        <p class="card-body">4330 Golden Road<br />McKean, PA 16426</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 5.00 &middot; <a href="tel:8148251033">814-825-1033</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="CA" data-search="simicards simi valley ca 93094">
+        <span class="card-kicker">Simi Valley, CA</span>
+        <p class="card-title">Simicards</p>
+        <p class="card-body">PO Box 941264<br />Simi Valley, CA 93094</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.98 &middot; <a href="tel:8184044465">818-404-4465</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="OR" data-search="diamonds in the rough tigard or 97224">
+        <span class="card-kicker">Tigard, OR</span>
+        <p class="card-title">Diamonds in the Rough</p>
+        <p class="card-body">7360 SW Bonita Rd Suite B<br />Tigard, OR 97224</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 2.80 &middot; <a href="tel:5037473176">503-747-3176</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="GA" data-search="drtrading card valdosta ga 31602">
+        <span class="card-kicker">Valdosta, GA</span>
+        <p class="card-title">DRTrading Card</p>
+        <p class="card-body">20 Willow Cove Rd.<br />Valdosta, GA 31602</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.98 &middot; <a href="tel:2293008876">229-300-8876</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="NJ" data-search="temdee turnersville nj 08012">
+        <span class="card-kicker">Turnersville, NJ</span>
+        <p class="card-title">TemDee</p>
+        <p class="card-body">5051 Rt 42<br />Turnersville, NJ 08012</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 3.40 &middot; <a href="tel:8564724325">856-472-4325</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="MD" data-search="forest hill sportscards &amp; collectibles bel air md 21014">
+        <span class="card-kicker">Bel Air, MD</span>
+        <p class="card-title">Forest Hill Sportscards &amp; Collectibles</p>
+        <p class="card-body">504 Westwell Lane<br />Bel Air, MD 21014</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 5.00 &middot; <a href="tel:4108888888">410-888-8888</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="WI" data-search="josing4 cards burlington wi 53105">
+        <span class="card-kicker">Burlington, WI</span>
+        <p class="card-title">Josing4 Cards</p>
+        <p class="card-body">341 Kendall St.<br />Burlington, WI 53105</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.96 &middot; <a href="tel:2627205830">262-720-5830</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="KY" data-search="cardboard heroes sportscards rineyville ky 40162">
+        <span class="card-kicker">Rineyville, KY</span>
+        <p class="card-title">Cardboard Heroes Sportscards</p>
+        <p class="card-body">PO Box 21<br />Rineyville, KY 40162</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.93 &middot; <a href="tel:5734335185">573-433-5185</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="AL" data-search="birmingham sports cards alabaster al 35007">
+        <span class="card-kicker">Alabaster, AL</span>
+        <p class="card-title">Birmingham Sports Cards</p>
+        <p class="card-body">210 1st St North<br />Alabaster, AL 35007</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.99 &middot; <a href="tel:2053691973">205-369-1973</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="CA" data-search="mojo sportscards thousand oaks ca 91360">
+        <span class="card-kicker">Thousand Oaks, CA</span>
+        <p class="card-title">Mojo Sportscards</p>
+        <p class="card-body">131 W Avenida De Las Flores<br />Thousand Oaks, CA 91360</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.11 &middot; <a href="tel:8057961182">805-796-1182</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="GA" data-search="rich &#x27;n deals toccoa ga 30577">
+        <span class="card-kicker">Toccoa, GA</span>
+        <p class="card-title">Rich &#x27;N Deals</p>
+        <p class="card-body">268 E Currahee St<br />Toccoa, GA 30577</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.99 &middot; <a href="tel:7069639018">706-963-9018</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="IL" data-search="gearhart enterprises inc. winnebago il 61088">
+        <span class="card-kicker">Winnebago, IL</span>
+        <p class="card-title">Gearhart Enterprises Inc.</p>
+        <p class="card-body">P.O. Box 332 / 1011 S Meridian Rd<br />Winnebago, IL 61088</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 5.00 &middot; <a href="tel:8152622298">815-262-2298</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="GA" data-search="bjredsox valdosta ga 31602">
+        <span class="card-kicker">Valdosta, GA</span>
+        <p class="card-title">bjredsox</p>
+        <p class="card-body">303 West Dr<br />Valdosta, GA 31602</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.88 &middot; <a href="tel:2292666982">229-266-6982</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="CT" data-search="billy&#x27;s baseball cards andover ct 06232">
+        <span class="card-kicker">Andover, CT</span>
+        <p class="card-title">Billy&#x27;s Baseball Cards</p>
+        <p class="card-body">643 Route 6<br />Andover, CT 06232</p>
+        <p class="card-meta"><span class="star">&#9733;</span> New listing &middot; <a href="tel:8609338445">860-933-8445</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="NY" data-search="jbscards hudson falls ny 12839">
+        <span class="card-kicker">Hudson Falls, NY</span>
+        <p class="card-title">JBSCards</p>
+        <p class="card-body">1104 Dix Avenue Suite A<br />Hudson Falls, NY 12839</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 5.00 &middot; <a href="tel:5187446685">518-744-6685</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="MD" data-search="goalie cards towson md 21285">
+        <span class="card-kicker">Towson, MD</span>
+        <p class="card-title">Goalie Cards</p>
+        <p class="card-body">PO Box 6882<br />Towson, MD 21285</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 3.00 &middot; <a href="tel:3019081769">301-908-1769</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="OR" data-search="hoody&#x27;s collectibles beaverton or 97008">
+        <span class="card-kicker">Beaverton, OR</span>
+        <p class="card-title">Hoody&#x27;s Collectibles</p>
+        <p class="card-body">8602 SW Hall Blvd<br />Beaverton, OR 97008</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.72 &middot; <a href="tel:5037474076">503-747-4076</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="NV" data-search="tw culture las vegas nv 89128">
+        <span class="card-kicker">Las Vegas, NV</span>
+        <p class="card-title">TW Culture</p>
+        <p class="card-body">7712 Constanso Avenue #203<br />Las Vegas, NV 89128</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 1.67 &middot; <a href="tel:7026303203">702-630-3203</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="KY" data-search="wizard of sports cards murray ky 42071">
+        <span class="card-kicker">Murray, KY</span>
+        <p class="card-title">Wizard Of Sports Cards</p>
+        <p class="card-body">401 Maple St<br />Murray, KY 42071</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 5.00 &middot; <a href="tel:2702270365">270-227-0365</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="WA" data-search="jekk sportscards bellingham wa 98226">
+        <span class="card-kicker">Bellingham, WA</span>
+        <p class="card-title">JEKK Sportscards</p>
+        <p class="card-body">179 Telegraph Rd<br />Bellingham, WA 98226</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.93 &middot; <a href="tel:3603031789">360-303-1789</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="TN" data-search="logans hut jamestown tn 38556">
+        <span class="card-kicker">Jamestown, TN</span>
+        <p class="card-title">Logans Hut</p>
+        <p class="card-body">165 Northwood Dr<br />Jamestown, TN 38556</p>
+        <p class="card-meta"><span class="star">&#9733;</span> New listing</p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="OR" data-search="a card store sandy or 97055">
+        <span class="card-kicker">Sandy, OR</span>
+        <p class="card-title">A Card Store</p>
+        <p class="card-body">17150 University Ave Suite 301<br />Sandy, OR 97055</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.75 &middot; <a href="tel:3604485869">360-448-5869</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="ME" data-search="bangor sports collectibles bangor me 04401">
+        <span class="card-kicker">Bangor, ME</span>
+        <p class="card-title">Bangor Sports Collectibles</p>
+        <p class="card-body">1372 Union Street<br />Bangor, ME 04401</p>
+        <p class="card-meta"><span class="star">&#9733;</span> New listing &middot; <a href="tel:2074787297">207-478-7297</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="IL" data-search="most good hobby &amp; fun vernon hills il 60061">
+        <span class="card-kicker">Vernon Hills, IL</span>
+        <p class="card-title">Most Good Hobby &amp; Fun</p>
+        <p class="card-body">501 Astoria Ct<br />Vernon Hills, IL 60061</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.33 &middot; <a href="tel:8478302696">847-830-2696</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="AZ" data-search="cards and stuff gilbert az 85298">
+        <span class="card-kicker">Gilbert, AZ</span>
+        <p class="card-title">Cards And Stuff</p>
+        <p class="card-body">3479 East Flower<br />Gilbert, AZ 85298</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 5.00</p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="MO" data-search="mwg outdoors llc manchester mo 63021">
+        <span class="card-kicker">Manchester, MO</span>
+        <p class="card-title">MWG Outdoors LLC</p>
+        <p class="card-body">1219 Derbyshire Drive<br />Manchester, MO 63021</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 4.67 &middot; <a href="tel:3144132928">314-413-2928</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="PA" data-search="berger&#x27;s collectibles palmyra pa 17078">
+        <span class="card-kicker">Palmyra, PA</span>
+        <p class="card-title">Berger&#x27;s Collectibles</p>
+        <p class="card-body">410 West Cherry Street<br />Palmyra, PA 17078</p>
+        <p class="card-meta"><span class="star">&#9733;</span> 1.00 &middot; <a href="tel:7179265142">717-926-5142</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="MO" data-search="blogs hobby shop llc lees summit mo 64086">
+        <span class="card-kicker">Lees Summit, MO</span>
+        <p class="card-title">Blogs Hobby Shop LLC</p>
+        <p class="card-body">1825 NE Woodview Ln<br />Lees Summit, MO 64086</p>
+        <p class="card-meta"><span class="star">&#9733;</span> New listing &middot; <a href="tel:8169080009">816-908-0009</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="MD" data-search="ml sports cards plus gaithersburg md 20878">
+        <span class="card-kicker">Gaithersburg, MD</span>
+        <p class="card-title">ML Sports Cards Plus</p>
+        <p class="card-body">302 Johnson Meadow St<br />Gaithersburg, MD 20878</p>
+        <p class="card-meta"><span class="star">&#9733;</span> New listing &middot; <a href="tel:3017422230">301-742-2230</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="AZ" data-search="boxseat collectibles phoenix az 85044">
+        <span class="card-kicker">Phoenix, AZ</span>
+        <p class="card-title">Boxseat Collectibles</p>
+        <p class="card-body">4855 E Warner Road Unit A-18<br />Phoenix, AZ 85044</p>
+        <p class="card-meta"><span class="star">&#9733;</span> New listing &middot; <a href="tel:4805980967">480-598-0967</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-state="ON" data-search="game breakers sports cards ottawa on (canada) k2c 3v8">
+        <span class="card-kicker">Ottawa, ON</span>
+        <p class="card-title">Game Breakers Sports Cards</p>
+        <p class="card-body">780 Baseline Road Unit 11<br />Ottawa, ON K2C 3V8</p>
+        <p class="card-meta"><span class="star">&#9733;</span> New listing &middot; <a href="tel:6132289554">613-228-9554</a></p>
+      </div>
+    </div>
+    <p class="fine" style="margin-top:calc(1.5*var(--leading));">Listings sourced from public dealer directories as the NTCA network grows. Own a shop? <a href="contact.html">Contact us</a> to add or update your listing.</p>
+  </section>
+
+  <hr class="rule" />
+  <footer class="foot"><div class="foot-row">
+    <span>&copy; 2026 National Trading Card Association &middot; Collecting the past. Building the future.</span>
+    <span><a href="mailto:info@tradingcardsassociation.com">info@tradingcardsassociation.com</a> &middot; @NTCA &middot; <a href="members.html">Member login</a></span>
+  </div></footer>
+</div>
+<script>
+(function () {
+  var search = document.getElementById('dir-search');
+  var state = document.getElementById('dir-state');
+  var count = document.getElementById('dir-count');
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.dir-card'));
+  function apply() {
+    var q = search.value.trim().toLowerCase();
+    var st = state.value;
+    var shown = 0;
+    cards.forEach(function (c) {
+      var ok = (!st || c.getAttribute('data-state') === st) &&
+               (!q || c.getAttribute('data-search').indexOf(q) !== -1);
+      c.style.display = ok ? '' : 'none';
+      if (ok) shown++;
+    });
+    count.textContent = shown + ' of ' + cards.length + ' shops';
+  }
+  search.addEventListener('input', apply);
+  state.addEventListener('change', apply);
+  apply();
+})();
+</script>
+</body>
+</html>
