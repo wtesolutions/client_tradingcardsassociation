@@ -2,129 +2,62 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>NTCA | National Trading Card Association</title>
+<title>Something is coming | NTCA</title>
+<meta name="description" content="Something new is coming to the trading card hobby. Be among the first to know." />
 <link rel="stylesheet" href="./ds/styles.css" />
-<meta name="description" content="Join NTCA Insiders for early news, announcements, and opportunities from the National Trading Card Association." />
 <link rel="icon" href="./ntca-logo.png" />
 <link rel="stylesheet" href="./site.css" />
-<script src="./nav.js" defer></script>
+<script>
+try { if (localStorage.getItem('ntca-access') && location.search.indexOf('stay') === -1) location.replace('home.html'); } catch (e) {}
+</script>
 </head>
-<body>
-<nav class="nav">
-  <a class="nav-brand" href="index.html"><img src="./ntca-logo.png" alt="NTCA emblem" /><span>NTCA<em>National Trading Card Association</em></span></a>
-  <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open menu"><svg class="i-open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg><svg class="i-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
-  <a href="index.html" aria-current="page">Home</a>
-  <div class="menu">
-    <a href="about.html" class="has-mega">About</a>
-    <div class="mega" style="min-width:440px;">
-      <a href="about.html"><span class="m-title">Our Mission</span><span class="m-desc">One Association. One Community. A Shared Future.</span></a>
-      <a href="about.html#history"><span class="m-title">History of the Hobby</span><span class="m-desc">From tobacco inserts to modern collectibles.</span></a>
-      <a href="news.html"><span class="m-title">News &amp; Announcements</span><span class="m-desc">Updates as the organization takes shape.</span></a>
-      <a href="contact.html"><span class="m-title">Contact Us</span><span class="m-desc">Questions, committees and advisory interest.</span></a>
-    </div>
+<body class="teaser-body">
+<main class="teaser">
+  <img class="teaser-logo" src="./ntca-flipping-logo.gif" alt="A spinning emblem" />
+  <p class="teaser-kicker">Est. 2026</p>
+  <h1 class="teaser-title">Something is coming<br />to the hobby.</h1>
+  <p class="teaser-sub">A national effort years in the making — built by collectors, for collectors. Leave your details and you'll be among the first to know. Access is by invitation while we build.</p>
+
+  <div class="teaser-embed">
+    <iframe src="https://form.jotform.com/262326772024050" style="width:100%;height:560px;border:none;border-radius:var(--radius-md);" title="Be first to know — signup form"></iframe>
   </div>
-  <div class="menu">
-    <a href="directory.html" class="has-mega">The Network</a>
-    <div class="mega" style="min-width:560px;">
-      <a href="directory.html#association"><span class="m-title">NTCA — The Association</span><span class="m-desc">The central governing body of the hobby.</span></a>
-      <a href="directory.html#foundation"><span class="m-title">Foundation</span><span class="m-desc">501(c)(3) education and charitable arm.</span></a>
-      <a href="directory.html#conference"><span class="m-title">Annual Conference</span><span class="m-desc">The premier annual gathering.</span></a>
-      <a href="directory.html#halloffame"><span class="m-title">Hall of Fame</span><span class="m-desc">Honoring the hobby's legacy.</span></a>
-      <a href="directory.html#advocacy"><span class="m-title">Advocacy Network / PAC</span><span class="m-desc">A unified voice for the community.</span></a>
-      <a href="directory.html#international"><span class="m-title">International TCA</span><span class="m-desc">Connecting the global community.</span></a>
-    </div>
+  <p class="fine teaser-fine">No spam. No clutter. Just the announcement, first.</p>
+
+  <div class="teaser-invite">
+    <a href="#" id="invite-toggle" class="fine">Have an invite code?</a>
+    <form id="invite-form" hidden>
+      <input class="input" id="t-code" type="text" placeholder="Invite code" autocomplete="off" />
+      <button type="submit" class="btn btn-secondary">Enter →</button>
+    </form>
+    <p class="fine" id="invite-error" hidden>That code isn't active yet. Check your invitation email.</p>
   </div>
-  <a href="events.html">Events</a>
-  <a href="gallery.html">Gallery</a>
-  <a href="join.html">Join Us</a>
-  <a href="members.html">Members</a>
-  <a class="btn btn-primary" href="join.html">Become an Insider</a>
-</nav>
-<section class="hero hero-photo" aria-label="Vintage baseball card packs in a well-worn glove">
-  <div class="wrap">
-    <div class="hero-copy">
-      <h1 class="display"><span class="line">Protecting, Promoting</span> <span class="line">and Powering the Hobby</span></h1>
-      <p class="sub">The National network dedicated to the growth, protection and promotion of trading cards. From local card shops to global collectors — building the future of the hobby together.</p>
-      <div class="row">
-        <a class="btn btn-primary" href="index.html#signup" style="font-size:16px;padding:12px 22px;">Become an Insider — free</a>
-        <a class="btn btn-secondary" href="join.html" style="font-size:16px;padding:12px 22px;">Support the launch</a>
-        <a class="btn btn-ghost" href="about.html">Our mission</a>
-      </div>
-    </div>
-  </div>
-</section>
-<section class="stats" aria-label="One Association. One Community. A Shared Future.">
-  <div class="wrap">
-    <p class="stat-num" style="font-size:clamp(28px,3.2vw,44px);max-width:24ch;">One Association. One Community. A Shared Future.</p>
-    <p class="stat-label" style="max-width:70ch;text-transform:none;letter-spacing:0;font-size:15px;line-height:24px;">The umbrella organization created to unite, support and advance every part of the trading card community.</p>
-  </div>
-</section>
-<div class="wrap">
-  <section class="section">
-    <span class="kicker">Our focus</span>
-    <div class="feature"><p class="f-num">01</p><h2 class="f-title">Community, Events &amp; Advocacy</h2>
-      <p class="f-copy">We connect collectors, dealers, creators, and enthusiasts through a unified network that fosters collaboration, shared passion, and a sense of belonging across the hobby. We support and promote events while advocating for the interests of the trading card community.</p></div>
-    <div class="feature"><p class="f-num">02</p><h2 class="f-title">Hobby Promotion and Growth</h2>
-      <p class="f-copy">We actively promote the trading card hobby to new and existing audiences through marketing, partnerships, and grassroots initiatives designed to expand participation and long-term interest.</p></div>
-    <div class="feature"><p class="f-num">03</p><h2 class="f-title">Education &amp; Collector Development</h2>
-      <p class="f-copy">We will provide resources, tools, and learning opportunities that help collectors of all levels grow their knowledge, make informed decisions, and maximize enjoyment of the hobby.</p></div>
-    <div class="feature"><p class="f-num">04</p><h2 class="f-title">Standards, Trust &amp; Accreditation</h2>
-      <p class="f-copy">We establish and uphold industry standards that promote transparency, authenticity, and ethical practices, while offering accreditation that builds confidence across collectors, dealers, and partners.</p></div>
-  </section>
-
-  <hr class="rule" />
-
-  <section class="section">
-    <span class="kicker">Who the NTCA is for</span>
-    <h2 class="sec-title">There is a place for everyone in the trading card community.</h2>
-    <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:calc(1.5*var(--leading));max-width:760px;">
-      <span class="tag tag-neutral">Collectors</span><span class="tag tag-neutral">Dealers</span><span class="tag tag-neutral">Manufacturers</span><span class="tag tag-neutral">Breakers</span><span class="tag tag-neutral">Auctions</span><span class="tag tag-neutral">Events</span><span class="tag tag-neutral">Marketplaces</span><span class="tag tag-neutral">Licensing / Insurance</span><span class="tag tag-neutral">Local Card Shops</span><span class="tag tag-neutral">Support Services / Brands</span><span class="tag tag-neutral">Grading / Authentication</span><span class="tag tag-neutral">Distributors</span><span class="tag tag-neutral">Content Creators</span><span class="tag tag-neutral">Community Partners</span><span class="tag tag-neutral">Supply Companies</span><span class="tag tag-accent">You&hellip;</span>
-    </div>
-  </section>
-
-  <hr class="rule" />
-
-  <section class="section split">
-    <div>
-      <span class="kicker">The NTCA Network</span>
-      <h2 class="sec-title">Six avenues, one shared future</h2>
-      <p class="sec-sub">The Association is the foundation for a network of specialized initiatives — the Foundation, the Convention, the Hall of Fame, the Advocacy Network / PAC and the International Trading Card Association — each unveiled in phases as the organization grows. <a href="directory.html">Explore the network →</a></p>
-    </div>
-    <figure>
-      <image-slot id="home-featured" shape="rounded" src="./assets/graded-slabs.jpeg" role="img" aria-label="Stacks of graded trading cards" style="width:100%;aspect-ratio:16/10;">NTCA photo</image-slot>
-    </figure>
-  </section>
-</div>
-<section class="band-dir" aria-label="Hobby Shop Directory">
-  <div class="wrap">
-    <span class="band-kicker">Hobby Shop Directory</span>
-    <p class="band-title">Every great collection starts at a local card shop.</p>
-    <p class="band-sub">Browse the NTCA's growing directory of hobby shops across the country — find the stores, trade nights and communities near you, and support the shops that keep the hobby alive.</p>
-    <div class="cta-row">
-      <a class="btn btn-light" href="shops.html">Browse the directory &rarr;</a>
-      <a class="btn btn-light-ghost" href="contact.html">Add your shop</a>
-    </div>
-  </div>
-</section>
-<div class="wrap">
-  <hr class="rule" style="margin-top:calc(2*var(--leading));" />
-
-  <section class="section" id="signup">
-    <h3 class="sec-title" style="font-size:clamp(28px,3vw,40px);line-height:1.15;">Be among the first to know.</h3>
-    <p class="sec-sub">Sign up for our updates to receive the latest NTCA news, collecting information, upcoming events and helpful resources delivered directly to you. Don't miss what's new in the trading card community!</p>
-    <div style="display:flex;gap:var(--space-3);align-items:stretch;max-width:480px;margin-top:var(--leading);flex-wrap:wrap;">
-      <input class="input" type="email" placeholder="Email address" aria-label="Email address" style="flex:1;min-width:220px;min-height:44px;font-size:15px;" />
-      <a class="btn btn-primary" href="join.html" style="min-height:44px;font-size:16px;padding-inline:22px;">Join NTCA Insiders →</a>
-    </div>
-    <p class="fine" style="margin-top:var(--half);">No clutter. Just meaningful NTCA updates.</p>
-  </section>
-
-  <hr class="rule" />
-  <footer class="foot"><div class="foot-row">
-    <span>© 2026 National Trading Card Association · Collecting the past. Building the future.</span>
-    <span><a href="mailto:info@tradingcardsassociation.com">info@tradingcardsassociation.com</a> · @NTCA · <a href="members.html">Member login</a></span>
-  </div></footer>
-</div>
-<script src="./image-slot.js"></script>
+</main>
+<script>
+(function () {
+  /* Invite gate: an accepted code unlocks the full site on this device. */
+  var CODES = ['FIRSTPITCH', 'RACKPACK26'];
+  document.getElementById('invite-toggle').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('invite-form').hidden = false;
+    document.getElementById('t-code').focus();
+  });
+  document.getElementById('invite-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var code = document.getElementById('t-code').value.trim().toUpperCase();
+    if (CODES.indexOf(code) !== -1) {
+      localStorage.setItem('ntca-access', code);
+      location.href = 'home.html';
+    } else {
+      document.getElementById('invite-error').hidden = false;
+    }
+  });
+  /* Arriving via an invitation link (landing.html?code=XXXX) auto-unlocks. */
+  var m = /[?&]code=([^&]+)/.exec(location.search);
+  if (m && CODES.indexOf(decodeURIComponent(m[1]).toUpperCase()) !== -1) {
+    localStorage.setItem('ntca-access', decodeURIComponent(m[1]).toUpperCase());
+    location.replace('home.html');
+  }
+})();
+</script>
 </body>
 </html>
