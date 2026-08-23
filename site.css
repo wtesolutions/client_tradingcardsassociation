@@ -895,6 +895,7 @@ img, video, image-slot { max-width: 100%; }
 
 /* ── REGION: history.html (public long-form hobby-history article) ── */
 .art-top { padding: var(--space-4) max(var(--edge), calc((100% - 1200px) / 2 + var(--edge))); }
+.art-top .nav-brand { font-size: 22px; text-decoration: none; color: var(--color-text); }
 .article { max-width: 68ch; padding-bottom: calc(2.5 * var(--leading)); }
 .article p { font-size: 16.5px; line-height: var(--leading);
   color: color-mix(in srgb, var(--color-text) 82%, transparent);
