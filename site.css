@@ -502,6 +502,33 @@ img, video, image-slot { max-width: 100%; }
   .involved-chip { min-height: 46px; }
 }
 
+/* tier comparison table */
+.tier-compare { margin-top: calc(2 * var(--leading)); }
+.tier-compare-title { font-size: 22px; }
+.tier-scroll { margin-top: var(--leading); overflow-x: auto;
+  border: 1px solid var(--color-neutral-800); border-radius: var(--radius-md); }
+.tier-table { width: 100%; min-width: 880px; border-collapse: collapse;
+  font-size: 14px; line-height: 20px; }
+.tier-table th, .tier-table td { padding: 10px var(--space-4); text-align: center;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
+.tier-table thead th { font-size: 13px; line-height: 17px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--color-accent-200);
+  background: color-mix(in srgb, var(--color-accent-900) 45%, transparent);
+  vertical-align: top; padding-block: var(--space-4); }
+.tier-table thead th span { display: block; margin-top: 3px; font-size: 11px;
+  letter-spacing: 0.06em; color: color-mix(in srgb, var(--color-text) 60%, transparent); }
+.tier-table thead th:first-child { text-align: left; }
+.tier-table tbody th { text-align: left; font-weight: 400;
+  color: color-mix(in srgb, var(--color-text) 85%, transparent); }
+.tier-table tbody td { color: color-mix(in srgb, var(--color-text) 78%, transparent); }
+.tier-table tbody td.y { color: var(--color-accent); font-weight: 700; }
+.tier-table tbody td.n { color: color-mix(in srgb, var(--color-text) 30%, transparent); }
+.tier-table tbody tr:last-child th, .tier-table tbody tr:last-child td { border-bottom: 0; }
+.tier-table tbody tr:hover th, .tier-table tbody tr:hover td {
+  background: color-mix(in srgb, var(--color-accent-900) 25%, transparent); }
+.tier-table thead th:last-child, .tier-table tbody td:last-child {
+  background: color-mix(in srgb, var(--color-accent-900) 35%, transparent); }
+
 
 /* ·· spacer ·· */
 /* ·· spacer ·· */
@@ -865,5 +892,23 @@ img, video, image-slot { max-width: 100%; }
   .cb-stats { grid-template-columns: repeat(2, 1fr); }
   .cb-stats span:nth-child(3) { border-left: 0; }
 }
+
+/* ── REGION: history.html (public long-form hobby-history article) ── */
+.art-top { padding: var(--space-4) max(var(--edge), calc((100% - 1200px) / 2 + var(--edge))); }
+.article { max-width: 68ch; padding-bottom: calc(2.5 * var(--leading)); }
+.article p { font-size: 16.5px; line-height: var(--leading);
+  color: color-mix(in srgb, var(--color-text) 82%, transparent);
+  margin: var(--leading) 0 0; }
+.article h2 { font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 24px; line-height: calc(1.25 * var(--leading)); letter-spacing: -0.012em;
+  margin: calc(2 * var(--leading)) 0 0; color: var(--color-text); }
+.article ul { margin: var(--leading) 0 0; padding-left: 1.2em;
+  font-size: 16.5px; line-height: var(--leading);
+  color: color-mix(in srgb, var(--color-text) 82%, transparent); }
+.article .pull { font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 21px; line-height: calc(1.25 * var(--leading)); color: var(--color-accent-200);
+  border-left: 3px solid var(--color-accent); padding-left: var(--space-4);
+  margin: var(--leading) 0 0; }
+.article .src { font-size: 13px; color: color-mix(in srgb, var(--color-text) 50%, transparent); }
 
 
