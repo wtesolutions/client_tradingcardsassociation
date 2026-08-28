@@ -46,6 +46,15 @@ body {
 .nav a { white-space: nowrap; }
 .nav a[aria-current='page'] { color: var(--color-accent); }
 
+/* dot separators between the top-level nav items (desktop row only) */
+.nav > a:not(.nav-brand):not(.btn)::before,
+.nav > .menu::before {
+  content: "\00B7"; font-size: 17px; line-height: 1;
+  margin-inline: calc(var(--space-4) / -2) calc(var(--space-4) / 2);
+  color: color-mix(in srgb, var(--color-text) 38%, transparent); }
+/* the first link after the brand/toggle opens the row — no leading dot */
+.nav > .nav-toggle + a:not(.nav-brand):not(.btn)::before { content: none; margin-inline: 0; }
+
 /* mobile navigation — app-bar + collapsible drawer (MUI pattern).
    Breakpoint is content-driven: the inline link row needs ~1080px. */
 .nav-toggle { display: none; }
@@ -57,6 +66,7 @@ body {
     background: transparent; color: var(--color-text);
     border: 1px solid var(--color-divider); border-radius: var(--radius-md); }
   .nav-toggle:hover { border-color: var(--color-accent); color: var(--color-accent); }
+  .nav > a::before, .nav > .menu::before { content: none; margin-inline: 0; }
   .nav-toggle .i-close, .nav-open .nav-toggle .i-open { display: none; }
   .nav-open .nav-toggle .i-close { display: block; }
   /* closed: only brand + toggle on one row */
@@ -317,6 +327,10 @@ image-slot { border: 1px solid var(--color-neutral-800); border-radius: var(--ra
 }
 /* media never overflows its column */
 img, video, image-slot { max-width: 100%; }
+/* the slot renders its image larger than the frame; clip it to the slot shape */
+image-slot { overflow: hidden; }
+image-slot[shape="rounded"] { border-radius: 12px; }
+image-slot[shape="circle"] { border-radius: 50%; }
 
 /* ── hobby shop directory band — the bright promotional field ────────── */
 .band-dir { position: relative;
@@ -737,7 +751,10 @@ img, video, image-slot { max-width: 100%; }
 .home-hero .display { font-size: clamp(33px, 4.5vw, 58px); line-height: clamp(37px, 5vw, 64px); }
 .home-hero .sub { font-size: 20.5px; line-height: calc(var(--leading) + 2px); max-width: 40ch; }
 .home-hero .row .btn { font-size: 16px; padding: 12px 22px; }
-.home-hero .logo-stage img { width: clamp(180px, 20vw, 240px); height: auto; display: block; }
+.home-hero .logo-stage img { width: clamp(200px, 24vw, 320px); height: auto; display: block; }
+/* on wide screens the emblem sits out toward the corner glow */
+@media (min-width: 1280px) { .home-hero .logo-stage { justify-self: end;
+  transform: translate(clamp(0px, 2vw, 40px), -10px); } }
 .home-hero .hero-alt { font-size: 15px; line-height: var(--leading);
   margin: var(--space-4) 0 0; color: color-mix(in srgb, var(--color-text) 72%, transparent);
   text-shadow: 0 1px 12px color-mix(in srgb, var(--color-bg) 80%, transparent); }
@@ -913,3 +930,83 @@ img, video, image-slot { max-width: 100%; }
 .article .src { font-size: 13px; color: color-mix(in srgb, var(--color-text) 50%, transparent); }
 
 
+/* ── REGION: gallery.html (community photo submissions + review queue) ── */
+
+/* how it works — three numbered steps */
+.sub-steps { list-style: none; margin: calc(1.75 * var(--leading)) 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-6); }
+.sub-steps li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-4);
+  align-items: start; }
+.ss-num { font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 22px; line-height: 1; color: var(--color-accent); font-feature-settings: "tnum" 1; }
+.ss-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 18px; line-height: 24px; letter-spacing: -0.01em; margin: 0 0 4px; }
+.ss-copy { font-size: 15px; line-height: 22px; margin: 0;
+  color: color-mix(in srgb, var(--color-text) 74%, transparent); }
+
+/* the form sits in its own panel so the mock reads as one unit */
+.submit-panel { margin-top: calc(1.75 * var(--leading)); padding: clamp(20px, 3vw, 36px);
+  background: var(--color-surface); border: 1px solid var(--color-neutral-800);
+  border-radius: var(--radius-lg); }
+.submit-form { max-width: 720px; }
+.submit-form select.input { appearance: none; -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 16px) 52%, calc(100% - 11px) 52%;
+  background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; padding-right: 34px; }
+
+/* upload — a labelled drop target driving a hidden file input */
+.dz-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.field > label.dropzone { display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: var(--space-8) var(--space-4); cursor: pointer; text-align: center;
+  border: 1px dashed color-mix(in srgb, var(--color-text) 28%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-accent-900) 18%, transparent);
+  transition: border-color .15s ease, background .15s ease; }
+.field > label.dropzone:hover { border-color: var(--color-accent); }
+.dz-icon { font-size: 22px; line-height: 1; color: var(--color-accent); }
+.dz-main { font-size: 15px; }
+.dz-fine { font-size: 12.5px; color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+.dz-list { list-style: none; margin: var(--space-3) 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.dz-list li { font-size: 12.5px; line-height: 20px; padding: 2px 10px;
+  border-radius: 999px; background: var(--color-neutral-800);
+  color: color-mix(in srgb, var(--color-text) 80%, transparent); }
+
+/* consent checkboxes */
+.checks { display: flex; flex-direction: column; gap: var(--space-3); }
+.check { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3);
+  align-items: start; font-size: 14.5px; line-height: 21px; cursor: pointer;
+  color: color-mix(in srgb, var(--color-text) 80%, transparent); }
+.check input { width: 17px; height: 17px; margin-top: 2px; accent-color: var(--color-accent); }
+
+/* the grid display would otherwise beat [hidden] when the mock swaps states */
+.submit-panel [hidden] { display: none; }
+
+/* post-submit confirmation */
+.submit-done { max-width: 560px; }
+.sd-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 22px; line-height: 28px; margin: var(--space-4) 0 var(--space-2); }
+.sd-copy { font-size: 15.5px; line-height: var(--leading); margin: 0 0 var(--leading);
+  color: color-mix(in srgb, var(--color-text) 76%, transparent); }
+
+/* staff-side review queue */
+.q-list { list-style: none; margin: calc(1.5 * var(--leading)) 0 0; padding: 0;
+  border-top: 1px solid var(--color-divider); }
+.q-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: var(--space-4); align-items: center; padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-divider); }
+.q-thumb { width: 56px; height: 42px; border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--color-neutral-800), var(--color-surface));
+  border: 1px solid var(--color-neutral-800); }
+.q-name { font-size: 15.5px; line-height: 22px; margin: 0; }
+.q-meta { font-size: 13px; line-height: 19px; margin: 0;
+  color: color-mix(in srgb, var(--color-text) 58%, transparent); }
+.q-actions { display: flex; gap: var(--space-2); }
+.q-actions .btn { font-size: 13px; padding: 6px 12px; }
+.q-row.is-done .q-thumb { opacity: .6; }
+@media (max-width: 767.98px) {
+  .q-row { grid-template-columns: auto minmax(0, 1fr); }
+  .q-status { grid-column: 2; justify-self: start; }
+  .q-actions { grid-column: 2; }
+}

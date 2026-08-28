@@ -53,10 +53,95 @@
       <figure><image-slot id="g1" shape="rounded" src="./assets/graded-slabs.jpeg" role="img" aria-label="Stacks of graded cards">Collection photo</image-slot><figcaption>Graded collections</figcaption></figure>
       <figure><image-slot id="g2" shape="rounded" src="./assets/shop-grey.jpeg" role="img" aria-label="Local card shop interior">Local card shop</image-slot><figcaption>Local card shops</figcaption></figure>
       <figure><image-slot id="g3" shape="rounded" src="./assets/shop-blue.jpeg" role="img" aria-label="Card shop counter">Community gathering</image-slot><figcaption>Behind the counter</figcaption></figure>
-      <figure class="lighten"><image-slot id="g4" shape="rounded" role="img" aria-label="Youth collecting photo">Youth collecting</image-slot><figcaption>Youth engagement</figcaption></figure>
+      <figure class="lighten"><image-slot id="g4" shape="rounded" src="./assets/young-collector.jpeg" role="img" aria-label="A young collector sorting through a handful of cards">Youth collecting</image-slot><figcaption>Youth engagement</figcaption></figure>
       <figure class="lighten"><image-slot id="g5" shape="rounded" src="./assets/display-case.jpeg" role="img" aria-label="Display case of graded cards">Grading &amp; authentication</image-slot><figcaption>Grading and authentication</figcaption></figure>
       <figure><image-slot id="g6" shape="rounded" src="./assets/boxes.jpeg" role="img" aria-label="Sealed 2026 hobby boxes">Hobby history</image-slot><figcaption>2026 releases</figcaption></figure>
     </div>
+  </section>
+
+
+  <hr class="rule" />
+
+  <section class="section" id="submit">
+    <span class="kicker">Community submissions</span>
+    <h2 class="sec-title">Send us a photo from your corner of the hobby.</h2>
+    <p class="sec-sub">Collections, shop visits, show floors, card-room setups, youth nights &mdash; anything that shows the hobby as it really looks. Every photo is reviewed by the NTCA before it appears on this page.</p>
+
+    <ol class="sub-steps">
+      <li><span class="ss-num">01</span>
+        <div><h3 class="ss-title">You submit</h3>
+        <p class="ss-copy">Up to five photos with a short caption and the name you would like the credit line to read.</p></div></li>
+      <li><span class="ss-num">02</span>
+        <div><h3 class="ss-title">We review</h3>
+        <p class="ss-copy">An NTCA volunteer checks each photo for rights, quality and content. Most submissions are cleared within a few days.</p></div></li>
+      <li><span class="ss-num">03</span>
+        <div><h3 class="ss-title">It goes live</h3>
+        <p class="ss-copy">Approved photos join the gallery above with your credit line. Ask us to pull yours at any time and it comes down.</p></div></li>
+    </ol>
+
+    <div class="submit-panel">
+      <form class="form-grid submit-form" id="photo-form" onsubmit="return false">
+        <div class="field"><label for="pn">Your name</label><input class="input" id="pn" type="text" autocomplete="name" /></div>
+        <div class="field"><label for="pe">Email</label><input class="input" id="pe" type="email" autocomplete="email" /></div>
+        <div class="field"><label for="pcr">Credit line</label><input class="input" id="pcr" type="text" placeholder="How the credit should read" /></div>
+        <div class="field"><label for="pcat">Category</label>
+          <select class="input" id="pcat">
+            <option>My collection</option>
+            <option>Local card shop</option>
+            <option>Card show or convention</option>
+            <option>Youth &amp; new collectors</option>
+            <option>Hobby history</option>
+            <option>Something else</option>
+          </select></div>
+        <div class="field full"><label for="pf">Photos</label>
+          <label class="dropzone" for="pf">
+            <span class="dz-icon" aria-hidden="true">&#43;</span>
+            <span class="dz-main">Choose photos or drag them here</span>
+            <span class="dz-fine">JPG or PNG &middot; up to 5 photos &middot; 10&nbsp;MB each</span>
+          </label>
+          <input id="pf" type="file" accept="image/*" multiple class="dz-input" />
+          <ul class="dz-list" id="pf-list"></ul>
+        </div>
+        <div class="field full"><label for="pcap">Caption</label>
+          <textarea class="input" id="pcap" rows="3" placeholder="Where it was taken and what we are looking at." style="resize:vertical;"></textarea></div>
+        <div class="full checks">
+          <label class="check"><input type="checkbox" id="pr1" /><span>I took these photos, or I have permission to share them.</span></label>
+          <label class="check"><input type="checkbox" id="pr2" /><span>The NTCA may publish them on this site and in association channels, with my credit line.</span></label>
+        </div>
+        <div class="full"><button type="submit" class="btn btn-primary" id="pf-submit">Submit for review &rarr;</button></div>
+      </form>
+
+      <div class="submit-done" id="photo-done" hidden>
+        <span class="tag tag-accent-2">In review</span>
+        <p class="sd-title">Thanks &mdash; your photos are in the queue.</p>
+        <p class="sd-copy">An NTCA volunteer reviews every submission before it is published. We will email you at the address you gave when a decision is made, usually within a few days.</p>
+        <button type="button" class="btn btn-secondary" id="pf-again">Submit more photos</button>
+      </div>
+    </div>
+
+    <p class="fine" style="margin-top:var(--leading);">Preview only &mdash; the upload and review queue are mocked for design review and are not yet wired to a server. Nothing you enter here is stored or sent.</p>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="section">
+    <span class="kicker">Behind the scenes</span>
+    <h2 class="sec-title">Nothing is published until a person approves it.</h2>
+    <p class="sec-sub">This is the review queue NTCA staff will work from &mdash; sample rows shown for design review.</p>
+    <ul class="q-list">
+      <li class="q-row"><span class="q-thumb" aria-hidden="true"></span>
+        <div><p class="q-name">Shop night at the counter</p><p class="q-meta">D. Alvarez &middot; Local card shop &middot; submitted Aug 26</p></div>
+        <span class="tag tag-accent-2 q-status">In review</span>
+        <span class="q-actions"><button type="button" class="btn btn-secondary">Approve</button><button type="button" class="btn btn-ghost">Decline</button></span></li>
+      <li class="q-row"><span class="q-thumb" aria-hidden="true"></span>
+        <div><p class="q-name">1970s commons, sorted at last</p><p class="q-meta">M. Whitfield &middot; My collection &middot; submitted Aug 25</p></div>
+        <span class="tag tag-accent-2 q-status">In review</span>
+        <span class="q-actions"><button type="button" class="btn btn-secondary">Approve</button><button type="button" class="btn btn-ghost">Decline</button></span></li>
+      <li class="q-row is-done"><span class="q-thumb" aria-hidden="true"></span>
+        <div><p class="q-name">Youth night, first pack</p><p class="q-meta">R. Okafor &middot; Youth &amp; new collectors &middot; submitted Aug 22</p></div>
+        <span class="tag tag-neutral q-status">Published</span>
+        <span class="q-actions"><button type="button" class="btn btn-ghost">Remove</button></span></li>
+    </ul>
   </section>
 
   <hr class="rule" />
@@ -66,5 +151,39 @@
   </div></footer>
 </div>
 <script src="./image-slot.js"></script>
+<script>
+/* Gallery submission mock — no server yet; shows the file picker feedback
+   and the "in review" state so the approval flow reads end to end. */
+(() => {
+  const form = document.getElementById('photo-form');
+  if (!form) return;
+  const input = document.getElementById('pf');
+  const list = document.getElementById('pf-list');
+  const done = document.getElementById('photo-done');
+  const again = document.getElementById('pf-again');
+
+  input.addEventListener('change', () => {
+    list.innerHTML = '';
+    [...input.files].slice(0, 5).forEach((f) => {
+      const li = document.createElement('li');
+      li.textContent = f.name;
+      list.appendChild(li);
+    });
+  });
+
+  form.addEventListener('submit', () => {
+    form.hidden = true;
+    done.hidden = false;
+    done.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  again.addEventListener('click', () => {
+    form.reset();
+    list.innerHTML = '';
+    done.hidden = true;
+    form.hidden = false;
+  });
+})();
+</script>
 </body>
 </html>
