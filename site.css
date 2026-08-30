@@ -1051,3 +1051,7 @@ image-slot[shape="circle"] { border-radius: 50%; }
 .officer-photo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
   filter: none; display: block; }
 #technology { scroll-margin-top: calc(2 * var(--leading)); }
+
+.dir-card.is-featured { border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-divider));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 28%, transparent); }
+.dir-card .card-meta a { word-break: break-word; }
