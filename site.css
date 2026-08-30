@@ -56,9 +56,11 @@ body {
 .nav > .nav-toggle + a:not(.nav-brand):not(.btn)::before { content: none; margin-inline: 0; }
 
 /* mobile navigation — app-bar + collapsible drawer (MUI pattern).
-   Breakpoint is content-driven: the inline link row needs ~1080px. */
+   Breakpoint is content-driven: brand + links + Insider button need ~1280px. */
+.nav { min-width: 0; }
+.nav .btn { flex: 0 0 auto; }
 .nav-toggle { display: none; }
-@media (max-width: 1099.98px) {
+@media (max-width: 1279.98px) {
   .mega { display: none !important; }
   .has-mega::after { content: ""; margin: 0; }
   .nav-toggle { display: inline-flex; align-items: center; justify-content: center;
@@ -1012,12 +1014,12 @@ image-slot[shape="circle"] { border-radius: 50%; }
 }
 
 
-/* ── about hero + Brody ─────────────────────────────────────────────── */
+/* ── about hero + Brody / Skylar ────────────────────────────────────── */
 .about-hero-row { display: grid; grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--leading) clamp(20px, 4vw, 56px); align-items: start;
-  margin-top: calc(var(--leading) - 1cap); }
-.about-hero-row .lede { margin-top: 0; }
-.about-edu { margin-top: calc(var(--leading) - 1cap); }
+  margin-top: var(--leading); }
+.about-hero-row .lede { margin-top: 0; margin-bottom: 0; text-box: unset; }
+.about-hero-row .lede + .lede { margin-top: var(--leading); }
 .brody { margin: 0; max-width: 360px; justify-self: end; }
 .brody img { width: 360px; max-width: 100%; height: auto; display: block; }
 .brody-frame { width: 220px; aspect-ratio: 1; border-radius: 16px;
@@ -1025,8 +1027,8 @@ image-slot[shape="circle"] { border-radius: 50%; }
     radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--color-accent-300) 55%, transparent), transparent 58%),
     linear-gradient(160deg, var(--color-neutral-800), var(--color-surface));
   border: 1px solid var(--color-divider); }
-.brody figcaption { font-size: 13px; line-height: 18px; margin-top: 8px;
-  color: color-mix(in srgb, var(--color-text) 62%, transparent); }
+.brody figcaption { font-size: 13px; line-height: 1.45; margin-top: 10px;
+  color: color-mix(in srgb, var(--color-text) 62%, transparent); text-wrap: pretty; }
 @media (max-width: 767.98px) {
   .about-hero-row { grid-template-columns: 1fr; }
   .brody { justify-self: start; }
