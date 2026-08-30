@@ -1010,3 +1010,37 @@ image-slot[shape="circle"] { border-radius: 50%; }
   .q-status { grid-column: 2; justify-self: start; }
   .q-actions { grid-column: 2; }
 }
+
+
+/* ── about hero + Brody ─────────────────────────────────────────────── */
+.about-hero-row { display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--leading) clamp(20px, 4vw, 56px); align-items: start;
+  margin-top: calc(var(--leading) - 1cap); }
+.about-hero-row .lede { margin-top: 0; }
+.about-edu { margin-top: calc(var(--leading) - 1cap); }
+.brody { margin: 0; max-width: 220px; justify-self: end; }
+.brody img { width: 220px; height: auto; display: block; border-radius: 16px; }
+.brody-frame { width: 220px; aspect-ratio: 1; border-radius: 16px;
+  background:
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--color-accent-300) 55%, transparent), transparent 58%),
+    linear-gradient(160deg, var(--color-neutral-800), var(--color-surface));
+  border: 1px solid var(--color-divider); }
+.brody figcaption { font-size: 13px; line-height: 18px; margin-top: 8px;
+  color: color-mix(in srgb, var(--color-text) 62%, transparent); }
+@media (max-width: 767.98px) {
+  .about-hero-row { grid-template-columns: 1fr; }
+  .brody { justify-self: start; }
+}
+
+/* ── membership / shop directory extras ─────────────────────────────── */
+.dir-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--space-4); }
+.dir-pill { appearance: none; border: 1px solid var(--color-divider);
+  background: transparent; color: var(--color-text); font: inherit; font-size: 13.5px;
+  line-height: 20px; padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+.dir-pill.is-on, .dir-pill:hover { border-color: var(--color-accent); color: var(--color-accent); }
+.dir-card { position: relative; }
+.cert-mark { position: absolute; top: 12px; right: 12px; width: 52px; height: auto; }
+.badge-feat, .badge-rec { display: inline-block; font-size: 11px; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 2px 7px; border-radius: 999px; margin-right: 6px; }
+.badge-feat { background: color-mix(in srgb, var(--color-accent) 18%, transparent); color: var(--color-accent); }
+.badge-rec { background: color-mix(in srgb, var(--color-accent-2-400, #c97a3a) 22%, transparent); color: var(--color-accent); }
