@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Blogger Directory · NTCA</title>
+<script src="./codes.js"></script><script src="./guard.js"></script>
+<link rel="stylesheet" href="./ds/styles.css" />
+<meta name="description" content="Find trading card YouTube channels, podcasts and blogs in the NTCA creator directory." />
+<link rel="icon" href="./ntca-logo.png" />
+<link rel="stylesheet" href="./site.css" />
+<script src="./nav.js" defer></script>
+</head>
+<body>
+<nav class="nav">
+  <a class="nav-brand" href="home.html"><img src="./ntca-logo.png" alt="NTCA emblem" /><span>NTCA<em>National Trading Card Association</em></span></a>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open menu"><svg class="i-open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg><svg class="i-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+  <a href="home.html">Home</a>
+  <div class="menu">
+    <a href="about.html" class="has-mega">About</a>
+    <div class="mega" style="min-width:440px;">
+      <a href="about.html"><span class="m-title">Our Mission</span><span class="m-desc">One Association. One Community. A Shared Future.</span></a>
+      <a href="about.html#history"><span class="m-title">History of the Hobby</span><span class="m-desc">From tobacco inserts to modern collectibles.</span></a>
+      <a href="news.html"><span class="m-title">News &amp; Announcements</span><span class="m-desc">Updates as the organization takes shape.</span></a>
+      <a href="contact.html"><span class="m-title">Contact Us</span><span class="m-desc">Questions, committees and advisory interest.</span></a>
+    </div>
+  </div>
+  <div class="menu">
+    <a href="directory.html" class="has-mega">The Network</a>
+    <div class="mega" style="min-width:560px;">
+      <a href="directory.html#association"><span class="m-title">NTCA — The Association</span><span class="m-desc">The national membership organization.</span></a>
+      <a href="directory.html#foundation"><span class="m-title">Foundation</span><span class="m-desc">501(c)(3) education and charitable arm.</span></a>
+      <a href="directory.html#conference"><span class="m-title">Convention</span><span class="m-desc">The industry&#8217;s annual gathering.</span></a>
+      <a href="directory.html#halloffame"><span class="m-title">Hall of Fame</span><span class="m-desc">Honoring the hobby's legacy.</span></a>
+      <a href="shops.html"><span class="m-title">Shop Directory</span><span class="m-desc">Hobby shops and local card stores.</span></a>
+      <a href="shows.html"><span class="m-title">Show Directory</span><span class="m-desc">Card shows, conventions and trade nights.</span></a>
+    </div>
+  </div>
+  <a href="events.html">Events</a>
+  <a href="gallery.html">Gallery</a>
+  <a href="join.html">Join Us</a>
+  <a href="members.html">Members</a>
+  <a class="btn btn-primary" href="join.html">Become an Insider</a>
+</nav>
+<div class="wrap">
+  <section class="page-head">
+    <span class="kicker">Blogger &amp; Creator Directory</span>
+    <h1>Find a voice in the hobby.</h1>
+    <p class="lede">YouTube, podcasts and blogs that cover the cards, the shops and the people. Charter creator listings open now &mdash; Featured and NTCA Recommended marks follow review.</p>
+    <nav class="dir-switch" aria-label="Directories"><a href="shops.html">Shops</a>
+      <a href="shows.html">Shows</a>
+      <a href="bloggers.html" aria-current="page">Bloggers</a>
+      <a href="products.html">Products</a>
+      <a href="dealers.html">Dealers</a>
+      <a href="grading.html">Grading</a></nav>
+
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="dir-tools">
+      <input class="input" id="dir-search" type="search" placeholder="Search creators, shows or topics&hellip;" aria-label="Search bloggers" />
+      <select class="input" id="dir-type" aria-label="Filter by format">
+        <option value="">All formats</option>
+        <option value="youtube">YouTube</option>
+        <option value="podcast">Podcast</option>
+        <option value="blog">Blog</option>
+      </select>
+    </div>
+    <div class="dir-pills" role="group" aria-label="Creator filters">
+      <button type="button" class="dir-pill is-on" data-filter="">All</button>
+      <button type="button" class="dir-pill" data-filter="featured">Featured</button>
+      <button type="button" class="dir-pill" data-filter="youtube">YouTube</button>
+      <button type="button" class="dir-pill" data-filter="podcast">Podcast</button>
+      <button type="button" class="dir-pill" data-filter="blog">Blog</button>
+    </div>
+    <p class="fine dir-count" id="dir-count"></p>
+    <div class="cards" id="dir-grid">
+      <div class="card elev-sm dir-card is-featured" data-type="featured blog" data-search="ntca education collector development webinar grading">
+        <img class="cert-mark" src="./assets/ntca-certified.png" alt="NTCA Certified" />
+        <span class="card-kicker">Education</span>
+        <p class="card-title">NTCA Education &amp; Collector Development</p>
+        <p class="card-body">Guides, webinars and collector resources from Grading 101 onward, published by the association.</p>
+        <p class="card-meta"><span class="badge-feat">Featured</span> NTCA program</p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="youtube" data-search="charter youtube creator listing">
+        <span class="card-kicker">YouTube</span>
+        <p class="card-title">Charter YouTube listing</p>
+        <p class="card-body">Breakers, set-makers and education channels. First charter creators get a Featured mark.</p>
+        <p class="card-meta"><a href="#add">Submit a channel &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="podcast" data-search="charter podcast listing hobby">
+        <span class="card-kicker">Podcast</span>
+        <p class="card-title">Charter podcast listing</p>
+        <p class="card-body">Weekly hobby shows, shop talk and interview series. Submit your feed to appear here.</p>
+        <p class="card-meta"><a href="#add">Submit a podcast &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="blog" data-search="charter blog writer listing">
+        <span class="card-kicker">Blog</span>
+        <p class="card-title">Charter blog listing</p>
+        <p class="card-body">Writers covering vintage, modern, TCG and non-sport. NTCA Recommended after review.</p>
+        <p class="card-meta"><a href="#add">Submit a blog &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="youtube podcast" data-search="youth outreach brody skylar schools">
+        <span class="card-kicker">Youth</span>
+        <p class="card-title">School &amp; community ambassadors</p>
+        <p class="card-body">Brody and Skylar lead NTCA youth outreach. Creators who visit classrooms can list those programs here.</p>
+        <p class="card-meta">Outreach</p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="blog youtube podcast" data-search="add your creator listing">
+        <span class="card-kicker">Your show</span>
+        <p class="card-title">Your name, listed here</p>
+        <p class="card-body">The media directory fills as charter creators submit. Featured and NTCA Recommended marks follow review.</p>
+        <p class="card-meta"><a href="#add">Add a listing &rarr;</a></p>
+      </div>
+    </div>
+    <p class="fine" style="margin-top:calc(1.5*var(--leading));">NTCA program listings are association content. Creator listings go live after review. Submit yours below.</p>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="section" id="add">
+    <span class="kicker">Add a listing</span>
+    <h2 class="sec-title">Add your show or blog.</h2>
+    <p class="sec-sub">NTCA reviews every submission before it goes live. Charter and featured marks are reserved for members.</p>
+    <form class="form-grid submit-form" id="list-form">
+      <div class="field"><label for="ln">Name or show title</label><input class="input" id="ln" type="text" required /></div>
+      <div class="field"><label for="le">Email</label><input class="input" id="le" type="email" required /></div>
+      <div class="field"><label for="lt">Format</label>
+        <select class="input" id="lt"><option>YouTube</option><option>Podcast</option><option>Blog</option><option>Other</option></select></div>
+      <div class="field"><label for="lu">URL</label><input class="input" id="lu" type="url" placeholder="https://" /></div>
+      <div class="field full"><label for="lm">What you cover</label><textarea class="input" id="lm" rows="3" style="resize:vertical;"></textarea></div>
+      <div class="full"><button type="submit" class="btn btn-primary">Submit for review &rarr;</button></div>
+    </form>
+    <div class="submit-done" id="list-done" hidden>
+      <span class="tag tag-accent-2">In review</span>
+      <p class="sd-title">Thanks &mdash; your listing is in the queue.</p>
+      <p class="sd-copy">Preview only for now. Nothing you enter here is stored or sent. When the queue is live we will email you at the address you give.</p>
+    </div>
+  </section>
+
+  <hr class="rule" />
+  <footer class="foot"><div class="foot-row">
+    <span>&copy; 2026 National Trading Card Association &middot; Collecting the past. Building the future.</span>
+    <span><a href="mailto:info@tradingcardsassociation.com">info@tradingcardsassociation.com</a> &middot; @NTCA &middot; <a href="members.html">Member login</a></span>
+  </div></footer>
+</div>
+
+<script>
+(function () {
+  var search = document.getElementById('dir-search');
+  var type = document.getElementById('dir-type');
+  var count = document.getElementById('dir-count');
+  var pills = document.querySelectorAll('.dir-pill');
+  var cards = Array.prototype.slice.call(document.querySelectorAll('#dir-grid .dir-card'));
+  var filter = '';
+  function apply() {
+    var q = search ? search.value.trim().toLowerCase() : '';
+    var t = type ? type.value : '';
+    var shown = 0;
+    cards.forEach(function (c) {
+      var hay = (c.getAttribute('data-search') || '').toLowerCase();
+      var kinds = (c.getAttribute('data-type') || '');
+      var ok = (!q || hay.indexOf(q) !== -1)
+        && (!t || kinds.indexOf(t) !== -1)
+        && (!filter || kinds.indexOf(filter) !== -1);
+      c.style.display = ok ? '' : 'none';
+      if (ok) shown++;
+    });
+    if (count) count.textContent = shown + ' of ' + cards.length + ' listings';
+  }
+  if (search) search.addEventListener('input', apply);
+  if (type) type.addEventListener('change', apply);
+  pills.forEach(function (p) {
+    p.addEventListener('click', function () {
+      pills.forEach(function (x) { x.classList.remove('is-on'); });
+      p.classList.add('is-on');
+      filter = p.getAttribute('data-filter') || '';
+      apply();
+    });
+  });
+  apply();
+  var form = document.getElementById('list-form');
+  var done = document.getElementById('list-done');
+  if (form && done) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      form.hidden = true;
+      done.hidden = false;
+      done.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+})();
+</script>
+</body>
+</html>

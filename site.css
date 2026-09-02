@@ -1055,3 +1055,9 @@ image-slot[shape="circle"] { border-radius: 50%; }
 .dir-card.is-featured { border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-divider));
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 28%, transparent); }
 .dir-card .card-meta a { word-break: break-word; }
+
+.dir-switch { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--leading); }
+.dir-switch a { font-size: 13.5px; line-height: 20px; padding: 6px 14px; border-radius: 999px;
+  text-decoration: none; color: var(--color-text); border: 1px solid var(--color-divider); }
+.dir-switch a:hover, .dir-switch a[aria-current="page"] {
+  border-color: var(--color-accent); color: var(--color-accent); }

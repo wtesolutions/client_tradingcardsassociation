@@ -46,6 +46,14 @@
     <span class="kicker">Membership Directory</span>
     <h1>Find your local card shop.</h1>
     <p class="lede">Hobby shops are the heartbeat of collecting. Search the NTCA's growing directory of card shops and collectibles dealers, and support the stores that keep the hobby alive in your community.</p>
+    <nav class="dir-switch" aria-label="Directories">
+      <a href="shops.html" aria-current="page">Shops</a>
+      <a href="shows.html">Shows</a>
+      <a href="bloggers.html">Bloggers</a>
+      <a href="products.html">Products</a>
+      <a href="dealers.html">Dealers</a>
+      <a href="grading.html">Grading</a>
+    </nav>
   </section>
 
   <section class="section" style="padding-top:0;">
@@ -435,7 +443,28 @@
         <p class="card-meta"><span class="star">&#9733;</span> New listing &middot; <a href="tel:6132289554">613-228-9554</a></p>
       </div>
     </div>
-    <p class="fine" style="margin-top:calc(1.5*var(--leading));">Listings sourced from public dealer directories as the NTCA network grows. Own a shop? <a href="contact.html">Contact us</a> to add or update your listing.</p>
+    <p class="fine" style="margin-top:calc(1.5*var(--leading));">Listings sourced from public dealer directories as the NTCA network grows. Own a shop? Use the form below or <a href="contact.html">contact us</a>.</p>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="section" id="add">
+    <span class="kicker">Add a listing</span>
+    <h2 class="sec-title">Add your shop.</h2>
+    <p class="sec-sub">NTCA reviews every submission before it goes live. Charter and featured marks are reserved for members.</p>
+    <form class="form-grid submit-form" id="list-form">
+      <div class="field"><label for="ln">Shop name</label><input class="input" id="ln" type="text" required /></div>
+      <div class="field"><label for="le">Email</label><input class="input" id="le" type="email" required /></div>
+      <div class="field"><label for="lc">City</label><input class="input" id="lc" type="text" /></div>
+      <div class="field"><label for="ls">State</label><input class="input" id="ls" type="text" maxlength="2" /></div>
+      <div class="field full"><label for="lm">Address and notes</label><textarea class="input" id="lm" rows="3" style="resize:vertical;"></textarea></div>
+      <div class="full"><button type="submit" class="btn btn-primary">Submit for review &rarr;</button></div>
+    </form>
+    <div class="submit-done" id="list-done" hidden>
+      <span class="tag tag-accent-2">In review</span>
+      <p class="sd-title">Thanks &mdash; your listing is in the queue.</p>
+      <p class="sd-copy">Preview only for now. Nothing you enter here is stored or sent.</p>
+    </div>
   </section>
 
   <hr class="rule" />
@@ -465,6 +494,17 @@
   search.addEventListener('input', apply);
   state.addEventListener('change', apply);
   apply();
+})();
+(function () {
+  var form = document.getElementById('list-form');
+  var done = document.getElementById('list-done');
+  if (!form || !done) return;
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    form.hidden = true;
+    done.hidden = false;
+    done.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
 })();
 </script>
 </body>

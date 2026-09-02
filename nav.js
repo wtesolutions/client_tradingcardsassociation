@@ -25,7 +25,7 @@
   });
 
   // Growing past the breakpoint resets to the inline desktop nav.
-  const mq = window.matchMedia('(min-width: 1100px)');
+  const mq = window.matchMedia('(min-width: 1280px)');
   const onChange = (m) => { if (m.matches) setOpen(false); };
   if (mq.addEventListener) mq.addEventListener('change', onChange);
   else mq.addListener(onChange);
