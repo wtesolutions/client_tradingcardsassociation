@@ -936,6 +936,75 @@ image-slot[shape="circle"] { border-radius: 50%; }
 
 /* ── REGION: gallery.html (community photo submissions + review queue) ── */
 
+/* gallery image wrapper — position relative for flag overlay */
+.gallery-img-wrap { position: relative; overflow: hidden; border-radius: 12px; }
+
+/* flag overlay — brand-colored banner with title */
+.gallery-flag {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--color-accent) 92%, black);
+  color: var(--color-accent-100);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Show flag on hover */
+.gallery figure:hover .gallery-flag,
+.gallery figure:focus-within .gallery-flag {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Subtle lift on hover */
+.gallery figure {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.gallery figure:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile: show flag at reduced prominence */
+@media (max-width: 767.98px), (pointer: coarse) {
+  .gallery-flag {
+    opacity: 0.85;
+    transform: translateY(0);
+    background: color-mix(in srgb, var(--color-accent) 85%, black);
+    font-size: 12.5px;
+    padding: 10px 14px;
+  }
+}
+
+/* Reduced motion: no animations */
+@media (prefers-reduced-motion: reduce) {
+  .gallery-flag {
+    transition: none;
+  }
+  .gallery figure {
+    transition: none;
+  }
+  .gallery figure:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
 /* how it works — three numbered steps */
 .sub-steps { list-style: none; margin: calc(1.75 * var(--leading)) 0 0; padding: 0;
   display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-6); }
@@ -1067,8 +1136,9 @@ image-slot[shape="circle"] { border-radius: 50%; }
 .eric-card-back { position:relative; overflow:hidden; min-height:330px; padding:18px; color:#17233d; border:3px solid #d5a63b; border-radius:5px; background:linear-gradient(135deg,rgba(255,255,255,.7),transparent 35%),repeating-linear-gradient(0deg,rgba(24,50,92,.08) 0 1px,transparent 1px 4px),linear-gradient(150deg,#f6f2e7 0%,#dbe6ee 48%,#f8d87a 100%); box-shadow:inset 0 0 0 5px #17355b,inset 0 0 0 7px #e1b746,0 8px 20px rgba(0,0,0,.28); }
 .eric-card-back::before { content:""; position:absolute; inset:12px; border:1px solid rgba(23,53,91,.45); pointer-events:none; }
 .eric-card-back .cb-head,.eric-card-back .cb-foot,.eric-card-back .eric-card-copy,.eric-card-back .eric-card-stats,.skybox-mark { position:relative; z-index:1; }
-.eric-card-back .cb-head { color:#122d55; border-bottom-color:rgba(18,45,85,.35); }
-.eric-card-back .cb-pos { color:#163a6a; font-weight: 600; letter-spacing: 0.08em; }
+.eric-card-back .cb-head { color:#fff; border-bottom-color:rgba(18,45,85,.35); background:#163a6a; padding:8px 12px; border-radius:4px; }
+.eric-card-back .cb-name { color:#fff; }
+.eric-card-back .cb-pos { color:#f7f7f7; font-weight: 600; letter-spacing: 0.08em; }
 .skybox-mark { display:inline-block; margin:17px 0 9px; padding:4px 10px 2px; transform:skew(-9deg); color:#fff; font-family:Georgia,serif; font-size:27px; font-weight:700; letter-spacing:-.08em; text-shadow:1px 1px 0 #152c57,-1px -1px 0 #efb72e; background:#163a6a; border:2px solid #e8b932; }
 .skybox-mark small { display:block; font-family:Arial,sans-serif; font-size:7px; letter-spacing:.15em; text-align:center; transform:skew(9deg); }
 .eric-card-copy { margin:0 0 12px; font-family:Georgia,serif; font-size:16px; line-height:1.25; font-style:italic; color:#263b63; }
