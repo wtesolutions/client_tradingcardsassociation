@@ -936,6 +936,75 @@ image-slot[shape="circle"] { border-radius: 50%; }
 
 /* ── REGION: gallery.html (community photo submissions + review queue) ── */
 
+/* gallery image wrapper — position relative for flag overlay */
+.gallery-img-wrap { position: relative; overflow: hidden; border-radius: 12px; }
+
+/* flag overlay — brand-colored banner with title */
+.gallery-flag {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--color-accent) 92%, black);
+  color: var(--color-accent-100);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Show flag on hover */
+.gallery figure:hover .gallery-flag,
+.gallery figure:focus-within .gallery-flag {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Subtle lift on hover */
+.gallery figure {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.gallery figure:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile: show flag at reduced prominence */
+@media (max-width: 767.98px), (pointer: coarse) {
+  .gallery-flag {
+    opacity: 0.85;
+    transform: translateY(0);
+    background: color-mix(in srgb, var(--color-accent) 85%, black);
+    font-size: 12.5px;
+    padding: 10px 14px;
+  }
+}
+
+/* Reduced motion: no animations */
+@media (prefers-reduced-motion: reduce) {
+  .gallery-flag {
+    transition: none;
+  }
+  .gallery figure {
+    transition: none;
+  }
+  .gallery figure:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
 /* how it works — three numbered steps */
 .sub-steps { list-style: none; margin: calc(1.75 * var(--leading)) 0 0; padding: 0;
   display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-6); }
