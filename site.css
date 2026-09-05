@@ -1136,8 +1136,9 @@ image-slot[shape="circle"] { border-radius: 50%; }
 .eric-card-back { position:relative; overflow:hidden; min-height:330px; padding:18px; color:#17233d; border:3px solid #d5a63b; border-radius:5px; background:linear-gradient(135deg,rgba(255,255,255,.7),transparent 35%),repeating-linear-gradient(0deg,rgba(24,50,92,.08) 0 1px,transparent 1px 4px),linear-gradient(150deg,#f6f2e7 0%,#dbe6ee 48%,#f8d87a 100%); box-shadow:inset 0 0 0 5px #17355b,inset 0 0 0 7px #e1b746,0 8px 20px rgba(0,0,0,.28); }
 .eric-card-back::before { content:""; position:absolute; inset:12px; border:1px solid rgba(23,53,91,.45); pointer-events:none; }
 .eric-card-back .cb-head,.eric-card-back .cb-foot,.eric-card-back .eric-card-copy,.eric-card-back .eric-card-stats,.skybox-mark { position:relative; z-index:1; }
-.eric-card-back .cb-head { color:#122d55; border-bottom-color:rgba(18,45,85,.35); }
-.eric-card-back .cb-pos { color:#163a6a; font-weight: 600; letter-spacing: 0.08em; }
+.eric-card-back .cb-head { color:#122d55; border-bottom-color:rgba(18,45,85,.35); background:#163a6a; padding:8px 12px; border-radius:4px; }
+.eric-card-back .cb-name { color:#fff; }
+.eric-card-back .cb-pos { color:#f7f7f7; font-weight: 600; letter-spacing: 0.08em; }
 .skybox-mark { display:inline-block; margin:17px 0 9px; padding:4px 10px 2px; transform:skew(-9deg); color:#fff; font-family:Georgia,serif; font-size:27px; font-weight:700; letter-spacing:-.08em; text-shadow:1px 1px 0 #152c57,-1px -1px 0 #efb72e; background:#163a6a; border:2px solid #e8b932; }
 .skybox-mark small { display:block; font-family:Arial,sans-serif; font-size:7px; letter-spacing:.15em; text-align:center; transform:skew(9deg); }
 .eric-card-copy { margin:0 0 12px; font-family:Georgia,serif; font-size:16px; line-height:1.25; font-style:italic; color:#263b63; }
