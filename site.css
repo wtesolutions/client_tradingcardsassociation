@@ -54,8 +54,9 @@ body {
   content: "\00B7"; font-size: 17px; line-height: 1;
   margin-inline: calc(var(--space-4) / -2) calc(var(--space-4) / 2);
   color: color-mix(in srgb, var(--color-text) 38%, transparent); }
-/* the first link after the brand/toggle opens the row — no leading dot */
-.nav > .nav-toggle + a:not(.nav-brand):not(.btn)::before { content: none; margin-inline: 0; }
+/* the first link/menu after the brand/toggle opens the row — no leading dot */
+.nav > .nav-toggle + a:not(.nav-brand):not(.btn)::before,
+.nav > .nav-toggle + .menu::before { content: none; margin-inline: 0; }
 
 /* mobile navigation — app-bar + collapsible drawer (MUI pattern).
    Breakpoint is content-driven: brand + links + Insider button need ~1280px. */
