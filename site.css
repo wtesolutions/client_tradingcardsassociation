@@ -21,7 +21,7 @@ body {
 .nav-brand em { display: block; font-style: normal; font-size: 11px; line-height: 14px;
   letter-spacing: 0.08em; text-transform: uppercase; font-weight: 400;
   color: color-mix(in srgb, var(--color-text) 55%, transparent); }
-@media (max-width: 1199.98px) { .nav-brand em { display: none; } }
+@media (max-width: 1599.98px) { .nav-brand em { display: none; } }
 
 /* megamenu */
 .menu { position: relative; display: flex; align-items: center; }
@@ -62,11 +62,14 @@ body {
 .nav > .menu > a::before { content: none; margin-inline: 0; }
 
 /* mobile navigation — app-bar + collapsible drawer (MUI pattern).
-   Breakpoint is content-driven: brand + links + Insider button need ~1280px. */
+   Breakpoint is content-driven: brand + Directory + Insider need ~1360px. */
 .nav { min-width: 0; }
 .nav .btn { flex: 0 0 auto; }
 .nav-toggle { display: none; }
-@media (max-width: 1279.98px) {
+@media (min-width: 1360px) {
+  .nav { flex-wrap: nowrap; }
+}
+@media (max-width: 1359.98px) {
   .mega { display: none !important; }
   .has-mega::after { content: ""; margin: 0; }
   .nav-toggle { display: inline-flex; align-items: center; justify-content: center;
