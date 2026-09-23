@@ -21,7 +21,7 @@ body {
 .nav-brand em { display: block; font-style: normal; font-size: 11px; line-height: 14px;
   letter-spacing: 0.08em; text-transform: uppercase; font-weight: 400;
   color: color-mix(in srgb, var(--color-text) 55%, transparent); }
-@media (max-width: 1199.98px) { .nav-brand em { display: none; } }
+@media (max-width: 1599.98px) { .nav-brand em { display: none; } }
 
 /* megamenu */
 .menu { position: relative; display: flex; align-items: center; }
@@ -54,15 +54,22 @@ body {
   content: "\00B7"; font-size: 17px; line-height: 1;
   margin-inline: calc(var(--space-4) / -2) calc(var(--space-4) / 2);
   color: color-mix(in srgb, var(--color-text) 38%, transparent); }
-/* the first link after the brand/toggle opens the row — no leading dot */
-.nav > .nav-toggle + a:not(.nav-brand):not(.btn)::before { content: none; margin-inline: 0; }
+/* the first item after the brand/toggle opens the row — no leading dot
+   (covers both plain links and .menu wrappers, so "The Network" / Directory
+   do not pick up an extra middot on either side) */
+.nav > .nav-toggle + a:not(.nav-brand):not(.btn)::before,
+.nav > .nav-toggle + .menu::before { content: none; margin-inline: 0; }
+.nav > .menu > a::before { content: none; margin-inline: 0; }
 
 /* mobile navigation — app-bar + collapsible drawer (MUI pattern).
-   Breakpoint is content-driven: brand + links + Insider button need ~1280px. */
+   Breakpoint is content-driven: brand + Directory + Insider need ~1360px. */
 .nav { min-width: 0; }
 .nav .btn { flex: 0 0 auto; }
 .nav-toggle { display: none; }
-@media (max-width: 1279.98px) {
+@media (min-width: 1360px) {
+  .nav { flex-wrap: nowrap; }
+}
+@media (max-width: 1359.98px) {
   .mega { display: none !important; }
   .has-mega::after { content: ""; margin: 0; }
   .nav-toggle { display: inline-flex; align-items: center; justify-content: center;
@@ -348,7 +355,7 @@ image-slot[shape="circle"] { border-radius: 50%; }
   margin: 0 0 calc(var(--leading) - var(--half)); }
 .band-dir .band-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight);
   font-size: clamp(28px, 3.2vw, 44px); line-height: 1.15; letter-spacing: -0.012em;
-  color: #fff; margin: 0; max-width: 22ch; text-box: trim-both cap alphabetic; }
+  color: #fff; margin: 0; max-width: 28ch; text-box: trim-both cap alphabetic; }
 .band-dir .band-sub { font-size: 15.5px; line-height: var(--leading); max-width: 62ch;
   color: color-mix(in srgb, #fff 88%, transparent);
   margin: calc(var(--leading) - 1cap) 0 0; }
@@ -1132,6 +1139,29 @@ image-slot[shape="circle"] { border-radius: 50%; }
   text-decoration: none; color: var(--color-text); border: 1px solid var(--color-divider); }
 .dir-switch a:hover, .dir-switch a[aria-current="page"] {
   border-color: var(--color-accent); color: var(--color-accent); }
+
+.page-head-cta { margin-top: var(--leading); }
+.browse-dir-btn { font-size: 16px; padding: 12px 22px; }
+.login-note { margin: var(--space-3) 0 0; max-width: 46ch; }
+
+.jotform-embed { margin-top: var(--leading); max-width: 720px; }
+.jotform-embed iframe { width: 100% !important; max-width: 100%; }
+
+.topic-card {
+  display: grid; gap: var(--leading);
+  padding: clamp(24px, 3.5vw, 44px);
+  border: 1px solid var(--color-accent-800); border-radius: var(--radius-lg);
+  background:
+    radial-gradient(720px 340px at 12% -30%, color-mix(in srgb, var(--color-accent-900) 85%, transparent), transparent 62%),
+    var(--color-surface);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--color-accent) 8%, transparent); }
+.topic-card .kicker::before { display: none; }
+.topic-week { margin: 0 0 var(--space-2); font-size: 13px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: color-mix(in srgb, var(--color-text) 62%, transparent); }
+.topic-q { font-size: clamp(26px, 3vw, 38px); line-height: 1.15; max-width: 22ch; }
+.topic-card .sec-sub { max-width: 56ch; }
+.topic-note { margin: 0; font-size: 13.5px; line-height: var(--leading);
+  color: color-mix(in srgb, var(--color-text) 58%, transparent); max-width: 62ch; }
  
 .eric-card-back { position:relative; overflow:hidden; min-height:330px; padding:18px; color:#17233d; border:3px solid #d5a63b; border-radius:5px; background:linear-gradient(135deg,rgba(255,255,255,.7),transparent 35%),repeating-linear-gradient(0deg,rgba(24,50,92,.08) 0 1px,transparent 1px 4px),linear-gradient(150deg,#f6f2e7 0%,#dbe6ee 48%,#f8d87a 100%); box-shadow:inset 0 0 0 5px #17355b,inset 0 0 0 7px #e1b746,0 8px 20px rgba(0,0,0,.28); }
 .eric-card-back::before { content:""; position:absolute; inset:12px; border:1px solid rgba(23,53,91,.45); pointer-events:none; }
