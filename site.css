@@ -594,6 +594,11 @@ image-slot[shape="circle"] { border-radius: 50%; }
 
 /* photo figures — the two low-res card scans stay small */
 .about-figure { margin: 0; }
+.about-boys {
+  display: block; width: 100%; height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--color-neutral-800);
+}
 .about-figure figcaption { font-size: 12.5px; line-height: 19px; margin-top: var(--space-4);
   color: color-mix(in srgb, var(--color-text) 55%, transparent); max-width: 42ch; }
 .figure-narrow { width: 100%; max-width: 420px; }
