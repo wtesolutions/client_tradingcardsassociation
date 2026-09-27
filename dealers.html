@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Dealer Directory · NTCA</title>
+<title>Trading Card Manufacturers · NTCA</title>
 <script src="./codes.js"></script><script src="./guard.js"></script>
 <link rel="stylesheet" href="./ds/styles.css" />
-<meta name="description" content="Find hobby shops, show-table dealers and online stores in the NTCA dealer directory." />
+<meta name="description" content="Find trading card manufacturers in the NTCA membership directory." />
 <link rel="icon" href="./ntca-logo.png" />
 <link rel="stylesheet" href="./site.css" />
 <script src="./nav.js" defer></script>
@@ -36,6 +36,7 @@
     </div>
   </div>
   <a href="events.html">Events</a>
+  <a href="shops.html">Directory</a>
   <a href="gallery.html">Gallery</a>
   <a href="join.html">Join Us</a>
   <a href="members.html">Members</a>
@@ -43,84 +44,66 @@
 </nav>
 <div class="wrap">
   <section class="page-head">
-    <span class="kicker">Dealer Directory</span>
-    <h1>Find a dealer.</h1>
-    <p class="lede">Shops, show tables and online stores. Start with charter member Hobby Tyme, then the full shop finder, then add your own table.</p>
-    <nav class="dir-switch" aria-label="Directories"><a href="shops.html">Shops</a>
+    <span class="kicker">Trading Card Manufacturers</span>
+    <h1>Find a trading card manufacturer.</h1>
+    <p class="lede">Manufacturers sit between shops and products in the NTCA directory. Named listings will appear here as NTCA reviews submissions. Make a card? <a href="contact.html">Contact us</a> to request a listing.</p>
+    <nav class="dir-switch" aria-label="Directories">
+      <a href="shops.html">Shops</a>
+      <a href="dealers.html" aria-current="page">Manufacturers</a>
+      <a href="products.html">Products</a>
       <a href="shows.html">Shows</a>
       <a href="bloggers.html">Bloggers</a>
-      <a href="products.html">Products</a>
-      <a href="dealers.html" aria-current="page">Dealers</a>
-      <a href="grading.html">Grading</a></nav>
+      <a href="grading.html">Grading</a>
+    </nav>
 
   </section>
 
   <section class="section" style="padding-top:0;">
     <div class="dir-tools">
-      <input class="input" id="dir-search" type="search" placeholder="Search dealers by name or city&hellip;" aria-label="Search dealers" />
+      <input class="input" id="dir-search" type="search" placeholder="Search manufacturers by name or city&hellip;" aria-label="Search manufacturers" />
       <select class="input" id="dir-type" aria-label="Filter by type">
-        <option value="">All dealers</option>
-        <option value="shop">Shop</option>
-        <option value="table">Show table</option>
-        <option value="online">Online</option>
+        <option value="">All manufacturers</option>
+        <option value="sports">Sports</option>
+        <option value="tcg">TCG</option>
+        <option value="nonsport">Non-sport</option>
       </select>
     </div>
-    <div class="dir-pills" role="group" aria-label="Dealer filters">
+    <div class="dir-pills" role="group" aria-label="Manufacturer filters">
       <button type="button" class="dir-pill is-on" data-filter="">All</button>
       <button type="button" class="dir-pill" data-filter="featured">Featured</button>
-      <button type="button" class="dir-pill" data-filter="shop">Shops</button>
-      <button type="button" class="dir-pill" data-filter="table">Show tables</button>
-      <button type="button" class="dir-pill" data-filter="online">Online</button>
+      <button type="button" class="dir-pill" data-filter="sports">Sports</button>
+      <button type="button" class="dir-pill" data-filter="tcg">TCG</button>
+      <button type="button" class="dir-pill" data-filter="nonsport">Non-sport</button>
     </div>
     <p class="fine dir-count" id="dir-count"></p>
     <div class="cards" id="dir-grid">
-      <div class="card elev-sm dir-card is-featured" data-type="featured shop" data-search="hobby tyme sports cards toys mebane nc charter">
-        <img class="cert-mark" src="./assets/ntca-certified.png" alt="NTCA Certified" />
-        <span class="card-kicker">Mebane, NC</span>
-        <p class="card-title">Hobby Tyme Sports Cards &amp; Toys</p>
-        <p class="card-body">The Shops of Mebane<br />7311 Highway 70<br />Mebane, NC 27302</p>
-        <p class="card-meta"><span class="badge-feat">Featured</span> Charter member</p>
-        <p class="card-meta"><a href="tel:9196973785">(919) 697-3785</a></p>
+      <div class="card elev-sm dir-card" data-type="sports tcg nonsport" data-search="manufacturer listings coming spreadsheet">
+        <span class="card-kicker">Directory</span>
+        <p class="card-title">Manufacturer listings coming soon</p>
+        <p class="card-body">This category is open for submissions. Public rows will be added after NTCA review of the manufacturer directory.</p>
+        <p class="card-meta"><a href="contact.html">Request a listing &rarr;</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="shop" data-search="full hobby shop directory">
-        <span class="card-kicker">Nationwide</span>
-        <p class="card-title">Hobby shop directory</p>
-        <p class="card-body">Brick-and-mortar shops already live on the shop finder, including charter member Hobby Tyme.</p>
-        <p class="card-meta"><a href="shops.html">Browse shops &rarr;</a></p>
-      </div>
-      <div class="card elev-sm dir-card" data-type="table" data-search="show table dealer convention">
-        <span class="card-kicker">Show circuit</span>
-        <p class="card-title">Table dealers</p>
-        <p class="card-body">Dealers who work the National, regional shows and shop trade nights. Submit your table schedule.</p>
-        <p class="card-meta"><a href="#add">Add a table &rarr;</a></p>
-      </div>
-      <div class="card elev-sm dir-card" data-type="online" data-search="online dealer ecommerce">
-        <span class="card-kicker">Online</span>
-        <p class="card-title">Online dealers</p>
-        <p class="card-body">Web stores and mail-order dealers. NTCA Recommended after review.</p>
-        <p class="card-meta"><a href="#add">Add a store &rarr;</a></p>
-      </div>
-      <div class="card elev-sm dir-card" data-type="shop table online" data-search="add your dealer listing">
-        <span class="card-kicker">Your business</span>
+      <div class="card elev-sm dir-card" data-type="sports tcg nonsport" data-search="add your manufacturer listing">
+        <span class="card-kicker">Your company</span>
         <p class="card-title">Your name, listed here</p>
-        <p class="card-body">Featured and charter marks are reserved for members. Start with the form below.</p>
+        <p class="card-body">Featured and charter marks are reserved for members. Use the form below or contact the NTCA.</p>
         <p class="card-meta"><a href="#add">Add a listing &rarr;</a></p>
       </div>
     </div>
-    <p class="fine" style="margin-top:calc(1.5*var(--leading));">Shop listings also live on the hobby shop directory. Table and online dealers submit below.</p>
+    <p class="fine" style="margin-top:calc(1.5*var(--leading));">Shop listings live on the <a href="shops.html">hobby shop directory</a>. Manufacturer names will be added as the directory is reviewed.</p>
   </section>
 
   <hr class="rule" />
 
   <section class="section" id="add">
     <span class="kicker">Add a listing</span>
-    <h2 class="sec-title">Add your dealership.</h2>
-    <p class="sec-sub">NTCA reviews every submission before it goes live. Charter and featured marks are reserved for members.</p>
+    <h2 class="sec-title">Add your company.</h2>
+    <p class="sec-sub">NTCA reviews every submission before it goes live. Charter and featured marks are reserved for members. This form is a preview and does not store or send what you enter &mdash; <a href="contact.html">contact us</a> to be added now.</p>
     <form class="form-grid submit-form" id="list-form">
-      <div class="field"><label for="ln">Business name</label><input class="input" id="ln" type="text" required /></div>
+      <div class="field"><label for="ln">Company name</label><input class="input" id="ln" type="text" required /></div>
       <div class="field"><label for="le">Email</label><input class="input" id="le" type="email" required /></div>
       <div class="field"><label for="lt">Type</label>
-        <select class="input" id="lt"><option>Shop</option><option>Show table</option><option>Online</option></select></div>
+        <select class="input" id="lt"><option>Sports</option><option>TCG</option><option>Non-sport</option></select></div>
       <div class="field"><label for="lc">City</label><input class="input" id="lc" type="text" /></div>
       <div class="field full"><label for="lm">Address and notes</label><textarea class="input" id="lm" rows="3" style="resize:vertical;"></textarea></div>
       <div class="full"><button type="submit" class="btn btn-primary">Submit for review &rarr;</button></div>
