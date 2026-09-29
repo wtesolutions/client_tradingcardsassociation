@@ -677,7 +677,7 @@ image-slot[shape="circle"] { border-radius: 50%; }
   letter-spacing: -0.01em; color: var(--color-accent-300);
   margin: var(--half) 0 0; text-box: trim-both cap alphabetic; }
 
-/* directory-style listing mock above the avenue cards */
+/* convention-hall photo above the avenue cards */
 .net-hero-figure { margin: calc(1.5 * var(--leading)) 0 0; max-width: 760px; }
 .net-hero-figure image-slot { display: block; width: 100%; aspect-ratio: 1400 / 880;
   border-radius: var(--radius-lg); overflow: hidden; }
