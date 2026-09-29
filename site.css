@@ -677,6 +677,11 @@ image-slot[shape="circle"] { border-radius: 50%; }
   letter-spacing: -0.01em; color: var(--color-accent-300);
   margin: var(--half) 0 0; text-box: trim-both cap alphabetic; }
 
+/* directory-style listing mock above the avenue cards */
+.net-hero-figure { margin: calc(1.5 * var(--leading)) 0 0; max-width: 760px; }
+.net-hero-figure image-slot { display: block; width: 100%; aspect-ratio: 1400 / 880;
+  border-radius: var(--radius-lg); overflow: hidden; }
+
 /* the six avenues — a larger card than the default .cards grid */
 .net-cards { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-6); }
 .net-cards .card { gap: var(--space-3); padding: clamp(20px, 2.2vw, 28px);
