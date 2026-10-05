@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Card Show Directory · NTCA</title>
+<title>Calendar of Shows · NTCA</title>
 <script src="./codes.js"></script><script src="./guard.js"></script>
 <link rel="stylesheet" href="./ds/styles.css" />
-<meta name="description" content="Find card shows, conventions and trade nights in the NTCA show directory." />
+<meta name="description" content="NTCA TRADING CARD SHOW DIRECTORY — OCTOBER 15 TO NOVEMBER 15, 2026" />
 <link rel="icon" href="./ntca-logo.png" />
 <link rel="stylesheet" href="./site.css" />
 <script src="./nav.js" defer></script>
@@ -31,28 +31,37 @@
       <a href="directory.html#foundation"><span class="m-title">Foundation</span><span class="m-desc">501(c)(3) education and charitable arm.</span></a>
       <a href="directory.html#conference"><span class="m-title">Convention</span><span class="m-desc">The industry&#8217;s annual gathering.</span></a>
       <a href="directory.html#halloffame"><span class="m-title">Hall of Fame</span><span class="m-desc">Honoring the hobby's legacy.</span></a>
-      <a href="shops.html"><span class="m-title">Shop Directory</span><span class="m-desc">Hobby shops and local card stores.</span></a>
-      <a href="shows.html"><span class="m-title">Show Directory</span><span class="m-desc">Card shows, conventions and trade nights.</span></a>
+      <a href="retailers.html"><span class="m-title">Retailers</span><span class="m-desc">Companies and marketplaces for collectors.</span></a>
+      <a href="shows.html"><span class="m-title">Calendar of Shows</span><span class="m-desc">October 15 to November 15, 2026.</span></a>
     </div>
   </div>
   <a href="events.html">Events</a>
-  <a href="shops.html">Directory</a>
+  <div class="menu">
+    <a href="retailers.html" class="has-mega" aria-current="page">Directory</a>
+    <div class="mega">
+      <a href="shows.html" aria-current="page"><span class="m-title">Calendar of Shows</span><span class="m-desc">October 15 to November 15, 2026.</span></a>
+      <a href="grading-services.html"><span class="m-title">Grading Services</span><span class="m-desc">Card grading, authentication and submission services.</span></a>
+      <a href="manufacturers.html"><span class="m-title">Manufacturers</span><span class="m-desc">Manufacturers and publishers of trading cards.</span></a>
+      <a href="retailers.html"><span class="m-title">Retailers</span><span class="m-desc">Companies and marketplaces for collectors.</span></a>
+    </div>
+  </div>
   <a href="gallery.html">Gallery</a>
   <a href="members.html">Members</a>
   <a class="btn btn-primary" href="join.html">Join us</a>
 </nav>
 <div class="wrap">
   <section class="page-head">
-    <span class="kicker">Card Show Directory</span>
-    <h1>Find a card show.</h1>
-    <p class="lede">Conventions, weekend shows and shop trade nights in one place. Featured listings are NTCA events and recommended shows the community should know about.</p>
+    <span class="kicker">Calendar of Shows</span>
+    <h1>Calendar of Shows</h1>
+    <p class="lede">NTCA TRADING CARD SHOW DIRECTORY — OCTOBER 15 TO NOVEMBER 15, 2026</p>
     <nav class="dir-switch" aria-label="Directories">
-      <a href="shops.html">Shops</a>
-      <a href="dealers.html">Manufacturers</a>
+      <a href="retailers.html">Retailers</a>
+      <a href="manufacturers.html">Manufacturers</a>
       <a href="products.html">Products</a>
-      <a href="shows.html" aria-current="page">Shows</a>
+      <a href="shows.html" aria-current="page">Calendar of Shows</a>
       <a href="bloggers.html">Bloggers</a>
-      <a href="grading.html">Grading</a>
+      <a href="grading-services.html">Grading Services</a>
+      <a href="shops.html">Shops</a>
     </nav>
 
   </section>
@@ -60,73 +69,214 @@
   <section class="section" style="padding-top:0;">
     <div class="dir-tools">
       <input class="input" id="dir-search" type="search" placeholder="Search by show, city or venue&hellip;" aria-label="Search shows" />
-      <select class="input" id="dir-type" aria-label="Filter by type">
-        <option value="">All types</option>
-        <option value="convention">Convention</option>
-        <option value="show">Card show</option>
-        <option value="community">Community</option>
+      <select class="input" id="dir-type" aria-label="Filter by category">
+        <option value="">All categories</option>
+        <option value="card-show">Card show</option>
       </select>
     </div>
     <div class="dir-pills" role="group" aria-label="Show filters">
       <button type="button" class="dir-pill is-on" data-filter="">All</button>
-      <button type="button" class="dir-pill" data-filter="featured">Featured</button>
-      <button type="button" class="dir-pill" data-filter="convention">Conventions</button>
-      <button type="button" class="dir-pill" data-filter="show">Card shows</button>
-      <button type="button" class="dir-pill" data-filter="community">Community</button>
+      <button type="button" class="dir-pill" data-filter="card-show">Card show</button>
     </div>
     <p class="fine dir-count" id="dir-count"></p>
     <div class="cards" id="dir-grid">
-      <div class="card elev-sm dir-card is-featured" data-type="featured convention" data-search="national trading card convention las vegas nv 2027 ntca hall of fame">
-        <img class="cert-mark" src="./assets/ntca-certified.png" alt="NTCA Certified" />
-        <span class="card-kicker">Las Vegas, NV</span>
-        <p class="card-title">National Trading Card Convention 2027</p>
-        <p class="card-body">June 24&ndash;27, 2027<br />The NTCA's premier annual gathering &mdash; seminars, Hall of Fame induction and awards banquet.</p>
-        <p class="card-meta"><span class="badge-feat">Featured</span> Convention</p>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="dallas, tx ntx universe october 16-18, 2026 kay bailey hutchison convention center three-day convention-scale event with 1,000+ tables featuring sports cards, tcgs, comics, toys, memorabilia, artists and celebrity guests. card show convention · collectibles">
+        <span class="card-kicker">DALLAS, TX</span>
+        <p class="card-title">NTX Universe</p>
+        <p class="card-body">October 16-18, 2026<br />Kay Bailey Hutchison Convention Center<br />Three-day convention-scale event with 1,000+ tables featuring sports cards, TCGs, comics, toys, memorabilia, artists and celebrity guests.</p>
+        <p class="card-meta">Card show · Convention · Collectibles</p>
+        <p class="card-meta"><a href="https://www.universecon.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
       </div>
-      <div class="card elev-sm dir-card is-featured" data-type="featured show convention" data-search="national sports collectors convention nscc the national rosemont il 2026">
-        <span class="card-kicker">Rosemont, IL</span>
-        <p class="card-title">The National Sports Collectors Convention</p>
-        <p class="card-body">July 29&ndash;August 2, 2026<br />Donald E. Stephens Convention Center<br />46th annual National</p>
-        <p class="card-meta"><span class="badge-rec">NTCA Recommended</span> Card show</p>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="jacksonville, fl river city card show october 16-17, 2026 southbank hotel regional card show featuring sports cards, pokémon, tcg products, memorabilia and collector vendors; free admission is listed by the organizer. card show sports cards · tcg">
+        <span class="card-kicker">JACKSONVILLE, FL</span>
+        <p class="card-title">River City Card Show</p>
+        <p class="card-body">October 16-17, 2026<br />Southbank Hotel<br />Regional card show featuring sports cards, Pokémon, TCG products, memorabilia and collector vendors; free admission is listed by the organizer.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://tcgshowsnearme.com/events/river-city-card-show-jacksonville-2026-10-16" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="show convention" data-search="national sports collectors convention nscc the national rosemont il 2027">
-        <span class="card-kicker">Rosemont, IL</span>
-        <p class="card-title">The National 2027</p>
-        <p class="card-body">July 28&ndash;August 1, 2027<br />Donald E. Stephens Convention Center<br />47th annual National</p>
-        <p class="card-meta">Card show &middot; Convention</p>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="st. clairsville, oh pittsburgh card show at ohio valley mall october 16-17, 2026 ohio valley mall more than 175 tables of sports cards, sports memorabilia, pokémon and tcg merchandise with free admission and parking. card show sports cards · tcg">
+        <span class="card-kicker">ST. CLAIRSVILLE, OH</span>
+        <p class="card-title">Pittsburgh Card Show at Ohio Valley Mall</p>
+        <p class="card-body">October 16-17, 2026<br />Ohio Valley Mall<br />More than 175 tables of sports cards, sports memorabilia, Pokémon and TCG merchandise with free admission and parking.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://pittsburghcardshow.com/upcoming-show-calendar" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="community" data-search="ntca community kickoff halloween livestream founding members">
-        <span class="card-kicker">Online</span>
-        <p class="card-title">NTCA Community Kickoff</p>
-        <p class="card-body">Halloween, October 31, 2026<br />Founding members Q&amp;A and the road ahead</p>
-        <p class="card-meta">Community &middot; Livestream</p>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="portland, me northeast sports card expo october 17-18, 2026 portland exposition building two-day northeast collector expo featuring sports cards, memorabilia, hobby dealers and collector services. card show expo · sports cards">
+        <span class="card-kicker">PORTLAND, ME</span>
+        <p class="card-title">Northeast Sports Card Expo</p>
+        <p class="card-body">October 17-18, 2026<br />Portland Exposition Building<br />Two-day Northeast collector expo featuring sports cards, memorabilia, hobby dealers and collector services.</p>
+        <p class="card-meta">Card show · Expo · Sports cards</p>
+        <p class="card-meta"><a href="https://www.northeastcardexpo.com/calendar" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="community show" data-search="national card shop day local shops nationwide">
-        <span class="card-kicker">Nationwide</span>
-        <p class="card-title">National Card Shop Day</p>
-        <p class="card-body">Date announced after the Halloween kickoff<br />Participating local card shops</p>
-        <p class="card-meta">Community</p>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="tacoma, wa front row card show — seattle/tacoma october 17-18, 2026 greater tacoma convention center a 480-table show of cards, comics and collectibles, with vip early entry and a saturday evening trade night. card show convention · trade night">
+        <span class="card-kicker">TACOMA, WA</span>
+        <p class="card-title">Front Row Card Show — Seattle/Tacoma</p>
+        <p class="card-body">October 17-18, 2026<br />Greater Tacoma Convention Center<br />A 480-table show of cards, comics and collectibles, with VIP early entry and a Saturday evening trade night.</p>
+        <p class="card-meta">Card show · Convention · Trade night</p>
+        <p class="card-meta"><a href="https://frontrowcardshow.com/collections/seattle" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="community" data-search="regional collectors meetup southwest dallas tx">
-        <span class="card-kicker">Dallas, TX</span>
-        <p class="card-title">Regional Collectors Meetup &mdash; Southwest</p>
-        <p class="card-body">Date announced after the Halloween kickoff<br />Trade tables, show-and-tell and community planning</p>
-        <p class="card-meta">Meetup</p>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="spencer, ia northwest iowa card show october 17, 2026 clay county fair events center regional trading card show with sports cards, pokémon, tcg products and collectibles for buying, selling and trading. card show sports cards · tcg">
+        <span class="card-kicker">SPENCER, IA</span>
+        <p class="card-title">Northwest Iowa Card Show</p>
+        <p class="card-body">October 17, 2026<br />Clay County Fair Events Center<br />Regional trading card show with sports cards, Pokémon, TCG products and collectibles for buying, selling and trading.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/northwest-iowa-card-show-10-17-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="community show" data-search="fall trade night chicago il">
-        <span class="card-kicker">Chicago, IL</span>
-        <p class="card-title">Fall Trade Night</p>
-        <p class="card-body">November 7, 2026<br />An evening of trading across sports and TCGs</p>
-        <p class="card-meta">Meetup</p>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="greensburg, pa pittsburgh card show at westmoreland mall october 23-25, 2026 westmoreland mall a 100-table mall show featuring sports cards, pokémon cards, tcg merchandise and collectibles. card show sports cards · tcg">
+        <span class="card-kicker">GREENSBURG, PA</span>
+        <p class="card-title">Pittsburgh Card Show at Westmoreland Mall</p>
+        <p class="card-body">October 23-25, 2026<br />Westmoreland Mall<br />A 100-table mall show featuring sports cards, Pokémon cards, TCG merchandise and collectibles.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://pittsburghcardshow.com/upcoming-show-calendar" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="show" data-search="add your card show listing">
-        <span class="card-kicker">Your city</span>
-        <p class="card-title">Your show, listed here</p>
-        <p class="card-body">Promoters can submit weekend shows, shop trade nights and regional conventions.</p>
-        <p class="card-meta"><a href="#add">Add a show &rarr;</a></p>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="dallas, tx collect-a-con dallas october 24-25, 2026 kay bailey hutchison convention center large trading card and pop-culture convention featuring sports cards, pokémon, tcgs, collectibles, vendors and special guests. card show convention · pop culture">
+        <span class="card-kicker">DALLAS, TX</span>
+        <p class="card-title">Collect-A-Con Dallas</p>
+        <p class="card-body">October 24-25, 2026<br />Kay Bailey Hutchison Convention Center<br />Large trading card and pop-culture convention featuring sports cards, Pokémon, TCGs, collectibles, vendors and special guests.</p>
+        <p class="card-meta">Card show · Convention · Pop culture</p>
+        <p class="card-meta"><a href="https://collectaconusa.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="galveston, tx htx card show weekend october 24-25, 2026 moody gardens convention center texas gulf coast weekend featuring sports cards, pokémon and tcg favorites, vendors, trading, giveaways and collector activities. card show sports cards · tcg">
+        <span class="card-kicker">GALVESTON, TX</span>
+        <p class="card-title">HTX Card Show Weekend</p>
+        <p class="card-body">October 24-25, 2026<br />Moody Gardens Convention Center<br />Texas Gulf Coast weekend featuring sports cards, Pokémon and TCG favorites, vendors, trading, giveaways and collector activities.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://www.txcardshows.com/shows" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="crown point, in crown point card show &amp; collector convention october 24, 2026 lake county fairgrounds approximately 200-300 tables of sports cards, pokémon, one piece, toys and comics, with free admission and on-site food. card show collectibles · tcg">
+        <span class="card-kicker">CROWN POINT, IN</span>
+        <p class="card-title">Crown Point Card Show &amp; Collector Convention</p>
+        <p class="card-body">October 24, 2026<br />Lake County Fairgrounds<br />Approximately 200-300 tables of sports cards, Pokémon, One Piece, toys and comics, with free admission and on-site food.</p>
+        <p class="card-meta">Card show · Collectibles · TCG</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/crown-point-card-show-and-collector-convention-10-24-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="glenpool, ok the glenpool card show october 24-25, 2026 glenpool conference center two-day regional trading card show serving the tulsa area, with sports cards, tcg products and collectibles. card show sports cards · tcg">
+        <span class="card-kicker">GLENPOOL, OK</span>
+        <p class="card-title">The Glenpool Card Show</p>
+        <p class="card-body">October 24-25, 2026<br />Glenpool Conference Center<br />Two-day regional trading card show serving the Tulsa area, with sports cards, TCG products and collectibles.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/the-glenpool-card-show-10-24-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="monroeville, pa pittsburgh sports card &amp; pokémon showcase october 30-november 1, 2026 monroeville convention center a major 1,000-table showcase featuring sports cards, pokémon, tcgs and collectibles with free admission and parking. card show showcase · tcg">
+        <span class="card-kicker">MONROEVILLE, PA</span>
+        <p class="card-title">Pittsburgh Sports Card &amp; Pokémon Showcase</p>
+        <p class="card-body">October 30-November 1, 2026<br />Monroeville Convention Center<br />A major 1,000-table showcase featuring sports cards, Pokémon, TCGs and collectibles with free admission and parking.</p>
+        <p class="card-meta">Card show · Showcase · TCG</p>
+        <p class="card-meta"><a href="https://pittsburghcardshow.com/upcoming-show-calendar" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="austin, tx atx card show weekend october 31-november 1, 2026 hilton austin downtown austin weekend with sports cards, pokémon, one piece and other tcgs, dealers, trading and collector activities. card show sports cards · tcg">
+        <span class="card-kicker">AUSTIN, TX</span>
+        <p class="card-title">ATX Card Show Weekend</p>
+        <p class="card-body">October 31-November 1, 2026<br />Hilton Austin<br />Downtown Austin weekend with sports cards, Pokémon, One Piece and other TCGs, dealers, trading and collector activities.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://www.txcardshows.com/atx" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="houston, tx collect-a-con houston november 7-8, 2026 george r. brown convention center large trading card, anime and pop-culture convention featuring 900+ vendor tables, sports cards, pokémon, tcgs, collectibles and guests. card show convention · pop culture">
+        <span class="card-kicker">HOUSTON, TX</span>
+        <p class="card-title">Collect-A-Con Houston</p>
+        <p class="card-body">November 7-8, 2026<br />George R. Brown Convention Center<br />Large trading card, anime and pop-culture convention featuring 900+ vendor tables, sports cards, Pokémon, TCGs, collectibles and guests.</p>
+        <p class="card-meta">Card show · Convention · Pop culture</p>
+        <p class="card-meta"><a href="https://collectaconusa.com/houston2/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="raleigh, nc nc collector&#x27;s roadshow — raleigh november 7-8, 2026 exposition center, nc state fairgrounds a 400-table sports card, toy and collectibles show with free parking and weekend admission options. card show collectibles · sports cards">
+        <span class="card-kicker">RALEIGH, NC</span>
+        <p class="card-title">NC Collector&#x27;s Roadshow — Raleigh</p>
+        <p class="card-body">November 7-8, 2026<br />Exposition Center, NC State Fairgrounds<br />A 400-table sports card, toy and collectibles show with free parking and weekend admission options.</p>
+        <p class="card-meta">Card show · Collectibles · Sports cards</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/sports-cards-toys-pok-mon-and-collectibles-show-11-07-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="lombard, il city2city card show november 7-8, 2026 yorktown center free-admission, 150-table community show featuring sports cards, pokémon, one piece, magic and other collectibles. card show community · tcg">
+        <span class="card-kicker">LOMBARD, IL</span>
+        <p class="card-title">City2City Card Show</p>
+        <p class="card-body">November 7-8, 2026<br />Yorktown Center<br />Free-admission, 150-table community show featuring sports cards, Pokémon, One Piece, Magic and other collectibles.</p>
+        <p class="card-meta">Card show · Community · TCG</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/city2city-card-show-11-07-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="colorado springs, co pikes peak card show november 7, 2026 norris penrose event center regional colorado trading card show featuring sports cards, tcg products and collectibles for buyers, sellers and traders. card show sports cards · tcg">
+        <span class="card-kicker">COLORADO SPRINGS, CO</span>
+        <p class="card-title">Pikes Peak Card Show</p>
+        <p class="card-body">November 7, 2026<br />Norris Penrose Event Center<br />Regional Colorado trading card show featuring sports cards, TCG products and collectibles for buyers, sellers and traders.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/pikes-peak-card-show-11-07-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="altamonte springs, fl ultimate banger card show november 7-8, 2026 lake brantley high school — media center a 130-table central florida show featuring sports cards, pokémon and other trading card games. card show sports cards · tcg">
+        <span class="card-kicker">ALTAMONTE SPRINGS, FL</span>
+        <p class="card-title">Ultimate Banger Card Show</p>
+        <p class="card-body">November 7-8, 2026<br />Lake Brantley High School — Media Center<br />A 130-table Central Florida show featuring sports cards, Pokémon and other trading card games.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/ultimate-banger-card-show-11-07-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="breinigsville, pa the big show card show november 7, 2026 delta hotel lehigh valley lehigh valley collector show featuring sports cards, pokémon, tcg merchandise and collectibles for buying, selling and trading. card show sports cards · tcg">
+        <span class="card-kicker">BREINIGSVILLE, PA</span>
+        <p class="card-title">The Big Show Card Show</p>
+        <p class="card-body">November 7, 2026<br />Delta Hotel Lehigh Valley<br />Lehigh Valley collector show featuring sports cards, Pokémon, TCG merchandise and collectibles for buying, selling and trading.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/the-big-show-card-show-11-07-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="west palm beach, fl palm beach card show november 13-15, 2026 palm beach county convention center large three-day florida card show with hundreds of vendors and tables featuring sports cards, tcgs, memorabilia and collector services. card show convention · sports cards">
+        <span class="card-kicker">WEST PALM BEACH, FL</span>
+        <p class="card-title">Palm Beach Card Show</p>
+        <p class="card-body">November 13-15, 2026<br />Palm Beach County Convention Center<br />Large three-day Florida card show with hundreds of vendors and tables featuring sports cards, TCGs, memorabilia and collector services.</p>
+        <p class="card-meta">Card show · Convention · Sports cards</p>
+        <p class="card-meta"><a href="https://www.simpletix.com/e/palm-beach-card-show-november-2026-general-tickets-262607" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="silver spring, md mid-atlantic sports card show — fall harvest november 14, 2026 silver spring civic center a 185-table show inside the washington, d.c. beltway with sports cards, pokémon and tcg vendors, grading services and giveaways. card show sports cards · tcg">
+        <span class="card-kicker">SILVER SPRING, MD</span>
+        <p class="card-title">Mid-Atlantic Sports Card Show — Fall Harvest</p>
+        <p class="card-body">November 14, 2026<br />Silver Spring Civic Center<br />A 185-table show inside the Washington, D.C. Beltway with sports cards, Pokémon and TCG vendors, grading services and giveaways.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://www.mid-atlanticshow.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="lebanon, tn wilson county pokéfest november 14-15, 2026 james e. ward agricultural center two-day pokémon-focused trading card event with vendors, collectibles and tcg activities for collectors and families. card show pokémon · tcg">
+        <span class="card-kicker">LEBANON, TN</span>
+        <p class="card-title">Wilson County PokéFest</p>
+        <p class="card-body">November 14-15, 2026<br />James E. Ward Agricultural Center<br />Two-day Pokémon-focused trading card event with vendors, collectibles and TCG activities for collectors and families.</p>
+        <p class="card-meta">Card show · Pokémon · TCG</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/wilson-county-pokefest-11-14-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="lewisville, tx ntx pokémon &amp; tcg card show november 14-15, 2026 ntx arena a 600-table weekend across both floors of ntx arena featuring pokémon, trading card games, vendors, trades and community activities. card show pokémon · tcg">
+        <span class="card-kicker">LEWISVILLE, TX</span>
+        <p class="card-title">NTX Pokémon &amp; TCG Card Show</p>
+        <p class="card-body">November 14-15, 2026<br />NTX Arena<br />A 600-table weekend across both floors of NTX Arena featuring Pokémon, trading card games, vendors, trades and community activities.</p>
+        <p class="card-meta">Card show · Pokémon · TCG</p>
+        <p class="card-meta"><a href="https://www.txcardshows.com/shows" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="gainesville, ga north georgia collectibles show november 14, 2026 gainesville civic center north georgia collector show with sports cards, trading card games and a range of collectibles. card show collectibles · tcg">
+        <span class="card-kicker">GAINESVILLE, GA</span>
+        <p class="card-title">North Georgia Collectibles Show</p>
+        <p class="card-body">November 14, 2026<br />Gainesville Civic Center<br />North Georgia collector show with sports cards, trading card games and a range of collectibles.</p>
+        <p class="card-meta">Card show · Collectibles · TCG</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/north-georgia-collectibles-show-11-14-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="el paso, tx sun city card show november 14, 2026 starlight event center el paso trading card show featuring sports cards, pokémon, tcg products and collectibles from regional vendors. card show sports cards · tcg">
+        <span class="card-kicker">EL PASO, TX</span>
+        <p class="card-title">Sun City Card Show</p>
+        <p class="card-body">November 14, 2026<br />Starlight Event Center<br />El Paso trading card show featuring sports cards, Pokémon, TCG products and collectibles from regional vendors.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/sun-city-card-show-11-14-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="pueblo, co southern colorado card show november 14, 2026 pueblo community college ballroom southern colorado regional show for sports cards, tcg products and collectibles, with buying, selling and trading. card show sports cards · tcg">
+        <span class="card-kicker">PUEBLO, CO</span>
+        <p class="card-title">Southern Colorado Card Show</p>
+        <p class="card-body">November 14, 2026<br />Pueblo Community College Ballroom<br />Southern Colorado regional show for sports cards, TCG products and collectibles, with buying, selling and trading.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/southern-colorado-card-show-11-14-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="cuyahoga falls, oh vintage only sports card show november 14, 2026 emidio &amp; sons expo center specialty show focused on vintage sports cards and memorabilia for collectors seeking older material. card show vintage · sports cards">
+        <span class="card-kicker">CUYAHOGA FALLS, OH</span>
+        <p class="card-title">Vintage Only Sports Card Show</p>
+        <p class="card-body">November 14, 2026<br />Emidio &amp; Sons Expo Center<br />Specialty show focused on vintage sports cards and memorabilia for collectors seeking older material.</p>
+        <p class="card-meta">Card show · Vintage · Sports cards</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/vintage-only-sports-card-show-11-14-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+      </div>
+      <div class="card elev-sm dir-card" data-type="card-show" data-search="north attleboro, ma sports cards, pokémon &amp; collectibles show november 14-15, 2026 emerald square mall two-day mall show featuring sports cards, pokémon, tcg products and collectibles from regional dealers. card show sports cards · tcg">
+        <span class="card-kicker">NORTH ATTLEBORO, MA</span>
+        <p class="card-title">Sports Cards, Pokémon &amp; Collectibles Show</p>
+        <p class="card-body">November 14-15, 2026<br />Emerald Square Mall<br />Two-day mall show featuring sports cards, Pokémon, TCG products and collectibles from regional dealers.</p>
+        <p class="card-meta">Card show · Sports cards · TCG</p>
+        <p class="card-meta"><a href="https://cardshows.io/events/sports-cards-pokemon-and-collectible-show-11-14-2026" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
       </div>
     </div>
-    <p class="fine" style="margin-top:calc(1.5*var(--leading));">NTCA Convention and community dates come from the association calendar. The National dates follow nsccshow.com. Submit a local show and we will review it before it goes live.</p>
   </section>
 
   <hr class="rule" />
