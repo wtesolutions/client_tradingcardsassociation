@@ -3,14 +3,13 @@
 <head>
 <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Manufacturers · NTCA</title>
-<script src="./codes.js"></script><script src="./guard.js"></script>
 <link rel="stylesheet" href="./ds/styles.css" />
 <meta name="description" content="Manufacturers and publishers producing sports cards, entertainment cards, trading card games or custom card products." />
 <link rel="icon" href="./ntca-logo.png" />
 <link rel="stylesheet" href="./site.css" />
 <script src="./nav.js" defer></script>
 </head>
-<body>
+<body class="dir-ref">
 <nav class="nav">
   <a class="nav-brand" href="home.html"><img src="./ntca-logo.png" alt="NTCA emblem" /><span>NTCA<em>National Trading Card Association</em></span></a>
   <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open menu"><svg class="i-open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg><svg class="i-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
@@ -100,387 +99,685 @@
         <option value="print-on-demand-card-platform">Print-on-demand card platform</option>
       </select>
     </div>
-    <div class="dir-pills" role="group" aria-label="Manufacturer filters">
-      <button type="button" class="dir-pill is-on" data-filter="">All</button>
-      <button type="button" class="dir-pill" data-filter="sports-and-entertainment-publisher">Sports and entertainment publisher</button>
-      <button type="button" class="dir-pill" data-filter="sports-card-publisher">Sports-card publisher</button>
-      <button type="button" class="dir-pill" data-filter="premium-sports-card-publisher">Premium sports-card publisher</button>
-      <button type="button" class="dir-pill" data-filter="sports-card-and-memorabilia-producer">Sports-card and memorabilia producer</button>
-      <button type="button" class="dir-pill" data-filter="entertainment-card-publisher">Entertainment-card publisher</button>
-      <button type="button" class="dir-pill" data-filter="entertainment-and-game-card-publisher">Entertainment and game-card publisher</button>
-      <button type="button" class="dir-pill" data-filter="non-sport-card-publisher">Non-sport card publisher</button>
-      <button type="button" class="dir-pill" data-filter="historical-card-publisher">Historical card publisher</button>
-      <button type="button" class="dir-pill" data-filter="repack-and-collectible-producer">Repack and collectible producer</button>
-      <button type="button" class="dir-pill" data-filter="trading-card-game-publisher">Trading card game publisher</button>
-      <button type="button" class="dir-pill" data-filter="card-game-publisher">Card-game publisher</button>
-      <button type="button" class="dir-pill" data-filter="toy-and-card-game-publisher">Toy and card-game publisher</button>
-      <button type="button" class="dir-pill" data-filter="licensed-collectible-producer">Licensed collectible producer</button>
-      <button type="button" class="dir-pill" data-filter="collectible-product-manufacturer">Collectible product manufacturer</button>
-      <button type="button" class="dir-pill" data-filter="contract-card-manufacturer">Contract card manufacturer</button>
-      <button type="button" class="dir-pill" data-filter="card-manufacturer">Card manufacturer</button>
-      <button type="button" class="dir-pill" data-filter="custom-card-manufacturer">Custom card manufacturer</button>
-      <button type="button" class="dir-pill" data-filter="custom-game-manufacturer">Custom game manufacturer</button>
-      <button type="button" class="dir-pill" data-filter="custom-card-printer">Custom card printer</button>
-      <button type="button" class="dir-pill" data-filter="print-on-demand-manufacturer">Print-on-demand manufacturer</button>
-      <button type="button" class="dir-pill" data-filter="contract-game-manufacturer">Contract game manufacturer</button>
-      <button type="button" class="dir-pill" data-filter="prototype-and-short-run-printer">Prototype and short-run printer</button>
-      <button type="button" class="dir-pill" data-filter="premium-custom-card-printer">Premium custom card printer</button>
-      <button type="button" class="dir-pill" data-filter="commercial-printer">Commercial printer</button>
-      <button type="button" class="dir-pill" data-filter="custom-printer">Custom printer</button>
-      <button type="button" class="dir-pill" data-filter="print-on-demand-platform">Print-on-demand platform</button>
-      <button type="button" class="dir-pill" data-filter="print-on-demand-card-platform">Print-on-demand card platform</button>
-    </div>
     <p class="fine dir-count" id="dir-count"></p>
     <div class="cards" id="dir-grid">
-      <div class="card elev-sm dir-card" data-type="sports-and-entertainment-publisher" data-search="new york, ny topps / fanatics collectibles sports and entertainment publisher retail products and licensed distribution topps / fanatics collectibles produces baseball, football, soccer, ufc, disney and entertainment cards. sports and entertainment publisher baseball, football, soccer, ufc, disney and entertainment cards">
-        <span class="card-kicker">NEW YORK, NY</span>
+      <div class="card dir-card" data-type="sports-and-entertainment-publisher" data-search="new york, ny topps / fanatics collectibles sports and entertainment publisher retail products and licensed distribution topps / fanatics collectibles produces baseball, football, soccer, ufc, disney and entertainment cards. sports and entertainment publisher baseball, football, soccer, ufc, disney and entertainment cards">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Topps / Fanatics Collectibles</span>
+        </div>
         <p class="card-title">Topps / Fanatics Collectibles</p>
-        <p class="card-body">Sports and entertainment publisher<br />Retail products and licensed distribution<br />Topps / Fanatics Collectibles produces baseball, football, soccer, ufc, disney and entertainment cards.</p>
-        <p class="card-meta">Sports and entertainment publisher · Baseball, football, soccer, UFC, Disney and entertainment cards</p>
-        <p class="card-meta"><a href="https://www.topps.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Topps / Fanatics Collectibles produces baseball, football, soccer, ufc, disney and entertainment cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>NEW YORK, NY</li>
+          <li><span>Category</span>Sports and entertainment publisher</li>
+          <li><span>Access</span>Retail products and licensed distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.topps.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="sports-card-publisher" data-search="irving, tx panini america sports-card publisher retail products and hobby distribution panini america produces football, basketball, soccer, racing, collegiate cards and stickers. sports-card publisher football, basketball, soccer, racing, collegiate cards and stickers">
-        <span class="card-kicker">IRVING, TX</span>
+      <div class="card dir-card" data-type="sports-card-publisher" data-search="irving, tx panini america sports-card publisher retail products and hobby distribution panini america produces football, basketball, soccer, racing, collegiate cards and stickers. sports-card publisher football, basketball, soccer, racing, collegiate cards and stickers">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Panini America</span>
+        </div>
         <p class="card-title">Panini America</p>
-        <p class="card-body">Sports-card publisher<br />Retail products and hobby distribution<br />Panini America produces football, basketball, soccer, racing, collegiate cards and stickers.</p>
-        <p class="card-meta">Sports-card publisher · Football, basketball, soccer, racing, collegiate cards and stickers</p>
-        <p class="card-meta"><a href="https://www.paniniamerica.net/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Panini America produces football, basketball, soccer, racing, collegiate cards and stickers.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>IRVING, TX</li>
+          <li><span>Category</span>Sports-card publisher</li>
+          <li><span>Access</span>Retail products and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.paniniamerica.net/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="sports-and-entertainment-publisher" data-search="carlsbad, ca upper deck sports and entertainment publisher retail products and hobby distribution upper deck produces hockey, entertainment cards, memorabilia and deck-building games. sports and entertainment publisher hockey, entertainment cards, memorabilia and deck-building games">
-        <span class="card-kicker">CARLSBAD, CA</span>
+      <div class="card dir-card" data-type="sports-and-entertainment-publisher" data-search="carlsbad, ca upper deck sports and entertainment publisher retail products and hobby distribution upper deck produces hockey, entertainment cards, memorabilia and deck-building games. sports and entertainment publisher hockey, entertainment cards, memorabilia and deck-building games">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/upperdeck.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Upper Deck</span>
+        </div>
         <p class="card-title">Upper Deck</p>
-        <p class="card-body">Sports and entertainment publisher<br />Retail products and hobby distribution<br />Upper Deck produces hockey, entertainment cards, memorabilia and deck-building games.</p>
-        <p class="card-meta">Sports and entertainment publisher · Hockey, entertainment cards, memorabilia and deck-building games</p>
-        <p class="card-meta"><a href="https://upperdeck.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Upper Deck produces hockey, entertainment cards, memorabilia and deck-building games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>CARLSBAD, CA</li>
+          <li><span>Category</span>Sports and entertainment publisher</li>
+          <li><span>Access</span>Retail products and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://upperdeck.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="sports-and-entertainment-publisher" data-search="dallas, tx leaf trading cards sports and entertainment publisher hobby distribution and direct releases leaf trading cards produces prospect, autograph, multi-sport and entertainment trading cards. sports and entertainment publisher prospect, autograph, multi-sport and entertainment trading cards">
-        <span class="card-kicker">DALLAS, TX</span>
+      <div class="card dir-card" data-type="sports-and-entertainment-publisher" data-search="dallas, tx leaf trading cards sports and entertainment publisher hobby distribution and direct releases leaf trading cards produces prospect, autograph, multi-sport and entertainment trading cards. sports and entertainment publisher prospect, autograph, multi-sport and entertainment trading cards">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/leaftradingcards.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Leaf Trading Cards</span>
+        </div>
         <p class="card-title">Leaf Trading Cards</p>
-        <p class="card-body">Sports and entertainment publisher<br />Hobby distribution and direct releases<br />Leaf Trading Cards produces prospect, autograph, multi-sport and entertainment trading cards.</p>
-        <p class="card-meta">Sports and entertainment publisher · Prospect, autograph, multi-sport and entertainment trading cards</p>
-        <p class="card-meta"><a href="https://www.leaftradingcards.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Leaf Trading Cards produces prospect, autograph, multi-sport and entertainment trading cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>DALLAS, TX</li>
+          <li><span>Category</span>Sports and entertainment publisher</li>
+          <li><span>Access</span>Hobby distribution and direct releases</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.leaftradingcards.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="premium-sports-card-publisher" data-search="dubai, uae futera premium sports-card publisher international retail and distribution futera produces premium soccer and licensed sports trading cards. premium sports-card publisher premium soccer and licensed sports trading cards">
-        <span class="card-kicker">DUBAI, UAE</span>
+      <div class="card dir-card" data-type="premium-sports-card-publisher" data-search="dubai, uae futera premium sports-card publisher international retail and distribution futera produces premium soccer and licensed sports trading cards. premium sports-card publisher premium soccer and licensed sports trading cards">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/futera.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Futera</span>
+        </div>
         <p class="card-title">Futera</p>
-        <p class="card-body">Premium sports-card publisher<br />International retail and distribution<br />Futera produces premium soccer and licensed sports trading cards.</p>
-        <p class="card-meta">Premium sports-card publisher · Premium soccer and licensed sports trading cards</p>
-        <p class="card-meta"><a href="https://www.futera.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Futera produces premium soccer and licensed sports trading cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>DUBAI, UAE</li>
+          <li><span>Category</span>Premium sports-card publisher</li>
+          <li><span>Access</span>International retail and distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.futera.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="sports-card-publisher" data-search="new york, ny parkside collectibles sports-card publisher direct sales and hobby distribution parkside collectibles produces women&#x27;s sports, soccer, racing and athlete-focused card products. sports-card publisher women&#x27;s sports, soccer, racing and athlete-focused card products">
-        <span class="card-kicker">NEW YORK, NY</span>
+      <div class="card dir-card" data-type="sports-card-publisher" data-search="new york, ny parkside collectibles sports-card publisher direct sales and hobby distribution parkside collectibles produces women&#x27;s sports, soccer, racing and athlete-focused card products. sports-card publisher women&#x27;s sports, soccer, racing and athlete-focused card products">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Parkside Collectibles</span>
+        </div>
         <p class="card-title">Parkside Collectibles</p>
-        <p class="card-body">Sports-card publisher<br />Direct sales and hobby distribution<br />Parkside Collectibles produces women&#x27;s sports, soccer, racing and athlete-focused card products.</p>
-        <p class="card-meta">Sports-card publisher · Women&#x27;s sports, soccer, racing and athlete-focused card products</p>
-        <p class="card-meta"><a href="https://www.parksidecards.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Parkside Collectibles produces women&#x27;s sports, soccer, racing and athlete-focused card products.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>NEW YORK, NY</li>
+          <li><span>Category</span>Sports-card publisher</li>
+          <li><span>Access</span>Direct sales and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.parksidecards.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="sports-card-publisher" data-search="online sage collectibles sports-card publisher hobby and retail distribution sage collectibles produces football prospect and autograph trading cards. sports-card publisher football prospect and autograph trading cards">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="sports-card-publisher" data-search="online sage collectibles sports-card publisher hobby and retail distribution sage collectibles produces football prospect and autograph trading cards. sports-card publisher football prospect and autograph trading cards">
+        <div class="dir-logo">
+          <span class="dir-wordmark">SAGE Collectibles</span>
+        </div>
         <p class="card-title">SAGE Collectibles</p>
-        <p class="card-body">Sports-card publisher<br />Hobby and retail distribution<br />SAGE Collectibles produces football prospect and autograph trading cards.</p>
-        <p class="card-meta">Sports-card publisher · Football prospect and autograph trading cards</p>
-        <p class="card-meta"><a href="https://www.sagecollectibles.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">SAGE Collectibles produces football prospect and autograph trading cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Sports-card publisher</li>
+          <li><span>Access</span>Hobby and retail distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.sagecollectibles.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="sports-card-publisher" data-search="online wild card sports-card publisher direct sales and hobby distribution wild card produces football, basketball, prospect and autograph card products. sports-card publisher football, basketball, prospect and autograph card products">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="sports-card-publisher" data-search="online wild card sports-card publisher direct sales and hobby distribution wild card produces football, basketball, prospect and autograph card products. sports-card publisher football, basketball, prospect and autograph card products">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/wildcardtradingcards.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Wild Card</span>
+        </div>
         <p class="card-title">Wild Card</p>
-        <p class="card-body">Sports-card publisher<br />Direct sales and hobby distribution<br />Wild Card produces football, basketball, prospect and autograph card products.</p>
-        <p class="card-meta">Sports-card publisher · Football, basketball, prospect and autograph card products</p>
-        <p class="card-meta"><a href="https://wildcardtradingcards.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Wild Card produces football, basketball, prospect and autograph card products.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Sports-card publisher</li>
+          <li><span>Access</span>Direct sales and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://wildcardtradingcards.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="sports-card-publisher" data-search="orlando, fl onyx authenticated sports-card publisher direct sales and hobby distribution onyx authenticated produces prospect baseball, football, autograph cards and memorabilia. sports-card publisher prospect baseball, football, autograph cards and memorabilia">
-        <span class="card-kicker">ORLANDO, FL</span>
+      <div class="card dir-card" data-type="sports-card-publisher" data-search="orlando, fl onyx authenticated sports-card publisher direct sales and hobby distribution onyx authenticated produces prospect baseball, football, autograph cards and memorabilia. sports-card publisher prospect baseball, football, autograph cards and memorabilia">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/onyxauthenticated.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Onyx Authenticated</span>
+        </div>
         <p class="card-title">Onyx Authenticated</p>
-        <p class="card-body">Sports-card publisher<br />Direct sales and hobby distribution<br />Onyx Authenticated produces prospect baseball, football, autograph cards and memorabilia.</p>
-        <p class="card-meta">Sports-card publisher · Prospect baseball, football, autograph cards and memorabilia</p>
-        <p class="card-meta"><a href="https://onyxauthenticated.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Onyx Authenticated produces prospect baseball, football, autograph cards and memorabilia.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ORLANDO, FL</li>
+          <li><span>Category</span>Sports-card publisher</li>
+          <li><span>Access</span>Direct sales and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://onyxauthenticated.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="sports-card-and-memorabilia-producer" data-search="houston, tx tristar productions sports-card and memorabilia producer retail products and event distribution tristar productions produces minor-league baseball, wrestling, autograph products and memorabilia. sports-card and memorabilia producer minor-league baseball, wrestling, autograph products and memorabilia">
-        <span class="card-kicker">HOUSTON, TX</span>
+      <div class="card dir-card" data-type="sports-card-and-memorabilia-producer" data-search="houston, tx tristar productions sports-card and memorabilia producer retail products and event distribution tristar productions produces minor-league baseball, wrestling, autograph products and memorabilia. sports-card and memorabilia producer minor-league baseball, wrestling, autograph products and memorabilia">
+        <div class="dir-logo">
+          <span class="dir-wordmark">TRISTAR Productions</span>
+        </div>
         <p class="card-title">TRISTAR Productions</p>
-        <p class="card-body">Sports-card and memorabilia producer<br />Retail products and event distribution<br />TRISTAR Productions produces minor-league baseball, wrestling, autograph products and memorabilia.</p>
-        <p class="card-meta">Sports-card and memorabilia producer · Minor-league baseball, wrestling, autograph products and memorabilia</p>
-        <p class="card-meta"><a href="https://www.tristarproductions.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">TRISTAR Productions produces minor-league baseball, wrestling, autograph products and memorabilia.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>HOUSTON, TX</li>
+          <li><span>Category</span>Sports-card and memorabilia producer</li>
+          <li><span>Access</span>Retail products and event distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.tristarproductions.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="entertainment-card-publisher" data-search="philadelphia, pa rittenhouse archives entertainment-card publisher hobby distribution rittenhouse archives produces licensed television, film, science-fiction and entertainment cards. entertainment-card publisher licensed television, film, science-fiction and entertainment cards">
-        <span class="card-kicker">PHILADELPHIA, PA</span>
+      <div class="card dir-card" data-type="entertainment-card-publisher" data-search="philadelphia, pa rittenhouse archives entertainment-card publisher hobby distribution rittenhouse archives produces licensed television, film, science-fiction and entertainment cards. entertainment-card publisher licensed television, film, science-fiction and entertainment cards">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Rittenhouse Archives</span>
+        </div>
         <p class="card-title">Rittenhouse Archives</p>
-        <p class="card-body">Entertainment-card publisher<br />Hobby distribution<br />Rittenhouse Archives produces licensed television, film, science-fiction and entertainment cards.</p>
-        <p class="card-meta">Entertainment-card publisher · Licensed television, film, science-fiction and entertainment cards</p>
-        <p class="card-meta"><a href="https://www.scifihobby.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Rittenhouse Archives produces licensed television, film, science-fiction and entertainment cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>PHILADELPHIA, PA</li>
+          <li><span>Category</span>Entertainment-card publisher</li>
+          <li><span>Access</span>Hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.scifihobby.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="entertainment-and-game-card-publisher" data-search="lake forest, ca cryptozoic entertainment entertainment and game-card publisher retail and hobby distribution cryptozoic entertainment produces licensed trading cards, collectible games and entertainment products. entertainment and game-card publisher licensed trading cards, collectible games and entertainment products">
-        <span class="card-kicker">LAKE FOREST, CA</span>
+      <div class="card dir-card" data-type="entertainment-and-game-card-publisher" data-search="lake forest, ca cryptozoic entertainment entertainment and game-card publisher retail and hobby distribution cryptozoic entertainment produces licensed trading cards, collectible games and entertainment products. entertainment and game-card publisher licensed trading cards, collectible games and entertainment products">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Cryptozoic Entertainment</span>
+        </div>
         <p class="card-title">Cryptozoic Entertainment</p>
-        <p class="card-body">Entertainment and game-card publisher<br />Retail and hobby distribution<br />Cryptozoic Entertainment produces licensed trading cards, collectible games and entertainment products.</p>
-        <p class="card-meta">Entertainment and game-card publisher · Licensed trading cards, collectible games and entertainment products</p>
-        <p class="card-meta"><a href="https://cryptozoic.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Cryptozoic Entertainment produces licensed trading cards, collectible games and entertainment products.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>LAKE FOREST, CA</li>
+          <li><span>Category</span>Entertainment and game-card publisher</li>
+          <li><span>Access</span>Retail and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://cryptozoic.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="non-sport-card-publisher" data-search="gilbert, az cardsmiths non-sport card publisher direct sales and retail distribution cardsmiths produces currency, pop-culture and limited-edition collectible card series. non-sport card publisher currency, pop-culture and limited-edition collectible card series">
-        <span class="card-kicker">GILBERT, AZ</span>
+      <div class="card dir-card" data-type="non-sport-card-publisher" data-search="gilbert, az cardsmiths non-sport card publisher direct sales and retail distribution cardsmiths produces currency, pop-culture and limited-edition collectible card series. non-sport card publisher currency, pop-culture and limited-edition collectible card series">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/cardsmiths.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Cardsmiths</span>
+        </div>
         <p class="card-title">Cardsmiths</p>
-        <p class="card-body">Non-sport card publisher<br />Direct sales and retail distribution<br />Cardsmiths produces currency, pop-culture and limited-edition collectible card series.</p>
-        <p class="card-meta">Non-sport card publisher · Currency, pop-culture and limited-edition collectible card series</p>
-        <p class="card-meta"><a href="https://cardsmiths.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Cardsmiths produces currency, pop-culture and limited-edition collectible card series.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>GILBERT, AZ</li>
+          <li><span>Category</span>Non-sport card publisher</li>
+          <li><span>Access</span>Direct sales and retail distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://cardsmiths.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="historical-card-publisher" data-search="online historic autographs historical card publisher direct sales and hobby distribution historic autographs produces autograph, history, celebrity and themed collectible card products. historical card publisher autograph, history, celebrity and themed collectible card products">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="historical-card-publisher" data-search="online historic autographs historical card publisher direct sales and hobby distribution historic autographs produces autograph, history, celebrity and themed collectible card products. historical card publisher autograph, history, celebrity and themed collectible card products">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/historicautographcompany.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Historic Autographs</span>
+        </div>
         <p class="card-title">Historic Autographs</p>
-        <p class="card-body">Historical card publisher<br />Direct sales and hobby distribution<br />Historic Autographs produces autograph, history, celebrity and themed collectible card products.</p>
-        <p class="card-meta">Historical card publisher · Autograph, history, celebrity and themed collectible card products</p>
-        <p class="card-meta"><a href="https://historicautographcompany.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Historic Autographs produces autograph, history, celebrity and themed collectible card products.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Historical card publisher</li>
+          <li><span>Access</span>Direct sales and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://historicautographcompany.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="repack-and-collectible-producer" data-search="online super break sports repack and collectible producer hobby distribution super break sports produces multi-sport buyback, memorabilia and premium repack products. repack and collectible producer multi-sport buyback, memorabilia and premium repack products">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="repack-and-collectible-producer" data-search="online super break sports repack and collectible producer hobby distribution super break sports produces multi-sport buyback, memorabilia and premium repack products. repack and collectible producer multi-sport buyback, memorabilia and premium repack products">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Super Break Sports</span>
+        </div>
         <p class="card-title">Super Break Sports</p>
-        <p class="card-body">Repack and collectible producer<br />Hobby distribution<br />Super Break Sports produces multi-sport buyback, memorabilia and premium repack products.</p>
-        <p class="card-meta">Repack and collectible producer · Multi-sport buyback, memorabilia and premium repack products</p>
-        <p class="card-meta"><a href="https://superbreaksports.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Super Break Sports produces multi-sport buyback, memorabilia and premium repack products.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Repack and collectible producer</li>
+          <li><span>Access</span>Hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://superbreaksports.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="trading-card-game-publisher" data-search="bellevue, wa the pokémon company international trading card game publisher retail and hobby distribution the pokémon company international produces pokémon trading card game cards, sets, accessories and organized play. trading card game publisher pokémon trading card game cards, sets, accessories and organized play">
-        <span class="card-kicker">BELLEVUE, WA</span>
+      <div class="card dir-card" data-type="trading-card-game-publisher" data-search="bellevue, wa the pokémon company international trading card game publisher retail and hobby distribution the pokémon company international produces pokémon trading card game cards, sets, accessories and organized play. trading card game publisher pokémon trading card game cards, sets, accessories and organized play">
+        <div class="dir-logo">
+          <span class="dir-wordmark">The Pokémon Company International</span>
+        </div>
         <p class="card-title">The Pokémon Company International</p>
-        <p class="card-body">Trading card game publisher<br />Retail and hobby distribution<br />The Pokémon Company International produces pokémon trading card game cards, sets, accessories and organized play.</p>
-        <p class="card-meta">Trading card game publisher · Pokémon Trading Card Game cards, sets, accessories and organized play</p>
-        <p class="card-meta"><a href="https://www.pokemon.com/us/pokemon-tcg/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">The Pokémon Company International produces pokémon trading card game cards, sets, accessories and organized play.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>BELLEVUE, WA</li>
+          <li><span>Category</span>Trading card game publisher</li>
+          <li><span>Access</span>Retail and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.pokemon.com/us/pokemon-tcg/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="trading-card-game-publisher" data-search="renton, wa wizards of the coast trading card game publisher retail and hobby distribution wizards of the coast produces magic: the gathering cards, sets and organized-play products. trading card game publisher magic: the gathering cards, sets and organized-play products">
-        <span class="card-kicker">RENTON, WA</span>
+      <div class="card dir-card" data-type="trading-card-game-publisher" data-search="renton, wa wizards of the coast trading card game publisher retail and hobby distribution wizards of the coast produces magic: the gathering cards, sets and organized-play products. trading card game publisher magic: the gathering cards, sets and organized-play products">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Wizards of the Coast</span>
+        </div>
         <p class="card-title">Wizards of the Coast</p>
-        <p class="card-body">Trading card game publisher<br />Retail and hobby distribution<br />Wizards of the Coast produces magic: the gathering cards, sets and organized-play products.</p>
-        <p class="card-meta">Trading card game publisher · Magic: The Gathering cards, sets and organized-play products</p>
-        <p class="card-meta"><a href="https://magic.wizards.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Wizards of the Coast produces magic: the gathering cards, sets and organized-play products.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>RENTON, WA</li>
+          <li><span>Category</span>Trading card game publisher</li>
+          <li><span>Access</span>Retail and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://magic.wizards.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="trading-card-game-publisher" data-search="el segundo, ca konami digital entertainment trading card game publisher retail and hobby distribution konami digital entertainment produces yu-gi-oh! trading card game products and organized play. trading card game publisher yu-gi-oh! trading card game products and organized play">
-        <span class="card-kicker">EL SEGUNDO, CA</span>
+      <div class="card dir-card" data-type="trading-card-game-publisher" data-search="el segundo, ca konami digital entertainment trading card game publisher retail and hobby distribution konami digital entertainment produces yu-gi-oh! trading card game products and organized play. trading card game publisher yu-gi-oh! trading card game products and organized play">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Konami Digital Entertainment</span>
+        </div>
         <p class="card-title">Konami Digital Entertainment</p>
-        <p class="card-body">Trading card game publisher<br />Retail and hobby distribution<br />Konami Digital Entertainment produces yu-gi-oh! trading card game products and organized play.</p>
-        <p class="card-meta">Trading card game publisher · Yu-Gi-Oh! Trading Card Game products and organized play</p>
-        <p class="card-meta"><a href="https://www.yugioh-card.com/en/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Konami Digital Entertainment produces yu-gi-oh! trading card game products and organized play.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>EL SEGUNDO, CA</li>
+          <li><span>Category</span>Trading card game publisher</li>
+          <li><span>Access</span>Retail and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.yugioh-card.com/en/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="trading-card-game-publisher" data-search="el segundo, ca bandai card games trading card game publisher retail and hobby distribution bandai card games produces one piece, digimon, dragon ball, gundam and licensed card games. trading card game publisher one piece, digimon, dragon ball, gundam and licensed card games">
-        <span class="card-kicker">EL SEGUNDO, CA</span>
+      <div class="card dir-card" data-type="trading-card-game-publisher" data-search="el segundo, ca bandai card games trading card game publisher retail and hobby distribution bandai card games produces one piece, digimon, dragon ball, gundam and licensed card games. trading card game publisher one piece, digimon, dragon ball, gundam and licensed card games">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Bandai Card Games</span>
+        </div>
         <p class="card-title">Bandai Card Games</p>
-        <p class="card-body">Trading card game publisher<br />Retail and hobby distribution<br />Bandai Card Games produces one piece, digimon, dragon ball, gundam and licensed card games.</p>
-        <p class="card-meta">Trading card game publisher · One Piece, Digimon, Dragon Ball, Gundam and licensed card games</p>
-        <p class="card-meta"><a href="https://www.bandai-tcg-plus.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Bandai Card Games produces one piece, digimon, dragon ball, gundam and licensed card games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>EL SEGUNDO, CA</li>
+          <li><span>Category</span>Trading card game publisher</li>
+          <li><span>Access</span>Retail and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.bandai-tcg-plus.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="trading-card-game-publisher" data-search="los angeles, ca bushiroad international trading card game publisher retail and hobby distribution bushiroad international produces cardfight!! vanguard, weiss schwarz and other collectible card games. trading card game publisher cardfight!! vanguard, weiss schwarz and other collectible card games">
-        <span class="card-kicker">LOS ANGELES, CA</span>
+      <div class="card dir-card" data-type="trading-card-game-publisher" data-search="los angeles, ca bushiroad international trading card game publisher retail and hobby distribution bushiroad international produces cardfight!! vanguard, weiss schwarz and other collectible card games. trading card game publisher cardfight!! vanguard, weiss schwarz and other collectible card games">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/en.bushiroad.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Bushiroad International</span>
+        </div>
         <p class="card-title">Bushiroad International</p>
-        <p class="card-body">Trading card game publisher<br />Retail and hobby distribution<br />Bushiroad International produces cardfight!! vanguard, weiss schwarz and other collectible card games.</p>
-        <p class="card-meta">Trading card game publisher · Cardfight!! Vanguard, Weiss Schwarz and other collectible card games</p>
-        <p class="card-meta"><a href="https://en.bushiroad.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Bushiroad International produces cardfight!! vanguard, weiss schwarz and other collectible card games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>LOS ANGELES, CA</li>
+          <li><span>Category</span>Trading card game publisher</li>
+          <li><span>Access</span>Retail and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://en.bushiroad.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="trading-card-game-publisher" data-search="seattle, wa ravensburger north america trading card game publisher retail and hobby distribution ravensburger north america produces disney lorcana trading cards and accessories. trading card game publisher disney lorcana trading cards and accessories">
-        <span class="card-kicker">SEATTLE, WA</span>
+      <div class="card dir-card" data-type="trading-card-game-publisher" data-search="seattle, wa ravensburger north america trading card game publisher retail and hobby distribution ravensburger north america produces disney lorcana trading cards and accessories. trading card game publisher disney lorcana trading cards and accessories">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/disneylorcana.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Ravensburger North America</span>
+        </div>
         <p class="card-title">Ravensburger North America</p>
-        <p class="card-body">Trading card game publisher<br />Retail and hobby distribution<br />Ravensburger North America produces disney lorcana trading cards and accessories.</p>
-        <p class="card-meta">Trading card game publisher · Disney Lorcana trading cards and accessories</p>
-        <p class="card-meta"><a href="https://www.disneylorcana.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Ravensburger North America produces disney lorcana trading cards and accessories.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>SEATTLE, WA</li>
+          <li><span>Category</span>Trading card game publisher</li>
+          <li><span>Access</span>Retail and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.disneylorcana.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-game-publisher" data-search="roseville, mn fantasy flight games card-game publisher retail and hobby distribution fantasy flight games produces star wars: unlimited, living card games and licensed card products. card-game publisher star wars: unlimited, living card games and licensed card products">
-        <span class="card-kicker">ROSEVILLE, MN</span>
+      <div class="card dir-card" data-type="card-game-publisher" data-search="roseville, mn fantasy flight games card-game publisher retail and hobby distribution fantasy flight games produces star wars: unlimited, living card games and licensed card products. card-game publisher star wars: unlimited, living card games and licensed card products">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Fantasy Flight Games</span>
+        </div>
         <p class="card-title">Fantasy Flight Games</p>
-        <p class="card-body">Card-game publisher<br />Retail and hobby distribution<br />Fantasy Flight Games produces star wars: unlimited, living card games and licensed card products.</p>
-        <p class="card-meta">Card-game publisher · Star Wars: Unlimited, living card games and licensed card products</p>
-        <p class="card-meta"><a href="https://www.fantasyflightgames.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Fantasy Flight Games produces star wars: unlimited, living card games and licensed card products.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ROSEVILLE, MN</li>
+          <li><span>Category</span>Card-game publisher</li>
+          <li><span>Access</span>Retail and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.fantasyflightgames.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="trading-card-game-publisher" data-search="auckland, new zealand legend story studios trading card game publisher retail and hobby distribution legend story studios produces flesh and blood trading card game products and organized play. trading card game publisher flesh and blood trading card game products and organized play">
-        <span class="card-kicker">AUCKLAND, NEW ZEALAND</span>
+      <div class="card dir-card" data-type="trading-card-game-publisher" data-search="auckland, new zealand legend story studios trading card game publisher retail and hobby distribution legend story studios produces flesh and blood trading card game products and organized play. trading card game publisher flesh and blood trading card game products and organized play">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Legend Story Studios</span>
+        </div>
         <p class="card-title">Legend Story Studios</p>
-        <p class="card-body">Trading card game publisher<br />Retail and hobby distribution<br />Legend Story Studios produces flesh and blood trading card game products and organized play.</p>
-        <p class="card-meta">Trading card game publisher · Flesh and Blood Trading Card Game products and organized play</p>
-        <p class="card-meta"><a href="https://fabtcg.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Legend Story Studios produces flesh and blood trading card game products and organized play.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>AUCKLAND, NEW ZEALAND</li>
+          <li><span>Category</span>Trading card game publisher</li>
+          <li><span>Access</span>Retail and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://fabtcg.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="trading-card-game-publisher" data-search="las vegas, nv uvs games trading card game publisher retail and hobby distribution uvs games produces universus and licensed collectible card game products. trading card game publisher universus and licensed collectible card game products">
-        <span class="card-kicker">LAS VEGAS, NV</span>
+      <div class="card dir-card" data-type="trading-card-game-publisher" data-search="las vegas, nv uvs games trading card game publisher retail and hobby distribution uvs games produces universus and licensed collectible card game products. trading card game publisher universus and licensed collectible card game products">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/uvsgames.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">UVS Games</span>
+        </div>
         <p class="card-title">UVS Games</p>
-        <p class="card-body">Trading card game publisher<br />Retail and hobby distribution<br />UVS Games produces universus and licensed collectible card game products.</p>
-        <p class="card-meta">Trading card game publisher · UniVersus and licensed collectible card game products</p>
-        <p class="card-meta"><a href="https://uvsgames.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">UVS Games produces universus and licensed collectible card game products.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>LAS VEGAS, NV</li>
+          <li><span>Category</span>Trading card game publisher</li>
+          <li><span>Access</span>Retail and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://uvsgames.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-game-publisher" data-search="marlborough, ma wise wizard games card-game publisher direct sales and retail distribution wise wizard games produces star realms, hero realms and expandable card games. card-game publisher star realms, hero realms and expandable card games">
-        <span class="card-kicker">MARLBOROUGH, MA</span>
+      <div class="card dir-card" data-type="card-game-publisher" data-search="marlborough, ma wise wizard games card-game publisher direct sales and retail distribution wise wizard games produces star realms, hero realms and expandable card games. card-game publisher star realms, hero realms and expandable card games">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/wisewizardgames.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Wise Wizard Games</span>
+        </div>
         <p class="card-title">Wise Wizard Games</p>
-        <p class="card-body">Card-game publisher<br />Direct sales and retail distribution<br />Wise Wizard Games produces star realms, hero realms and expandable card games.</p>
-        <p class="card-meta">Card-game publisher · Star Realms, Hero Realms and expandable card games</p>
-        <p class="card-meta"><a href="https://www.wisewizardgames.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Wise Wizard Games produces star realms, hero realms and expandable card games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>MARLBOROUGH, MA</li>
+          <li><span>Category</span>Card-game publisher</li>
+          <li><span>Access</span>Direct sales and retail distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.wisewizardgames.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-game-publisher" data-search="san diego, ca ghost galaxy card-game publisher direct sales and hobby distribution ghost galaxy produces keyforge and collectible tabletop game products. card-game publisher keyforge and collectible tabletop game products">
-        <span class="card-kicker">SAN DIEGO, CA</span>
+      <div class="card dir-card" data-type="card-game-publisher" data-search="san diego, ca ghost galaxy card-game publisher direct sales and hobby distribution ghost galaxy produces keyforge and collectible tabletop game products. card-game publisher keyforge and collectible tabletop game products">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Ghost Galaxy</span>
+        </div>
         <p class="card-title">Ghost Galaxy</p>
-        <p class="card-body">Card-game publisher<br />Direct sales and hobby distribution<br />Ghost Galaxy produces keyforge and collectible tabletop game products.</p>
-        <p class="card-meta">Card-game publisher · KeyForge and collectible tabletop game products</p>
-        <p class="card-meta"><a href="https://www.ghostgalaxy.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Ghost Galaxy produces keyforge and collectible tabletop game products.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>SAN DIEGO, CA</li>
+          <li><span>Category</span>Card-game publisher</li>
+          <li><span>Access</span>Direct sales and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.ghostgalaxy.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="trading-card-game-publisher" data-search="paris, france equinox trading card game publisher retail and hobby distribution equinox produces altered trading card game sets and organized play. trading card game publisher altered trading card game sets and organized play">
-        <span class="card-kicker">PARIS, FRANCE</span>
+      <div class="card dir-card" data-type="trading-card-game-publisher" data-search="paris, france equinox trading card game publisher retail and hobby distribution equinox produces altered trading card game sets and organized play. trading card game publisher altered trading card game sets and organized play">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Equinox</span>
+        </div>
         <p class="card-title">Equinox</p>
-        <p class="card-body">Trading card game publisher<br />Retail and hobby distribution<br />Equinox produces altered trading card game sets and organized play.</p>
-        <p class="card-meta">Trading card game publisher · Altered Trading Card Game sets and organized play</p>
-        <p class="card-meta"><a href="https://www.altered.gg/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Equinox produces altered trading card game sets and organized play.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>PARIS, FRANCE</li>
+          <li><span>Category</span>Trading card game publisher</li>
+          <li><span>Access</span>Retail and hobby distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.altered.gg/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="toy-and-card-game-publisher" data-search="tokyo, japan takara tomy toy and card-game publisher retail distribution takara tomy produces duel masters, licensed card products and collectible games. toy and card-game publisher duel masters, licensed card products and collectible games">
-        <span class="card-kicker">TOKYO, JAPAN</span>
+      <div class="card dir-card" data-type="toy-and-card-game-publisher" data-search="tokyo, japan takara tomy toy and card-game publisher retail distribution takara tomy produces duel masters, licensed card products and collectible games. toy and card-game publisher duel masters, licensed card products and collectible games">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Takara Tomy</span>
+        </div>
         <p class="card-title">Takara Tomy</p>
-        <p class="card-body">Toy and card-game publisher<br />Retail distribution<br />Takara Tomy produces duel masters, licensed card products and collectible games.</p>
-        <p class="card-meta">Toy and card-game publisher · Duel Masters, licensed card products and collectible games</p>
-        <p class="card-meta"><a href="https://www.takaratomy.co.jp/english/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Takara Tomy produces duel masters, licensed card products and collectible games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>TOKYO, JAPAN</li>
+          <li><span>Category</span>Toy and card-game publisher</li>
+          <li><span>Access</span>Retail distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.takaratomy.co.jp/english/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="licensed-collectible-producer" data-search="tokyo, japan tomy company licensed collectible producer retail distribution tomy company produces licensed games, cards, toys and entertainment collectibles. licensed collectible producer licensed games, cards, toys and entertainment collectibles">
-        <span class="card-kicker">TOKYO, JAPAN</span>
+      <div class="card dir-card" data-type="licensed-collectible-producer" data-search="tokyo, japan tomy company licensed collectible producer retail distribution tomy company produces licensed games, cards, toys and entertainment collectibles. licensed collectible producer licensed games, cards, toys and entertainment collectibles">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Tomy Company</span>
+        </div>
         <p class="card-title">Tomy Company</p>
-        <p class="card-body">Licensed collectible producer<br />Retail distribution<br />Tomy Company produces licensed games, cards, toys and entertainment collectibles.</p>
-        <p class="card-meta">Licensed collectible producer · Licensed games, cards, toys and entertainment collectibles</p>
-        <p class="card-meta"><a href="https://www.tomy.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Tomy Company produces licensed games, cards, toys and entertainment collectibles.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>TOKYO, JAPAN</li>
+          <li><span>Category</span>Licensed collectible producer</li>
+          <li><span>Access</span>Retail distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.tomy.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="collectible-product-manufacturer" data-search="tokyo, japan bushiroad creative collectible product manufacturer retail distribution bushiroad creative produces licensed collectible cards, character goods and entertainment products. collectible product manufacturer licensed collectible cards, character goods and entertainment products">
-        <span class="card-kicker">TOKYO, JAPAN</span>
+      <div class="card dir-card" data-type="collectible-product-manufacturer" data-search="tokyo, japan bushiroad creative collectible product manufacturer retail distribution bushiroad creative produces licensed collectible cards, character goods and entertainment products. collectible product manufacturer licensed collectible cards, character goods and entertainment products">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/bushiroad-creative.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Bushiroad Creative</span>
+        </div>
         <p class="card-title">Bushiroad Creative</p>
-        <p class="card-body">Collectible product manufacturer<br />Retail distribution<br />Bushiroad Creative produces licensed collectible cards, character goods and entertainment products.</p>
-        <p class="card-meta">Collectible product manufacturer · Licensed collectible cards, character goods and entertainment products</p>
-        <p class="card-meta"><a href="https://bushiroad-creative.com/en/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Bushiroad Creative produces licensed collectible cards, character goods and entertainment products.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>TOKYO, JAPAN</li>
+          <li><span>Category</span>Collectible product manufacturer</li>
+          <li><span>Access</span>Retail distribution</li>
+        </ul>
+        <p class="dir-link"><a href="https://bushiroad-creative.com/en/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="contract-card-manufacturer" data-search="turnhout, belgium cartamundi contract card manufacturer business-to-business manufacturing cartamundi produces large-scale trading cards, playing cards, game cards and packaging. contract card manufacturer large-scale trading cards, playing cards, game cards and packaging">
-        <span class="card-kicker">TURNHOUT, BELGIUM</span>
+      <div class="card dir-card" data-type="contract-card-manufacturer" data-search="turnhout, belgium cartamundi contract card manufacturer business-to-business manufacturing cartamundi produces large-scale trading cards, playing cards, game cards and packaging. contract card manufacturer large-scale trading cards, playing cards, game cards and packaging">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/cartamundi.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Cartamundi</span>
+        </div>
         <p class="card-title">Cartamundi</p>
-        <p class="card-body">Contract card manufacturer<br />Business-to-business manufacturing<br />Cartamundi produces large-scale trading cards, playing cards, game cards and packaging.</p>
-        <p class="card-meta">Contract card manufacturer · Large-scale trading cards, playing cards, game cards and packaging</p>
-        <p class="card-meta"><a href="https://cartamundi.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Cartamundi produces large-scale trading cards, playing cards, game cards and packaging.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>TURNHOUT, BELGIUM</li>
+          <li><span>Category</span>Contract card manufacturer</li>
+          <li><span>Access</span>Business-to-business manufacturing</li>
+        </ul>
+        <p class="dir-link"><a href="https://cartamundi.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-manufacturer" data-search="erlanger, ky united states playing card company card manufacturer business-to-business and branded retail united states playing card company produces custom playing cards and high-volume card production. card manufacturer custom playing cards and high-volume card production">
-        <span class="card-kicker">ERLANGER, KY</span>
+      <div class="card dir-card" data-type="card-manufacturer" data-search="erlanger, ky united states playing card company card manufacturer business-to-business and branded retail united states playing card company produces custom playing cards and high-volume card production. card manufacturer custom playing cards and high-volume card production">
+        <div class="dir-logo">
+          <span class="dir-wordmark">United States Playing Card Company</span>
+        </div>
         <p class="card-title">United States Playing Card Company</p>
-        <p class="card-body">Card manufacturer<br />Business-to-business and branded retail<br />United States Playing Card Company produces custom playing cards and high-volume card production.</p>
-        <p class="card-meta">Card manufacturer · Custom playing cards and high-volume card production</p>
-        <p class="card-meta"><a href="https://www.usplayingcard.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">United States Playing Card Company produces custom playing cards and high-volume card production.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ERLANGER, KY</li>
+          <li><span>Category</span>Card manufacturer</li>
+          <li><span>Access</span>Business-to-business and branded retail</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.usplayingcard.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="custom-card-manufacturer" data-search="hong kong makeplayingcards.com custom card manufacturer consumer and business custom orders makeplayingcards.com produces custom trading cards, game cards, decks, boosters and packaging. custom card manufacturer custom trading cards, game cards, decks, boosters and packaging">
-        <span class="card-kicker">HONG KONG</span>
+      <div class="card dir-card" data-type="custom-card-manufacturer" data-search="hong kong makeplayingcards.com custom card manufacturer consumer and business custom orders makeplayingcards.com produces custom trading cards, game cards, decks, boosters and packaging. custom card manufacturer custom trading cards, game cards, decks, boosters and packaging">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/makeplayingcards.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">MakePlayingCards.com</span>
+        </div>
         <p class="card-title">MakePlayingCards.com</p>
-        <p class="card-body">Custom card manufacturer<br />Consumer and business custom orders<br />MakePlayingCards.com produces custom trading cards, game cards, decks, boosters and packaging.</p>
-        <p class="card-meta">Custom card manufacturer · Custom trading cards, game cards, decks, boosters and packaging</p>
-        <p class="card-meta"><a href="https://www.makeplayingcards.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">MakePlayingCards.com produces custom trading cards, game cards, decks, boosters and packaging.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>HONG KONG</li>
+          <li><span>Category</span>Custom card manufacturer</li>
+          <li><span>Access</span>Consumer and business custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.makeplayingcards.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="custom-game-manufacturer" data-search="hong kong boardgamesmaker.com custom game manufacturer consumer and business custom orders boardgamesmaker.com produces custom game cards, trading cards, tokens and packaging. custom game manufacturer custom game cards, trading cards, tokens and packaging">
-        <span class="card-kicker">HONG KONG</span>
+      <div class="card dir-card" data-type="custom-game-manufacturer" data-search="hong kong boardgamesmaker.com custom game manufacturer consumer and business custom orders boardgamesmaker.com produces custom game cards, trading cards, tokens and packaging. custom game manufacturer custom game cards, trading cards, tokens and packaging">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/boardgamesmaker.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">BoardGamesMaker.com</span>
+        </div>
         <p class="card-title">BoardGamesMaker.com</p>
-        <p class="card-body">Custom game manufacturer<br />Consumer and business custom orders<br />BoardGamesMaker.com produces custom game cards, trading cards, tokens and packaging.</p>
-        <p class="card-meta">Custom game manufacturer · Custom game cards, trading cards, tokens and packaging</p>
-        <p class="card-meta"><a href="https://www.boardgamesmaker.com/customized/custom-game-cards.html" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">BoardGamesMaker.com produces custom game cards, trading cards, tokens and packaging.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>HONG KONG</li>
+          <li><span>Category</span>Custom game manufacturer</li>
+          <li><span>Access</span>Consumer and business custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.boardgamesmaker.com/customized/custom-game-cards.html" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="custom-card-printer" data-search="evanston, il printninja custom card printer commercial custom orders printninja produces custom card games, trading cards, tuck boxes and specialty finishes. custom card printer custom card games, trading cards, tuck boxes and specialty finishes">
-        <span class="card-kicker">EVANSTON, IL</span>
+      <div class="card dir-card" data-type="custom-card-printer" data-search="evanston, il printninja custom card printer commercial custom orders printninja produces custom card games, trading cards, tuck boxes and specialty finishes. custom card printer custom card games, trading cards, tuck boxes and specialty finishes">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/printninja.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">PrintNinja</span>
+        </div>
         <p class="card-title">PrintNinja</p>
-        <p class="card-body">Custom card printer<br />Commercial custom orders<br />PrintNinja produces custom card games, trading cards, tuck boxes and specialty finishes.</p>
-        <p class="card-meta">Custom card printer · Custom card games, trading cards, tuck boxes and specialty finishes</p>
-        <p class="card-meta"><a href="https://printninja.com/printing-products/card-game-printing/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">PrintNinja produces custom card games, trading cards, tuck boxes and specialty finishes.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>EVANSTON, IL</li>
+          <li><span>Category</span>Custom card printer</li>
+          <li><span>Access</span>Commercial custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://printninja.com/printing-products/card-game-printing/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="print-on-demand-manufacturer" data-search="madison, wi the game crafter print-on-demand manufacturer consumer and creator custom orders the game crafter produces prototype and short-run card games, trading cards and components. print-on-demand manufacturer prototype and short-run card games, trading cards and components">
-        <span class="card-kicker">MADISON, WI</span>
+      <div class="card dir-card" data-type="print-on-demand-manufacturer" data-search="madison, wi the game crafter print-on-demand manufacturer consumer and creator custom orders the game crafter produces prototype and short-run card games, trading cards and components. print-on-demand manufacturer prototype and short-run card games, trading cards and components">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/thegamecrafter.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">The Game Crafter</span>
+        </div>
         <p class="card-title">The Game Crafter</p>
-        <p class="card-body">Print-on-demand manufacturer<br />Consumer and creator custom orders<br />The Game Crafter produces prototype and short-run card games, trading cards and components.</p>
-        <p class="card-meta">Print-on-demand manufacturer · Prototype and short-run card games, trading cards and components</p>
-        <p class="card-meta"><a href="https://www.thegamecrafter.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">The Game Crafter produces prototype and short-run card games, trading cards and components.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>MADISON, WI</li>
+          <li><span>Category</span>Print-on-demand manufacturer</li>
+          <li><span>Access</span>Consumer and creator custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.thegamecrafter.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="custom-card-manufacturer" data-search="orlando, fl shuffled ink custom card manufacturer consumer and business custom orders shuffled ink produces custom playing cards, game cards, tarot, packaging and accessories. custom card manufacturer custom playing cards, game cards, tarot, packaging and accessories">
-        <span class="card-kicker">ORLANDO, FL</span>
+      <div class="card dir-card" data-type="custom-card-manufacturer" data-search="orlando, fl shuffled ink custom card manufacturer consumer and business custom orders shuffled ink produces custom playing cards, game cards, tarot, packaging and accessories. custom card manufacturer custom playing cards, game cards, tarot, packaging and accessories">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/shuffledink.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Shuffled Ink</span>
+        </div>
         <p class="card-title">Shuffled Ink</p>
-        <p class="card-body">Custom card manufacturer<br />Consumer and business custom orders<br />Shuffled Ink produces custom playing cards, game cards, tarot, packaging and accessories.</p>
-        <p class="card-meta">Custom card manufacturer · Custom playing cards, game cards, tarot, packaging and accessories</p>
-        <p class="card-meta"><a href="https://shuffledink.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Shuffled Ink produces custom playing cards, game cards, tarot, packaging and accessories.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ORLANDO, FL</li>
+          <li><span>Category</span>Custom card manufacturer</li>
+          <li><span>Access</span>Consumer and business custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://shuffledink.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="custom-game-manufacturer" data-search="new york, ny ad magic custom game manufacturer commercial custom orders ad magic produces custom card games, promotional cards, packaging and fulfillment. custom game manufacturer custom card games, promotional cards, packaging and fulfillment">
-        <span class="card-kicker">NEW YORK, NY</span>
+      <div class="card dir-card" data-type="custom-game-manufacturer" data-search="new york, ny ad magic custom game manufacturer commercial custom orders ad magic produces custom card games, promotional cards, packaging and fulfillment. custom game manufacturer custom card games, promotional cards, packaging and fulfillment">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/admagic.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Ad Magic</span>
+        </div>
         <p class="card-title">Ad Magic</p>
-        <p class="card-body">Custom game manufacturer<br />Commercial custom orders<br />Ad Magic produces custom card games, promotional cards, packaging and fulfillment.</p>
-        <p class="card-meta">Custom game manufacturer · Custom card games, promotional cards, packaging and fulfillment</p>
-        <p class="card-meta"><a href="https://www.admagic.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Ad Magic produces custom card games, promotional cards, packaging and fulfillment.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>NEW YORK, NY</li>
+          <li><span>Category</span>Custom game manufacturer</li>
+          <li><span>Access</span>Commercial custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.admagic.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="custom-game-manufacturer" data-search="battle creek, mi delano games custom game manufacturer commercial custom orders delano games produces custom cards, board games, packaging and large production runs. custom game manufacturer custom cards, board games, packaging and large production runs">
-        <span class="card-kicker">BATTLE CREEK, MI</span>
+      <div class="card dir-card" data-type="custom-game-manufacturer" data-search="battle creek, mi delano games custom game manufacturer commercial custom orders delano games produces custom cards, board games, packaging and large production runs. custom game manufacturer custom cards, board games, packaging and large production runs">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/delanogames.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Delano Games</span>
+        </div>
         <p class="card-title">Delano Games</p>
-        <p class="card-body">Custom game manufacturer<br />Commercial custom orders<br />Delano Games produces custom cards, board games, packaging and large production runs.</p>
-        <p class="card-meta">Custom game manufacturer · Custom cards, board games, packaging and large production runs</p>
-        <p class="card-meta"><a href="https://www.delanogames.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Delano Games produces custom cards, board games, packaging and large production runs.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>BATTLE CREEK, MI</li>
+          <li><span>Category</span>Custom game manufacturer</li>
+          <li><span>Access</span>Commercial custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.delanogames.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="contract-game-manufacturer" data-search="vancouver, canada panda game manufacturing contract game manufacturer business-to-business manufacturing panda game manufacturing produces card games, board games, components, packaging and fulfillment. contract game manufacturer card games, board games, components, packaging and fulfillment">
-        <span class="card-kicker">VANCOUVER, CANADA</span>
+      <div class="card dir-card" data-type="contract-game-manufacturer" data-search="vancouver, canada panda game manufacturing contract game manufacturer business-to-business manufacturing panda game manufacturing produces card games, board games, components, packaging and fulfillment. contract game manufacturer card games, board games, components, packaging and fulfillment">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/pandagm.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Panda Game Manufacturing</span>
+        </div>
         <p class="card-title">Panda Game Manufacturing</p>
-        <p class="card-body">Contract game manufacturer<br />Business-to-business manufacturing<br />Panda Game Manufacturing produces card games, board games, components, packaging and fulfillment.</p>
-        <p class="card-meta">Contract game manufacturer · Card games, board games, components, packaging and fulfillment</p>
-        <p class="card-meta"><a href="https://pandagm.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Panda Game Manufacturing produces card games, board games, components, packaging and fulfillment.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>VANCOUVER, CANADA</li>
+          <li><span>Category</span>Contract game manufacturer</li>
+          <li><span>Access</span>Business-to-business manufacturing</li>
+        </ul>
+        <p class="dir-link"><a href="https://pandagm.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="contract-game-manufacturer" data-search="shanghai, china longpack games contract game manufacturer business-to-business manufacturing longpack games produces trading cards, card games, board games and custom components. contract game manufacturer trading cards, card games, board games and custom components">
-        <span class="card-kicker">SHANGHAI, CHINA</span>
+      <div class="card dir-card" data-type="contract-game-manufacturer" data-search="shanghai, china longpack games contract game manufacturer business-to-business manufacturing longpack games produces trading cards, card games, board games and custom components. contract game manufacturer trading cards, card games, board games and custom components">
+        <div class="dir-logo">
+          <span class="dir-wordmark">LongPack Games</span>
+        </div>
         <p class="card-title">LongPack Games</p>
-        <p class="card-body">Contract game manufacturer<br />Business-to-business manufacturing<br />LongPack Games produces trading cards, card games, board games and custom components.</p>
-        <p class="card-meta">Contract game manufacturer · Trading cards, card games, board games and custom components</p>
-        <p class="card-meta"><a href="https://www.longpackgames.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">LongPack Games produces trading cards, card games, board games and custom components.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>SHANGHAI, CHINA</li>
+          <li><span>Category</span>Contract game manufacturer</li>
+          <li><span>Access</span>Business-to-business manufacturing</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.longpackgames.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="prototype-and-short-run-printer" data-search="raleigh, nc print &amp; play games prototype and short-run printer consumer and creator custom orders print &amp; play games produces custom cards, card games, prototypes and game components. prototype and short-run printer custom cards, card games, prototypes and game components">
-        <span class="card-kicker">RALEIGH, NC</span>
+      <div class="card dir-card" data-type="prototype-and-short-run-printer" data-search="raleigh, nc print &amp; play games prototype and short-run printer consumer and creator custom orders print &amp; play games produces custom cards, card games, prototypes and game components. prototype and short-run printer custom cards, card games, prototypes and game components">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/printplaygames.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Print &amp; Play Games</span>
+        </div>
         <p class="card-title">Print &amp; Play Games</p>
-        <p class="card-body">Prototype and short-run printer<br />Consumer and creator custom orders<br />Print &amp; Play Games produces custom cards, card games, prototypes and game components.</p>
-        <p class="card-meta">Prototype and short-run printer · Custom cards, card games, prototypes and game components</p>
-        <p class="card-meta"><a href="https://www.printplaygames.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Print &amp; Play Games produces custom cards, card games, prototypes and game components.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>RALEIGH, NC</li>
+          <li><span>Category</span>Prototype and short-run printer</li>
+          <li><span>Access</span>Consumer and creator custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.printplaygames.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="premium-custom-card-printer" data-search="san jose, ca premiumcards.net premium custom card printer commercial custom orders premiumcards.net produces custom trading cards, foil cards, packs, boxes and premium finishes. premium custom card printer custom trading cards, foil cards, packs, boxes and premium finishes">
-        <span class="card-kicker">SAN JOSE, CA</span>
+      <div class="card dir-card" data-type="premium-custom-card-printer" data-search="san jose, ca premiumcards.net premium custom card printer commercial custom orders premiumcards.net produces custom trading cards, foil cards, packs, boxes and premium finishes. premium custom card printer custom trading cards, foil cards, packs, boxes and premium finishes">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/premiumcards.net.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">PremiumCards.net</span>
+        </div>
         <p class="card-title">PremiumCards.net</p>
-        <p class="card-body">Premium custom card printer<br />Commercial custom orders<br />PremiumCards.net produces custom trading cards, foil cards, packs, boxes and premium finishes.</p>
-        <p class="card-meta">Premium custom card printer · Custom trading cards, foil cards, packs, boxes and premium finishes</p>
-        <p class="card-meta"><a href="https://premiumcards.net/ink/a/custom-trading-cards/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">PremiumCards.net produces custom trading cards, foil cards, packs, boxes and premium finishes.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>SAN JOSE, CA</li>
+          <li><span>Category</span>Premium custom card printer</li>
+          <li><span>Access</span>Commercial custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://premiumcards.net/ink/a/custom-trading-cards/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="custom-card-printer" data-search="shanghai, china qinprinting custom card printer commercial custom orders qinprinting produces trading cards, game cards, foil, spot uv, packaging and booklets. custom card printer trading cards, game cards, foil, spot uv, packaging and booklets">
-        <span class="card-kicker">SHANGHAI, CHINA</span>
+      <div class="card dir-card" data-type="custom-card-printer" data-search="shanghai, china qinprinting custom card printer commercial custom orders qinprinting produces trading cards, game cards, foil, spot uv, packaging and booklets. custom card printer trading cards, game cards, foil, spot uv, packaging and booklets">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/qinprinting.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">QinPrinting</span>
+        </div>
         <p class="card-title">QinPrinting</p>
-        <p class="card-body">Custom card printer<br />Commercial custom orders<br />QinPrinting produces trading cards, game cards, foil, spot uv, packaging and booklets.</p>
-        <p class="card-meta">Custom card printer · Trading cards, game cards, foil, spot UV, packaging and booklets</p>
-        <p class="card-meta"><a href="https://www.qinprinting.com/game-card-printing/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">QinPrinting produces trading cards, game cards, foil, spot uv, packaging and booklets.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>SHANGHAI, CHINA</li>
+          <li><span>Category</span>Custom card printer</li>
+          <li><span>Access</span>Commercial custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.qinprinting.com/game-card-printing/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="custom-card-manufacturer" data-search="china ezra card custom card manufacturer commercial custom orders ezra card produces custom tcg cards, playing cards, tarot cards and packaging. custom card manufacturer custom tcg cards, playing cards, tarot cards and packaging">
-        <span class="card-kicker">CHINA</span>
+      <div class="card dir-card" data-type="custom-card-manufacturer" data-search="china ezra card custom card manufacturer commercial custom orders ezra card produces custom tcg cards, playing cards, tarot cards and packaging. custom card manufacturer custom tcg cards, playing cards, tarot cards and packaging">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/ezracard.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">EZRA Card</span>
+        </div>
         <p class="card-title">EZRA Card</p>
-        <p class="card-body">Custom card manufacturer<br />Commercial custom orders<br />EZRA Card produces custom tcg cards, playing cards, tarot cards and packaging.</p>
-        <p class="card-meta">Custom card manufacturer · Custom TCG cards, playing cards, tarot cards and packaging</p>
-        <p class="card-meta"><a href="https://ezracard.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">EZRA Card produces custom tcg cards, playing cards, tarot cards and packaging.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>CHINA</li>
+          <li><span>Category</span>Custom card manufacturer</li>
+          <li><span>Access</span>Commercial custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://ezracard.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="commercial-printer" data-search="sheffield, uk precision proco commercial printer business-to-business manufacturing precision proco produces trading cards, collectible products, finishing and packaging. commercial printer trading cards, collectible products, finishing and packaging">
-        <span class="card-kicker">SHEFFIELD, UK</span>
+      <div class="card dir-card" data-type="commercial-printer" data-search="sheffield, uk precision proco commercial printer business-to-business manufacturing precision proco produces trading cards, collectible products, finishing and packaging. commercial printer trading cards, collectible products, finishing and packaging">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Precision Proco</span>
+        </div>
         <p class="card-title">Precision Proco</p>
-        <p class="card-body">Commercial printer<br />Business-to-business manufacturing<br />Precision Proco produces trading cards, collectible products, finishing and packaging.</p>
-        <p class="card-meta">Commercial printer · Trading cards, collectible products, finishing and packaging</p>
-        <p class="card-meta"><a href="https://precisionproco.co.uk/what-we-do/trading-cards-printing" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Precision Proco produces trading cards, collectible products, finishing and packaging.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>SHEFFIELD, UK</li>
+          <li><span>Category</span>Commercial printer</li>
+          <li><span>Access</span>Business-to-business manufacturing</li>
+        </ul>
+        <p class="dir-link"><a href="https://precisionproco.co.uk/what-we-do/trading-cards-printing" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="custom-card-manufacturer" data-search="new york, ny expert playing card company custom card manufacturer commercial custom orders expert playing card company produces premium custom cards, decks and specialty printing techniques. custom card manufacturer premium custom cards, decks and specialty printing techniques">
-        <span class="card-kicker">NEW YORK, NY</span>
+      <div class="card dir-card" data-type="custom-card-manufacturer" data-search="new york, ny expert playing card company custom card manufacturer commercial custom orders expert playing card company produces premium custom cards, decks and specialty printing techniques. custom card manufacturer premium custom cards, decks and specialty printing techniques">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Expert Playing Card Company</span>
+        </div>
         <p class="card-title">Expert Playing Card Company</p>
-        <p class="card-body">Custom card manufacturer<br />Commercial custom orders<br />Expert Playing Card Company produces premium custom cards, decks and specialty printing techniques.</p>
-        <p class="card-meta">Custom card manufacturer · Premium custom cards, decks and specialty printing techniques</p>
-        <p class="card-meta"><a href="https://expertplayingcard.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Expert Playing Card Company produces premium custom cards, decks and specialty printing techniques.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>NEW YORK, NY</li>
+          <li><span>Category</span>Custom card manufacturer</li>
+          <li><span>Access</span>Commercial custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://expertplayingcard.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="custom-printer" data-search="berkeley, ca greenerprinter custom printer consumer and business custom orders greenerprinter produces custom cards with paper, lamination and finishing options. custom printer custom cards with paper, lamination and finishing options">
-        <span class="card-kicker">BERKELEY, CA</span>
+      <div class="card dir-card" data-type="custom-printer" data-search="berkeley, ca greenerprinter custom printer consumer and business custom orders greenerprinter produces custom cards with paper, lamination and finishing options. custom printer custom cards with paper, lamination and finishing options">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/greenerprinter.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Greenerprinter</span>
+        </div>
         <p class="card-title">Greenerprinter</p>
-        <p class="card-body">Custom printer<br />Consumer and business custom orders<br />Greenerprinter produces custom cards with paper, lamination and finishing options.</p>
-        <p class="card-meta">Custom printer · Custom cards with paper, lamination and finishing options</p>
-        <p class="card-meta"><a href="https://www.greenerprinter.com/products/playing-card-printing" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Greenerprinter produces custom cards with paper, lamination and finishing options.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>BERKELEY, CA</li>
+          <li><span>Category</span>Custom printer</li>
+          <li><span>Access</span>Consumer and business custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.greenerprinter.com/products/playing-card-printing" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="print-on-demand-platform" data-search="online printify print-on-demand platform consumer and creator custom orders printify produces custom playing cards and creator merchandise fulfillment. print-on-demand platform custom playing cards and creator merchandise fulfillment">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="print-on-demand-platform" data-search="online printify print-on-demand platform consumer and creator custom orders printify produces custom playing cards and creator merchandise fulfillment. print-on-demand platform custom playing cards and creator merchandise fulfillment">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/printify.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Printify</span>
+        </div>
         <p class="card-title">Printify</p>
-        <p class="card-body">Print-on-demand platform<br />Consumer and creator custom orders<br />Printify produces custom playing cards and creator merchandise fulfillment.</p>
-        <p class="card-meta">Print-on-demand platform · Custom playing cards and creator merchandise fulfillment</p>
-        <p class="card-meta"><a href="https://printify.com/custom-playing-cards/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Printify produces custom playing cards and creator merchandise fulfillment.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Print-on-demand platform</li>
+          <li><span>Access</span>Consumer and creator custom orders</li>
+        </ul>
+        <p class="dir-link"><a href="https://printify.com/custom-playing-cards/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="print-on-demand-card-platform" data-search="online drivethrucards print-on-demand card platform consumer purchasing and creator publishing drivethrucards produces independent card games, custom decks and creator fulfillment. print-on-demand card platform independent card games, custom decks and creator fulfillment">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="print-on-demand-card-platform" data-search="online drivethrucards print-on-demand card platform consumer purchasing and creator publishing drivethrucards produces independent card games, custom decks and creator fulfillment. print-on-demand card platform independent card games, custom decks and creator fulfillment">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/drivethrucards.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">DriveThruCards</span>
+        </div>
         <p class="card-title">DriveThruCards</p>
-        <p class="card-body">Print-on-demand card platform<br />Consumer purchasing and creator publishing<br />DriveThruCards produces independent card games, custom decks and creator fulfillment.</p>
-        <p class="card-meta">Print-on-demand card platform · Independent card games, custom decks and creator fulfillment</p>
-        <p class="card-meta"><a href="https://www.drivethrucards.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">DriveThruCards produces independent card games, custom decks and creator fulfillment.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Print-on-demand card platform</li>
+          <li><span>Access</span>Consumer purchasing and creator publishing</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.drivethrucards.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
     </div>
   </section>

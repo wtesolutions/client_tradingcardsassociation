@@ -3,14 +3,13 @@
 <head>
 <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Grading Services · NTCA</title>
-<script src="./codes.js"></script><script src="./guard.js"></script>
 <link rel="stylesheet" href="./ds/styles.css" />
 <meta name="description" content="Card grading, authentication, autograph certification and submission services; specialized services are clearly identified." />
 <link rel="icon" href="./ntca-logo.png" />
 <link rel="stylesheet" href="./site.css" />
 <script src="./nav.js" defer></script>
 </head>
-<body>
+<body class="dir-ref">
 <nav class="nav">
   <a class="nav-brand" href="home.html"><img src="./ntca-logo.png" alt="NTCA emblem" /><span>NTCA<em>National Trading Card Association</em></span></a>
   <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open menu"><svg class="i-open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg><svg class="i-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
@@ -86,373 +85,684 @@
         <option value="submission-service">Submission service</option>
       </select>
     </div>
-    <div class="dir-pills" role="group" aria-label="Grading filters">
-      <button type="button" class="dir-pill is-on" data-filter="">All</button>
-      <button type="button" class="dir-pill" data-filter="card-grading-and-authentication">Card grading and authentication</button>
-      <button type="button" class="dir-pill" data-filter="technology-assisted-card-grading">Technology-assisted card grading</button>
-      <button type="button" class="dir-pill" data-filter="ai-assisted-card-grading">AI-assisted card grading</button>
-      <button type="button" class="dir-pill" data-filter="card-grading-and-encapsulation">Card grading and encapsulation</button>
-      <button type="button" class="dir-pill" data-filter="tcg-card-grading">TCG card grading</button>
-      <button type="button" class="dir-pill" data-filter="card-and-sealed-product-grading">Card and sealed-product grading</button>
-      <button type="button" class="dir-pill" data-filter="autograph-authentication">Autograph authentication</button>
-      <button type="button" class="dir-pill" data-filter="autograph-authentication-and-grading">Autograph authentication and grading</button>
-      <button type="button" class="dir-pill" data-filter="collectible-authentication">Collectible authentication</button>
-      <button type="button" class="dir-pill" data-filter="graded-card-review-service">Graded-card review service</button>
-      <button type="button" class="dir-pill" data-filter="authorized-submission-service">Authorized submission service</button>
-      <button type="button" class="dir-pill" data-filter="submission-and-preparation-service">Submission and preparation service</button>
-      <button type="button" class="dir-pill" data-filter="submission-service">Submission service</button>
-    </div>
     <p class="fine dir-count" id="dir-count"></p>
     <div class="cards" id="dir-grid">
-      <div class="card elev-sm dir-card" data-type="card-grading-and-authentication" data-search="santa ana, ca psa card grading and authentication direct, dealer and event submissions psa provides card grading and authentication for sports, tcg, non-sport cards, packs, autographs and memorabilia. card grading and authentication sports, tcg, non-sport cards, packs, autographs and memorabilia">
-        <span class="card-kicker">SANTA ANA, CA</span>
+      <div class="card dir-card" data-type="card-grading-and-authentication" data-search="santa ana, ca psa card grading and authentication direct, dealer and event submissions psa provides card grading and authentication for sports, tcg, non-sport cards, packs, autographs and memorabilia. card grading and authentication sports, tcg, non-sport cards, packs, autographs and memorabilia">
+        <div class="dir-logo">
+          <span class="dir-wordmark">PSA</span>
+        </div>
         <p class="card-title">PSA</p>
-        <p class="card-body">Card grading and authentication<br />Direct, dealer and event submissions<br />PSA provides card grading and authentication for sports, tcg, non-sport cards, packs, autographs and memorabilia.</p>
-        <p class="card-meta">Card grading and authentication · Sports, TCG, non-sport cards, packs, autographs and memorabilia</p>
-        <p class="card-meta"><a href="https://www.psacard.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">PSA provides card grading and authentication for sports, tcg, non-sport cards, packs, autographs and memorabilia.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>SANTA ANA, CA</li>
+          <li><span>Category</span>Card grading and authentication</li>
+          <li><span>Submissions</span>Direct, dealer and event submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.psacard.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-authentication" data-search="plano, tx beckett grading services card grading and authentication direct, event and dealer submissions beckett grading services provides card grading and authentication for sports, gaming, non-sport cards and autograph grading. card grading and authentication sports, gaming, non-sport cards and autograph grading">
-        <span class="card-kicker">PLANO, TX</span>
+      <div class="card dir-card" data-type="card-grading-and-authentication" data-search="plano, tx beckett grading services card grading and authentication direct, event and dealer submissions beckett grading services provides card grading and authentication for sports, gaming, non-sport cards and autograph grading. card grading and authentication sports, gaming, non-sport cards and autograph grading">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Beckett Grading Services</span>
+        </div>
         <p class="card-title">Beckett Grading Services</p>
-        <p class="card-body">Card grading and authentication<br />Direct, event and dealer submissions<br />Beckett Grading Services provides card grading and authentication for sports, gaming, non-sport cards and autograph grading.</p>
-        <p class="card-meta">Card grading and authentication · Sports, gaming, non-sport cards and autograph grading</p>
-        <p class="card-meta"><a href="https://www.beckett.com/grading" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Beckett Grading Services provides card grading and authentication for sports, gaming, non-sport cards and autograph grading.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>PLANO, TX</li>
+          <li><span>Category</span>Card grading and authentication</li>
+          <li><span>Submissions</span>Direct, event and dealer submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.beckett.com/grading" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-authentication" data-search="boca raton, fl sgc card grading and authentication direct and dealer submissions sgc provides card grading and authentication for vintage and modern sports cards plus selected trading cards. card grading and authentication vintage and modern sports cards plus selected trading cards">
-        <span class="card-kicker">BOCA RATON, FL</span>
+      <div class="card dir-card" data-type="card-grading-and-authentication" data-search="boca raton, fl sgc card grading and authentication direct and dealer submissions sgc provides card grading and authentication for vintage and modern sports cards plus selected trading cards. card grading and authentication vintage and modern sports cards plus selected trading cards">
+        <div class="dir-logo">
+          <span class="dir-wordmark">SGC</span>
+        </div>
         <p class="card-title">SGC</p>
-        <p class="card-body">Card grading and authentication<br />Direct and dealer submissions<br />SGC provides card grading and authentication for vintage and modern sports cards plus selected trading cards.</p>
-        <p class="card-meta">Card grading and authentication · Vintage and modern sports cards plus selected trading cards</p>
-        <p class="card-meta"><a href="https://gosgc.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">SGC provides card grading and authentication for vintage and modern sports cards plus selected trading cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>BOCA RATON, FL</li>
+          <li><span>Category</span>Card grading and authentication</li>
+          <li><span>Submissions</span>Direct and dealer submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://gosgc.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-authentication" data-search="sarasota, fl cgc cards card grading and authentication direct, dealer and event submissions cgc cards provides card grading and authentication for sports cards, pokémon, magic and other trading card games. card grading and authentication sports cards, pokémon, magic and other trading card games">
-        <span class="card-kicker">SARASOTA, FL</span>
+      <div class="card dir-card" data-type="card-grading-and-authentication" data-search="sarasota, fl cgc cards card grading and authentication direct, dealer and event submissions cgc cards provides card grading and authentication for sports cards, pokémon, magic and other trading card games. card grading and authentication sports cards, pokémon, magic and other trading card games">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/cgccards.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">CGC Cards</span>
+        </div>
         <p class="card-title">CGC Cards</p>
-        <p class="card-body">Card grading and authentication<br />Direct, dealer and event submissions<br />CGC Cards provides card grading and authentication for sports cards, pokémon, magic and other trading card games.</p>
-        <p class="card-meta">Card grading and authentication · Sports cards, Pokémon, Magic and other trading card games</p>
-        <p class="card-meta"><a href="https://www.cgccards.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">CGC Cards provides card grading and authentication for sports cards, pokémon, magic and other trading card games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>SARASOTA, FL</li>
+          <li><span>Category</span>Card grading and authentication</li>
+          <li><span>Submissions</span>Direct, dealer and event submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.cgccards.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="technology-assisted-card-grading" data-search="los angeles, ca tag grading technology-assisted card grading direct submissions tag grading provides technology-assisted card grading for sports cards with digital grading reports and scoring. technology-assisted card grading sports cards with digital grading reports and scoring">
-        <span class="card-kicker">LOS ANGELES, CA</span>
+      <div class="card dir-card" data-type="technology-assisted-card-grading" data-search="los angeles, ca tag grading technology-assisted card grading direct submissions tag grading provides technology-assisted card grading for sports cards with digital grading reports and scoring. technology-assisted card grading sports cards with digital grading reports and scoring">
+        <div class="dir-logo">
+          <span class="dir-wordmark">TAG Grading</span>
+        </div>
         <p class="card-title">TAG Grading</p>
-        <p class="card-body">Technology-assisted card grading<br />Direct submissions<br />TAG Grading provides technology-assisted card grading for sports cards with digital grading reports and scoring.</p>
-        <p class="card-meta">Technology-assisted card grading · Sports cards with digital grading reports and scoring</p>
-        <p class="card-meta"><a href="https://taggrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">TAG Grading provides technology-assisted card grading for sports cards with digital grading reports and scoring.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>LOS ANGELES, CA</li>
+          <li><span>Category</span>Technology-assisted card grading</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://taggrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="technology-assisted-card-grading" data-search="rochester, ny arena club grading technology-assisted card grading direct submissions arena club grading provides technology-assisted card grading for sports-card grading with digital marketplace integration. technology-assisted card grading sports-card grading with digital marketplace integration">
-        <span class="card-kicker">ROCHESTER, NY</span>
+      <div class="card dir-card" data-type="technology-assisted-card-grading" data-search="rochester, ny arena club grading technology-assisted card grading direct submissions arena club grading provides technology-assisted card grading for sports-card grading with digital marketplace integration. technology-assisted card grading sports-card grading with digital marketplace integration">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Arena Club Grading</span>
+        </div>
         <p class="card-title">Arena Club Grading</p>
-        <p class="card-body">Technology-assisted card grading<br />Direct submissions<br />Arena Club Grading provides technology-assisted card grading for sports-card grading with digital marketplace integration.</p>
-        <p class="card-meta">Technology-assisted card grading · Sports-card grading with digital marketplace integration</p>
-        <p class="card-meta"><a href="https://arenaclub.com/grading" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Arena Club Grading provides technology-assisted card grading for sports-card grading with digital marketplace integration.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ROCHESTER, NY</li>
+          <li><span>Category</span>Technology-assisted card grading</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://arenaclub.com/grading" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="ai-assisted-card-grading" data-search="kansas city, mo ags — automated grading systems ai-assisted card grading direct submissions ags — automated grading systems provides ai-assisted card grading for sports and tcg cards with automated imaging and grading. ai-assisted card grading sports and tcg cards with automated imaging and grading">
-        <span class="card-kicker">KANSAS CITY, MO</span>
+      <div class="card dir-card" data-type="ai-assisted-card-grading" data-search="kansas city, mo ags — automated grading systems ai-assisted card grading direct submissions ags — automated grading systems provides ai-assisted card grading for sports and tcg cards with automated imaging and grading. ai-assisted card grading sports and tcg cards with automated imaging and grading">
+        <div class="dir-logo">
+          <span class="dir-wordmark">AGS — Automated Grading Systems</span>
+        </div>
         <p class="card-title">AGS — Automated Grading Systems</p>
-        <p class="card-body">AI-assisted card grading<br />Direct submissions<br />AGS — Automated Grading Systems provides ai-assisted card grading for sports and tcg cards with automated imaging and grading.</p>
-        <p class="card-meta">AI-assisted card grading · Sports and TCG cards with automated imaging and grading</p>
-        <p class="card-meta"><a href="https://agsgrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">AGS — Automated Grading Systems provides ai-assisted card grading for sports and tcg cards with automated imaging and grading.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>KANSAS CITY, MO</li>
+          <li><span>Category</span>AI-assisted card grading</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://agsgrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="technology-assisted-card-grading" data-search="online rare edition technology-assisted card grading direct submissions rare edition provides technology-assisted card grading for sports and tcg card grading with detailed reports. technology-assisted card grading sports and tcg card grading with detailed reports">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="technology-assisted-card-grading" data-search="online rare edition technology-assisted card grading direct submissions rare edition provides technology-assisted card grading for sports and tcg card grading with detailed reports. technology-assisted card grading sports and tcg card grading with detailed reports">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/rareedition.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Rare Edition</span>
+        </div>
         <p class="card-title">Rare Edition</p>
-        <p class="card-body">Technology-assisted card grading<br />Direct submissions<br />Rare Edition provides technology-assisted card grading for sports and tcg card grading with detailed reports.</p>
-        <p class="card-meta">Technology-assisted card grading · Sports and TCG card grading with detailed reports</p>
-        <p class="card-meta"><a href="https://rareedition.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Rare Edition provides technology-assisted card grading for sports and tcg card grading with detailed reports.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Technology-assisted card grading</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://rareedition.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="fort wayne, in degree grading card grading and encapsulation direct submissions degree grading provides card grading and encapsulation for sports, pokémon, yu-gi-oh! and other trading cards. card grading and encapsulation sports, pokémon, yu-gi-oh! and other trading cards">
-        <span class="card-kicker">FORT WAYNE, IN</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="fort wayne, in degree grading card grading and encapsulation direct submissions degree grading provides card grading and encapsulation for sports, pokémon, yu-gi-oh! and other trading cards. card grading and encapsulation sports, pokémon, yu-gi-oh! and other trading cards">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/degreegrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Degree Grading</span>
+        </div>
         <p class="card-title">Degree Grading</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />Degree Grading provides card grading and encapsulation for sports, pokémon, yu-gi-oh! and other trading cards.</p>
-        <p class="card-meta">Card grading and encapsulation · Sports, Pokémon, Yu-Gi-Oh! and other trading cards</p>
-        <p class="card-meta"><a href="https://degreegrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Degree Grading provides card grading and encapsulation for sports, pokémon, yu-gi-oh! and other trading cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>FORT WAYNE, IN</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://degreegrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-authentication" data-search="online isa grading card grading and authentication direct submissions isa grading provides card grading and authentication for sports and trading cards with authentication and encapsulation. card grading and authentication sports and trading cards with authentication and encapsulation">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="card-grading-and-authentication" data-search="online isa grading card grading and authentication direct submissions isa grading provides card grading and authentication for sports and trading cards with authentication and encapsulation. card grading and authentication sports and trading cards with authentication and encapsulation">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/isagrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">ISA Grading</span>
+        </div>
         <p class="card-title">ISA Grading</p>
-        <p class="card-body">Card grading and authentication<br />Direct submissions<br />ISA Grading provides card grading and authentication for sports and trading cards with authentication and encapsulation.</p>
-        <p class="card-meta">Card grading and authentication · Sports and trading cards with authentication and encapsulation</p>
-        <p class="card-meta"><a href="https://isagrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">ISA Grading provides card grading and authentication for sports and trading cards with authentication and encapsulation.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Card grading and authentication</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://isagrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="odessa, fl gma grading card grading and encapsulation direct submissions gma grading provides card grading and encapsulation for sports, gaming and non-sport trading cards. card grading and encapsulation sports, gaming and non-sport trading cards">
-        <span class="card-kicker">ODESSA, FL</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="odessa, fl gma grading card grading and encapsulation direct submissions gma grading provides card grading and encapsulation for sports, gaming and non-sport trading cards. card grading and encapsulation sports, gaming and non-sport trading cards">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/gmagrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">GMA Grading</span>
+        </div>
         <p class="card-title">GMA Grading</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />GMA Grading provides card grading and encapsulation for sports, gaming and non-sport trading cards.</p>
-        <p class="card-meta">Card grading and encapsulation · Sports, gaming and non-sport trading cards</p>
-        <p class="card-meta"><a href="https://gmagrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">GMA Grading provides card grading and encapsulation for sports, gaming and non-sport trading cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ODESSA, FL</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://gmagrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-authentication" data-search="online forensic card grading card grading and authentication direct submissions forensic card grading provides card grading and authentication for sports and trading cards with condition review and encapsulation. card grading and authentication sports and trading cards with condition review and encapsulation">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="card-grading-and-authentication" data-search="online forensic card grading card grading and authentication direct submissions forensic card grading provides card grading and authentication for sports and trading cards with condition review and encapsulation. card grading and authentication sports and trading cards with condition review and encapsulation">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/fcggrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Forensic Card Grading</span>
+        </div>
         <p class="card-title">Forensic Card Grading</p>
-        <p class="card-body">Card grading and authentication<br />Direct submissions<br />Forensic Card Grading provides card grading and authentication for sports and trading cards with condition review and encapsulation.</p>
-        <p class="card-meta">Card grading and authentication · Sports and trading cards with condition review and encapsulation</p>
-        <p class="card-meta"><a href="https://fcggrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Forensic Card Grading provides card grading and authentication for sports and trading cards with condition review and encapsulation.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Card grading and authentication</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://fcggrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="tcg-card-grading" data-search="online premier card grading tcg card grading direct submissions premier card grading provides tcg card grading for magic, pokémon, flesh and blood and dragon ball cards. tcg card grading magic, pokémon, flesh and blood and dragon ball cards">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="tcg-card-grading" data-search="online premier card grading tcg card grading direct submissions premier card grading provides tcg card grading for magic, pokémon, flesh and blood and dragon ball cards. tcg card grading magic, pokémon, flesh and blood and dragon ball cards">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Premier Card Grading</span>
+        </div>
         <p class="card-title">Premier Card Grading</p>
-        <p class="card-body">TCG card grading<br />Direct submissions<br />Premier Card Grading provides tcg card grading for magic, pokémon, flesh and blood and dragon ball cards.</p>
-        <p class="card-meta">TCG card grading · Magic, Pokémon, Flesh and Blood and Dragon Ball cards</p>
-        <p class="card-meta"><a href="https://premiercardgrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Premier Card Grading provides tcg card grading for magic, pokémon, flesh and blood and dragon ball cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>TCG card grading</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://premiercardgrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="technology-assisted-card-grading" data-search="online hybrid grading approach technology-assisted card grading direct submissions hybrid grading approach provides technology-assisted card grading for sports and tcg cards with hybrid human and digital review. technology-assisted card grading sports and tcg cards with hybrid human and digital review">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="technology-assisted-card-grading" data-search="online hybrid grading approach technology-assisted card grading direct submissions hybrid grading approach provides technology-assisted card grading for sports and tcg cards with hybrid human and digital review. technology-assisted card grading sports and tcg cards with hybrid human and digital review">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/hybridgrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Hybrid Grading Approach</span>
+        </div>
         <p class="card-title">Hybrid Grading Approach</p>
-        <p class="card-body">Technology-assisted card grading<br />Direct submissions<br />Hybrid Grading Approach provides technology-assisted card grading for sports and tcg cards with hybrid human and digital review.</p>
-        <p class="card-meta">Technology-assisted card grading · Sports and TCG cards with hybrid human and digital review</p>
-        <p class="card-meta"><a href="https://hybridgrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Hybrid Grading Approach provides technology-assisted card grading for sports and tcg cards with hybrid human and digital review.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Technology-assisted card grading</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://hybridgrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-authentication" data-search="toronto, canada ksa certification card grading and authentication direct, dealer and show submissions ksa certification provides card grading and authentication for sports cards, trading cards, autographs and coins. card grading and authentication sports cards, trading cards, autographs and coins">
-        <span class="card-kicker">TORONTO, CANADA</span>
+      <div class="card dir-card" data-type="card-grading-and-authentication" data-search="toronto, canada ksa certification card grading and authentication direct, dealer and show submissions ksa certification provides card grading and authentication for sports cards, trading cards, autographs and coins. card grading and authentication sports cards, trading cards, autographs and coins">
+        <div class="dir-logo">
+          <span class="dir-wordmark">KSA Certification</span>
+        </div>
         <p class="card-title">KSA Certification</p>
-        <p class="card-body">Card grading and authentication<br />Direct, dealer and show submissions<br />KSA Certification provides card grading and authentication for sports cards, trading cards, autographs and coins.</p>
-        <p class="card-meta">Card grading and authentication · Sports cards, trading cards, autographs and coins</p>
-        <p class="card-meta"><a href="https://www.ksagrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">KSA Certification provides card grading and authentication for sports cards, trading cards, autographs and coins.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>TORONTO, CANADA</li>
+          <li><span>Category</span>Card grading and authentication</li>
+          <li><span>Submissions</span>Direct, dealer and show submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.ksagrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="oakville, canada mnt grading card grading and encapsulation direct submissions mnt grading provides card grading and encapsulation for sports, pokémon and other trading cards. card grading and encapsulation sports, pokémon and other trading cards">
-        <span class="card-kicker">OAKVILLE, CANADA</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="oakville, canada mnt grading card grading and encapsulation direct submissions mnt grading provides card grading and encapsulation for sports, pokémon and other trading cards. card grading and encapsulation sports, pokémon and other trading cards">
+        <div class="dir-logo">
+          <span class="dir-wordmark">MNT Grading</span>
+        </div>
         <p class="card-title">MNT Grading</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />MNT Grading provides card grading and encapsulation for sports, pokémon and other trading cards.</p>
-        <p class="card-meta">Card grading and encapsulation · Sports, Pokémon and other trading cards</p>
-        <p class="card-meta"><a href="https://mntgrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">MNT Grading provides card grading and encapsulation for sports, pokémon and other trading cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>OAKVILLE, CANADA</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://mntgrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-authentication" data-search="canada canadian card authentication card grading and authentication direct submissions canadian card authentication provides card grading and authentication for canadian and international sports and trading cards. card grading and authentication canadian and international sports and trading cards">
-        <span class="card-kicker">CANADA</span>
+      <div class="card dir-card" data-type="card-grading-and-authentication" data-search="canada canadian card authentication card grading and authentication direct submissions canadian card authentication provides card grading and authentication for canadian and international sports and trading cards. card grading and authentication canadian and international sports and trading cards">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Canadian Card Authentication</span>
+        </div>
         <p class="card-title">Canadian Card Authentication</p>
-        <p class="card-body">Card grading and authentication<br />Direct submissions<br />Canadian Card Authentication provides card grading and authentication for canadian and international sports and trading cards.</p>
-        <p class="card-meta">Card grading and authentication · Canadian and international sports and trading cards</p>
-        <p class="card-meta"><a href="https://ccagrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Canadian Card Authentication provides card grading and authentication for canadian and international sports and trading cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>CANADA</li>
+          <li><span>Category</span>Card grading and authentication</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://ccagrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-and-sealed-product-grading" data-search="australia tcg grading card and sealed-product grading direct submissions tcg grading provides card and sealed-product grading for pokémon, one piece, yu-gi-oh!, magic, sports cards and booster packs. card and sealed-product grading pokémon, one piece, yu-gi-oh!, magic, sports cards and booster packs">
-        <span class="card-kicker">AUSTRALIA</span>
+      <div class="card dir-card" data-type="card-and-sealed-product-grading" data-search="australia tcg grading card and sealed-product grading direct submissions tcg grading provides card and sealed-product grading for pokémon, one piece, yu-gi-oh!, magic, sports cards and booster packs. card and sealed-product grading pokémon, one piece, yu-gi-oh!, magic, sports cards and booster packs">
+        <div class="dir-logo">
+          <span class="dir-wordmark">TCG Grading</span>
+        </div>
         <p class="card-title">TCG Grading</p>
-        <p class="card-body">Card and sealed-product grading<br />Direct submissions<br />TCG Grading provides card and sealed-product grading for pokémon, one piece, yu-gi-oh!, magic, sports cards and booster packs.</p>
-        <p class="card-meta">Card and sealed-product grading · Pokémon, One Piece, Yu-Gi-Oh!, Magic, sports cards and booster packs</p>
-        <p class="card-meta"><a href="https://tcggrading.com.au/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">TCG Grading provides card and sealed-product grading for pokémon, one piece, yu-gi-oh!, magic, sports cards and booster packs.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>AUSTRALIA</li>
+          <li><span>Category</span>Card and sealed-product grading</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://tcggrading.com.au/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="australia card grading australia card grading and encapsulation direct submissions card grading australia provides card grading and encapsulation for sports and tcg cards for australian collectors. card grading and encapsulation sports and tcg cards for australian collectors">
-        <span class="card-kicker">AUSTRALIA</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="australia card grading australia card grading and encapsulation direct submissions card grading australia provides card grading and encapsulation for sports and tcg cards for australian collectors. card grading and encapsulation sports and tcg cards for australian collectors">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/cardgradingaustralia.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Card Grading Australia</span>
+        </div>
         <p class="card-title">Card Grading Australia</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />Card Grading Australia provides card grading and encapsulation for sports and tcg cards for australian collectors.</p>
-        <p class="card-meta">Card grading and encapsulation · Sports and TCG cards for Australian collectors</p>
-        <p class="card-meta"><a href="https://cardgradingaustralia.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Card Grading Australia provides card grading and encapsulation for sports and tcg cards for australian collectors.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>AUSTRALIA</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://cardgradingaustralia.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-authentication" data-search="australia pcg australia card grading and authentication direct submissions pcg australia provides card grading and authentication for sports and trading card games. card grading and authentication sports and trading card games">
-        <span class="card-kicker">AUSTRALIA</span>
+      <div class="card dir-card" data-type="card-grading-and-authentication" data-search="australia pcg australia card grading and authentication direct submissions pcg australia provides card grading and authentication for sports and trading card games. card grading and authentication sports and trading card games">
+        <div class="dir-logo">
+          <span class="dir-wordmark">PCG Australia</span>
+        </div>
         <p class="card-title">PCG Australia</p>
-        <p class="card-body">Card grading and authentication<br />Direct submissions<br />PCG Australia provides card grading and authentication for sports and trading card games.</p>
-        <p class="card-meta">Card grading and authentication · Sports and trading card games</p>
-        <p class="card-meta"><a href="https://pcgrading.com.au/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">PCG Australia provides card grading and authentication for sports and trading card games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>AUSTRALIA</li>
+          <li><span>Category</span>Card grading and authentication</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://pcgrading.com.au/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="australia gold standard grading card grading and encapsulation direct submissions gold standard grading provides card grading and encapsulation for sports and tcg cards with australian service. card grading and encapsulation sports and tcg cards with australian service">
-        <span class="card-kicker">AUSTRALIA</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="australia gold standard grading card grading and encapsulation direct submissions gold standard grading provides card grading and encapsulation for sports and tcg cards with australian service. card grading and encapsulation sports and tcg cards with australian service">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Gold Standard Grading</span>
+        </div>
         <p class="card-title">Gold Standard Grading</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />Gold Standard Grading provides card grading and encapsulation for sports and tcg cards with australian service.</p>
-        <p class="card-meta">Card grading and encapsulation · Sports and TCG cards with Australian service</p>
-        <p class="card-meta"><a href="https://goldstandardgrading.com.au/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Gold Standard Grading provides card grading and encapsulation for sports and tcg cards with australian service.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>AUSTRALIA</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://goldstandardgrading.com.au/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="australia ark grading card grading and encapsulation direct submissions ark grading provides card grading and encapsulation for pokémon and other trading card games. card grading and encapsulation pokémon and other trading card games">
-        <span class="card-kicker">AUSTRALIA</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="australia ark grading card grading and encapsulation direct submissions ark grading provides card grading and encapsulation for pokémon and other trading card games. card grading and encapsulation pokémon and other trading card games">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/arkgrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">ARK Grading</span>
+        </div>
         <p class="card-title">ARK Grading</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />ARK Grading provides card grading and encapsulation for pokémon and other trading card games.</p>
-        <p class="card-meta">Card grading and encapsulation · Pokémon and other trading card games</p>
-        <p class="card-meta"><a href="https://arkgrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">ARK Grading provides card grading and encapsulation for pokémon and other trading card games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>AUSTRALIA</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://arkgrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-authentication" data-search="united kingdom ace grading card grading and authentication direct submissions ace grading provides card grading and authentication for pokémon, sports and other tcg cards with custom labels. card grading and authentication pokémon, sports and other tcg cards with custom labels">
-        <span class="card-kicker">UNITED KINGDOM</span>
+      <div class="card dir-card" data-type="card-grading-and-authentication" data-search="united kingdom ace grading card grading and authentication direct submissions ace grading provides card grading and authentication for pokémon, sports and other tcg cards with custom labels. card grading and authentication pokémon, sports and other tcg cards with custom labels">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/acegrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Ace Grading</span>
+        </div>
         <p class="card-title">Ace Grading</p>
-        <p class="card-body">Card grading and authentication<br />Direct submissions<br />Ace Grading provides card grading and authentication for pokémon, sports and other tcg cards with custom labels.</p>
-        <p class="card-meta">Card grading and authentication · Pokémon, sports and other TCG cards with custom labels</p>
-        <p class="card-meta"><a href="https://acegrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Ace Grading provides card grading and authentication for pokémon, sports and other tcg cards with custom labels.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>UNITED KINGDOM</li>
+          <li><span>Category</span>Card grading and authentication</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://acegrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="united kingdom majestic grading company card grading and encapsulation direct submissions majestic grading company provides card grading and encapsulation for sports and trading card games. card grading and encapsulation sports and trading card games">
-        <span class="card-kicker">UNITED KINGDOM</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="united kingdom majestic grading company card grading and encapsulation direct submissions majestic grading company provides card grading and encapsulation for sports and trading card games. card grading and encapsulation sports and trading card games">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/majesticgrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Majestic Grading Company</span>
+        </div>
         <p class="card-title">Majestic Grading Company</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />Majestic Grading Company provides card grading and encapsulation for sports and trading card games.</p>
-        <p class="card-meta">Card grading and encapsulation · Sports and trading card games</p>
-        <p class="card-meta"><a href="https://majesticgrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Majestic Grading Company provides card grading and encapsulation for sports and trading card games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>UNITED KINGDOM</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://majesticgrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="united kingdom onlygraded card grading and encapsulation direct submissions onlygraded provides card grading and encapsulation for pokémon, sports and collectible trading cards. card grading and encapsulation pokémon, sports and collectible trading cards">
-        <span class="card-kicker">UNITED KINGDOM</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="united kingdom onlygraded card grading and encapsulation direct submissions onlygraded provides card grading and encapsulation for pokémon, sports and collectible trading cards. card grading and encapsulation pokémon, sports and collectible trading cards">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/onlygraded.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">OnlyGraded</span>
+        </div>
         <p class="card-title">OnlyGraded</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />OnlyGraded provides card grading and encapsulation for pokémon, sports and collectible trading cards.</p>
-        <p class="card-meta">Card grading and encapsulation · Pokémon, sports and collectible trading cards</p>
-        <p class="card-meta"><a href="https://onlygraded.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">OnlyGraded provides card grading and encapsulation for pokémon, sports and collectible trading cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>UNITED KINGDOM</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://onlygraded.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="tcg-card-grading" data-search="united kingdom pokegrade tcg card grading direct submissions pokegrade provides tcg card grading for pokémon and selected trading card games. tcg card grading pokémon and selected trading card games">
-        <span class="card-kicker">UNITED KINGDOM</span>
+      <div class="card dir-card" data-type="tcg-card-grading" data-search="united kingdom pokegrade tcg card grading direct submissions pokegrade provides tcg card grading for pokémon and selected trading card games. tcg card grading pokémon and selected trading card games">
+        <div class="dir-logo">
+          <span class="dir-wordmark">PokeGrade</span>
+        </div>
         <p class="card-title">PokeGrade</p>
-        <p class="card-body">TCG card grading<br />Direct submissions<br />PokeGrade provides tcg card grading for pokémon and selected trading card games.</p>
-        <p class="card-meta">TCG card grading · Pokémon and selected trading card games</p>
-        <p class="card-meta"><a href="https://pokegrade.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">PokeGrade provides tcg card grading for pokémon and selected trading card games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>UNITED KINGDOM</li>
+          <li><span>Category</span>TCG card grading</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://pokegrade.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="united kingdom get graded card grading and encapsulation direct submissions get graded provides card grading and encapsulation for sports, pokémon and other trading cards. card grading and encapsulation sports, pokémon and other trading cards">
-        <span class="card-kicker">UNITED KINGDOM</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="united kingdom get graded card grading and encapsulation direct submissions get graded provides card grading and encapsulation for sports, pokémon and other trading cards. card grading and encapsulation sports, pokémon and other trading cards">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/getgraded.co.uk.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Get Graded</span>
+        </div>
         <p class="card-title">Get Graded</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />Get Graded provides card grading and encapsulation for sports, pokémon and other trading cards.</p>
-        <p class="card-meta">Card grading and encapsulation · Sports, Pokémon and other trading cards</p>
-        <p class="card-meta"><a href="https://getgraded.co.uk/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Get Graded provides card grading and encapsulation for sports, pokémon and other trading cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>UNITED KINGDOM</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://getgraded.co.uk/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="united kingdom tree frog grading card grading and encapsulation direct submissions tree frog grading provides card grading and encapsulation for pokémon and trading card game collectibles. card grading and encapsulation pokémon and trading card game collectibles">
-        <span class="card-kicker">UNITED KINGDOM</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="united kingdom tree frog grading card grading and encapsulation direct submissions tree frog grading provides card grading and encapsulation for pokémon and trading card game collectibles. card grading and encapsulation pokémon and trading card game collectibles">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/treefroggrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Tree Frog Grading</span>
+        </div>
         <p class="card-title">Tree Frog Grading</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />Tree Frog Grading provides card grading and encapsulation for pokémon and trading card game collectibles.</p>
-        <p class="card-meta">Card grading and encapsulation · Pokémon and trading card game collectibles</p>
-        <p class="card-meta"><a href="https://treefroggrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Tree Frog Grading provides card grading and encapsulation for pokémon and trading card game collectibles.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>UNITED KINGDOM</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://treefroggrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="united kingdom platinum card grading card grading and encapsulation direct submissions platinum card grading provides card grading and encapsulation for sports and trading card games. card grading and encapsulation sports and trading card games">
-        <span class="card-kicker">UNITED KINGDOM</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="united kingdom platinum card grading card grading and encapsulation direct submissions platinum card grading provides card grading and encapsulation for sports and trading card games. card grading and encapsulation sports and trading card games">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Platinum Card Grading</span>
+        </div>
         <p class="card-title">Platinum Card Grading</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />Platinum Card Grading provides card grading and encapsulation for sports and trading card games.</p>
-        <p class="card-meta">Card grading and encapsulation · Sports and trading card games</p>
-        <p class="card-meta"><a href="https://platinumcardgrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Platinum Card Grading provides card grading and encapsulation for sports and trading card games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>UNITED KINGDOM</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://platinumcardgrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-authentication" data-search="italy graad card grading and authentication direct submissions graad provides card grading and authentication for pokémon, sports and collectible cards for european customers. card grading and authentication pokémon, sports and collectible cards for european customers">
-        <span class="card-kicker">ITALY</span>
+      <div class="card dir-card" data-type="card-grading-and-authentication" data-search="italy graad card grading and authentication direct submissions graad provides card grading and authentication for pokémon, sports and collectible cards for european customers. card grading and authentication pokémon, sports and collectible cards for european customers">
+        <div class="dir-logo">
+          <span class="dir-wordmark">GRAAD</span>
+        </div>
         <p class="card-title">GRAAD</p>
-        <p class="card-body">Card grading and authentication<br />Direct submissions<br />GRAAD provides card grading and authentication for pokémon, sports and collectible cards for european customers.</p>
-        <p class="card-meta">Card grading and authentication · Pokémon, sports and collectible cards for European customers</p>
-        <p class="card-meta"><a href="https://www.graad.eu/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">GRAAD provides card grading and authentication for pokémon, sports and collectible cards for european customers.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ITALY</li>
+          <li><span>Category</span>Card grading and authentication</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.graad.eu/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-authentication" data-search="france pca grade card grading and authentication direct submissions pca grade provides card grading and authentication for trading cards and collectible cards for european customers. card grading and authentication trading cards and collectible cards for european customers">
-        <span class="card-kicker">FRANCE</span>
+      <div class="card dir-card" data-type="card-grading-and-authentication" data-search="france pca grade card grading and authentication direct submissions pca grade provides card grading and authentication for trading cards and collectible cards for european customers. card grading and authentication trading cards and collectible cards for european customers">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/pcagrade.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">PCA Grade</span>
+        </div>
         <p class="card-title">PCA Grade</p>
-        <p class="card-body">Card grading and authentication<br />Direct submissions<br />PCA Grade provides card grading and authentication for trading cards and collectible cards for european customers.</p>
-        <p class="card-meta">Card grading and authentication · Trading cards and collectible cards for European customers</p>
-        <p class="card-meta"><a href="https://pcagrade.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">PCA Grade provides card grading and authentication for trading cards and collectible cards for european customers.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>FRANCE</li>
+          <li><span>Category</span>Card grading and authentication</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://pcagrade.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="germany ap grading card grading and encapsulation direct submissions ap grading provides card grading and encapsulation for pokémon, sports and other trading cards. card grading and encapsulation pokémon, sports and other trading cards">
-        <span class="card-kicker">GERMANY</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="germany ap grading card grading and encapsulation direct submissions ap grading provides card grading and encapsulation for pokémon, sports and other trading cards. card grading and encapsulation pokémon, sports and other trading cards">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/apgrading.de.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">AP Grading</span>
+        </div>
         <p class="card-title">AP Grading</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />AP Grading provides card grading and encapsulation for pokémon, sports and other trading cards.</p>
-        <p class="card-meta">Card grading and encapsulation · Pokémon, sports and other trading cards</p>
-        <p class="card-meta"><a href="https://apgrading.de/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">AP Grading provides card grading and encapsulation for pokémon, sports and other trading cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>GERMANY</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://apgrading.de/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="germany ccc grading card grading and encapsulation direct submissions ccc grading provides card grading and encapsulation for collectible and trading cards for european collectors. card grading and encapsulation collectible and trading cards for european collectors">
-        <span class="card-kicker">GERMANY</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="germany ccc grading card grading and encapsulation direct submissions ccc grading provides card grading and encapsulation for collectible and trading cards for european collectors. card grading and encapsulation collectible and trading cards for european collectors">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/cccgrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">CCC Grading</span>
+        </div>
         <p class="card-title">CCC Grading</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />CCC Grading provides card grading and encapsulation for collectible and trading cards for european collectors.</p>
-        <p class="card-meta">Card grading and encapsulation · Collectible and trading cards for European collectors</p>
-        <p class="card-meta"><a href="https://cccgrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">CCC Grading provides card grading and encapsulation for collectible and trading cards for european collectors.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>GERMANY</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://cccgrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="tcg-card-grading" data-search="europe tcg grading europe tcg card grading direct submissions tcg grading europe provides tcg card grading for pokémon and other trading card games. tcg card grading pokémon and other trading card games">
-        <span class="card-kicker">EUROPE</span>
+      <div class="card dir-card" data-type="tcg-card-grading" data-search="europe tcg grading europe tcg card grading direct submissions tcg grading europe provides tcg card grading for pokémon and other trading card games. tcg card grading pokémon and other trading card games">
+        <div class="dir-logo">
+          <span class="dir-wordmark">TCG Grading Europe</span>
+        </div>
         <p class="card-title">TCG Grading Europe</p>
-        <p class="card-body">TCG card grading<br />Direct submissions<br />TCG Grading Europe provides tcg card grading for pokémon and other trading card games.</p>
-        <p class="card-meta">TCG card grading · Pokémon and other trading card games</p>
-        <p class="card-meta"><a href="https://tcggrading.eu/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">TCG Grading Europe provides tcg card grading for pokémon and other trading card games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>EUROPE</li>
+          <li><span>Category</span>TCG card grading</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://tcggrading.eu/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="online diamond service grading card grading and encapsulation direct submissions diamond service grading provides card grading and encapsulation for sports and trading cards. card grading and encapsulation sports and trading cards">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="online diamond service grading card grading and encapsulation direct submissions diamond service grading provides card grading and encapsulation for sports and trading cards. card grading and encapsulation sports and trading cards">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/dsggrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Diamond Service Grading</span>
+        </div>
         <p class="card-title">Diamond Service Grading</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />Diamond Service Grading provides card grading and encapsulation for sports and trading cards.</p>
-        <p class="card-meta">Card grading and encapsulation · Sports and trading cards</p>
-        <p class="card-meta"><a href="https://dsggrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Diamond Service Grading provides card grading and encapsulation for sports and trading cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://dsggrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="online revolution card grading card grading and encapsulation direct submissions revolution card grading provides card grading and encapsulation for sports and trading card games. card grading and encapsulation sports and trading card games">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="online revolution card grading card grading and encapsulation direct submissions revolution card grading provides card grading and encapsulation for sports and trading card games. card grading and encapsulation sports and trading card games">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/revolutiongrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Revolution Card Grading</span>
+        </div>
         <p class="card-title">Revolution Card Grading</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />Revolution Card Grading provides card grading and encapsulation for sports and trading card games.</p>
-        <p class="card-meta">Card grading and encapsulation · Sports and trading card games</p>
-        <p class="card-meta"><a href="https://revolutiongrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Revolution Card Grading provides card grading and encapsulation for sports and trading card games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://revolutiongrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="tcg-card-grading" data-search="online mana grading tcg card grading direct submissions mana grading provides tcg card grading for pokémon, magic and other gaming cards. tcg card grading pokémon, magic and other gaming cards">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="tcg-card-grading" data-search="online mana grading tcg card grading direct submissions mana grading provides tcg card grading for pokémon, magic and other gaming cards. tcg card grading pokémon, magic and other gaming cards">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/managrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Mana Grading</span>
+        </div>
         <p class="card-title">Mana Grading</p>
-        <p class="card-body">TCG card grading<br />Direct submissions<br />Mana Grading provides tcg card grading for pokémon, magic and other gaming cards.</p>
-        <p class="card-meta">TCG card grading · Pokémon, Magic and other gaming cards</p>
-        <p class="card-meta"><a href="https://managrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Mana Grading provides tcg card grading for pokémon, magic and other gaming cards.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>TCG card grading</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://managrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="card-grading-and-encapsulation" data-search="online tga grading card grading and encapsulation direct submissions tga grading provides card grading and encapsulation for sports and trading card games. card grading and encapsulation sports and trading card games">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="card-grading-and-encapsulation" data-search="online tga grading card grading and encapsulation direct submissions tga grading provides card grading and encapsulation for sports and trading card games. card grading and encapsulation sports and trading card games">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/tgagrading.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">TGA Grading</span>
+        </div>
         <p class="card-title">TGA Grading</p>
-        <p class="card-body">Card grading and encapsulation<br />Direct submissions<br />TGA Grading provides card grading and encapsulation for sports and trading card games.</p>
-        <p class="card-meta">Card grading and encapsulation · Sports and trading card games</p>
-        <p class="card-meta"><a href="https://tgagrading.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">TGA Grading provides card grading and encapsulation for sports and trading card games.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Card grading and encapsulation</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://tgagrading.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="autograph-authentication" data-search="parsippany, nj james spence authentication autograph authentication direct, event and dealer submissions james spence authentication provides autograph authentication for signed cards, photos, memorabilia and entertainment autographs. autograph authentication signed cards, photos, memorabilia and entertainment autographs">
-        <span class="card-kicker">PARSIPPANY, NJ</span>
+      <div class="card dir-card" data-type="autograph-authentication" data-search="parsippany, nj james spence authentication autograph authentication direct, event and dealer submissions james spence authentication provides autograph authentication for signed cards, photos, memorabilia and entertainment autographs. autograph authentication signed cards, photos, memorabilia and entertainment autographs">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/spenceloa.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">James Spence Authentication</span>
+        </div>
         <p class="card-title">James Spence Authentication</p>
-        <p class="card-body">Autograph authentication<br />Direct, event and dealer submissions<br />James Spence Authentication provides autograph authentication for signed cards, photos, memorabilia and entertainment autographs.</p>
-        <p class="card-meta">Autograph authentication · Signed cards, photos, memorabilia and entertainment autographs</p>
-        <p class="card-meta"><a href="https://www.spenceloa.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">James Spence Authentication provides autograph authentication for signed cards, photos, memorabilia and entertainment autographs.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>PARSIPPANY, NJ</li>
+          <li><span>Category</span>Autograph authentication</li>
+          <li><span>Submissions</span>Direct, event and dealer submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.spenceloa.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="autograph-authentication-and-grading" data-search="plano, tx beckett authentication services autograph authentication and grading direct, event and dealer submissions beckett authentication services provides autograph authentication and grading for signed trading cards, memorabilia and dual card/autograph grading. autograph authentication and grading signed trading cards, memorabilia and dual card/autograph grading">
-        <span class="card-kicker">PLANO, TX</span>
+      <div class="card dir-card" data-type="autograph-authentication-and-grading" data-search="plano, tx beckett authentication services autograph authentication and grading direct, event and dealer submissions beckett authentication services provides autograph authentication and grading for signed trading cards, memorabilia and dual card/autograph grading. autograph authentication and grading signed trading cards, memorabilia and dual card/autograph grading">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Beckett Authentication Services</span>
+        </div>
         <p class="card-title">Beckett Authentication Services</p>
-        <p class="card-body">Autograph authentication and grading<br />Direct, event and dealer submissions<br />Beckett Authentication Services provides autograph authentication and grading for signed trading cards, memorabilia and dual card/autograph grading.</p>
-        <p class="card-meta">Autograph authentication and grading · Signed trading cards, memorabilia and dual card/autograph grading</p>
-        <p class="card-meta"><a href="https://www.beckett-authentication.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Beckett Authentication Services provides autograph authentication and grading for signed trading cards, memorabilia and dual card/autograph grading.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>PLANO, TX</li>
+          <li><span>Category</span>Autograph authentication and grading</li>
+          <li><span>Submissions</span>Direct, event and dealer submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.beckett-authentication.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="autograph-authentication-and-grading" data-search="santa ana, ca psa/dna autograph authentication and grading direct, dealer and event submissions psa/dna provides autograph authentication and grading for signed cards, memorabilia, photos and autographs. autograph authentication and grading signed cards, memorabilia, photos and autographs">
-        <span class="card-kicker">SANTA ANA, CA</span>
+      <div class="card dir-card" data-type="autograph-authentication-and-grading" data-search="santa ana, ca psa/dna autograph authentication and grading direct, dealer and event submissions psa/dna provides autograph authentication and grading for signed cards, memorabilia, photos and autographs. autograph authentication and grading signed cards, memorabilia, photos and autographs">
+        <div class="dir-logo">
+          <span class="dir-wordmark">PSA/DNA</span>
+        </div>
         <p class="card-title">PSA/DNA</p>
-        <p class="card-body">Autograph authentication and grading<br />Direct, dealer and event submissions<br />PSA/DNA provides autograph authentication and grading for signed cards, memorabilia, photos and autographs.</p>
-        <p class="card-meta">Autograph authentication and grading · Signed cards, memorabilia, photos and autographs</p>
-        <p class="card-meta"><a href="https://www.psacard.com/services/autographauthentication" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">PSA/DNA provides autograph authentication and grading for signed cards, memorabilia, photos and autographs.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>SANTA ANA, CA</li>
+          <li><span>Category</span>Autograph authentication and grading</li>
+          <li><span>Submissions</span>Direct, dealer and event submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.psacard.com/services/autographauthentication" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="autograph-authentication" data-search="sarasota, fl jsa / cgc autograph authentication direct and event submissions jsa / cgc provides autograph authentication for autographs on cards, comics, photos and memorabilia. autograph authentication autographs on cards, comics, photos and memorabilia">
-        <span class="card-kicker">SARASOTA, FL</span>
+      <div class="card dir-card" data-type="autograph-authentication" data-search="sarasota, fl jsa / cgc autograph authentication direct and event submissions jsa / cgc provides autograph authentication for autographs on cards, comics, photos and memorabilia. autograph authentication autographs on cards, comics, photos and memorabilia">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/spenceloa.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">JSA / CGC</span>
+        </div>
         <p class="card-title">JSA / CGC</p>
-        <p class="card-body">Autograph authentication<br />Direct and event submissions<br />JSA / CGC provides autograph authentication for autographs on cards, comics, photos and memorabilia.</p>
-        <p class="card-meta">Autograph authentication · Autographs on cards, comics, photos and memorabilia</p>
-        <p class="card-meta"><a href="https://www.spenceloa.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">JSA / CGC provides autograph authentication for autographs on cards, comics, photos and memorabilia.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>SARASOTA, FL</li>
+          <li><span>Category</span>Autograph authentication</li>
+          <li><span>Submissions</span>Direct and event submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.spenceloa.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="autograph-authentication" data-search="online autographcoa authentication autograph authentication direct submissions autographcoa authentication provides autograph authentication for celebrity, entertainment and sports autographs. autograph authentication celebrity, entertainment and sports autographs">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="autograph-authentication" data-search="online autographcoa authentication autograph authentication direct submissions autographcoa authentication provides autograph authentication for celebrity, entertainment and sports autographs. autograph authentication celebrity, entertainment and sports autographs">
+        <div class="dir-logo">
+          <span class="dir-wordmark">AutographCOA Authentication</span>
+        </div>
         <p class="card-title">AutographCOA Authentication</p>
-        <p class="card-body">Autograph authentication<br />Direct submissions<br />AutographCOA Authentication provides autograph authentication for celebrity, entertainment and sports autographs.</p>
-        <p class="card-meta">Autograph authentication · Celebrity, entertainment and sports autographs</p>
-        <p class="card-meta"><a href="https://www.autographcoa.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">AutographCOA Authentication provides autograph authentication for celebrity, entertainment and sports autographs.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Autograph authentication</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://www.autographcoa.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="autograph-authentication" data-search="online swau authentication autograph authentication direct and event submissions swau authentication provides autograph authentication for entertainment, celebrity and licensed signing authentication. autograph authentication entertainment, celebrity and licensed signing authentication">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="autograph-authentication" data-search="online swau authentication autograph authentication direct and event submissions swau authentication provides autograph authentication for entertainment, celebrity and licensed signing authentication. autograph authentication entertainment, celebrity and licensed signing authentication">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/swau.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">SWAU Authentication</span>
+        </div>
         <p class="card-title">SWAU Authentication</p>
-        <p class="card-body">Autograph authentication<br />Direct and event submissions<br />SWAU Authentication provides autograph authentication for entertainment, celebrity and licensed signing authentication.</p>
-        <p class="card-meta">Autograph authentication · Entertainment, celebrity and licensed signing authentication</p>
-        <p class="card-meta"><a href="https://swau.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">SWAU Authentication provides autograph authentication for entertainment, celebrity and licensed signing authentication.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Autograph authentication</li>
+          <li><span>Submissions</span>Direct and event submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://swau.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="collectible-authentication" data-search="online certified authentication service collectible authentication direct submissions certified authentication service provides collectible authentication for autographs, memorabilia, collectibles and select card-related items. collectible authentication autographs, memorabilia, collectibles and select card-related items">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="collectible-authentication" data-search="online certified authentication service collectible authentication direct submissions certified authentication service provides collectible authentication for autographs, memorabilia, collectibles and select card-related items. collectible authentication autographs, memorabilia, collectibles and select card-related items">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Certified Authentication Service</span>
+        </div>
         <p class="card-title">Certified Authentication Service</p>
-        <p class="card-body">Collectible authentication<br />Direct submissions<br />Certified Authentication Service provides collectible authentication for autographs, memorabilia, collectibles and select card-related items.</p>
-        <p class="card-meta">Collectible authentication · Autographs, memorabilia, collectibles and select card-related items</p>
-        <p class="card-meta"><a href="https://cas-authentication.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Certified Authentication Service provides collectible authentication for autographs, memorabilia, collectibles and select card-related items.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Collectible authentication</li>
+          <li><span>Submissions</span>Direct submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://cas-authentication.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="graded-card-review-service" data-search="online mba — mike baker authenticated graded-card review service direct and event submissions mba — mike baker authenticated provides graded-card review service for review and quality designation for cards already graded by major services. graded-card review service review and quality designation for cards already graded by major services">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="graded-card-review-service" data-search="online mba — mike baker authenticated graded-card review service direct and event submissions mba — mike baker authenticated provides graded-card review service for review and quality designation for cards already graded by major services. graded-card review service review and quality designation for cards already graded by major services">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/mbadiamond.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">MBA — Mike Baker Authenticated</span>
+        </div>
         <p class="card-title">MBA — Mike Baker Authenticated</p>
-        <p class="card-body">Graded-card review service<br />Direct and event submissions<br />MBA — Mike Baker Authenticated provides graded-card review service for review and quality designation for cards already graded by major services.</p>
-        <p class="card-meta">Graded-card review service · Review and quality designation for cards already graded by major services</p>
-        <p class="card-meta"><a href="https://mbadiamond.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">MBA — Mike Baker Authenticated provides graded-card review service for review and quality designation for cards already graded by major services.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Graded-card review service</li>
+          <li><span>Submissions</span>Direct and event submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://mbadiamond.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="authorized-submission-service" data-search="nashville, tn nashcards authorized submission service retail drop-off and mail-in submissions nashcards provides authorized submission service for group submissions to major grading companies. authorized submission service group submissions to major grading companies">
-        <span class="card-kicker">NASHVILLE, TN</span>
+      <div class="card dir-card" data-type="authorized-submission-service" data-search="nashville, tn nashcards authorized submission service retail drop-off and mail-in submissions nashcards provides authorized submission service for group submissions to major grading companies. authorized submission service group submissions to major grading companies">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/nashcards.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">Nashcards</span>
+        </div>
         <p class="card-title">Nashcards</p>
-        <p class="card-body">Authorized submission service<br />Retail drop-off and mail-in submissions<br />Nashcards provides authorized submission service for group submissions to major grading companies.</p>
-        <p class="card-meta">Authorized submission service · Group submissions to major grading companies</p>
-        <p class="card-meta"><a href="https://nashcards.com/grading-submissions/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Nashcards provides authorized submission service for group submissions to major grading companies.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>NASHVILLE, TN</li>
+          <li><span>Category</span>Authorized submission service</li>
+          <li><span>Submissions</span>Retail drop-off and mail-in submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://nashcards.com/grading-submissions/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="authorized-submission-service" data-search="loganville, ga got baseball cards submission services authorized submission service retail drop-off and mail-in submissions got baseball cards submission services provides authorized submission service for psa and other grading submission assistance for collectors. authorized submission service psa and other grading submission assistance for collectors">
-        <span class="card-kicker">LOGANVILLE, GA</span>
+      <div class="card dir-card" data-type="authorized-submission-service" data-search="loganville, ga got baseball cards submission services authorized submission service retail drop-off and mail-in submissions got baseball cards submission services provides authorized submission service for psa and other grading submission assistance for collectors. authorized submission service psa and other grading submission assistance for collectors">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Got Baseball Cards Submission Services</span>
+        </div>
         <p class="card-title">Got Baseball Cards Submission Services</p>
-        <p class="card-body">Authorized submission service<br />Retail drop-off and mail-in submissions<br />Got Baseball Cards Submission Services provides authorized submission service for psa and other grading submission assistance for collectors.</p>
-        <p class="card-meta">Authorized submission service · PSA and other grading submission assistance for collectors</p>
-        <p class="card-meta"><a href="https://gotbaseballcards.com/card-grading/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Got Baseball Cards Submission Services provides authorized submission service for psa and other grading submission assistance for collectors.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>LOGANVILLE, GA</li>
+          <li><span>Category</span>Authorized submission service</li>
+          <li><span>Submissions</span>Retail drop-off and mail-in submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://gotbaseballcards.com/card-grading/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="submission-and-preparation-service" data-search="online boca card subs submission and preparation service mail-in submissions boca card subs provides submission and preparation service for group card-grading submissions, preparation and order tracking. submission and preparation service group card-grading submissions, preparation and order tracking">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="submission-and-preparation-service" data-search="online boca card subs submission and preparation service mail-in submissions boca card subs provides submission and preparation service for group card-grading submissions, preparation and order tracking. submission and preparation service group card-grading submissions, preparation and order tracking">
+        <div class="dir-logo">
+          <span class="dir-wordmark">Boca Card Subs</span>
+        </div>
         <p class="card-title">Boca Card Subs</p>
-        <p class="card-body">Submission and preparation service<br />Mail-in submissions<br />Boca Card Subs provides submission and preparation service for group card-grading submissions, preparation and order tracking.</p>
-        <p class="card-meta">Submission and preparation service · Group card-grading submissions, preparation and order tracking</p>
-        <p class="card-meta"><a href="https://bocacardsubs.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">Boca Card Subs provides submission and preparation service for group card-grading submissions, preparation and order tracking.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Submission and preparation service</li>
+          <li><span>Submissions</span>Mail-in submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://bocacardsubs.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
-      <div class="card elev-sm dir-card" data-type="submission-service" data-search="online kk sports cards grading submissions submission service mail-in and event submissions kk sports cards grading submissions provides submission service for collector submission assistance for third-party grading. submission service collector submission assistance for third-party grading">
-        <span class="card-kicker">ONLINE</span>
+      <div class="card dir-card" data-type="submission-service" data-search="online kk sports cards grading submissions submission service mail-in and event submissions kk sports cards grading submissions provides submission service for collector submission assistance for third-party grading. submission service collector submission assistance for third-party grading">
+        <div class="dir-logo">
+          <img class="dir-logo-img" src="./assets/dir-logos/kksportscards.com.png" alt="" onerror="this.remove()" />
+          <span class="dir-wordmark">KK Sports Cards Grading Submissions</span>
+        </div>
         <p class="card-title">KK Sports Cards Grading Submissions</p>
-        <p class="card-body">Submission service<br />Mail-in and event submissions<br />KK Sports Cards Grading Submissions provides submission service for collector submission assistance for third-party grading.</p>
-        <p class="card-meta">Submission service · Collector submission assistance for third-party grading</p>
-        <p class="card-meta"><a href="https://kksportscards.com/" target="_blank" rel="noopener noreferrer">Visit site &rarr;</a></p>
+        <p class="card-body">KK Sports Cards Grading Submissions provides submission service for collector submission assistance for third-party grading.</p>
+        <ul class="dir-facts">
+          <li><span>Location</span>ONLINE</li>
+          <li><span>Category</span>Submission service</li>
+          <li><span>Submissions</span>Mail-in and event submissions</li>
+        </ul>
+        <p class="dir-link"><a href="https://kksportscards.com/" target="_blank" rel="noopener noreferrer">Visit website ↗</a></p>
       </div>
     </div>
   </section>
