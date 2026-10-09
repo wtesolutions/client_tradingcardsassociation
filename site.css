@@ -452,14 +452,11 @@ image-slot[shape="circle"] { border-radius: 50%; }
 .teaser-form select.input option { color: var(--color-text); background: var(--color-surface); }
 .tf-submit { min-height: 46px; font-size: 16px; }
 
-/* invisible reCAPTCHA (q9) — keep the teaser grid; badge stays inline */
-.teaser-captcha.always-hidden { position: relative; min-height: 0; }
-.teaser-sr {
-  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.teaser-hp {
-  position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
-.teaser-form .grecaptcha-badge { margin: 0 auto; box-shadow: 0 0 2px gray; }
+/* HIPAA jsform iframe — same width as the old native grid, no extra box */
+.teaser-jotform { max-width: 752px; }
+.teaser-jotform iframe {
+  display: block; width: 100% !important; min-width: 100% !important;
+  max-width: 100%; border: 0; background: transparent; }
 
 /* native invite disclosure on the teaser */
 .teaser-invite details { width: 100%; }
