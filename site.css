@@ -452,13 +452,18 @@ image-slot[shape="circle"] { border-radius: 50%; }
 .teaser-form select.input option { color: var(--color-text); background: var(--color-surface); }
 .tf-submit { min-height: 46px; font-size: 16px; }
 
-/* HIPAA iframe — same slot as the old native grid, no extra chrome */
+/* HIPAA iframe — fill the teaser column. Do not use .teaser-form here:
+   that class is display:grid + max-width:620px, which sizes a grid
+   column to the iframe's intrinsic 300px and makes a narrow strip. */
 .teaser-jotform {
-  max-width: 752px; border-radius: 16px; overflow: hidden;
-  background: transparent; }
+  display: block; width: 100%; max-width: 720px; min-width: 0;
+  align-self: stretch; box-sizing: border-box;
+  margin-top: calc(1.25 * var(--leading));
+  border-radius: 16px; overflow: hidden; background: transparent; }
 .teaser-jotform iframe {
-  display: block; width: 100% !important; min-width: 100% !important;
-  max-width: 100%; border: 0; background: transparent; overflow: hidden; }
+  display: block; box-sizing: border-box;
+  width: 100% !important; min-width: 100% !important; max-width: 100% !important;
+  border: 0; background: transparent; overflow: hidden; }
 
 /* native invite disclosure on the teaser */
 .teaser-invite details { width: 100%; }
