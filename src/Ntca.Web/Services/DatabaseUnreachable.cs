@@ -10,8 +10,10 @@ public static class DatabaseHint
     {
         for (var e = ex; e is not null; e = e.InnerException)
         {
-            if (e is SqlException or SocketException or TimeoutException)
+            if (e is SocketException or TimeoutException)
                 return true;
+            if (e is SqlException sql)
+                return sql.Number is not 207 and not 208 and not 515 and not 547 and not 2627 and not 2601;
             var msg = e.Message;
             if (msg.Contains("network-related", StringComparison.OrdinalIgnoreCase)
                 || msg.Contains("could not open a connection to SQL Server", StringComparison.OrdinalIgnoreCase)
@@ -83,6 +85,7 @@ public static class DatabaseHint
         sb.Append("<li><code>dotnet user-secrets</code> — a local <code>ConnectionStrings:DefaultConnection</code> overrides <code>appsettings.Development.json</code>.</li>");
         sb.Append("<li>Database name is <code>wte_NtcaDatabase</code> and the login is <code>ntca_app</code> (DEV ONLY password in Development settings).</li>");
         sb.Append("<li>SQL Server is running and TCP 1433 is allowed.</li>");
+        sb.Append("<li>If shops load but <code>/signup</code> fails, run <code>db/ssms/04_onboarding_funnel_SSMS.sql</code> in SSMS (idempotent).</li>");
         sb.Append("</ul>");
         sb.Append("<p class=\"card\"><span class=\"kicker\">Driver message</span><br/>").Append(Html(FirstLine(ex.Message))).Append("</p>");
         sb.Append("</div></body></html>");

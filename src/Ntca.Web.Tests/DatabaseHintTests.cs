@@ -27,6 +27,7 @@ public sealed class DatabaseHintTests
         Assert.DoesNotContain("NtcaAppDev2026x", html);
         Assert.Contains("VPN", html);
         Assert.Contains("user-secrets", html);
+        Assert.Contains("04_onboarding_funnel_SSMS.sql", html);
     }
 
     [Fact]
