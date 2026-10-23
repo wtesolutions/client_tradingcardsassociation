@@ -44,6 +44,8 @@ SSMS: open `db/NTCA_FULL_INSTALL.sql` (or the identical `db/ssms/NTCA_FULL_INSTA
 
 All five are safe to run twice. A second full `run_all` is also safe: `01_schema.sql` uses `IF NOT EXISTS` / `CREATE OR ALTER`. Optional migrator: edit `DECLARE @MigratorPassword` at the top of `03_app_login.sql` (default `N'__SKIP__'`).
 
+**After those scripts:** open `db/99_verify.sql` (or the identical `db/ssms/99_verify_SSMS.sql`) and Execute. It is read-only and returns one PASS/FAIL/WARN grid (schema, seed counts, SEED_18 bios, data quality, Google tables, DATA_REVIEW flags) plus a summary row. Edit the `@Expect` table at the top if a documented count changes. `db/tools/validate.sql` only points at this file.
+
 ## Connection string
 
 `src/Ntca.Web/appsettings.Development.json` is committed (**DEV ONLY**): `Server=10.100.1.87,1433;Database=wte_NtcaDatabase;User ID=ntca_app;Password=NtcaAppDev2026x;…`. Production `appsettings.json` has no password. `dotnet user-secrets` still overrides Development. If SQL is unreachable, Development shows a friendly page (server, database, VPN / user-secrets hint) instead of a raw exception.

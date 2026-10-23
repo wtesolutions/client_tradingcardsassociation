@@ -11,7 +11,7 @@ from pathlib import Path
 
 TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
-from sql_order import FILES  # noqa: E402
+from sql_order import FILES, VERIFY_FILES  # noqa: E402
 
 DB = TOOLS.parent
 SSMS = DB / "ssms"
@@ -36,7 +36,7 @@ def ssms_name(rel: str) -> str:
 def main() -> int:
     SSMS.mkdir(parents=True, exist_ok=True)
     written = 0
-    for rel in FILES:
+    for rel in [*FILES, *VERIFY_FILES]:
         src = DB / rel
         text = src.read_text(encoding="utf-8")
         leftover = leftover_hits(text)

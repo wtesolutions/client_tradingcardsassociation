@@ -13,8 +13,9 @@ These files are **identical copies** of the canonical scripts in `db/` and `db/s
 | `02_seed_SSMS.sql` | Lookup seed |
 | `SEED_*_SSMS.sql` | Content seeds (`SEED_17` enrichment, `SEED_18` bios/gallery) |
 | `03_app_login_SSMS.sql` | `ntca_app` / `NtcaAppDev2026x` (DEV ONLY). Optional migrator: edit `@MigratorPassword` at the top |
+| `99_verify_SSMS.sql` | Read-only PASS/FAIL/WARN grid after the incremental scripts |
 
-**Existing QA database (already has shops):** run in this order — `04`, then `05`, then `06`, then `SEED_17`, then `SEED_18`. All five are idempotent.
+**Existing QA database (already has shops):** run in this order — `04`, then `05`, then `06`, then `SEED_17`, then `SEED_18`. All five are idempotent. Then run `99_verify_SSMS.sql` to cross-check.
 
 Regenerate the copies after changing `db/*.sql`:
 

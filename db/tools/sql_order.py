@@ -23,3 +23,8 @@ FILES = [
     "seed/SEED_70_industry_figures.sql",
     "03_app_login.sql",
 ]
+
+# Read-only checks — copied to db/ssms/ but not concatenated into the installer.
+VERIFY_FILES = [
+    "99_verify.sql",
+]

@@ -35,7 +35,7 @@ DEV login hardcoded in `03_app_login.sql`: `ntca_app` / `NtcaAppDev2026x` (chang
 | 18 | `seed/SEED_70_industry_figures.sql` | Gary Vaynerchuk figure + DRAFT post (not public) |
 | 19 | `03_app_login.sql` | Login `ntca_app` (least privilege). Optional `ntca_migrator` via `@MigratorPassword` |
 
-**Existing QA database (already has shops):** run `04`, `05`, `06`, `SEED_17`, `SEED_18` in that order. All five are idempotent.
+**Existing QA database (already has shops):** run `04`, `05`, `06`, `SEED_17`, `SEED_18` in that order. All five are idempotent. Then run `99_verify.sql` (read-only PASS/FAIL/WARN grid; identical copy `db/ssms/99_verify_SSMS.sql`).
 
 Regenerate 01 + `seed/SEED_*.sql` (except hand-written 17/18):
 

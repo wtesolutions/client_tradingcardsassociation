@@ -29,6 +29,7 @@ This file describes what is **actually on the branch**. Update it at the end of 
 | `db/06_shop_social.sql` | Social platform catalog + `dir.ShopSocial`; migrates Website/Facebook/Instagram |
 | `db/seed/SEED_17_shop_enrichment_manual.sql` | Verified 2026-10-23 first-10 enrichment (socials, Beckett-only sites, coords, hours) + SADMIN review notes |
 | `db/seed/SEED_18_legacy_content_fix.sql` | Corrected About bios + boys/hall gallery rows |
+| `db/99_verify.sql` | Read-only SSMS cross-check (one PASS/FAIL/WARN grid). Copy: `db/ssms/99_verify_SSMS.sql` |
 | `docs/DATA_REVIEW.md` | First-10-shop flags (Birmingham / Cards And Stuff / ChicagoCards / Mojo / Simicards / Bakersfield) |
 
 **Seed files and live counts** (Docker SQL after a full `run_all` into `wte_NtcaDatabase`; second apply is idempotent):
@@ -189,7 +190,8 @@ Update the **Status** column when a later run lands the item.
 | Google Places batch sync | **Done** | Text Search match + nightly Details/photos; no Google calls on visitor paths; `/SADMIN/google`; SQL `05` |
 | Robust shop social links | **Done** (`9ad319b`) | `dir.SocialPlatform` + `dir.ShopSocial`; FA6 icons + Whatnot badge; `/t` click tracking; owner + SADMIN editors; SQL `06` |
 | SEED_17 manual shop enrichment | **Done** | Official-page socials for Boxseat / Burbank / GAC; Beckett WEBSITE for Bakersfield + Wonder Water; lat/lng `manual-maps-2026-10-23`; Burbank + Bakersfield hours (owner-confirm). Review flags in `docs/DATA_REVIEW.md`. |
-| Every `.sql` is plain T-SQL | **In this change** | No `:setvar` / `:on error` / `:r` / sqlcmd variables. SSMS works with SQLCMD Mode off. `db/ssms/*_SSMS.sql` are identical copies. `SqlCmdFreeTests` fails CI if a line starts with `:` or contains a dollar-paren token. |
+| Every `.sql` is plain T-SQL | **Done** | No `:setvar` / `:on error` / `:r` / sqlcmd variables. SSMS works with SQLCMD Mode off. `db/ssms/*_SSMS.sql` are identical copies. `SqlCmdFreeTests` fails CI if a line starts with `:` or contains a dollar-paren token. |
+| `99_verify.sql` read-only cross-check | **In this change** | One PASS/FAIL/WARN grid for schema, seed counts, SEED_18 bios, data quality, Google tables, DATA_REVIEW flags. |
 
 ### Remaining platform
 

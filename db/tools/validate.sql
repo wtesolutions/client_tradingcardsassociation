@@ -1,44 +1,8 @@
 /* Plain T-SQL for SSMS. SQLCMD Mode is not required.
-   Database: wte_NtcaDatabase (hardcoded).
+   Smoke / count checks moved to db/99_verify.sql
+   (identical copy: db/ssms/99_verify_SSMS.sql).
+   Open that file in SSMS and Execute — one PASS/FAIL/WARN grid, read-only.
 */
-/* Smoke checks after run_all. Expected to run against wte_NtcaDatabase. */
 USE [wte_NtcaDatabase];
-SET XACT_ABORT ON;
 SET NOCOUNT ON;
-GO
-
-PRINT '--- counts ---';
-SELECT 'dir.Shop' AS k, COUNT(*) AS n FROM dir.Shop
-UNION ALL SELECT 'dir.Organization', COUNT(*) FROM dir.Organization
-UNION ALL SELECT 'dir.Manufacturer', COUNT(*) FROM dir.Manufacturer
-UNION ALL SELECT 'dir.Manufacturer sport', COUNT(DISTINCT ManufacturerId) FROM dir.ManufacturerCategoryMap WHERE CategoryCode = 'SPORT'
-UNION ALL SELECT 'dir.Manufacturer nonsport', COUNT(DISTINCT ManufacturerId) FROM dir.ManufacturerCategoryMap WHERE CategoryCode = 'NONSPORT'
-UNION ALL SELECT 'dir.ManufacturerProduct', COUNT(*) FROM dir.ManufacturerProduct
-UNION ALL SELECT 'cms.Event', COUNT(*) FROM cms.Event
-UNION ALL SELECT 'mkt.ShopEvent', COUNT(*) FROM mkt.ShopEvent
-UNION ALL SELECT 'mkt.ShopEvent NATIONAL', COUNT(*) FROM mkt.ShopEvent WHERE Scope = 'NATIONAL'
-UNION ALL SELECT 'mkt.Promoter', COUNT(*) FROM mkt.Promoter
-UNION ALL SELECT 'mkt.Venue', COUNT(*) FROM mkt.Venue
-UNION ALL SELECT 'mkt.vw_CalendarUpcoming', COUNT(*) FROM mkt.vw_CalendarUpcoming
-UNION ALL SELECT 'seo.vw_SitemapShows', COUNT(*) FROM seo.vw_SitemapShows
-UNION ALL SELECT 'seo.vw_SitemapShowStates', COUNT(*) FROM seo.vw_SitemapShowStates
-UNION ALL SELECT 'seo.vw_SitemapPromoters', COUNT(*) FROM seo.vw_SitemapPromoters
-UNION ALL SELECT 'seo.vw_SitemapManufacturers', COUNT(*) FROM seo.vw_SitemapManufacturers
-UNION ALL SELECT 'cms.GlossaryTerm', COUNT(*) FROM cms.GlossaryTerm
-UNION ALL SELECT 'cms.ConditionGrade', COUNT(*) FROM cms.ConditionGrade;
-GO
-
-PRINT '--- calendar sample ---';
-SELECT TOP 5 Slug, Title, Scope, StateCode, City, TimeZoneId FROM mkt.vw_CalendarUpcoming ORDER BY StartsAt;
-GO
-
-PRINT '--- smoke procs ---';
--- AwardPoints / EvaluateBadges / rotation view exist
-SELECT OBJECT_SCHEMA_NAME(object_id) AS sch, name
-FROM sys.objects
-WHERE name IN ('usp_AwardPoints','usp_EvaluateBadges','vw_NewShopRotation','vw_CalendarUpcoming')
-ORDER BY sch, name;
-GO
-
-SELECT TOP 1 * FROM feed.vw_NewShopRotation;
-GO
+PRINT 'Use db/99_verify.sql (or db/ssms/99_verify_SSMS.sql) for the full verify grid.';
