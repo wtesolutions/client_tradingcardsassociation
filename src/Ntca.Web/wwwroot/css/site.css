@@ -491,6 +491,8 @@ input, select, textarea {
 .shop-card-specs { color: var(--ntca-muted); font-size: 14px; margin: 0; }
 .shop-card-where { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--ntca-muted); font-size: 14px; }
 .shop-card-status { margin: 0; font-size: 13px; color: var(--ntca-muted); }
+.gplace-rating { margin: 0; font-size: 13px; color: var(--ntca-ink); }
+.gplace-rating a { color: var(--ntca-badge-text); }
 .owner-badge {
   display: inline-flex;
   align-items: center;

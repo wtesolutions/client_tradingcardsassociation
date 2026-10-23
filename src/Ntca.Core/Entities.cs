@@ -561,3 +561,68 @@ public sealed class AgentInquiry
     public bool IsVerified { get; set; }
     public DateTime CreatedAt { get; set; }
 }
+
+public sealed class GooglePlaceMatch
+{
+    public long ShopId { get; set; }
+    public string? GooglePlaceId { get; set; }
+    public string MatchStatus { get; set; } = "UNMATCHED";
+    public decimal? Confidence { get; set; }
+    public string? CandidatePlaceId { get; set; }
+    public string? CandidateName { get; set; }
+    public string? CandidateAddress { get; set; }
+    public decimal? CandidateLat { get; set; }
+    public decimal? CandidateLng { get; set; }
+    public DateTime? MatchedAt { get; set; }
+    public long? ReviewedByUserId { get; set; }
+    public DateTime? ReviewedAt { get; set; }
+    public string? ReviewNote { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public Shop? Shop { get; set; }
+}
+
+public sealed class GooglePlaceCache
+{
+    public long ShopId { get; set; }
+    public string GooglePlaceId { get; set; } = "";
+    public decimal? Rating { get; set; }
+    public int? UserRatingCount { get; set; }
+    public string? GoogleMapsUri { get; set; }
+    public string? HoursJson { get; set; }
+    public bool? OpenNow { get; set; }
+    public string? DisplayName { get; set; }
+    public string? FormattedAddress { get; set; }
+    public decimal? Latitude { get; set; }
+    public decimal? Longitude { get; set; }
+    public DateTime? RefreshedUtc { get; set; }
+    public DateTime? ExpiresUtc { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public Shop? Shop { get; set; }
+}
+
+public sealed class GooglePlacePhoto
+{
+    public long PhotoId { get; set; }
+    public long ShopId { get; set; }
+    public string GooglePlaceId { get; set; } = "";
+    public byte Slot { get; set; }
+    public string PhotoName { get; set; } = "";
+    public string? AuthorName { get; set; }
+    public string? AuthorUri { get; set; }
+    public string RelativePath { get; set; } = "";
+    public string ContentType { get; set; } = "image/jpeg";
+    public DateTime FetchedUtc { get; set; }
+    public DateTime ExpiresUtc { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public Shop? Shop { get; set; }
+}
+
+public sealed class GoogleApiCallLog
+{
+    public DateTime CallDate { get; set; }
+    public string Sku { get; set; } = "";
+    public int CallCount { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}

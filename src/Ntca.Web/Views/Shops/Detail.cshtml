@@ -31,6 +31,24 @@
         @if (spec.Length > 0) { <span>@spec</span> }
         <span>@s.City, @s.StateCode</span>
         @if (open is not null) { <span>@open.Label</span> }
+        else if (Model.Google?.Cache.OpenNow is true) { <span>Open now</span> }
+        @if (Model.Google?.Cache.Rating is { } rating)
+        {
+            <span class="gplace-rating">
+                <span aria-hidden="true">★</span> @rating.ToString("0.0")
+                @if (Model.Google.Cache.UserRatingCount is { } n)
+                {
+                    if (!string.IsNullOrEmpty(Model.Google.Cache.GoogleMapsUri))
+                    {
+                        <a href="@Model.Google.Cache.GoogleMapsUri" rel="noopener nofollow" target="_blank">(@n Google reviews)</a>
+                    }
+                    else
+                    {
+                        <span>(@n Google reviews)</span>
+                    }
+                }
+            </span>
+        }
         @if (s.IsDestinationShop) { <span class="ribbon dest" style="position:static">Destination</span> }
     </p>
     <p class="shop-id-actions">
@@ -40,7 +58,14 @@
 </header>
 <div class="shop-stage">
     <div class="shop-gallery" aria-label="Shop photos">
-        <div class="shop-card-ph" role="img" aria-label="No photos yet for @s.Name">NTCA<small>Photo coming soon</small></div>
+        @if (Model.Google?.Photos.Count > 0)
+        {
+            <img src="/media/gplace/@s.ShopId/@Model.Google.Photos[0].Slot" alt="Photo of @s.Name" width="1200" height="675" />
+        }
+        else
+        {
+            <div class="shop-card-ph" role="img" aria-label="No photos yet for @s.Name">NTCA<small>Photo coming soon</small></div>
+        }
     </div>
     <aside class="visit-card sticky">
         <h2>Plan your visit</h2>
@@ -74,6 +99,17 @@
                 </li>
             }
             </ul>
+        }
+        else if (Ntca.Web.Services.GooglePlacesHours.WeekdayLines(Model.Google?.Cache.HoursJson).Count > 0)
+        {
+            <h3>Hours</h3>
+            <ul class="hours-list">
+            @foreach (var line in Ntca.Web.Services.GooglePlacesHours.WeekdayLines(Model.Google!.Cache.HoursJson))
+            {
+                <li>@line</li>
+            }
+            </ul>
+            <p class="meta">Hours from Google. Confirm with the shop before you visit.</p>
         }
         else
         {
@@ -128,7 +164,26 @@
 </section>
 <section id="photos">
     <h2>Photos</h2>
-    <p class="meta">No photos have been uploaded for this listing yet.</p>
+    @if (Model.Google?.Photos.Count > 0)
+    {
+        <div class="shop-card-list" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
+        @foreach (var photo in Model.Google.Photos)
+        {
+            <figure>
+                <img src="/media/gplace/@s.ShopId/@photo.Slot" alt="Photo of @s.Name" width="640" height="360" loading="lazy" />
+                @if (!string.IsNullOrEmpty(photo.AuthorName))
+                {
+                    <figcaption class="meta">Photo: @photo.AuthorName</figcaption>
+                }
+            </figure>
+        }
+        </div>
+        <p class="meta">Photos from Google. <a href="https://www.google.com/" rel="noopener">Google</a></p>
+    }
+    else
+    {
+        <p class="meta">No photos have been uploaded for this listing yet.</p>
+    }
 </section>
 <section id="events">
     <h2>Upcoming events</h2>

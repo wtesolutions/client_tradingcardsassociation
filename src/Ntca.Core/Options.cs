@@ -18,6 +18,19 @@ public sealed class StorageOptions
     public string LocalRoot { get; set; } = "wwwroot/uploads";
 }
 
+public sealed class GooglePlacesOptions
+{
+    public string ApiKey { get; set; } = "";
+    public int DailyCallLimit { get; set; } = 300;
+    public int MonthlyCallLimit { get; set; } = 3000;
+    public int PhotoMaxWidthPx { get; set; } = 800;
+    public int PhotosPerShop { get; set; } = 3;
+    public int NightlyRefreshBatch { get; set; } = 0;
+    public bool Enabled { get; set; } = true;
+
+    public bool HasKey => !string.IsNullOrWhiteSpace(ApiKey);
+}
+
 public interface IAppEmailSender
 {
     bool IsConfigured { get; }
@@ -28,6 +41,9 @@ public interface IFileStorage
 {
     bool UsesObjectStorage { get; }
     Task<string> SaveAsync(string relativePath, Stream content, string contentType, CancellationToken ct = default);
+    Task<bool> ExistsAsync(string relativePath, CancellationToken ct = default);
+    Task DeleteAsync(string relativePath, CancellationToken ct = default);
+    Task<Stream?> OpenReadAsync(string relativePath, CancellationToken ct = default);
 }
 
 public sealed record EmailMessage(string To, string Subject, string TextBody, string? HtmlBody = null);

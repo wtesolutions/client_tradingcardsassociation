@@ -25,6 +25,8 @@ This file describes what is **actually on the branch**. Update it at the end of 
 | `db/source/01_schema_directory_calendar.sql` | Manufacturers, orgs, promoters, venues, exhibitors |
 | `db/tools/generate_seed.py` | `--schema-only` rebuilds `01_schema.sql` without rewriting seed docs |
 | `db/tools/generate_combined.py` | Writes `run_all.sql` + `NTCA_FULL_INSTALL.sql` |
+| `db/05_google_places.sql` | Idempotent Google Places match / 30-day cache / photo / call-log tables |
+| `db/ssms/05_google_places_SSMS.sql` | Same, plain T-SQL for Eric’s SSMS session |
 
 **Seed files and live counts** (Docker SQL after a full `run_all` into `wte_NtcaDatabase`; second apply is idempotent):
 
@@ -175,11 +177,13 @@ Update the **Status** column when a later run lands the item.
 | Mobile directory cards (SoberNation-style) | **Done** (`4133ffa`, `4a572a5`) | Cards on `/shops` + state/city; OSM static-map thumb; sticky ZIP/Near me; `/t/view` + `/t/phone`; compact shop-detail header |
 | Care.com-style multi-step signup funnel + funnel report | **Done** (`76e81b1`, `49464f2`, `e7e944f`, `0d639c9`) | original one-flow funnel (superseded below) |
 | Simple Preview signup + post-signup multi-select onboarding | **In this change** | `/signup` = name/email/ZIP; `/onboarding` after confirm; typeahead + pending add/claim; `/SADMIN/funnel` two-stage; SQL `db/ssms/04_onboarding_funnel_SSMS.sql` |
-| Directory QA: no Free Listing badge, name links, full state name, no `/shops` map | **In this change** | cards + state hubs + `/shops` |
+| Directory QA: no Free Listing badge, name links, full state name, no `/shops` map | **Done** | cards + state hubs + `/shops` |
+| Public restyle (navy/gold homepage, directory, shop detail) | **Done** (`ffd1616`) | specs in `docs/design/` |
+| Google Places batch sync | **In this change** | Text Search match + nightly Details/photos; no Google calls on visitor paths; `/SADMIN/google`; SQL `05` |
 
 ### Remaining platform
 
-- [ ] Venue (and shop) **lat/lng** so calendar/shop maps have pins
+- [ ] Venue (and remaining shop) **lat/lng** — shop coords now fill from approved Google matches; calendar venues still need geocoding
 - [ ] **S3 + CloudFront** (today: `wwwroot/uploads`)
 - [ ] Cloudflare **Turnstile** production keys (off in Development)
 - [ ] **Stripe** shop tiers / payments (`bill.*` tables exist; no checkout UI)

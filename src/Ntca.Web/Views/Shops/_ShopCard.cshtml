@@ -7,10 +7,20 @@
     var loc = Ntca.Web.Services.ShopCopy.Loc(Model);
     var claimed = Ntca.Web.Services.ShopCopy.IsClaimed(Model);
     var open = Ntca.Web.Services.ShopCopy.OpeningStatus(Model.Hours, Model.StateCode);
+    var googleMap = ViewBag.Google as IReadOnlyDictionary<long, Ntca.Web.Services.GooglePlaceView>;
+    var google = googleMap != null && googleMap.TryGetValue(Model.ShopId, out var gv) ? gv : null;
+    var photo = google?.Photos.FirstOrDefault();
 }
 <article class="shop-card" data-shop="@Model.ShopId" data-name="@Model.Name" data-loc="@loc" data-where="@Model.City, @Model.StateCode">
     <div class="shop-card-media">
-        <div class="shop-card-ph" aria-hidden="true">NTCA<small>Photo coming soon</small></div>
+        @if (photo is not null)
+        {
+            <img src="/media/gplace/@Model.ShopId/@photo.Slot" alt="" width="640" height="360" loading="lazy" decoding="async" />
+        }
+        else
+        {
+            <div class="shop-card-ph" aria-hidden="true">NTCA<small>Photo coming soon</small></div>
+        }
         @if (Model.IsDestinationShop)
         {
             <span class="ribbon dest">Destination</span>
@@ -36,6 +46,27 @@
         @if (open is not null)
         {
             <p class="shop-card-status">@open.Label</p>
+        }
+        else if (google?.Cache.OpenNow is true)
+        {
+            <p class="shop-card-status">Open now</p>
+        }
+        @if (google?.Cache.Rating is { } rating)
+        {
+            <p class="gplace-rating">
+                <span aria-hidden="true">★</span> @rating.ToString("0.0")
+                @if (google.Cache.UserRatingCount is { } n)
+                {
+                    if (!string.IsNullOrEmpty(google.Cache.GoogleMapsUri))
+                    {
+                        <a href="@google.Cache.GoogleMapsUri" rel="noopener nofollow" target="_blank">(@n Google reviews)</a>
+                    }
+                    else
+                    {
+                        <span>(@n Google reviews)</span>
+                    }
+                }
+            </p>
         }
         @if (claimed)
         {

@@ -35,7 +35,7 @@ cd db
 
 SSMS **without** SQLCMD Mode: open `db/ssms/NTCA_FULL_INSTALL_SSMS.sql` and Execute (database `wte_NtcaDatabase`, login `ntca_app` / `NtcaAppDev2026x` — DEV ONLY).
 
-**Existing QA database (Eric already has 186 shops):** run **`db/ssms/04_onboarding_funnel_SSMS.sql`** in SSMS (plain T-SQL, no SQLCMD Mode). That adds two-stage funnel columns and `crm.OnboardingSubmission`. Safe to run twice. SQLCMD copy: `db/04_onboarding_funnel.sql`.
+**Existing QA database (Eric already has 186 shops):** run **`db/ssms/04_onboarding_funnel_SSMS.sql`** then **`db/ssms/05_google_places_SSMS.sql`** in SSMS (plain T-SQL, no SQLCMD Mode). `04` adds two-stage funnel columns. `05` adds Google Places match/cache/photo/call-log tables. Both are safe to run twice. SQLCMD copies: `db/04_onboarding_funnel.sql`, `db/05_google_places.sql`.
 
 SSMS with SQLCMD Mode: open `db/NTCA_FULL_INSTALL.sql` (defaults already set) or:
 
@@ -67,6 +67,21 @@ dotnet user-secrets set SocketLabs:ApiKey "YOUR-KEY"
 ```
 
 Leave those empty on a laptop. The app logs the message and writes `App_Data/mail/`. In Development the **login code is printed in the console**.
+
+Optional Google Places (batch only — visitor pages never call Google):
+
+```bash
+dotnet user-secrets set GooglePlaces:ApiKey "YOUR-KEY" --project src/Ntca.Web
+```
+
+Enable **Places API (New)** on the Google Cloud project. Leave the key unset to no-op. Daily/monthly caps default to 300 / 3000 (`GooglePlaces:DailyCallLimit` / `MonthlyCallLimit`). First match:
+
+```bash
+dotnet run --project src/Ntca.Web -- google-places match --dry-run
+dotnet run --project src/Ntca.Web -- google-places match
+```
+
+Or `/SADMIN/google` → Dry-run match → Run match. Low-confidence rows stay in the review list until Approve / Reject / manual place ID. Then `google-places refresh` (or Refresh now) for ratings, hours, and 1–3 cached photos. Nightly hosted job refreshes about 1/30 of matched shops.
 
 `appsettings.Development.json` is committed. Use user-secrets or `appsettings.Development.local.json` (gitignored) for a laptop override.
 
@@ -114,6 +129,7 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | `/SADMIN/agents` | AI Visitors: visits/inquiries + editable UA catalog |
 | `/SADMIN/shops` | Per-shop 7-day impression column; open a row for 7/30/90 + chart |
 | `/SADMIN/queue/drafts` | Gary Vaynerchuk industry-figure draft (not public) |
+| `/SADMIN/google` | Places match / refresh / low-confidence review / daily SKU call counts |
 
 ## Known gaps
 

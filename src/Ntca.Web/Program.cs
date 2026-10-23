@@ -9,17 +9,21 @@ using Ntca.Data;
 using Ntca.Web.Auth;
 using Ntca.Web.Services;
 
+if (args.Length > 0 && string.Equals(args[0], "google-places", StringComparison.OrdinalIgnoreCase))
+{
+    var cli = WebApplication.CreateBuilder(new WebApplicationOptions
+    {
+        Args = Array.Empty<string>(),
+        EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"
+    });
+    AddNtcaServices(cli);
+    var cliApp = cli.Build();
+    Environment.ExitCode = await Ntca.Web.Services.GooglePlacesCli.RunAsync(cliApp.Services, args);
+    return;
+}
+
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.Configure<SocketLabsOptions>(builder.Configuration.GetSection("SocketLabs"));
-builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
-builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("Storage"));
-
-var conn = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is required. Set it with dotnet user-secrets.");
-
-builder.Services.AddDbContext<NtcaDbContext>(opt =>
-    opt.UseSqlServer(conn, sql => sql.EnableRetryOnFailure()));
+AddNtcaServices(builder);
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache();
@@ -34,7 +38,6 @@ builder.Services.AddScoped<AgentAnswerBuilder>();
 builder.Services.AddScoped<IAgentAnswerEnricher, NoOpAgentAnswerEnricher>();
 builder.Services.AddHostedService<AgentVisitFlushService>();
 builder.Services.AddScoped<IAppEmailSender, CompositeEmailSender>();
-builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
 builder.Services.AddScoped<LoginCodeService>();
 builder.Services.AddScoped<SiteModeService>();
 builder.Services.AddRateLimiter(options =>
@@ -144,5 +147,25 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+static void AddNtcaServices(WebApplicationBuilder builder)
+{
+    builder.Services.Configure<SocketLabsOptions>(builder.Configuration.GetSection("SocketLabs"));
+    builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+    builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("Storage"));
+    builder.Services.Configure<GooglePlacesOptions>(builder.Configuration.GetSection("GooglePlaces"));
+    var conn = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is required. Set it with dotnet user-secrets.");
+    builder.Services.AddDbContext<NtcaDbContext>(opt =>
+        opt.UseSqlServer(conn, sql => sql.EnableRetryOnFailure()));
+    builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
+    builder.Services.AddHttpClient<IGooglePlacesClient, GooglePlacesClient>(client =>
+    {
+        client.BaseAddress = new Uri("https://places.googleapis.com/");
+        client.Timeout = TimeSpan.FromSeconds(30);
+    });
+    builder.Services.AddScoped<GooglePlacesSync>();
+    builder.Services.AddHostedService<GooglePlacesHostedService>();
+}
 
 public partial class Program { }

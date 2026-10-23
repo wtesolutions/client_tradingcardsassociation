@@ -45,6 +45,10 @@ public sealed class NtcaDbContext : DbContext
     public DbSet<AgentUaRule> AgentUaRules => Set<AgentUaRule>();
     public DbSet<AgentVisit> AgentVisits => Set<AgentVisit>();
     public DbSet<AgentInquiry> AgentInquiries => Set<AgentInquiry>();
+    public DbSet<GooglePlaceMatch> GooglePlaceMatches => Set<GooglePlaceMatch>();
+    public DbSet<GooglePlaceCache> GooglePlaceCaches => Set<GooglePlaceCache>();
+    public DbSet<GooglePlacePhoto> GooglePlacePhotos => Set<GooglePlacePhoto>();
+    public DbSet<GoogleApiCallLog> GoogleApiCallLogs => Set<GoogleApiCallLog>();
 
     protected override void OnModelCreating(ModelBuilder model)
     {
@@ -399,6 +403,56 @@ public sealed class NtcaDbContext : DbContext
             e.Property(x => x.Zip3).HasMaxLength(3).IsFixedLength();
             e.Property(x => x.Interests).HasMaxLength(200);
             e.Property(x => x.QuestionExcerpt).HasMaxLength(240);
+        });
+
+        model.Entity<GooglePlaceMatch>(e =>
+        {
+            e.ToTable("GooglePlaceMatch", "dir");
+            e.HasKey(x => x.ShopId);
+            e.Property(x => x.GooglePlaceId).HasMaxLength(255);
+            e.Property(x => x.MatchStatus).HasMaxLength(20);
+            e.Property(x => x.Confidence).HasPrecision(5, 4);
+            e.Property(x => x.CandidatePlaceId).HasMaxLength(255);
+            e.Property(x => x.CandidateName).HasMaxLength(300);
+            e.Property(x => x.CandidateAddress).HasMaxLength(400);
+            e.Property(x => x.CandidateLat).HasPrecision(9, 6);
+            e.Property(x => x.CandidateLng).HasPrecision(9, 6);
+            e.HasOne(x => x.Shop).WithMany().HasForeignKey(x => x.ShopId);
+        });
+
+        model.Entity<GooglePlaceCache>(e =>
+        {
+            e.ToTable("GooglePlaceCache", "dir");
+            e.HasKey(x => x.ShopId);
+            e.Property(x => x.GooglePlaceId).HasMaxLength(255);
+            e.Property(x => x.Rating).HasPrecision(2, 1);
+            e.Property(x => x.GoogleMapsUri).HasMaxLength(500);
+            e.Property(x => x.DisplayName).HasMaxLength(300);
+            e.Property(x => x.FormattedAddress).HasMaxLength(400);
+            e.Property(x => x.Latitude).HasPrecision(9, 6);
+            e.Property(x => x.Longitude).HasPrecision(9, 6);
+            e.HasOne(x => x.Shop).WithMany().HasForeignKey(x => x.ShopId);
+        });
+
+        model.Entity<GooglePlacePhoto>(e =>
+        {
+            e.ToTable("GooglePlacePhoto", "dir");
+            e.HasKey(x => x.PhotoId);
+            e.Property(x => x.GooglePlaceId).HasMaxLength(255);
+            e.Property(x => x.PhotoName).HasMaxLength(400);
+            e.Property(x => x.AuthorName).HasMaxLength(200);
+            e.Property(x => x.AuthorUri).HasMaxLength(400);
+            e.Property(x => x.RelativePath).HasMaxLength(400);
+            e.Property(x => x.ContentType).HasMaxLength(80);
+            e.HasOne(x => x.Shop).WithMany().HasForeignKey(x => x.ShopId);
+        });
+
+        model.Entity<GoogleApiCallLog>(e =>
+        {
+            e.ToTable("GoogleApiCallLog", "analytics");
+            e.HasKey(x => new { x.CallDate, x.Sku });
+            e.Property(x => x.CallDate).HasColumnType("date");
+            e.Property(x => x.Sku).HasMaxLength(40);
         });
     }
 }

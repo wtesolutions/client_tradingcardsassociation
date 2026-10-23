@@ -270,6 +270,8 @@ public static class ShopJsonLd
         Set(member, "description", string.IsNullOrWhiteSpace(input.TierName) ? null : "NTCA listing tier: " + input.TierName);
         store["memberOf"] = member;
 
+        // Google Places ratings are third-party cache. Do not emit them as
+        // schema.org aggregateRating (Places ToS + Google Search first-party review rules).
         if (input.ApprovedReviewCount > 0 && input.AverageRating is { } rating)
         {
             store["aggregateRating"] = new JsonObject

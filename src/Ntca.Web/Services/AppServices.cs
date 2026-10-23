@@ -103,6 +103,33 @@ public sealed class LocalFileStorage : IFileStorage
         await content.CopyToAsync(fs, ct);
         return "/uploads/" + relativePath.Replace('\\', '/').TrimStart('/');
     }
+
+    public Task<bool> ExistsAsync(string relativePath, CancellationToken ct = default)
+        => Task.FromResult(File.Exists(Resolve(relativePath)));
+
+    public Task DeleteAsync(string relativePath, CancellationToken ct = default)
+    {
+        var full = Resolve(relativePath);
+        if (File.Exists(full))
+            File.Delete(full);
+        return Task.CompletedTask;
+    }
+
+    public Task<Stream?> OpenReadAsync(string relativePath, CancellationToken ct = default)
+    {
+        var full = Resolve(relativePath);
+        if (!File.Exists(full))
+            return Task.FromResult<Stream?>(null);
+        return Task.FromResult<Stream?>(File.OpenRead(full));
+    }
+
+    private string Resolve(string relativePath)
+    {
+        var root = Path.IsPathRooted(_opt.LocalRoot)
+            ? _opt.LocalRoot
+            : Path.Combine(_env.ContentRootPath, _opt.LocalRoot);
+        return Path.GetFullPath(Path.Combine(root, relativePath.Replace('\\', '/')));
+    }
 }
 
 public sealed class LoginCodeService

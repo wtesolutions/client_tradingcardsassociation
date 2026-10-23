@@ -10,12 +10,14 @@ public sealed class HomeController : Controller
     private readonly NtcaDbContext _db;
     private readonly SiteModeService _mode;
     private readonly IImpressionTracker _track;
+    private readonly GooglePlacesSync _google;
 
-    public HomeController(NtcaDbContext db, SiteModeService mode, IImpressionTracker track)
+    public HomeController(NtcaDbContext db, SiteModeService mode, IImpressionTracker track, GooglePlacesSync google)
     {
         _db = db;
         _mode = mode;
         _track = track;
+        _google = google;
     }
 
     public async Task<IActionResult> Index(CancellationToken ct)
@@ -52,6 +54,7 @@ public sealed class HomeController : Controller
         ViewBag.IsPreview = await _mode.IsPreviewAsync(ct);
         ViewBag.Featured = featured;
         ViewBag.Rotation = rotation;
+        ViewBag.Google = await _google.LoadViewsAsync(featured.Concat(rotation).Select(s => s.ShopId), ct);
         ViewData["MainClass"] = "site-main";
         return View((shows, posts));
     }

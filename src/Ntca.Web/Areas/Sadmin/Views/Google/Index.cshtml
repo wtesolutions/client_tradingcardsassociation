@@ -1,0 +1,81 @@
+@model Ntca.Web.Areas.Sadmin.Controllers.GoogleAdminVm
+@{
+    ViewData["Title"] = "Google Places";
+}
+<h1>Google Places</h1>
+<p class="meta">Batch only. Visitor pages never call Google. Cache TTL is 30 days. Photos live in <code>wwwroot/uploads/gplace</code>.</p>
+@if (!string.IsNullOrEmpty(Model.Result))
+{
+    <p class="card">@Model.Result</p>
+}
+<div class="kpis">
+    <div class="kpi"><b>@(Model.KeyConfigured ? "yes" : "no")</b><span>API key</span></div>
+    <div class="kpi"><b>@Model.Matched</b><span>Matched</span></div>
+    <div class="kpi"><b>@Model.PendingReview</b><span>Low confidence</span></div>
+    <div class="kpi"><b>@Model.Unmatched</b><span>Unmatched</span></div>
+    <div class="kpi"><b>@Model.Rejected</b><span>Rejected</span></div>
+    <div class="kpi"><b>@Model.TodayCalls / @Model.DailyLimit</b><span>Calls today</span></div>
+    <div class="kpi"><b>@Model.MonthCalls / @Model.MonthlyLimit</b><span>Calls this month</span></div>
+    <div class="kpi"><b>@(Model.LastRefresh?.ToString("u") ?? "never")</b><span>Last refresh</span></div>
+</div>
+@if (!Model.KeyConfigured)
+{
+    <p class="card">No key. Feature is a no-op. Set it with <code>dotnet user-secrets set GooglePlaces:ApiKey "…" --project src/Ntca.Web</code> and enable <strong>Places API (New)</strong> on the Google Cloud project.</p>
+}
+<h2>Batch jobs</h2>
+<form method="post" action="/SADMIN/google/match" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
+    @Html.AntiForgeryToken()
+    <label>Take <input name="take" type="number" min="1" placeholder="all unmatched" style="width:8rem" /></label>
+    <button class="btn ghost" name="dryRun" value="true" type="submit">Dry-run match</button>
+    <button class="btn" type="submit">Run match</button>
+</form>
+<form method="post" action="/SADMIN/google/refresh" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
+    @Html.AntiForgeryToken()
+    <label>Shop IDs <input name="shopIds" placeholder="optional: 12,34" /></label>
+    <button class="btn ghost" name="dryRun" value="true" type="submit">Dry-run refresh</button>
+    <button class="btn" type="submit">Refresh now</button>
+</form>
+<p class="meta">Match = Text Search for unmatched shops (high confidence auto-applies; low confidence waits here). Refresh = Place Details + 1–3 cached photos. Nightly job does about 1/30 of matched shops.</p>
+<h2>API calls (14 days)</h2>
+@if (Model.CallLog.Count == 0)
+{
+    <p class="meta">No calls logged yet.</p>
+}
+else
+{
+    <table>
+        <tr><th>Day</th><th>SKU</th><th>Calls</th></tr>
+        @foreach (var row in Model.CallLog)
+        {
+            <tr><td>@row.Day.ToString("yyyy-MM-dd")</td><td>@row.Sku</td><td>@row.Count</td></tr>
+        }
+    </table>
+}
+<h2>Low-confidence review</h2>
+@if (Model.Review.Count == 0)
+{
+    <p class="meta">Nothing waiting.</p>
+}
+else
+{
+    <table>
+        <tr><th>Shop</th><th>Candidate</th><th>Confidence</th><th>Action</th></tr>
+        @foreach (var row in Model.Review)
+        {
+            <tr>
+                <td>@row.Shop?.Name<br /><span class="meta">@row.Shop?.City, @row.Shop?.StateCode · #@row.ShopId</span></td>
+                <td>@row.CandidateName<br /><span class="meta">@row.CandidateAddress<br />@row.CandidatePlaceId</span></td>
+                <td>@row.Confidence</td>
+                <td>
+                    <form method="post" action="/SADMIN/google/review/@row.ShopId">
+                        @Html.AntiForgeryToken()
+                        <input name="placeId" placeholder="manual place id" />
+                        <button class="btn" name="decision" value="approve" type="submit">Approve</button>
+                        <button class="btn ghost" name="decision" value="manual" type="submit">Save place id</button>
+                        <button class="btn ghost" name="decision" value="reject" type="submit">Reject</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+}
