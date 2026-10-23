@@ -5,7 +5,8 @@
     var ai = Ntca.Web.Services.AgentConciergeMiddleware.Current(Http.HttpContext);
     var path = Http.HttpContext?.Request.Path.Value ?? "";
     var isFunnel = path.StartsWith("/signup", StringComparison.OrdinalIgnoreCase)
-        || path.StartsWith("/join", StringComparison.OrdinalIgnoreCase);
+        || path.StartsWith("/join", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWith("/onboarding", StringComparison.OrdinalIgnoreCase);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -52,7 +53,7 @@
 </main>
 <footer class="foot">
     <span>© 2026 National Trading Card Association</span>
-    <span><a href="/robots.txt">robots</a> · <a href="/llms.txt">llms.txt</a> · <a href="/sitemap.xml">sitemap</a> · <a href="/owner">Shop owner</a> · <a href="/SADMIN">Staff</a></span>
+    <span><a href="/robots.txt">robots</a> · <a href="/llms.txt">llms.txt</a> · <a href="/sitemap.xml">sitemap</a> · <a href="/account">My account</a> · <a href="/owner">Shop owner</a> · <a href="/SADMIN">Staff</a></span>
 </footer>
 @await RenderSectionAsync("Scripts", required: false)
 </body>

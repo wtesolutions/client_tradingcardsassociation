@@ -935,7 +935,7 @@ CREATE TABLE analytics.AgentInquiry
     IsVerified       BIT           NOT NULL CONSTRAINT DF_AgentInquiry_Verified DEFAULT 0,
     CreatedAt        DATETIME2(3)  NOT NULL CONSTRAINT DF_AgentInquiry_Created DEFAULT SYSUTCDATETIME(),
     CONSTRAINT CK_AgentInquiry_Role CHECK (HumanRole IS NULL OR HumanRole IN
-        ('collector','parent','shop_owner','promoter','dealer','media'))
+        ('collector','parent','shop_owner','promoter','dealer','media','manufacturer'))
 );
 GO
 CREATE INDEX IX_AgentInquiry_Time ON analytics.AgentInquiry (CreatedAt DESC);

@@ -1,15 +1,15 @@
 @model List<Ntca.Core.Shop>
 @{
-    ViewData["Title"] = $"{ViewBag.City}, {ViewBag.State} shops";
+    ViewData["Title"] = $"{ViewBag.City}, {ViewBag.StateName} shops";
 }
 <nav class="crumbs" aria-label="Breadcrumb">
-    <a href="/">Home</a> /
-    <a href="/shops">Shops</a> /
-    <a href="/shops/@(((string)ViewBag.State).ToLowerInvariant())">@ViewBag.StateName</a> /
+    <a href="/">Home</a> <span aria-hidden="true">›</span>
+    <a href="/shops">Shops</a> <span aria-hidden="true">›</span>
+    <a href="/shops/@(((string)ViewBag.State).ToLowerInvariant())">@ViewBag.StateName</a> <span aria-hidden="true">›</span>
     <span>@ViewBag.City</span>
 </nav>
 <p class="kicker">Directory</p>
-<h1>Hobby shops in @ViewBag.City, @ViewBag.State</h1>
+<h1>Hobby shops in @ViewBag.City, @ViewBag.StateName</h1>
 <p class="lede">@Model.Count active listing@(Model.Count == 1 ? "" : "s").</p>
 <div class="shop-card-list">
 @foreach (var s in Model)

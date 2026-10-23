@@ -9,166 +9,101 @@ namespace Ntca.Web.Controllers;
 
 public sealed class SignupController : Controller
 {
+    private static readonly HashSet<string> OnboardingSteps = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "who", "zip", "interests", "experience", "travel",
+        "shop_find", "shop_tier", "show", "show_find", "mfr_find", "done", "results"
+    };
+
     private readonly NtcaDbContext _db;
     private readonly IAppEmailSender _email;
     private readonly IWebHostEnvironment _env;
-    private readonly LoginCodeService _codes;
-    private readonly AgentAnswerBuilder _answers;
 
-    public SignupController(NtcaDbContext db, IAppEmailSender email, IWebHostEnvironment env, LoginCodeService codes, AgentAnswerBuilder answers)
+    public SignupController(NtcaDbContext db, IAppEmailSender email, IWebHostEnvironment env)
     {
         _db = db;
         _email = email;
         _env = env;
-        _codes = codes;
-        _answers = answers;
     }
 
     [HttpGet("/signup")]
     [HttpGet("/join")]
-    public Task<IActionResult> Index(string? step, CancellationToken ct)
-        => Show(step ?? "who", ct);
+    public async Task<IActionResult> Index(CancellationToken ct)
+    {
+        var funnel = await LoadOrCreateAsync(ct);
+        if (funnel.Status is FunnelFlow.StatusRegistered)
+            return Redirect("/signup/thanks");
+        if (IsOnboardable(funnel))
+            return Redirect("/onboarding");
+        await RecordAsync(funnel, "register", "ENTER", FunnelFlow.StageRegister, null, ct);
+        return View("Index");
+    }
 
     [HttpGet("/signup/{step}")]
     [HttpGet("/join/{step}")]
-    public Task<IActionResult> StepGet(string step, CancellationToken ct)
-        => Show(step, ct);
+    public IActionResult LegacyStep(string step)
+    {
+        if (string.Equals(step, "thanks", StringComparison.OrdinalIgnoreCase))
+            return Redirect("/signup/thanks");
+        if (string.Equals(step, "register", StringComparison.OrdinalIgnoreCase))
+            return Redirect("/signup");
+        if (OnboardingSteps.Contains(step))
+            return Redirect("/onboarding/" + step.ToLowerInvariant());
+        return Redirect("/signup");
+    }
 
-    [HttpPost("/signup/{step}")]
-    [HttpPost("/join/{step}")]
+    [HttpPost("/signup")]
+    [HttpPost("/join")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> StepPost(string step, CancellationToken ct)
+    public async Task<IActionResult> Submit(CancellationToken ct)
     {
         var funnel = await LoadOrCreateAsync(ct);
+        if (string.IsNullOrWhiteSpace(Request.Form["cf-turnstile-response"]) && !_env.IsDevelopment())
+        {
+            // Enforced later when a Turnstile secret is configured.
+        }
+
+        var name = Clip(Request.Form["name"], 160) ?? "";
+        var email = (Request.Form["email"].ToString() ?? "").Trim();
+        if (email.Length < 5 || !email.Contains('@'))
+        {
+            ViewBag.Error = "A real email is required so we can confirm the list.";
+            ViewBag.Name = name;
+            ViewBag.Email = email;
+            ViewBag.Zip = Request.Form["zip"].ToString();
+            ViewBag.Phone = Request.Form["phone"].ToString();
+            ViewBag.Social = Request.Form["social"].ToString();
+            return View("Index");
+        }
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            ViewBag.Error = "Name is required.";
+            ViewBag.Email = email;
+            ViewBag.Zip = Request.Form["zip"].ToString();
+            ViewBag.Phone = Request.Form["phone"].ToString();
+            ViewBag.Social = Request.Form["social"].ToString();
+            return View("Index");
+        }
+
+        var (first, last) = FunnelFlow.SplitName(name);
+        var zip = Clip(Request.Form["zip"], 10);
+        var phone = Clip(Request.Form["phone"], 25);
+        var social = Clip(Request.Form["social"], 120);
         var answers = FunnelFlow.ReadAnswers(funnel.AnswersJson);
-        MergeForm(answers, step);
-        if (step == "who")
-        {
-            var role = AgentPrivacy.NormalizeRole(Request.Form["role"].ToString());
-            if (role is null)
-            {
-                ViewBag.Error = "Choose who you are to continue.";
-                return await Page(funnel, "who", answers, ct);
-            }
-            funnel.HumanRole = role;
-            answers.Clear();
-        }
-        if (step == "email")
-        {
-            if (string.IsNullOrWhiteSpace(Request.Form["cf-turnstile-response"]) && !_env.IsDevelopment())
-            {
-                // Enforced later when a Turnstile secret is configured.
-            }
-            var email = (Request.Form["email"].ToString() ?? "").Trim();
-            if (email.Length < 5 || !email.Contains('@'))
-            {
-                ViewBag.Error = "A real email is required so we can confirm the list.";
-                return await Page(funnel, "email", answers, ct);
-            }
-            funnel.Email = email;
-            funnel.FirstName = Clip(Request.Form["firstName"], 80);
-            answers["sms"] = Request.Form["sms"] == "1" ? "1" : "0";
-        }
-        if (step == "shop_find" && Request.Form["add"] == "1")
-            answers["shopAdd"] = "1";
+        if (!string.IsNullOrWhiteSpace(zip))
+            answers["zip"] = zip;
+        if (!string.IsNullOrWhiteSpace(phone))
+            answers["phone"] = phone;
+        if (!string.IsNullOrWhiteSpace(social))
+            answers["social"] = social;
+        answers["name"] = name;
 
-        funnel.AnswersJson = FunnelFlow.WriteAnswers(answers);
-        if (Request.Form["stay"] == "1")
-        {
-            funnel.UpdatedAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync(ct);
-            return Redirect("/signup/" + step);
-        }
-        await RecordAsync(funnel, step, "COMPLETE", ct);
-        var next = FunnelFlow.Next(funnel.HumanRole, step);
-        if (next == "results")
-            await CompleteAsync(funnel, answers, ct);
-        else
-        {
-            funnel.CurrentStep = next;
-            funnel.UpdatedAt = DateTime.UtcNow;
-            funnel.LastStepAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync(ct);
-            await RecordAsync(funnel, next, "ENTER", ct);
-        }
-        return Redirect("/signup/" + next);
-    }
+        var extra = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (!string.IsNullOrWhiteSpace(zip))
+            extra["zip"] = zip;
+        if (!string.IsNullOrWhiteSpace(social))
+            extra["social"] = social;
 
-    [HttpGet("/signup/confirm/{token:guid}")]
-    public async Task<IActionResult> Confirm(Guid token, CancellationToken ct)
-    {
-        var funnel = await _db.SignupFunnels.FirstOrDefaultAsync(f => f.ConfirmToken == token, ct);
-        if (funnel?.SignupId is long id)
-        {
-            var signup = await _db.Signups.FirstOrDefaultAsync(s => s.SignupId == id, ct);
-            if (signup is not null && signup.Status == "PENDING_CONFIRM")
-            {
-                signup.Status = "CONFIRMED";
-                signup.ConfirmedAt = DateTime.UtcNow;
-                signup.UpdatedAt = DateTime.UtcNow;
-                await _db.SaveChangesAsync(ct);
-            }
-        }
-        ViewBag.Confirmed = funnel is not null;
-        return View("Confirm");
-    }
-
-    [HttpGet("/signup/thanks")]
-    public IActionResult Thanks() => Redirect("/signup/results");
-
-    private async Task<IActionResult> Show(string step, CancellationToken ct)
-    {
-        var funnel = await LoadOrCreateAsync(ct);
-        if (funnel.CurrentStep == "who" && step != "who")
-            await RecordAsync(funnel, "who", "ENTER", ct);
-        var answers = FunnelFlow.ReadAnswers(funnel.AnswersJson);
-        if (step == "results" && funnel.Status != "COMPLETED")
-            return Redirect("/signup/" + (funnel.CurrentStep.Length == 0 ? "who" : funnel.CurrentStep));
-        if (funnel.CurrentStep != step && step != "results")
-        {
-            funnel.CurrentStep = step;
-            funnel.LastStepAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync(ct);
-            await RecordAsync(funnel, step, "ENTER", ct);
-        }
-        return await Page(funnel, step, answers, ct);
-    }
-
-    private async Task<IActionResult> Page(SignupFunnel funnel, string step, Dictionary<string, string> answers, CancellationToken ct)
-    {
-        ViewBag.Funnel = funnel;
-        ViewBag.Answers = answers;
-        ViewBag.Step = step;
-        ViewBag.Back = FunnelFlow.Back(funnel.HumanRole, step);
-        ViewBag.Progress = FunnelFlow.Progress(funnel.HumanRole, step);
-        ViewBag.Role = funnel.HumanRole;
-        if (step is "shop_find")
-        {
-            var q = answers.GetValueOrDefault("shopQ") ?? "";
-            var zip = answers.GetValueOrDefault("zip") ?? "";
-            IQueryable<Shop> shops = _db.Shops.AsNoTracking().Include(s => s.Tier).Where(s => s.ListingStatus == "ACTIVE");
-            if (!string.IsNullOrWhiteSpace(zip) || !string.IsNullOrWhiteSpace(q))
-            {
-                var z = zip.Trim();
-                var name = q.Trim();
-                shops = shops.Where(s =>
-                    (z.Length > 0 && s.PostalCode != null && s.PostalCode.StartsWith(z))
-                    || (name.Length > 0 && (s.Name.Contains(name) || s.City.Contains(name))));
-            }
-            ViewBag.Shops = await shops.OrderBy(s => s.Name).Take(12).ToListAsync(ct);
-        }
-        if (step == "results")
-        {
-            var ask = AgentPrivacy.Sanitize(default, FunnelFlow.ToAsk(funnel));
-            ViewBag.Answer = await _answers.BuildAsync(ask, Origin(), ct);
-            ViewBag.Tiers = await _db.ShopTiers.AsNoTracking().OrderBy(t => t.TierId).ToListAsync(ct);
-        }
-        return View("Step");
-    }
-
-    private async Task CompleteAsync(SignupFunnel funnel, Dictionary<string, string> answers, CancellationToken ct)
-    {
-        var email = (funnel.Email ?? "").Trim();
         var norm = email.ToLowerInvariant();
         var existing = await _db.Signups.FirstOrDefaultAsync(
             s => s.EmailNormalized == norm && s.FormKey == "PREVIEW" && s.Status != "MERGED" && s.Status != "DELETED", ct);
@@ -181,9 +116,11 @@ public sealed class SignupController : Controller
                 FormKey = "PREVIEW",
                 Email = email,
                 EmailNormalized = norm,
-                FirstName = funnel.FirstName,
-                HobbySegment = FunnelFlow.HobbySegment(funnel.HumanRole),
-                ExtraJson = funnel.AnswersJson,
+                FirstName = first,
+                LastName = last,
+                Phone = phone,
+                SocialHandle = social,
+                ExtraJson = extra.Count == 0 ? null : JsonSerializer.Serialize(extra),
                 Status = "PENDING_CONFIRM",
                 Channel = "WEB",
                 UtmSource = funnel.UtmSource,
@@ -197,22 +134,29 @@ public sealed class SignupController : Controller
             await _db.SaveChangesAsync(ct);
         }
         else
+        {
             signup = existing;
+            signup.FirstName ??= first;
+            signup.LastName ??= last;
+            signup.Phone ??= phone;
+            signup.SocialHandle ??= social;
+            signup.UpdatedAt = DateTime.UtcNow;
+        }
 
-        if (funnel.HumanRole == "promoter")
-            await MaybeSubmitShowAsync(answers, email, funnel.FirstName, ct);
-        if (funnel.HumanRole == "shop_owner" && answers.TryGetValue("shopId", out var sid) && long.TryParse(sid, out var shopId))
-            await _codes.IssueAsync(email, "CLAIM", null, ct);
-
+        funnel.Email = email;
+        funnel.FirstName = first;
         funnel.SignupId = signup.SignupId;
         funnel.ConfirmToken ??= Guid.NewGuid();
-        funnel.Status = "COMPLETED";
-        funnel.CurrentStep = "results";
+        funnel.AnswersJson = FunnelFlow.WriteAnswers(answers);
+        funnel.Status = FunnelFlow.StatusRegistered;
+        funnel.Stage = FunnelFlow.StageRegister;
+        funnel.CurrentStep = "thanks";
+        funnel.RegisteredAt ??= DateTime.UtcNow;
         funnel.UpdatedAt = DateTime.UtcNow;
         funnel.LastStepAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
-        await RecordAsync(funnel, "results", "ENTER", ct);
-        await RecordAsync(funnel, "results", "COMPLETE", ct);
+        await RecordAsync(funnel, "register", "COMPLETE", FunnelFlow.StageRegister, null, ct);
+        await RecordAsync(funnel, "thanks", "ENTER", FunnelFlow.StageRegister, null, ct);
 
         var link = Origin() + "/signup/confirm/" + funnel.ConfirmToken;
         await _email.SendAsync(
@@ -220,77 +164,43 @@ public sealed class SignupController : Controller
             "Confirm your NTCA Preview signup",
             "Thanks for joining the National Trading Card Association Preview list.\n\nConfirm your email:\n" + link + "\n\nIf you did not sign up, ignore this message.\n",
             ct: ct);
+
+        return Redirect("/signup/thanks");
     }
 
-    private async Task MaybeSubmitShowAsync(Dictionary<string, string> answers, string email, string? name, CancellationToken ct)
-    {
-        var title = answers.GetValueOrDefault("showTitle");
-        if (string.IsNullOrWhiteSpace(title) || !DateTime.TryParse(answers.GetValueOrDefault("showStarts"), out var starts))
-            return;
-        _db.EventSubmissions.Add(new EventSubmission
-        {
-            PublicId = Guid.NewGuid(),
-            Title = title.Trim(),
-            City = answers.GetValueOrDefault("showCity"),
-            StateCode = string.IsNullOrWhiteSpace(answers.GetValueOrDefault("showState")) ? null : answers["showState"].Trim().ToUpperInvariant(),
-            StartsAt = starts,
-            SubmitterName = string.IsNullOrWhiteSpace(name) ? "Promoter" : name,
-            SubmitterEmail = email,
-            Status = "PENDING_REVIEW",
-            Scope = "LOCAL",
-            TimeZoneId = "America/New_York",
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        });
-        await _db.SaveChangesAsync(ct);
-    }
+    [HttpGet("/signup/thanks")]
+    public IActionResult Thanks() => View("Thanks");
 
-    private void MergeForm(Dictionary<string, string> answers, string step)
+    [HttpGet("/signup/confirm/{token:guid}")]
+    public async Task<IActionResult> Confirm(Guid token, CancellationToken ct)
     {
-        void Set(string key, string formKey)
+        var funnel = await _db.SignupFunnels.FirstOrDefaultAsync(f => f.ConfirmToken == token, ct);
+        if (funnel?.SignupId is long id)
         {
-            var v = Request.Form[formKey].ToString();
-            if (!string.IsNullOrWhiteSpace(v))
-                answers[key] = v.Trim();
+            var signup = await _db.Signups.FirstOrDefaultAsync(s => s.SignupId == id, ct);
+            if (signup is not null && signup.Status == "PENDING_CONFIRM")
+            {
+                signup.Status = "CONFIRMED";
+                signup.ConfirmedAt = DateTime.UtcNow;
+                signup.UpdatedAt = DateTime.UtcNow;
+            }
+            funnel.Status = funnel.OnboardingStatus == FunnelFlow.OnboardCompleted
+                ? FunnelFlow.StatusCompleted
+                : FunnelFlow.StatusConfirmed;
+            funnel.Stage = FunnelFlow.StageOnboarding;
+            funnel.ConfirmedAt ??= DateTime.UtcNow;
+            funnel.UpdatedAt = DateTime.UtcNow;
+            funnel.LastStepAt = DateTime.UtcNow;
+            if (funnel.OnboardingStatus == FunnelFlow.OnboardNotStarted)
+                funnel.CurrentStep = "who";
+            await _db.SaveChangesAsync(ct);
+            await RecordAsync(funnel, "confirm", "COMPLETE", FunnelFlow.StageRegister, null, ct);
+            Response.Cookies.Append(FunnelFlow.CookieName, funnel.SessionId.ToString(), Cookie());
         }
-        switch (step)
-        {
-            case "interests":
-                answers["interests"] = string.Join(",", Request.Form["interests"].Where(s => !string.IsNullOrWhiteSpace(s)));
-                break;
-            case "experience":
-                Set("experience", "experience");
-                break;
-            case "zip":
-                Set("zip", "zip");
-                Set("city", "city");
-                Set("state", "state");
-                break;
-            case "travel":
-                Set("travel", "travel");
-                break;
-            case "shop_find":
-                Set("shopQ", "shopQ");
-                Set("zip", "zip");
-                Set("shopId", "shopId");
-                Set("shopName", "shopName");
-                Set("shopCity", "shopCity");
-                Set("shopState", "shopState");
-                break;
-            case "shop_tier":
-                Set("tier", "tier");
-                break;
-            case "show":
-                Set("showTitle", "showTitle");
-                Set("showCity", "showCity");
-                Set("showState", "showState");
-                Set("showStarts", "showStarts");
-                break;
-            case "email":
-                Set("email", "email");
-                Set("firstName", "firstName");
-                break;
-        }
+        ViewBag.Confirmed = funnel is not null;
+        ViewBag.OnboardingDone = funnel?.OnboardingStatus is FunnelFlow.OnboardCompleted or FunnelFlow.OnboardSkipped;
+        ViewBag.Token = token;
+        return View("Confirm");
     }
 
     private async Task<SignupFunnel> LoadOrCreateAsync(CancellationToken ct)
@@ -307,8 +217,10 @@ public sealed class SignupController : Controller
             row = new SignupFunnel
             {
                 SessionId = session,
-                CurrentStep = "who",
-                Status = "IN_PROGRESS",
+                CurrentStep = "register",
+                Stage = FunnelFlow.StageRegister,
+                Status = FunnelFlow.StatusInProgress,
+                OnboardingStatus = FunnelFlow.OnboardNotStarted,
                 UtmSource = Request.Query["utm_source"].ToString(),
                 UtmMedium = Request.Query["utm_medium"].ToString(),
                 UtmCampaign = Request.Query["utm_campaign"].ToString(),
@@ -319,30 +231,37 @@ public sealed class SignupController : Controller
             };
             _db.SignupFunnels.Add(row);
             await _db.SaveChangesAsync(ct);
-            await RecordAsync(row, "who", "ENTER", ct);
-            Response.Cookies.Append(FunnelFlow.CookieName, session.ToString(), new CookieOptions
-            {
-                HttpOnly = true,
-                IsEssential = true,
-                SameSite = SameSiteMode.Lax,
-                Secure = Request.IsHttps,
-                Expires = DateTimeOffset.UtcNow.AddDays(14)
-            });
+            Response.Cookies.Append(FunnelFlow.CookieName, session.ToString(), Cookie());
         }
         return row;
     }
 
-    private async Task RecordAsync(SignupFunnel funnel, string step, string action, CancellationToken ct)
+    private async Task RecordAsync(SignupFunnel funnel, string step, string action, string stage, string? role, CancellationToken ct)
     {
         _db.SignupStepEvents.Add(new SignupStepEvent
         {
             SignupFunnelId = funnel.SignupFunnelId,
             StepKey = step,
             Action = action,
+            Stage = stage,
+            RoleKey = role,
             CreatedAt = DateTime.UtcNow
         });
         await _db.SaveChangesAsync(ct);
     }
+
+    private CookieOptions Cookie() => new()
+    {
+        HttpOnly = true,
+        IsEssential = true,
+        SameSite = SameSiteMode.Lax,
+        Secure = Request.IsHttps,
+        Expires = DateTimeOffset.UtcNow.AddDays(30)
+    };
+
+    private static bool IsOnboardable(SignupFunnel funnel)
+        => funnel.Status is FunnelFlow.StatusConfirmed or FunnelFlow.StatusOnboarding or FunnelFlow.StatusCompleted
+            || funnel.OnboardingStatus is FunnelFlow.OnboardInProgress or FunnelFlow.OnboardCompleted;
 
     private static string? Clip(string? value, int max)
     {

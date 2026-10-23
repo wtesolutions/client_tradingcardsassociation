@@ -7,6 +7,22 @@ public static class FunnelFlow
 {
     public const string CookieName = "ntca.funnel";
 
+    public const string StageRegister = "REGISTER";
+    public const string StageOnboarding = "ONBOARDING";
+
+    public const string StatusInProgress = "IN_PROGRESS";
+    public const string StatusRegistered = "REGISTERED";
+    public const string StatusConfirmed = "CONFIRMED";
+    public const string StatusOnboarding = "ONBOARDING";
+    public const string StatusCompleted = "COMPLETED";
+    public const string StatusSkipped = "SKIPPED";
+    public const string StatusAbandoned = "ABANDONED";
+
+    public const string OnboardNotStarted = "NOT_STARTED";
+    public const string OnboardInProgress = "IN_PROGRESS";
+    public const string OnboardCompleted = "COMPLETED";
+    public const string OnboardSkipped = "SKIPPED";
+
     public static readonly (string Role, string Title, string Blurb)[] Roles =
     [
         ("collector", "Collector", "I already buy, trade, or collect cards."),
@@ -14,8 +30,12 @@ public static class FunnelFlow
         ("shop_owner", "Shop owner", "I run a hobby shop and want it listed."),
         ("promoter", "Show promoter", "I organize card shows."),
         ("dealer", "Dealer / breaker", "I buy, sell, or break cards."),
-        ("media", "Media / creator", "I write, film, or cover the hobby.")
+        ("media", "Media / creator", "I write, film, or cover the hobby."),
+        ("manufacturer", "Manufacturer", "I publish or make trading cards.")
     ];
+
+    public static readonly string[] RoleOrder =
+        ["collector", "parent", "dealer", "media", "shop_owner", "promoter", "manufacturer"];
 
     public static readonly (string Key, string Label)[] CollectInterests =
     [
@@ -29,36 +49,123 @@ public static class FunnelFlow
         ("graded", "Graded")
     ];
 
-    public static string[] Path(string? role) => role switch
+    public static readonly string[] RegisterSteps = ["register", "thanks"];
+    public static readonly string[] OnboardingReportSteps =
+        ["who", "zip", "interests", "experience", "travel", "shop_find", "shop_tier", "show_find", "mfr_find", "done"];
+
+    public static string[] RoleSteps(string role) => role switch
     {
-        "collector" or "parent" => ["who", "zip", "interests", "experience", "travel", "email", "results"],
-        "shop_owner" => ["who", "shop_find", "shop_tier", "email", "results"],
-        "promoter" => ["who", "show", "email", "results"],
-        "dealer" or "media" => ["who", "interests", "email", "results"],
-        _ => ["who"]
+        "collector" or "parent" => ["zip", "interests", "experience", "travel"],
+        "shop_owner" => ["shop_find", "shop_tier"],
+        "promoter" => ["show_find"],
+        "dealer" or "media" => ["interests"],
+        "manufacturer" => ["mfr_find"],
+        _ => []
     };
 
-    public static string Next(string? role, string step)
+    public static IReadOnlyList<string> NormalizeRoles(IEnumerable<string?>? roles)
     {
-        var path = Path(role);
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (roles is not null)
+        {
+            foreach (var raw in roles)
+            {
+                var role = AgentPrivacy.NormalizeRole(raw);
+                if (role is not null)
+                    set.Add(role);
+            }
+        }
+        return RoleOrder.Where(set.Contains).ToArray();
+    }
+
+    public static IReadOnlyList<string> ReadRoles(SignupFunnel funnel)
+    {
+        var fromJson = ReadRolesJson(funnel.RolesJson);
+        if (fromJson.Count > 0)
+            return fromJson;
+        var answers = ReadAnswers(funnel.AnswersJson);
+        if (answers.TryGetValue("roles", out var csv) && !string.IsNullOrWhiteSpace(csv))
+            return NormalizeRoles(csv.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));
+        return NormalizeRoles(funnel.HumanRole is null ? [] : [funnel.HumanRole]);
+    }
+
+    public static IReadOnlyList<string> ReadRolesJson(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
+        try
+        {
+            var list = JsonSerializer.Deserialize<List<string>>(json);
+            return NormalizeRoles(list);
+        }
+        catch
+        {
+            return NormalizeRoles(json.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));
+        }
+    }
+
+    public static string WriteRoles(IEnumerable<string> roles)
+        => JsonSerializer.Serialize(NormalizeRoles(roles));
+
+    public static string[] OnboardingPath(IEnumerable<string?>? roles)
+    {
+        var selected = NormalizeRoles(roles);
+        var steps = new List<string> { "who" };
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var role in selected)
+        {
+            foreach (var step in RoleSteps(role))
+            {
+                if (seen.Add(step))
+                    steps.Add(step);
+            }
+        }
+        steps.Add("done");
+        return [.. steps];
+    }
+
+    public static string[] Path(string? role) => OnboardingPath(role is null ? [] : [role]);
+
+    public static string Next(IReadOnlyList<string> roles, string step)
+    {
+        var path = OnboardingPath(roles);
         var i = Array.IndexOf(path, step);
         return i >= 0 && i < path.Length - 1 ? path[i + 1] : path[^1];
     }
 
-    public static string? Back(string? role, string step)
+    public static string Next(string? role, string step) => Next(NormalizeRoles(role is null ? [] : [role]), step);
+
+    public static string? Back(IReadOnlyList<string> roles, string step)
     {
-        var path = Path(role);
+        var path = OnboardingPath(roles);
         var i = Array.IndexOf(path, step);
         return i > 0 ? path[i - 1] : null;
     }
 
-    public static int Progress(string? role, string step)
+    public static string? Back(string? role, string step) => Back(NormalizeRoles(role is null ? [] : [role]), step);
+
+    public static int Progress(IReadOnlyList<string> roles, string step)
     {
-        var path = role is null ? Path("collector") : Path(role);
-        var i = Math.Max(0, Array.IndexOf(path, step));
+        var path = roles.Count == 0 ? OnboardingPath(["collector"]) : OnboardingPath(roles);
+        var i = Array.IndexOf(path, step);
         if (i < 0)
             i = 0;
         return (int)Math.Round(100.0 * (i + 1) / path.Length);
+    }
+
+    public static int Progress(string? role, string step)
+        => Progress(NormalizeRoles(role is null ? [] : [role]), step);
+
+    public static string? RoleForStep(IReadOnlyList<string> roles, string step)
+    {
+        if (step is "who" or "done" or "register" or "thanks" or "confirm")
+            return null;
+        foreach (var role in NormalizeRoles(roles))
+        {
+            if (RoleSteps(role).Contains(step))
+                return role;
+        }
+        return null;
     }
 
     public static string HobbySegment(string? role) => role switch
@@ -67,6 +174,7 @@ public static class FunnelFlow
         "shop_owner" => "Local Card Shop",
         "dealer" => "Dealer",
         "media" => "Content Creator",
+        "manufacturer" => "Manufacturer",
         "promoter" => "Other",
         _ => "Other"
     };
@@ -92,6 +200,7 @@ public static class FunnelFlow
     public static AgentAsk ToAsk(SignupFunnel funnel)
     {
         var a = ReadAnswers(funnel.AnswersJson);
+        var roles = ReadRoles(funnel);
         a.TryGetValue("interests", out var interests);
         a.TryGetValue("zip", out var zip);
         a.TryGetValue("city", out var city);
@@ -99,7 +208,7 @@ public static class FunnelFlow
         a.TryGetValue("travel", out var travel);
         return new AgentAsk
         {
-            HumanRole = funnel.HumanRole,
+            HumanRole = roles.FirstOrDefault() ?? funnel.HumanRole,
             Location = new AgentLocation { Zip = zip, City = city, State = state },
             Interests = string.IsNullOrWhiteSpace(interests)
                 ? null
@@ -107,6 +216,23 @@ public static class FunnelFlow
             Dates = string.IsNullOrWhiteSpace(travel) ? null : travel + " miles",
             TravelMiles = int.TryParse(travel, out var miles) ? miles : null
         };
+    }
+
+    public static (string First, string? Last) SplitName(string? name)
+    {
+        var t = (name ?? "").Trim();
+        if (t.Length == 0)
+            return ("", null);
+        var space = t.IndexOf(' ');
+        if (space < 0)
+            return (t.Length <= 80 ? t : t[..80], null);
+        var first = t[..space];
+        var last = t[(space + 1)..].Trim();
+        if (first.Length > 80)
+            first = first[..80];
+        if (last.Length > 80)
+            last = last[..80];
+        return (first, string.IsNullOrWhiteSpace(last) ? null : last);
     }
 
     public static string Hit(object row, string property)
@@ -131,6 +257,7 @@ public static class FunnelFlow
         "promoter" => "M6 5h12v14H6z M6 9h12 M10 5v4 M14 5v4 M9 13h6",
         "dealer" => "M4 9h16v10H4z M8 9V7h8v2 M8 14h8",
         "media" => "M4 8h11v10H4z M15 11l5-3v10l-5-3z",
+        "manufacturer" => "M4 20V10l4 3V10l4 3V8l8 4v8z M8 20v-4h4v4",
         "sports" => "M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16z M4.5 10h15 M4.5 14h15",
         "baseball" => "M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16z M8 6c2 3 2 9 0 12 M16 6c-2 3-2 9 0 12",
         "football" => "M4 12c2-6 14-6 16 0  -2 6-14 6-16 0z M8 9l8 6 M16 9l-8 6",

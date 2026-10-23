@@ -13,6 +13,7 @@
 
 :r 00_create_database.sql
 :r 01_schema.sql
+:r 04_onboarding_funnel.sql
 :r 02_seed.sql
 :r seed/SEED_00_static_pages.sql
 :r seed/SEED_10_shops.sql

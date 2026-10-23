@@ -9,6 +9,9 @@ public sealed class GuideController : Controller
     private readonly NtcaDbContext _db;
     public GuideController(NtcaDbContext db) => _db = db;
 
+    [HttpGet("/new-to-cards")]
+    public IActionResult Alias() => RedirectPermanent("/new-to-trading-cards");
+
     [HttpGet("/new-to-trading-cards")]
     [HttpGet("/guide")]
     public async Task<IActionResult> Index(CancellationToken ct)

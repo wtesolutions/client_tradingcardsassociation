@@ -3,7 +3,6 @@
     var state = (string)(ViewBag.State ?? "");
     var zip = (string)(ViewBag.Zip ?? "");
     var sort = (string)(ViewBag.Sort ?? "");
-    var view = (string)(ViewBag.View ?? "list");
     var states = ViewBag.States as List<string> ?? [];
 }
 <form class="dir-bar" method="get" action="/shops" id="dir-bar">
@@ -26,15 +25,10 @@
         </select>
         <button class="btn" type="submit">Search</button>
     </div>
-    <input type="hidden" name="view" value="@view" />
     <input type="hidden" name="lat" id="dir-lat" value="@(ViewBag.OriginHow as string == "device" ? ViewBag.OriginLat : "")" />
     <input type="hidden" name="lng" id="dir-lng" value="@(ViewBag.OriginHow as string == "device" ? ViewBag.OriginLng : "")" />
 </form>
-<p class="cal-tabs dir-tabs">
-    <a class="@(view != "map" ? "on" : "")" href="/shops?q=@Uri.EscapeDataString(q)&amp;state=@state&amp;zip=@Uri.EscapeDataString(zip)&amp;sort=@sort">Cards</a>
-    <a class="@(view == "map" ? "on" : "")" href="/shops?view=map&amp;q=@Uri.EscapeDataString(q)&amp;state=@state&amp;zip=@Uri.EscapeDataString(zip)&amp;sort=@sort">Map</a>
-</p>
 @if (ViewBag.OriginHow is string how && how.Length > 0)
 {
-    <p class="meta">Distance from @(how == "device" ? "your location" : "ZIP " + zip). Shops without coordinates sort last. Map © OpenStreetMap.</p>
+    <p class="meta">Distance from @(how == "device" ? "your location" : "ZIP " + zip). Shops without coordinates sort last.</p>
 }

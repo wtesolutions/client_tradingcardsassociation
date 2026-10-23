@@ -66,8 +66,8 @@ Solution `src/Ntca.sln` (**net9.0**):
 | Route | What it does |
 |---|---|
 | `/` | Home: destination shops, new-in-directory, upcoming shows, posts, live counts |
-| `/shops` | Directory search/filter; `?view=map` for shops with lat/lng |
-| `/shops/{state}` | State hub |
+| `/shops` | Directory search/filter; shop name links to detail; no Free Listing badge; **no map** |
+| `/shops/{state}` | State hub (full state name in H1, title, breadcrumb, BreadcrumbList JSON-LD) |
 | `/shops/{state}/{city}` | City hub |
 | `/shops/{state}/{city}/{slug}` | Shop detail, AI summary, JSON-LD `@graph`, click links via `/t` |
 | `/shops/{state}/{city}/{slug}.md` or `?format=md` | Plain-text shop page |
@@ -82,9 +82,10 @@ Solution `src/Ntca.sln` (**net9.0**):
 | `/api/v1/calendar` | JSON shows |
 | `/manufacturers`, `/manufacturers/{slug}` | Manufacturer directory |
 | `/news`, `/news/{slug}` | Blog (Pokémon post is public) |
-| `/new-to-trading-cards`, `/guide` | Glossary + condition scale |
-| `/signup`, `/join`, `/signup/{step}` | Multi-step Preview funnel (email last) |
-| `/signup/confirm/{token}` | Double opt-in |
+| `/new-to-trading-cards`, `/new-to-cards`, `/guide` | Glossary + condition scale (`/new-to-cards` → 301) |
+| `/signup`, `/join` | Simple Preview form (name, email, optional ZIP / phone / social) |
+| `/signup/confirm/{token}` | Double opt-in; CTA to `/onboarding` |
+| `/onboarding`, `/account` | Skippable multi-select “get to know you”; resume from account |
 | `/robots.txt`, `/llms.txt`, `/sitemap.xml` | Discovery (llms.txt invites AI assistants) |
 | `/agent` | AI concierge page (`?role=&city=&state=&zip=&interests=`) |
 | `/.well-known/ai-concierge` | Assistant manifest JSON |
@@ -92,7 +93,7 @@ Solution `src/Ntca.sln` (**net9.0**):
 
 **`/owner`:** `/owner/login`, edit-own-shop (queued `dir.ShopEditRequest`), 7/30/90 impression/view/click cards + 30-day bar chart.
 
-**`/SADMIN`:** login; dashboard KPIs (shops, shows, queues, signups, manufacturers, draft posts, 7-day impressions/views/clicks, top shops, AI visits/inquiries); Preview/Live mode; event / owner-edit / draft queues (approve/reject, publish industry-figure + draft post); shop table with Imp 7d; `/SADMIN/shops/{id}/stats`; `/SADMIN/agents` (visits, inquiries, editable UA catalog); `/SADMIN/funnel` (step conversion).
+**`/SADMIN`:** login; dashboard KPIs; Preview/Live mode; event / owner-edit / draft / onboarding-submission queues; shop table with Imp 7d; `/SADMIN/agents`; `/SADMIN/funnel` (registration vs onboarding, per-role).
 
 ### Calendar
 
@@ -172,7 +173,9 @@ Update the **Status** column when a later run lands the item.
 | AI-optimized shop JSON-LD + AI summary + `.md` | **Done** (`d5e57c3`, `9bdacc0`) | Real fields only; `llms.txt` lists shop markdown |
 | AI concierge / VIP AI visitors + `POST /api/v1/agent/ask` + SADMIN AI Visitors | **Done** (`881fc67`) | UA catalog (SADMIN-editable), welcome aside (no cloaking), `Link` + `X-NTCA-Agent-*`, `/.well-known/ai-concierge`, `/agent`, rate-limited ask API, anonymized `AgentVisit`/`AgentInquiry`, `/shows/submit` for promoters |
 | Mobile directory cards (SoberNation-style) | **Done** (`4133ffa`, `4a572a5`) | Cards on `/shops` + state/city; OSM static-map thumb; sticky ZIP/Near me; `/t/view` + `/t/phone`; compact shop-detail header |
-| Care.com-style multi-step signup funnel + funnel report | **Done** (`76e81b1`, `49464f2`, `e7e944f`, `0d639c9`) | `/signup` + `/join`; collector/parent **who → ZIP → interests → experience → travel → email**; icon cards; `crm.SignupFunnel` / `SignupStepEvent`; SADMIN `/SADMIN/funnel`; `AgentAsk.TravelMiles` shared with `/api/v1/agent/ask`; live shop/show/guide cards on results |
+| Care.com-style multi-step signup funnel + funnel report | **Done** (`76e81b1`, `49464f2`, `e7e944f`, `0d639c9`) | original one-flow funnel (superseded below) |
+| Simple Preview signup + post-signup multi-select onboarding | **In this change** | `/signup` = name/email/ZIP; `/onboarding` after confirm; typeahead + pending add/claim; `/SADMIN/funnel` two-stage; SQL `db/ssms/04_onboarding_funnel_SSMS.sql` |
+| Directory QA: no Free Listing badge, name links, full state name, no `/shops` map | **In this change** | cards + state hubs + `/shops` |
 
 ### Remaining platform
 
@@ -316,7 +319,8 @@ Use a real browser (or `curl -A "Mozilla/5.0 …"`). Bare `curl`/`wget` count as
 | URL | Verify |
 |---|---|
 | `/` | Shop / show / manufacturer counts; destination + new-shop strips |
-| `/shops` | ~186 cards; state filter; Destination chip; `?view=map` |
+| `/shops` | ~186 cards; name links; no Free Listing badge; no map |
+| `/shops/mo` | Missouri hub (full name in H1 / breadcrumb / JSON-LD) |
 | `/shops/ca` | California hub |
 | `/shops/ca/burbank/burbank-sportscards-burbank-ca` | Detail, AI summary, JSON-LD in view-source |
 | `/shops/ny/williamsville/dave-adam-s-card-world-retail-superstore-williamsville-ny.md` | Markdown |
@@ -326,8 +330,9 @@ Use a real browser (or `curl -A "Mozilla/5.0 …"`). Bare `curl`/`wget` count as
 | `/calendar.ics` | `BEGIN:VCALENDAR` / `VEVENT` |
 | `/manufacturers` | 68 active |
 | `/news/pokemon-trading-at-gaming-shows` | Pokémon post |
-| `/new-to-trading-cards` | Glossary + grades |
-| `/signup` | Inserts `crm.Signup` |
+| `/new-to-trading-cards` / `/new-to-cards` | Glossary + grades; alias 301s |
+| `/signup` | Simple form → `crm.Signup` + confirm email |
+| `/onboarding` | After confirm; skippable |
 | `/owner/login` | Code in console; Burbank stats after browsing `/shops` |
 | `/SADMIN/login` | KPIs + top shops; `/SADMIN/queue/drafts` has GaryVee (not public) |
 | `dotnet test src/Ntca.sln` | JSON-LD tests green |

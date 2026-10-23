@@ -17,6 +17,7 @@ PASSWORD = "NtcaAppDev2026x"
 FILES = [
     "00_create_database.sql",
     "01_schema.sql",
+    "04_onboarding_funnel.sql",
     "02_seed.sql",
     "seed/SEED_00_static_pages.sql",
     "seed/SEED_10_shops.sql",

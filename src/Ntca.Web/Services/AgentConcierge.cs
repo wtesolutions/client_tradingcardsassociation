@@ -217,6 +217,8 @@ public static class AgentPrivacy
             return "promoter";
         if (r is "collector" or "dealer" or "media")
             return r;
+        if (r is "manufacturer" or "publisher")
+            return "manufacturer";
         return null;
     }
 

@@ -6,7 +6,7 @@
     var tile = Ntca.Web.Services.ShopCopy.MapTileUrl(Model);
     var spec = Ntca.Web.Services.ShopCopy.SpecialtyLabel(Model.PrimarySpecialty);
     var blurb = Ntca.Web.Services.ShopCopy.OneLine(Model);
-    var tier = Model.Tier?.Name;
+    var loc = Ntca.Web.Services.ShopCopy.Loc(Model);
 }
 <article class="shop-card" data-shop="@Model.ShopId" data-lat="@Model.Latitude" data-lng="@Model.Longitude">
     <div class="shop-card-thumb @(thumb is null ? "ph" : "")">
@@ -29,7 +29,7 @@
     </div>
     <div class="shop-card-body">
         <div class="shop-card-top">
-            <h3>@Model.Name</h3>
+            <h3><a href="@loc">@Model.Name</a></h3>
             @if (milesLabel.Length > 0)
             {
                 <span class="shop-card-miles">@milesLabel</span>
@@ -41,7 +41,6 @@
         </p>
         <p class="shop-card-pills">
             @if (spec.Length > 0) { <span class="pill">@spec</span> }
-            @if (!string.IsNullOrEmpty(tier)) { <span class="pill">@tier</span> }
             @if (Model.IsDestinationShop) { <span class="pill dest">Destination</span> }
         </p>
         <p class="shop-card-blurb">@blurb</p>

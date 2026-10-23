@@ -6,43 +6,12 @@
 <h1>Hobby shops</h1>
 <p class="lede">@Model.Count listings from the seeded NTCA directory. Search by name, city, or ZIP. Near me uses your browser location (opt-in).</p>
 @await Html.PartialAsync("_DirectoryBar")
-<div class="dir-layout">
-    <div>
-        @if ((string)ViewBag.View == "map")
-        {
-            <div id="shop-map" class="cal-map"></div>
-        }
-        <div class="shop-card-list">
-        @foreach (var s in Model)
-        {
-            @await Html.PartialAsync("_ShopCard", s)
-        }
-        </div>
-    </div>
-    @if ((string)ViewBag.View != "map")
-    {
-        <aside class="dir-side-map" aria-label="Map of shops with coordinates">
-            <div id="shop-map" class="cal-map"></div>
-            <p class="meta">Pins only when a listing has lat/lng. Map tiles © OpenStreetMap.</p>
-        </aside>
-    }
+<div class="shop-card-list">
+@foreach (var s in Model)
+{
+    @await Html.PartialAsync("_ShopCard", s)
+}
 </div>
 @section Scripts {
     <script src="~/js/directory.js" asp-append-version="true"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        const points = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.MapPoints));
-        const el = document.getElementById('shop-map');
-        if (el && window.L) {
-            const map = L.map(el).setView([39.8, -98.6], 4);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
-            const bounds = [];
-            for (const p of points) {
-                L.marker([p.lat, p.lng]).addTo(map).bindPopup('<a href="' + p.loc + '">' + p.title + '</a><br>' + p.where);
-                bounds.push([p.lat, p.lng]);
-            }
-            if (bounds.length) map.fitBounds(bounds, { padding: [24, 24] });
-        }
-    </script>
 }

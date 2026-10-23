@@ -30,6 +30,7 @@ run() {
 
 run "$DIR/00_create_database.sql"
 run "$DIR/01_schema.sql"
+run "$DIR/04_onboarding_funnel.sql"
 run "$DIR/02_seed.sql"
 run "$DIR/seed/SEED_00_static_pages.sql"
 run "$DIR/seed/SEED_10_shops.sql"

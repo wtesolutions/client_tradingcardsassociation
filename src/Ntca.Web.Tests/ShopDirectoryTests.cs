@@ -46,6 +46,61 @@ public sealed class ShopDirectoryTests
     }
 
     [Fact]
+    public void State_name_is_the_full_word()
+    {
+        Assert.Equal("Missouri", ShopCopy.StateName("MO"));
+        Assert.Equal("Missouri", ShopCopy.StateName("mo"));
+        Assert.Equal("California", ShopCopy.StateName("CA"));
+    }
+
+    [Fact]
+    public void Free_listing_badge_is_hidden_on_public_cards()
+    {
+        Assert.False(ShopCopy.ShowListingBadge("Free Listing"));
+        Assert.False(ShopCopy.ShowListingBadge("FREE"));
+        Assert.False(ShopCopy.ShowListingBadge(null));
+        Assert.True(ShopCopy.ShowListingBadge("Featured Listing"));
+        Assert.True(ShopCopy.ShowListingBadge("Premium Partner"));
+    }
+
+    [Fact]
+    public void Shop_name_link_is_the_detail_url()
+    {
+        var shop = new Shop { Slug = "burbank-sportscards-burbank-ca", City = "Burbank", StateCode = "CA" };
+        Assert.Equal("/shops/ca/burbank/burbank-sportscards-burbank-ca", ShopCopy.Loc(shop));
+    }
+
+    [Fact]
+    public void State_hub_json_ld_uses_full_state_name()
+    {
+        var json = ShopJsonLd.BuildStateHub("https://tradingcardsassociation.com", "MO", 12);
+        using var doc = System.Text.Json.JsonDocument.Parse(json);
+        var names = new List<string>();
+        CollectNames(doc.RootElement, names);
+        Assert.Contains("Missouri", names);
+        Assert.Contains("Hobby shops in Missouri", names);
+        Assert.DoesNotContain("MO", names);
+        Assert.Contains("BreadcrumbList", json);
+        Assert.Contains("/shops/mo", json);
+    }
+
+    private static void CollectNames(System.Text.Json.JsonElement el, List<string> names)
+    {
+        if (el.ValueKind == System.Text.Json.JsonValueKind.Object)
+        {
+            if (el.TryGetProperty("name", out var n) && n.ValueKind == System.Text.Json.JsonValueKind.String)
+                names.Add(n.GetString()!);
+            foreach (var p in el.EnumerateObject())
+                CollectNames(p.Value, names);
+        }
+        else if (el.ValueKind == System.Text.Json.JsonValueKind.Array)
+        {
+            foreach (var i in el.EnumerateArray())
+                CollectNames(i, names);
+        }
+    }
+
+    [Fact]
     public void Specialty_and_phone_helpers()
     {
         Assert.Equal("Pokémon TCG", ShopCopy.SpecialtyLabel("POKEMON"));

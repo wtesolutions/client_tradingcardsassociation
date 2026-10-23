@@ -34,6 +34,7 @@ public sealed class NtcaDbContext : DbContext
     public DbSet<Signup> Signups => Set<Signup>();
     public DbSet<SignupFunnel> SignupFunnels => Set<SignupFunnel>();
     public DbSet<SignupStepEvent> SignupStepEvents => Set<SignupStepEvent>();
+    public DbSet<OnboardingSubmission> OnboardingSubmissions => Set<OnboardingSubmission>();
     public DbSet<Post> Posts => Set<Post>();
     public DbSet<IndustryFigure> IndustryFigures => Set<IndustryFigure>();
     public DbSet<IndustryFigureSource> IndustryFigureSources => Set<IndustryFigureSource>();
@@ -271,6 +272,7 @@ public sealed class NtcaDbContext : DbContext
             e.Property(x => x.FormKey).HasMaxLength(20);
             e.Property(x => x.Email).HasMaxLength(320);
             e.Property(x => x.EmailNormalized).HasMaxLength(320);
+            e.Property(x => x.SocialHandle).HasMaxLength(120);
             e.Property(x => x.Status).HasMaxLength(20);
             e.Property(x => x.Channel).HasMaxLength(20);
             e.Property(x => x.ExtraJson);
@@ -284,8 +286,11 @@ public sealed class NtcaDbContext : DbContext
             e.ToTable("SignupFunnel", "crm");
             e.HasKey(x => x.SignupFunnelId);
             e.Property(x => x.HumanRole).HasMaxLength(40);
-            e.Property(x => x.CurrentStep).HasMaxLength(40);
+            e.Property(x => x.RolesJson).HasMaxLength(400);
+            e.Property(x => x.CurrentStep).HasMaxLength(60);
+            e.Property(x => x.Stage).HasMaxLength(20);
             e.Property(x => x.Status).HasMaxLength(20);
+            e.Property(x => x.OnboardingStatus).HasMaxLength(20);
             e.Property(x => x.Email).HasMaxLength(320);
             e.Property(x => x.FirstName).HasMaxLength(80);
         });
@@ -294,8 +299,26 @@ public sealed class NtcaDbContext : DbContext
         {
             e.ToTable("SignupStepEvent", "crm");
             e.HasKey(x => x.SignupStepEventId);
-            e.Property(x => x.StepKey).HasMaxLength(40);
+            e.Property(x => x.StepKey).HasMaxLength(60);
             e.Property(x => x.Action).HasMaxLength(20);
+            e.Property(x => x.Stage).HasMaxLength(20);
+            e.Property(x => x.RoleKey).HasMaxLength(40);
+        });
+
+        model.Entity<OnboardingSubmission>(e =>
+        {
+            e.ToTable("OnboardingSubmission", "crm");
+            e.HasKey(x => x.OnboardingSubmissionId);
+            e.Property(x => x.Kind).HasMaxLength(20);
+            e.Property(x => x.Mode).HasMaxLength(20);
+            e.Property(x => x.Name).HasMaxLength(200);
+            e.Property(x => x.City).HasMaxLength(100);
+            e.Property(x => x.StateCode).HasMaxLength(2).IsFixedLength();
+            e.Property(x => x.PostalCode).HasMaxLength(20);
+            e.Property(x => x.SubmitterName).HasMaxLength(120);
+            e.Property(x => x.SubmitterEmail).HasMaxLength(320);
+            e.Property(x => x.Status).HasMaxLength(20);
+            e.Property(x => x.ExtraJson).HasColumnType("nvarchar(max)");
         });
 
         model.Entity<Post>(e =>

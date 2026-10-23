@@ -148,6 +148,13 @@ input, select, textarea {
   .nav-funnel { justify-content: space-between; }
 }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.signup-simple label { display: block; }
+.signup-simple input { width: 100%; max-width: 36rem; }
+.typeahead-list { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.typeahead-list .funnel-card { cursor: pointer; }
+.shop-card-top h3 a { color: inherit; text-decoration: none; }
+.shop-card-top h3 a:hover { text-decoration: underline; color: var(--accent-2); }
+.crumbs [aria-hidden="true"] { color: var(--muted); padding: 0 4px; }
 @media (max-width: 420px) {
   .nav { gap: 10px; padding: 12px 14px; }
   .nav .brand em { display: none; }

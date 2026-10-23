@@ -348,6 +348,7 @@ public sealed class Signup
     public string? LastName { get; set; }
     public string? Phone { get; set; }
     public string? HobbySegment { get; set; }
+    public string? SocialHandle { get; set; }
     public string? Message { get; set; }
     public string Status { get; set; } = "PENDING_CONFIRM";
     public DateTime? ConfirmedAt { get; set; }
@@ -367,11 +368,14 @@ public sealed class SignupFunnel
     public long SignupFunnelId { get; set; }
     public Guid SessionId { get; set; }
     public string? HumanRole { get; set; }
-    public string CurrentStep { get; set; } = "who";
+    public string? RolesJson { get; set; }
+    public string CurrentStep { get; set; } = "register";
+    public string Stage { get; set; } = "REGISTER";
     public string? AnswersJson { get; set; }
     public string? Email { get; set; }
     public string? FirstName { get; set; }
     public string Status { get; set; } = "IN_PROGRESS";
+    public string OnboardingStatus { get; set; } = "NOT_STARTED";
     public Guid? ConfirmToken { get; set; }
     public long? SignupId { get; set; }
     public string? UtmSource { get; set; }
@@ -381,6 +385,10 @@ public sealed class SignupFunnel
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public DateTime LastStepAt { get; set; }
+    public DateTime? RegisteredAt { get; set; }
+    public DateTime? ConfirmedAt { get; set; }
+    public DateTime? OnboardingStartedAt { get; set; }
+    public DateTime? OnboardingCompletedAt { get; set; }
 }
 
 public sealed class SignupStepEvent
@@ -389,7 +397,33 @@ public sealed class SignupStepEvent
     public long SignupFunnelId { get; set; }
     public string StepKey { get; set; } = "";
     public string Action { get; set; } = "ENTER";
+    public string? Stage { get; set; }
+    public string? RoleKey { get; set; }
     public DateTime CreatedAt { get; set; }
+}
+
+public sealed class OnboardingSubmission
+{
+    public long OnboardingSubmissionId { get; set; }
+    public Guid PublicId { get; set; }
+    public long? SignupFunnelId { get; set; }
+    public long? SignupId { get; set; }
+    public string Kind { get; set; } = "SHOP";
+    public string Mode { get; set; } = "ADD";
+    public long? TargetId { get; set; }
+    public string Name { get; set; } = "";
+    public string? City { get; set; }
+    public string? StateCode { get; set; }
+    public string? PostalCode { get; set; }
+    public string? ExtraJson { get; set; }
+    public string SubmitterName { get; set; } = "";
+    public string SubmitterEmail { get; set; } = "";
+    public string Status { get; set; } = "PENDING_REVIEW";
+    public long? ReviewedByUserId { get; set; }
+    public DateTime? ReviewedAt { get; set; }
+    public string? DecisionReason { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
 
 public sealed class Post

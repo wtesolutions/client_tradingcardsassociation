@@ -35,6 +35,8 @@ cd db
 
 SSMS **without** SQLCMD Mode: open `db/ssms/NTCA_FULL_INSTALL_SSMS.sql` and Execute (database `wte_NtcaDatabase`, login `ntca_app` / `NtcaAppDev2026x` — DEV ONLY).
 
+**Existing QA database (Eric already has 186 shops):** run **`db/ssms/04_onboarding_funnel_SSMS.sql`** in SSMS (plain T-SQL, no SQLCMD Mode). That adds two-stage funnel columns and `crm.OnboardingSubmission`. Safe to run twice. SQLCMD copy: `db/04_onboarding_funnel.sql`.
+
 SSMS with SQLCMD Mode: open `db/NTCA_FULL_INSTALL.sql` (defaults already set) or:
 
 ```
@@ -79,7 +81,7 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | Path | What to check |
 |---|---|
 | `/` | Home with real shop / show / manufacturer counts |
-| `/shops` | Mobile-first cards (thumb + Call / View shop); sticky search/ZIP/Near me; `?zip=` / `?lat=&lng=&sort=distance`; desktop 2-col + side map; `?view=map` |
+| `/shops` | Mobile-first cards (thumb + Call / View shop); shop name links to detail; no Free Listing badge; sticky search/ZIP/Near me; `?zip=` / `?lat=&lng=&sort=distance`; **no map** |
 | `/shops/{state}` | State hub (e.g. `/shops/ca`) — impressions use `DIRECTORY_STATE` |
 | `/shops/{state}/{city}` | City hub (breadcrumb target) |
 | `/shops/{state}/{city}/{slug}` | Shop detail + AI summary + JSON-LD `@graph` (try Burbank Sportscards or Dave & Adam's) |
@@ -96,10 +98,13 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | `/shows/{state}/{city}/{slug}.ics` | Single-show VEVENT |
 | `/manufacturers` + `/{slug}` | Manufacturer pages |
 | `/news` + `/news/pokemon-trading-at-gaming-shows` | Pokémon post |
-| `/new-to-trading-cards` | Glossary + condition guide |
-| `/signup` and `/join` | Multi-step Preview funnel (who → branch → email last). `/signup/thanks` redirects to results |
-| `/signup/confirm/{token}` | Double opt-in for `crm.Signup` |
-| `/SADMIN/funnel` | Step conversion, role, UTM |
+| `/new-to-trading-cards`, `/new-to-cards`, `/guide` | Glossary + condition guide (`/new-to-cards` 301s) |
+| `/signup` and `/join` | Simple Preview form (name, email, optional ZIP / phone / social). Turnstile + confirm email |
+| `/signup/confirm/{token}` | Double opt-in; CTA to skippable `/onboarding` |
+| `/onboarding` | Post-signup “get to know you” (multi-select roles, typeahead, skippable) |
+| `/account` | Preview member resume / skip |
+| `/SADMIN/funnel` | Registration vs onboarding conversion, per-role |
+| `/SADMIN/queue/onboarding` | Pending shop/show/mfr add + claim |
 | `/robots.txt` `/llms.txt` `/sitemap.xml` | Discovery; sitemap has dynamic shop/show/mfr URLs; llms.txt invites assistants |
 | `/agent` | Human-readable concierge; `?role=collector&city=Raleigh&state=NC&interests=pokemon` |
 | `/.well-known/ai-concierge` | JSON manifest for assistants |
@@ -139,7 +144,7 @@ Verify:
 
 ## Mobile directory cards
 
-`/shops`, `/shops/{state}`, and `/shops/{state}/{city}` use the same card (SoberNation-style layout, NTCA colors): OSM static-map thumb + pin when lat/lng exist (35 seeded shops; tile fallback), otherwise a card-icon placeholder; distance badge on the map and top-right when ZIP/Near me is set; outlined specialty / tier / Destination pills; one-line blurb; **Call** (`/t/phone`, icon, only if a phone exists); **View shop →** (`/t/view` → `CLICK_VIEW`). Sticky bar: search + ZIP, then Near me / state / distance sort. Desktop (≥960px): 2-column cards beside a Leaflet map. Shop detail has a compact header (map, Call, Directions, Website). Check 390px (no horizontal scroll) and 1440px. Try `/shops?zip=91502&sort=distance` for Burbank-area miles.
+`/shops`, `/shops/{state}`, and `/shops/{state}/{city}` use the same card: OSM static-map thumb when lat/lng exist, otherwise a card-icon placeholder; distance when ZIP/Near me is set; specialty / Destination pills (**no Free Listing badge**); one-line blurb; shop **name is a link** to the detail page plus **Call** / **View shop →**. Sticky bar: search + ZIP, Near me / state / distance sort. **No map** on `/shops`. State hubs (`/shops/mo`) breadcrumb, H1, title, and BreadcrumbList JSON-LD use the full name (Missouri). Shop detail still has a compact header. Try `/shops?zip=91502&sort=distance` and `/shops/mo`.
 
 ## AI concierge / VIP AI visitors
 
@@ -158,11 +163,15 @@ curl -s -A 'ChatGPT-User' -H 'Content-Type: application/json' \
 
 Expect Triangle Area Trading Cards (Raleigh) and an NC card show when one is published. `name` / `email` / `phone` fields are ignored and listed in `warnings`. `/SADMIN/agents` shows the visit + inquiry after a few seconds (flush interval is 3s).
 
-## Signup funnel
+## Preview signup + get-to-know-you
 
-`/signup` (also `/join`) is a Care.com-style one-question-per-screen flow: large tappable cards with icons, a progress bar, and a back button. Collector/parent path is **who → ZIP → interests → experience → travel → email → results** (ZIP early, email last). Progress is stored on `crm.SignupFunnel` + `crm.SignupStepEvent` under an HttpOnly cookie before email is collected. Final submit writes `crm.Signup` (PENDING_CONFIRM), emails a confirm link, and shows live directory matches via the same `AgentAsk` schema as `POST /api/v1/agent/ask` (including `travelMiles`). Promoter shows go to `mkt.EventSubmission`. Shop-owner “This is my shop” sends the existing claim login code (SocketLabs from `reports@wte.net`). Parent/beginner results include the New to Trading Cards guide. Turnstile is skipped in Development. Forms work without JavaScript. `/SADMIN/funnel` is the conversion report (step, role, UTM).
+`/signup` and `/join` (and every Join Preview CTA) are a **simple** Preview form matching the live/legacy fields: **Name**, **Email**, optional **ZIP**, optional **contact number**, optional **social**, Submit. No “who are you”, no shop/show pickers before the account exists. Turnstile stays on (skipped in Development). Submit writes `crm.Signup` PENDING_CONFIRM, emails the confirm link (`reports@wte.net` / console fallback), and shows `/signup/thanks`.
 
-Walk Collector → ZIP 27601 / Raleigh NC → Pokémon + Sports → About a year → 30 miles → email and confirm Triangle Area + the Raleigh show on the results screen. Shop owner: search ZIP/name → claim or add → Free/Featured/Premium (no payment). Promoter: show name/city/date → email. `POST /api/v1/agent/ask` with `"travelMiles":30` echoes that field on the JSON answer (same intent model).
+After confirm (`/signup/confirm/{token}`), **Get to know you** (`/onboarding`) is optional, skippable, and resumable from `/account`. Role cards are **multi-select** (collector + shop owner + promoter, …). Selected roles run in sequence (shared steps such as interests only once). Shop / show / manufacturer pickers are type-ahead (`/api/v1/search/{shops|shows|promoters|manufacturers}`, min 2 chars, 10 results, name + city/state/ZIP). “I don’t see my shop/show” writes `crm.OnboardingSubmission` PENDING_REVIEW (and `mkt.EventSubmission` for a new show). Selecting an existing shop as owner is a **pending claim**, not instant ownership.
+
+`/SADMIN/funnel` reports registration conversion vs onboarding completion, per-role. `/SADMIN/queue/onboarding` is the add/claim queue.
+
+Walk: name + email (+ ZIP) → confirm link → Get to know you → check Collector and Shop owner → ZIP 27601 → interests → shop type-ahead “bur” → claim or add. `/new-to-cards` 301s to `/new-to-trading-cards`.
 
 Screenshots (390×844 unless noted): `/opt/cursor/artifacts/ntca_shops_390.png`, `ntca_shops_1440.png` (1440×900), `ntca_shop_detail_390.png`, `ntca_funnel_who_390.png`, `ntca_funnel_zip_390.png`, `ntca_funnel_interests_390.png`, `ntca_funnel_experience_390.png`, `ntca_funnel_travel_390.png`, `ntca_funnel_email_390.png`, `ntca_funnel_results_390.png`, `ntca_funnel_shop_find_390.png`, `ntca_funnel_shop_tier_390.png`, `ntca_funnel_show_390.png`.
 

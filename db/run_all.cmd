@@ -17,6 +17,8 @@ call :run 00_create_database.sql
 if errorlevel 1 exit /b 1
 call :run 01_schema.sql
 if errorlevel 1 exit /b 1
+call :run 04_onboarding_funnel.sql
+if errorlevel 1 exit /b 1
 call :run 02_seed.sql
 if errorlevel 1 exit /b 1
 call :run seed\SEED_00_static_pages.sql

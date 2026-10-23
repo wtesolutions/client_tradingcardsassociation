@@ -26,6 +26,16 @@ public static class ShopCopy
     public static string StateName(string? code)
         => string.IsNullOrWhiteSpace(code) ? "" : (StateNames.TryGetValue(code.Trim(), out var n) ? n : code.Trim().ToUpperInvariant());
 
+    public static bool ShowListingBadge(string? tierName)
+    {
+        if (string.IsNullOrWhiteSpace(tierName))
+            return false;
+        var t = tierName.Trim();
+        return !t.Equals("FREE", StringComparison.OrdinalIgnoreCase)
+               && !t.Equals("Free", StringComparison.OrdinalIgnoreCase)
+               && !t.Equals("Free Listing", StringComparison.OrdinalIgnoreCase);
+    }
+
     public static string CitySlug(string city)
         => city.ToLowerInvariant().Replace(' ', '-').Replace(".", "");
 

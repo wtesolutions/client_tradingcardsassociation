@@ -1,42 +1,64 @@
-@model object?
+@using Ntca.Web.Services
 @{
     ViewData["Title"] = "Signup funnel";
 }
-<h1>Signup funnel</h1>
-<p class="meta">Last 30 days. Started <strong>@ViewBag.Started</strong> · completed <strong>@ViewBag.Completed</strong>. Anonymous until email. No raw IPs.</p>
-<h2>Step conversion</h2>
+<h1>Signup + onboarding</h1>
+<p class="meta">Last 30 days. Two-stage: registration conversion, then skippable onboarding. No raw IPs.</p>
+<div class="kpis" style="padding-left:0">
+    <div class="kpi"><b>@ViewBag.Started</b><span>Started</span></div>
+    <div class="kpi"><b>@ViewBag.Registered</b><span>Registered</span></div>
+    <div class="kpi"><b>@ViewBag.Confirmed</b><span>Confirmed</span></div>
+    <div class="kpi"><b>@ViewBag.OnboardingStarted</b><span>Onboarding started</span></div>
+    <div class="kpi"><b>@ViewBag.OnboardingDone</b><span>Onboarding done</span></div>
+    <div class="kpi"><b>@ViewBag.OnboardingSkipped</b><span>Skipped</span></div>
+</div>
+
+<h2>Registration conversion</h2>
 <table>
     <tr><th>Step</th><th>Entered</th><th>Completed</th></tr>
-    @foreach (var s in (IEnumerable<dynamic>)ViewBag.Steps)
+    @foreach (var s in (IEnumerable<FunnelReport.StepRow>)ViewBag.RegisterSteps)
     {
         <tr><td>@s.Name</td><td>@s.Enter</td><td>@s.Complete</td></tr>
     }
 </table>
-<h2>By role</h2>
+
+<h2>Onboarding steps</h2>
 <table>
-    <tr><th>Role</th><th>Started</th><th>Completed</th></tr>
-    @foreach (var r in (IEnumerable<dynamic>)ViewBag.ByRole)
+    <tr><th>Step</th><th>Entered</th><th>Completed</th></tr>
+    @foreach (var s in (IEnumerable<FunnelReport.StepRow>)ViewBag.OnboardSteps)
     {
-        <tr><td>@r.Name</td><td>@r.N</td><td>@r.Done</td></tr>
+        <tr><td>@s.Name</td><td>@s.Enter</td><td>@s.Complete</td></tr>
     }
 </table>
+
+<h2>By role (multi-select)</h2>
+<table>
+    <tr><th>Role</th><th>Selected</th><th>Onboarding completed</th></tr>
+    @foreach (var r in (IEnumerable<FunnelReport.RoleRow>)ViewBag.ByRole)
+    {
+        <tr><td>@r.Name</td><td>@r.Selected</td><td>@r.Onboarded</td></tr>
+    }
+</table>
+
 <h2>UTM source</h2>
 <table>
-    @foreach (var r in (IEnumerable<dynamic>)ViewBag.ByUtm)
+    @foreach (var r in (IEnumerable<FunnelReport.NameCount>)ViewBag.ByUtm)
     {
         <tr><td>@r.Name</td><td>@r.N</td></tr>
     }
 </table>
+
 <h2>Recent sessions</h2>
 <table>
-    <tr><th>When</th><th>Role</th><th>Step</th><th>Status</th><th>Email</th></tr>
+    <tr><th>When</th><th>Roles</th><th>Step</th><th>Status</th><th>Onboarding</th><th>Email</th></tr>
     @foreach (var f in (List<Ntca.Core.SignupFunnel>)ViewBag.Recent)
     {
         <tr>
             <td>@f.UpdatedAt.ToString("MMM d HH:mm")</td>
-            <td>@f.HumanRole</td>
+            <td>@string.Join(", ", FunnelFlow.ReadRoles(f))</td>
             <td>@f.CurrentStep</td>
             <td>@f.Status</td>
+            <td>@f.OnboardingStatus</td>
             <td>@(string.IsNullOrEmpty(f.Email) ? "—" : "yes")</td>
         </tr>
     }

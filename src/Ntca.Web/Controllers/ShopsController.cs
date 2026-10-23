@@ -38,19 +38,13 @@ public sealed class ShopsController : Controller
                 .ThenBy(s => s.Name)
                 .ToList();
         }
-        var surface = searching ? ImpressionSurfaces.DirectorySearch
-            : view == "map" ? ImpressionSurfaces.MapPin
-            : ImpressionSurfaces.DirectoryList;
-        if (view == "map")
-            _track.RecordMany(shops.Where(s => s.Latitude is not null && s.Longitude is not null).ToList(), surface, "/shops");
-        else
-            _track.RecordMany(shops, surface, "/shops");
+        var surface = searching ? ImpressionSurfaces.DirectorySearch : ImpressionSurfaces.DirectoryList;
+        _track.RecordMany(shops, surface, "/shops");
 
         ViewBag.Q = q ?? "";
         ViewBag.State = state ?? "";
         ViewBag.Zip = zip ?? "";
         ViewBag.Sort = sort ?? "";
-        ViewBag.View = view ?? "list";
         ViewBag.OriginLat = oLat;
         ViewBag.OriginLng = oLng;
         ViewBag.OriginHow = originHow;
@@ -60,17 +54,6 @@ public sealed class ShopsController : Controller
             .Distinct()
             .OrderBy(s => s)
             .ToListAsync(ct);
-        ViewBag.MapPoints = shops
-            .Where(s => s.Latitude is not null && s.Longitude is not null)
-            .Select(s => new
-            {
-                lat = s.Latitude,
-                lng = s.Longitude,
-                title = s.Name,
-                loc = ShopCopy.Loc(s),
-                where = s.City + ", " + s.StateCode
-            })
-            .ToList();
         return View(shops);
     }
 
@@ -93,6 +76,7 @@ public sealed class ShopsController : Controller
         _track.RecordMany(shops, ImpressionSurfaces.DirectoryState, "/shops/" + code.ToLowerInvariant());
         ViewBag.State = code;
         ViewBag.StateName = ShopCopy.StateName(code);
+        ViewBag.JsonLd = ShopJsonLd.BuildStateHub($"{Request.Scheme}://{Request.Host}", code, shops.Count);
         return View(shops);
     }
 

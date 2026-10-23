@@ -192,6 +192,33 @@ public sealed class QueueController : Controller
         return Redirect("/SADMIN/queue/drafts");
     }
 
+    [HttpGet("/SADMIN/queue/onboarding")]
+    public async Task<IActionResult> Onboarding(CancellationToken ct)
+    {
+        var rows = await _db.OnboardingSubmissions.AsNoTracking()
+            .Where(s => s.Status == "PENDING_REVIEW")
+            .OrderBy(s => s.CreatedAt)
+            .ToListAsync(ct);
+        return View(rows);
+    }
+
+    [HttpPost("/SADMIN/queue/onboarding/{id:long}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DecideOnboarding(long id, string decision, string? reason, CancellationToken ct)
+    {
+        var row = await _db.OnboardingSubmissions.FirstOrDefaultAsync(s => s.OnboardingSubmissionId == id, ct);
+        if (row is null)
+            return NotFound();
+        var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        row.ReviewedByUserId = userId;
+        row.ReviewedAt = DateTime.UtcNow;
+        row.DecisionReason = reason;
+        row.UpdatedAt = DateTime.UtcNow;
+        row.Status = decision == "approve" ? "APPROVED" : "REJECTED";
+        await _db.SaveChangesAsync(ct);
+        return Redirect("/SADMIN/queue/onboarding");
+    }
+
     [HttpGet("/SADMIN/shops")]
     public async Task<IActionResult> Shops(string? q, string? state, CancellationToken ct)
     {

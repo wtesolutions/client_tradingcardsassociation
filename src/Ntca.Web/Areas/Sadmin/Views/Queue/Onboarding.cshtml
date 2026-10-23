@@ -1,0 +1,35 @@
+@model List<Ntca.Core.OnboardingSubmission>
+@{
+    ViewData["Title"] = "Onboarding queue";
+}
+<h1>Onboarding submissions</h1>
+<p class="meta">Pending add / claim requests from post-signup onboarding. Approving marks the row reviewed — it does not publish a live shop or grant ownership.</p>
+@if (Model.Count == 0)
+{
+    <p>Nothing waiting.</p>
+}
+else
+{
+    <table>
+        <tr><th>When</th><th>Kind</th><th>Mode</th><th>Name</th><th>Where</th><th>Email</th><th></th></tr>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.CreatedAt.ToString("MMM d HH:mm")</td>
+                <td>@r.Kind</td>
+                <td>@r.Mode</td>
+                <td>@r.Name @(r.TargetId is long id ? $"(#{id})" : "")</td>
+                <td>@(string.Join(" ", new[] { r.City, r.StateCode, r.PostalCode }.Where(s => !string.IsNullOrWhiteSpace(s))))</td>
+                <td>@r.SubmitterEmail</td>
+                <td>
+                    <form method="post" action="/SADMIN/queue/onboarding/@r.OnboardingSubmissionId" style="display:flex;gap:8px;align-items:center">
+                        @Html.AntiForgeryToken()
+                        <input name="reason" placeholder="Note" />
+                        <button class="btn" name="decision" value="approve">Approve</button>
+                        <button class="btn ghost" name="decision" value="reject">Reject</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+}

@@ -29,6 +29,46 @@ public sealed class ShopServiceOffer
 
 public static class ShopJsonLd
 {
+    public static string BuildStateHub(string origin, string stateCode, int shopCount)
+    {
+        origin = origin.TrimEnd('/');
+        var name = ShopCopy.StateName(stateCode);
+        var code = stateCode.Trim().ToLowerInvariant();
+        var canonical = origin + "/shops/" + code;
+        var crumbId = canonical + "#breadcrumb";
+        var pageId = canonical + "#webpage";
+        var items = new JsonArray
+        {
+            Crumb(1, origin + "/", "Home"),
+            Crumb(2, origin + "/shops", "Shops"),
+            Crumb(3, canonical, name)
+        };
+        var graph = new JsonArray
+        {
+            new JsonObject
+            {
+                ["@type"] = "CollectionPage",
+                ["@id"] = pageId,
+                ["url"] = canonical,
+                ["name"] = "Hobby shops in " + name,
+                ["breadcrumb"] = new JsonObject { ["@id"] = crumbId }
+            },
+            new JsonObject
+            {
+                ["@type"] = "BreadcrumbList",
+                ["@id"] = crumbId,
+                ["itemListElement"] = items
+            }
+        };
+        if (shopCount > 0)
+            graph[0]!.AsObject()["numberOfItems"] = shopCount;
+        return new JsonObject
+        {
+            ["@context"] = "https://schema.org",
+            ["@graph"] = graph
+        }.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+    }
+
     public static string Build(ShopSchemaInput input)
     {
         var shop = input.Shop;

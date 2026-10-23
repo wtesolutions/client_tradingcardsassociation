@@ -8,6 +8,7 @@ DB = Path(__file__).resolve().parents[1]
 FILES = [
     "00_create_database.sql",
     "01_schema.sql",
+    "04_onboarding_funnel.sql",
     "02_seed.sql",
     "seed/SEED_00_static_pages.sql",
     "seed/SEED_10_shops.sql",
