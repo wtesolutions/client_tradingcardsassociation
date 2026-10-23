@@ -18,43 +18,59 @@ public sealed class ShopsController : Controller
     }
 
     [HttpGet("/shops")]
-    public async Task<IActionResult> Index(string? q, string? state, string? view, string? zip, string? sort, double? lat, double? lng, CancellationToken ct)
+    public async Task<IActionResult> Index(
+        string? q,
+        string? location,
+        string? zip,
+        string? state,
+        string? specialty,
+        string? sort,
+        string? openNow,
+        string? radiusMiles,
+        string? view,
+        double? lat,
+        double? lng,
+        int? page,
+        CancellationToken ct)
     {
-        IQueryable<Shop> query = Active().Include(s => s.Tier);
-        var searching = !string.IsNullOrWhiteSpace(q);
+        var dir = ShopDirectory.Parse(q, location, zip, specialty, sort, openNow, radiusMiles, lat, lng, page);
+        IQueryable<Shop> query = Active().Include(s => s.Tier).Include(s => s.Hours);
         if (!string.IsNullOrWhiteSpace(state))
             query = query.Where(s => s.StateCode == state.Trim().ToUpperInvariant());
-        if (searching)
-        {
-            var term = q!.Trim();
-            query = query.Where(s => s.Name.Contains(term) || s.City.Contains(term) || (s.PostalCode != null && s.PostalCode.StartsWith(term)));
-        }
-        var shops = await query.OrderBy(s => s.StateCode).ThenBy(s => s.City).ThenBy(s => s.Name).Take(400).ToListAsync(ct);
-        var (oLat, oLng, originHow) = ResolveOrigin(shops, zip, lat, lng);
-        if (string.Equals(sort, "distance", StringComparison.OrdinalIgnoreCase) && oLat is not null)
-        {
-            shops = shops
-                .OrderBy(s => ShopCopy.MilesFrom(s, oLat, oLng) ?? double.MaxValue)
-                .ThenBy(s => s.Name)
-                .ToList();
-        }
+        var candidates = await query
+            .OrderBy(s => s.Name)
+            .Take(ShopDirectory.CandidateCap)
+            .ToListAsync(ct);
+        var origin = ShopDirectory.ResolveOrigin(candidates, dir);
+        var oLat = origin?.Lat;
+        var oLng = origin?.Lng;
+        var matches = ShopDirectory.Apply(candidates, dir, oLat, oLng);
+        var pageItems = ShopDirectory.TakePage(matches, dir.Page);
+        var searching = dir.HasKeyword || dir.HasLocation || dir.Specialty.Length > 0 || dir.OpenNow;
         var surface = searching ? ImpressionSurfaces.DirectorySearch : ImpressionSurfaces.DirectoryList;
-        _track.RecordMany(shops, surface, "/shops");
+        _track.RecordMany(pageItems, surface, "/shops");
 
-        ViewBag.Q = q ?? "";
+        ViewBag.Query = dir;
+        ViewBag.Q = dir.Q;
+        ViewBag.Location = dir.Location;
         ViewBag.State = state ?? "";
-        ViewBag.Zip = zip ?? "";
-        ViewBag.Sort = sort ?? "";
+        ViewBag.Zip = dir.Location;
+        ViewBag.Sort = ShopDirectory.ResolveSort(dir, oLat is not null);
+        ViewBag.Specialty = dir.Specialty;
+        ViewBag.OpenNow = dir.OpenNow;
+        ViewBag.RadiusMiles = ShopDirectory.EffectiveRadius(dir, oLat is not null);
         ViewBag.OriginLat = oLat;
         ViewBag.OriginLng = oLng;
-        ViewBag.OriginHow = originHow;
-        ViewBag.States = await _db.Shops.AsNoTracking()
-            .Where(s => s.ListingStatus == "ACTIVE")
-            .Select(s => s.StateCode)
-            .Distinct()
-            .OrderBy(s => s)
-            .ToListAsync(ct);
-        return View(shops);
+        ViewBag.OriginHow = oLat is null ? "" : (dir.Lat is not null ? "device" : "zip");
+        ViewBag.Total = matches.Count;
+        ViewBag.Page = dir.Page;
+        ViewBag.PageCount = ShopDirectory.PageCount(matches.Count);
+        ViewBag.Chips = ShopDirectory.Chips(dir, oLat is not null);
+        ViewBag.HasOrigin = oLat is not null;
+        ViewBag.LocationLabel = ShopDirectory.LocationLabel(dir, oLat is not null);
+        ViewData["MainClass"] = "site-main";
+        ViewData["Title"] = "Find shops";
+        return View(pageItems);
     }
 
     [HttpGet("/shops.md")]
@@ -71,12 +87,13 @@ public sealed class ShopsController : Controller
         var code = state.Trim().ToUpperInvariant();
         if (code.Length != 2)
             return NotFound();
-        var shops = await Active().Include(s => s.Tier).Where(s => s.StateCode == code)
+        var shops = await Active().Include(s => s.Tier).Include(s => s.Hours).Where(s => s.StateCode == code)
             .OrderBy(s => s.City).ThenBy(s => s.Name).ToListAsync(ct);
         _track.RecordMany(shops, ImpressionSurfaces.DirectoryState, "/shops/" + code.ToLowerInvariant());
         ViewBag.State = code;
         ViewBag.StateName = ShopCopy.StateName(code);
         ViewBag.JsonLd = ShopJsonLd.BuildStateHub($"{Request.Scheme}://{Request.Host}", code, shops.Count);
+        ViewData["MainClass"] = "site-main";
         return View(shops);
     }
 
@@ -87,7 +104,7 @@ public sealed class ShopsController : Controller
         if (code.Length != 2)
             return NotFound();
         var slug = city.Trim().ToLowerInvariant();
-        var shops = await Active().Include(s => s.Tier).Where(s => s.StateCode == code).ToListAsync(ct);
+        var shops = await Active().Include(s => s.Tier).Include(s => s.Hours).Where(s => s.StateCode == code).ToListAsync(ct);
         shops = shops.Where(s => ShopCopy.CitySlug(s.City) == slug).OrderBy(s => s.Name).ToList();
         if (shops.Count == 0)
             return NotFound();
@@ -95,6 +112,7 @@ public sealed class ShopsController : Controller
         ViewBag.State = code;
         ViewBag.StateName = ShopCopy.StateName(code);
         ViewBag.City = shops[0].City;
+        ViewData["MainClass"] = "site-main";
         return View(shops);
     }
 
@@ -180,6 +198,9 @@ public sealed class ShopsController : Controller
         _track.Record(shop.ShopId, ImpressionSurfaces.Detail, pageUrl: ShopCopy.Loc(shop));
         ViewData["Title"] = shop.Name;
         ViewData["Description"] = summary;
+        ViewData["MainClass"] = "site-main";
+        ViewData["BodyClass"] = "is-shop-detail";
+        ViewData["HideDock"] = true;
         return View(new ShopDetailVm
         {
             Shop = shop,
@@ -188,22 +209,13 @@ public sealed class ShopsController : Controller
             MarkdownUrl = ShopCopy.MdLoc(shop),
             Hours = hours,
             Events = events,
-            TierName = shop.Tier?.Name
+            TierName = shop.Tier?.Name,
+            Services = ShopCopy.ServiceLabels(shop, events)
         });
     }
 
     private IQueryable<Shop> Active()
         => _db.Shops.AsNoTracking().Where(s => s.ListingStatus == "ACTIVE");
-
-    private static (double? Lat, double? Lng, string How) ResolveOrigin(IReadOnlyList<Shop> shops, string? zip, double? lat, double? lng)
-    {
-        if (lat is >= -90 and <= 90 && lng is >= -180 and <= 180)
-            return (lat, lng, "device");
-        var fromZip = ShopCopy.OriginFromZip(shops, zip);
-        if (fromZip is { } z)
-            return (z.Lat, z.Lng, "zip");
-        return (null, null, "");
-    }
 
     private static IReadOnlyList<ShopServiceOffer> ServiceOffers(Shop shop, IReadOnlyList<ShopEvent> events)
     {
@@ -224,5 +236,6 @@ public sealed class ShopDetailVm
     public required string MarkdownUrl { get; init; }
     public IReadOnlyList<ShopHours> Hours { get; init; } = [];
     public IReadOnlyList<ShopEvent> Events { get; init; } = [];
+    public IReadOnlyList<string> Services { get; init; } = [];
     public string? TierName { get; init; }
 }

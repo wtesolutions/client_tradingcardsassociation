@@ -2,109 +2,197 @@
 @{
     var s = Model.Shop;
     ViewData["Title"] = s.Name;
+    var claimed = Ntca.Web.Services.ShopCopy.IsClaimed(s);
+    var spec = Ntca.Web.Services.ShopCopy.SpecialtyLabel(s.PrimarySpecialty);
+    var open = Ntca.Web.Services.ShopCopy.OpeningStatus(Model.Hours, s.StateCode);
+    var hasHours = Ntca.Web.Services.ShopCopy.HasUsableHours(Model.Hours);
+    var address = Ntca.Web.Services.ShopCopy.PublicAddress(s);
+    var hasMap = s.Latitude is not null && s.Longitude is not null;
+    var hasDirections = Ntca.Web.Services.ShopCopy.HasPreciseDestination(s);
+    var stateName = Ntca.Web.Services.ShopCopy.StateName(s.StateCode);
+    var today = (byte)Ntca.Web.Services.ShopCopy.LocalNow(s.StateCode).DayOfWeek;
+    var mail = "mailto:reports@wte.net?subject=" + Uri.EscapeDataString("Listing edit: " + s.Name);
 }
+<div class="ntca-container shop-page">
 <nav class="crumbs" aria-label="Breadcrumb">
-    <a href="/">Home</a> /
-    <a href="/shops">Shops</a> /
-    <a href="/shops/@s.StateCode.ToLowerInvariant()">@Ntca.Web.Services.ShopCopy.StateName(s.StateCode)</a> /
-    <a href="/shops/@s.StateCode.ToLowerInvariant()/@Ntca.Web.Services.ShopCopy.CitySlug(s.City)">@s.City</a> /
+    <a href="/shops">Find shops</a> <span aria-hidden="true">›</span>
+    <a href="/shops/@s.StateCode.ToLowerInvariant()">@stateName</a> <span aria-hidden="true">›</span>
+    <a href="/shops/@s.StateCode.ToLowerInvariant()/@Ntca.Web.Services.ShopCopy.CitySlug(s.City)">@s.City</a> <span aria-hidden="true">›</span>
     <span>@s.Name</span>
 </nav>
-<header class="shop-hero">
-    <div class="shop-card-thumb @(Ntca.Web.Services.ShopCopy.MapThumbUrl(s) is null ? "ph" : "")">
-        @if (Ntca.Web.Services.ShopCopy.MapThumbUrl(s) is string thumb)
-        {
-            <img src="@thumb" alt="" width="140" height="140" data-fallback="@Ntca.Web.Services.ShopCopy.MapTileUrl(s)"
-                 onerror="if(this.dataset.fallback&amp;&amp;this.src!==this.dataset.fallback)this.src=this.dataset.fallback;" />
-            <span class="shop-card-pin" aria-hidden="true"></span>
-        }
-        else
-        {
-            <span class="shop-card-icon" aria-hidden="true">
-                <svg viewBox="0 0 48 48" width="44" height="44" fill="none"><rect x="10" y="8" width="28" height="32" rx="4" stroke="currentColor" stroke-width="2"/><path d="M16 18h16M16 24h12M16 30h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </span>
-        }
+<p><a href="/shops">Back to results</a></p>
+<header class="shop-id">
+    <h1>@s.Name</h1>
+    @if (claimed)
+    {
+        <span class="owner-badge" title="This listing is managed by the business owner.">Owner claimed</span>
+    }
+    <p class="shop-id-meta">
+        @if (spec.Length > 0) { <span>@spec</span> }
+        <span>@s.City, @s.StateCode</span>
+        @if (open is not null) { <span>@open.Label</span> }
+        @if (s.IsDestinationShop) { <span class="ribbon dest" style="position:static">Destination</span> }
+    </p>
+    <p class="shop-id-actions">
+        <button type="button" class="btn ghost" data-save-shop data-shop="@s.ShopId" data-name="@s.Name" data-loc="@Ntca.Web.Services.ShopCopy.Loc(s)" data-where="@s.City, @s.StateCode" aria-pressed="false">Save</button>
+        <button type="button" class="btn ghost" data-share-shop data-url="@Ntca.Web.Services.ShopCopy.Loc(s)" data-title="@s.Name">Share</button>
+    </p>
+</header>
+<div class="shop-stage">
+    <div class="shop-gallery" aria-label="Shop photos">
+        <div class="shop-card-ph" role="img" aria-label="No photos yet for @s.Name">NTCA<small>Photo coming soon</small></div>
     </div>
-    <div>
-        <p class="shop-card-where">
-            <svg class="pin" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>
-            @s.City, @s.StateCode
-            @if (s.IsDestinationShop) { <span class="pill dest">Destination</span> }
-            @if (Ntca.Web.Services.ShopCopy.ShowListingBadge(Model.TierName)) { <span class="pill">@Model.TierName</span> }
-        </p>
-        <h1 class="shop-name">@s.Name</h1>
-        <p class="shop-hero-actions">
-            @if (!string.IsNullOrEmpty(s.Phone))
+    <aside class="visit-card sticky">
+        <h2>Plan your visit</h2>
+        <div class="stack">
+            @if (hasDirections)
             {
-                <a class="btn ghost call" href="/t/phone?shop=@s.ShopId">Call</a>
-            }
-            @if (Ntca.Web.Services.ShopCopy.HasMappableAddress(s))
-            {
-                <a class="btn ghost" href="/t/directions?shop=@s.ShopId" rel="noopener">Directions</a>
+                <a class="ntca-primary-action" href="/t/directions?shop=@s.ShopId" rel="noopener">Get directions</a>
             }
             @if (!string.IsNullOrEmpty(s.WebsiteUrl))
             {
-                <a class="btn" href="/t/website?shop=@s.ShopId" rel="noopener">Website</a>
+                <a class="btn ghost" href="/t/website?shop=@s.ShopId" rel="noopener">Visit website</a>
             }
+            @if (!string.IsNullOrEmpty(s.Phone))
+            {
+                <a class="btn ghost" href="/t/phone?shop=@s.ShopId">Call shop</a>
+            }
+        </div>
+        <p>
+            @if (address.Length > 0) { @address <br /> }
+            @s.City, @stateName @s.PostalCode
         </p>
-    </div>
-</header>
-<p class="shop-ai-summary ai-summary">@Model.AiSummary</p>
-@if (!string.IsNullOrEmpty(s.Description))
-{
-    <p class="lede">@s.Description</p>
-}
-<div class="card">
-    @if (!string.IsNullOrEmpty(s.AddressLine1)) { <p>@s.AddressLine1</p> }
-    <p>@s.City, @s.StateCode @s.PostalCode</p>
-    @if (!string.IsNullOrEmpty(s.Phone))
-    {
-        <p><a href="/t/phone?shop=@s.ShopId">@s.Phone</a></p>
-    }
-    @if (!string.IsNullOrEmpty(s.WebsiteUrl))
-    {
-        <p><a href="/t/website?shop=@s.ShopId" rel="noopener">Website</a></p>
-    }
-    @if (Ntca.Web.Services.ShopCopy.HasMappableAddress(s))
-    {
-        <p><a href="/t/directions?shop=@s.ShopId" rel="noopener">Directions</a></p>
-    }
-    @if (!string.IsNullOrEmpty(s.FacebookUrl))
-    {
-        <p><a href="/t/social?shop=@s.ShopId&amp;net=facebook" rel="noopener">Facebook</a></p>
-    }
-    @if (!string.IsNullOrEmpty(s.InstagramHandle))
-    {
-        <p><a href="/t/social?shop=@s.ShopId&amp;net=instagram" rel="noopener">Instagram</a></p>
-    }
-    @if (!string.IsNullOrEmpty(s.PublicEmail))
-    {
-        <p><a href="mailto:@s.PublicEmail">@s.PublicEmail</a></p>
-    }
-    <p class="meta">Claim: @s.ClaimStatus · Listing: @s.ListingStatus</p>
+        @if (hasHours)
+        {
+            <h3>Hours</h3>
+            <ul class="hours-list">
+            @foreach (var h in Model.Hours.OrderBy(h => h.DayOfWeek == 0 ? 7 : h.DayOfWeek))
+            {
+                <li class="@(h.DayOfWeek == today ? "today" : null)">
+                    <span>@Ntca.Web.Services.ShopCopy.DayName(h.DayOfWeek)@(h.DayOfWeek == today ? " (today)" : "")</span>
+                    <span>@Ntca.Web.Services.ShopCopy.HoursLine(h)</span>
+                </li>
+            }
+            </ul>
+        }
+        else
+        {
+            <p class="meta">Hours not provided.</p>
+        }
+        @if (hasMap)
+        {
+            <div class="shop-map">
+                <iframe title="Map of @s.Name" src="@Ntca.Web.Services.ShopCopy.OsmEmbedUrl(s)" loading="lazy"></iframe>
+            </div>
+        }
+        <p class="meta" style="margin-top:16px">
+            @if (claimed)
+            {
+                <a href="/owner/login">Manage listing</a>
+            }
+            else
+            {
+                <a href="/signup">Own this shop?</a>
+            }
+            · <a href="@mail">Suggest an edit</a>
+        </p>
+    </aside>
 </div>
-@if (Model.Hours.Any(h => !h.IsClosed && h.OpensAt is not null))
-{
-    <h2>Hours</h2>
-    <ul>
-    @foreach (var h in Model.Hours.Where(h => !h.IsClosed && h.OpensAt is not null && h.ClosesAt is not null))
+<nav class="shop-tabs" aria-label="Shop sections">
+    <a href="#overview">Overview</a>
+    <a href="#photos">Photos</a>
+    <a href="#events">Events</a>
+    <a href="#details">Details</a>
+</nav>
+<p class="shop-ai-summary ai-summary">@Model.AiSummary</p>
+<section id="overview">
+    <h2>A local home for collectors.</h2>
+    @if (!string.IsNullOrEmpty(s.Description))
     {
-        <li>@Ntca.Web.Services.ShopCopy.DayName(h.DayOfWeek) @h.OpensAt?.ToString("HH:mm")–@h.ClosesAt?.ToString("HH:mm")</li>
+        <p class="lede">@s.Description</p>
     }
-    </ul>
-}
-@if (Model.Events.Count > 0)
-{
+    else
+    {
+        <p class="lede">@Model.AiSummary</p>
+    }
+    @if (Model.Services.Count > 0)
+    {
+        <h3>Services</h3>
+        <p class="service-chips">
+        @foreach (var svc in Model.Services)
+        {
+            <span>@svc</span>
+        }
+        </p>
+    }
+</section>
+<section id="photos">
+    <h2>Photos</h2>
+    <p class="meta">No photos have been uploaded for this listing yet.</p>
+</section>
+<section id="events">
     <h2>Upcoming events</h2>
-    <ul>
-    @foreach (var e in Model.Events)
+    @if (Model.Events.Count == 0)
     {
-        <li>@e.StartsAt.ToString("MMM d, yyyy") — @e.Title</li>
+        <p class="meta">No upcoming events listed.</p>
     }
-    </ul>
-}
+    else
+    {
+        <div class="event-list">
+        @foreach (var e in Model.Events.Take(3))
+        {
+            @await Html.PartialAsync("_EventCard", e)
+        }
+        </div>
+        @if (Model.Events.Count > 3)
+        {
+            <p><a href="/calendar">View all events</a></p>
+        }
+    }
+</section>
+<section id="details">
+    <h2>Details</h2>
+    <div class="card">
+        @if (address.Length > 0) { <p>@address</p> }
+        <p>@s.City, @s.StateCode @s.PostalCode</p>
+        @if (!string.IsNullOrEmpty(s.Phone))
+        {
+            <p><a href="/t/phone?shop=@s.ShopId">@s.Phone</a></p>
+        }
+        @if (!string.IsNullOrEmpty(s.WebsiteUrl))
+        {
+            <p><a href="/t/website?shop=@s.ShopId" rel="noopener">Website</a></p>
+        }
+        @if (!string.IsNullOrEmpty(s.FacebookUrl))
+        {
+            <p><a href="/t/social?shop=@s.ShopId&amp;net=facebook" rel="noopener">Facebook</a></p>
+        }
+        @if (!string.IsNullOrEmpty(s.InstagramHandle))
+        {
+            <p><a href="/t/social?shop=@s.ShopId&amp;net=instagram" rel="noopener">Instagram</a></p>
+        }
+        @if (!string.IsNullOrEmpty(s.PublicEmail))
+        {
+            <p><a href="mailto:@s.PublicEmail">@s.PublicEmail</a></p>
+        }
+    </div>
+</section>
 <p class="meta"><a href="@Model.MarkdownUrl">Plain-text version</a> for AI crawlers</p>
-<p><a href="/shops/@s.StateCode.ToLowerInvariant()">@Ntca.Web.Services.ShopCopy.StateName(s.StateCode) shops</a> · <a href="/shops">All shops</a></p>
+<p><a href="/shops/@s.StateCode.ToLowerInvariant()">@stateName shops</a> · <a href="/shops">All shops</a></p>
+</div>
+@if (hasDirections || !string.IsNullOrEmpty(s.Phone))
+{
+    <div class="visit-dock" role="navigation" aria-label="Visit actions">
+        @if (hasDirections)
+        {
+            <a class="ntca-primary-action" href="/t/directions?shop=@s.ShopId" rel="noopener">Directions</a>
+        }
+        @if (!string.IsNullOrEmpty(s.Phone))
+        {
+            <a class="btn ghost" href="/t/phone?shop=@s.ShopId" style="color:#fff;border-color:rgba(255,255,255,.3)">Call</a>
+        }
+    </div>
+}
 @section Scripts {
 @Html.Raw("<script type=\"application/ld+json\">\n")
 @Html.Raw(Model.JsonLd)

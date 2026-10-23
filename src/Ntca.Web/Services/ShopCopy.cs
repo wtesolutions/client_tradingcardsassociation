@@ -279,6 +279,153 @@ public static class ShopCopy
         return sb.ToString();
     }
 
+    public static bool IsClaimed(Shop shop)
+        => string.Equals(shop.ClaimStatus, "CLAIMED", StringComparison.OrdinalIgnoreCase);
+
+    public static IReadOnlyList<string> SpecialtyChips(string? specialty)
+    {
+        var label = SpecialtyLabel(specialty);
+        return label.Length == 0 ? [] : [label];
+    }
+
+    public static string FormatClock(TimeOnly time)
+    {
+        var hour = time.Hour % 12;
+        if (hour == 0) hour = 12;
+        var ampm = time.Hour < 12 ? "AM" : "PM";
+        return time.Minute == 0 ? $"{hour} {ampm}" : $"{hour}:{time.Minute:00} {ampm}";
+    }
+
+    public static string? TimeZoneIdForState(string? stateCode)
+    {
+        var st = (stateCode ?? "").Trim().ToUpperInvariant();
+        return st switch
+        {
+            "HI" => "Pacific/Honolulu",
+            "AK" => "America/Anchorage",
+            "CA" or "WA" or "OR" or "NV" => "America/Los_Angeles",
+            "AZ" => "America/Phoenix",
+            "CO" or "UT" or "NM" or "WY" or "MT" or "ID" => "America/Denver",
+            "ND" or "SD" or "NE" or "KS" or "OK" or "TX" or "MN" or "IA" or "MO"
+                or "AR" or "LA" or "WI" or "IL" or "MS" or "AL" or "TN" => "America/Chicago",
+            "PR" or "VI" => "America/Puerto_Rico",
+            "" => null,
+            _ => "America/New_York"
+        };
+    }
+
+    public static DateTimeOffset LocalNow(string? stateCode, DateTimeOffset? utcNow = null)
+    {
+        var now = utcNow ?? DateTimeOffset.UtcNow;
+        var id = TimeZoneIdForState(stateCode);
+        if (id is null)
+            return now;
+        try
+        {
+            var tz = TimeZoneInfo.FindSystemTimeZoneById(id);
+            return TimeZoneInfo.ConvertTime(now, tz);
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            return now;
+        }
+        catch (InvalidTimeZoneException)
+        {
+            return now;
+        }
+    }
+
+    public static IReadOnlyList<ShopHours> UsableHours(IEnumerable<ShopHours>? hours)
+    {
+        if (hours is null)
+            return [];
+        return hours
+            .Where(h => !h.IsClosed && h.OpensAt is not null && h.ClosesAt is not null)
+            .OrderBy(h => h.DayOfWeek)
+            .ToList();
+    }
+
+    public static bool HasUsableHours(IEnumerable<ShopHours>? hours)
+        => UsableHours(hours).Count > 0;
+
+    public static bool IsOpenNow(IEnumerable<ShopHours>? hours, string? stateCode, DateTimeOffset? utcNow = null)
+        => OpeningStatus(hours, stateCode, utcNow)?.IsOpen == true;
+
+    public static OpeningStatusInfo? OpeningStatus(IEnumerable<ShopHours>? hours, string? stateCode, DateTimeOffset? utcNow = null)
+    {
+        var openDays = UsableHours(hours);
+        if (openDays.Count == 0)
+            return null;
+        var local = LocalNow(stateCode, utcNow);
+        var dow = (byte)local.DayOfWeek;
+        var today = hours!.Where(h => h.DayOfWeek == dow).ToList();
+        if (today.Count == 0)
+            return null;
+        var clock = TimeOnly.FromTimeSpan(local.TimeOfDay);
+        foreach (var row in today)
+        {
+            if (row.IsClosed || row.OpensAt is null || row.ClosesAt is null)
+                continue;
+            if (clock >= row.OpensAt && clock < row.ClosesAt)
+                return new OpeningStatusInfo(true, "Open until " + FormatClock(row.ClosesAt.Value));
+        }
+        var nextOpen = today.Where(h => !h.IsClosed && h.OpensAt is not null && clock < h.OpensAt)
+            .OrderBy(h => h.OpensAt)
+            .FirstOrDefault();
+        if (nextOpen?.OpensAt is { } opens)
+            return new OpeningStatusInfo(false, "Opens at " + FormatClock(opens));
+        return new OpeningStatusInfo(false, "Closed");
+    }
+
+    public static string HoursLine(ShopHours row)
+    {
+        if (row.IsClosed || row.OpensAt is null || row.ClosesAt is null)
+            return "Closed";
+        return FormatClock(row.OpensAt.Value) + " – " + FormatClock(row.ClosesAt.Value);
+    }
+
+    public static string OsmEmbedUrl(Shop shop)
+    {
+        if (shop.Latitude is not { } lat || shop.Longitude is not { } lng)
+            return "";
+        var la = (double)lat;
+        var ln = (double)lng;
+        var minLng = (ln - 0.02).ToString(CultureInfo.InvariantCulture);
+        var minLat = (la - 0.015).ToString(CultureInfo.InvariantCulture);
+        var maxLng = (ln + 0.02).ToString(CultureInfo.InvariantCulture);
+        var maxLat = (la + 0.015).ToString(CultureInfo.InvariantCulture);
+        return "https://www.openstreetmap.org/export/embed.html?bbox="
+               + minLng + "%2C" + minLat + "%2C" + maxLng + "%2C" + maxLat
+               + "&layer=mapnik&marker=" + la.ToString(CultureInfo.InvariantCulture)
+               + "%2C" + ln.ToString(CultureInfo.InvariantCulture);
+    }
+
+    public static IReadOnlyList<string> ServiceLabels(Shop shop, IEnumerable<ShopEvent>? events = null)
+    {
+        var labels = new List<string>();
+        if (events is not null)
+        {
+            if (events.Any(e => e.EventType == "TRADE_NIGHT"))
+                labels.Add("Buy / sell / trade");
+            if (events.Any(e => e.EventType == "IN_STORE_PLAY" || e.EventType == "TOURNAMENT"))
+                labels.Add("In-store play");
+            if (events.Any(e => e.EventType == "BREAK"))
+                labels.Add("Live card breaks");
+        }
+        return labels;
+    }
+
+    public static string PublicAddress(Shop shop)
+    {
+        var parts = new[] { shop.AddressLine1, shop.AddressLine2 }
+            .Where(s => !string.IsNullOrWhiteSpace(s));
+        return string.Join(", ", parts);
+    }
+
+    public static bool HasPreciseDestination(Shop shop)
+        => shop.Latitude is not null && shop.Longitude is not null
+           || !string.IsNullOrWhiteSpace(shop.AddressLine1);
+
     private static bool Contains(string hay, params string[] needles)
     {
         foreach (var n in needles)
@@ -289,3 +436,5 @@ public static class ShopCopy
         return false;
     }
 }
+
+public sealed record OpeningStatusInfo(bool IsOpen, string Label);

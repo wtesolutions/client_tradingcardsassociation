@@ -1,74 +1,127 @@
 ﻿@model (List<Ntca.Core.ShopEvent> Shows, List<Ntca.Core.Post> Posts)
 @{
     ViewData["Title"] = "Home";
-}
-<section>
-    <p class="kicker">National Trading Card Association</p>
-    <h1>Protecting, promoting, and connecting the hobby.</h1>
-    <p class="lede">A live directory of shops, a national card-show calendar, manufacturer pages, and a beginner guide — served from the NTCA database, not a static snapshot.</p>
-    <div class="hero-stats">
-        <div><strong>@ViewBag.ShopCount</strong><span class="meta">active shops</span></div>
-        <div><strong>@ViewBag.ShowCount</strong><span class="meta">calendar shows</span></div>
-        <div><strong>@ViewBag.MfrCount</strong><span class="meta">manufacturers</span></div>
-    </div>
-    <p><a class="btn" href="/signup">Join the Preview list</a> <a class="btn ghost" href="/calendar">See the calendar</a></p>
-</section>
-@{
+    ViewData["Description"] = "Protecting, Promoting and Powering the Hobby. A national community of collectors, shops and events uniting the trading card hobby.";
     var featured = (List<Ntca.Core.Shop>)ViewBag.Featured;
     var rotation = (List<Ntca.Core.Shop>)ViewBag.Rotation;
+    var discover = featured.Count > 0 ? featured.Take(4).ToList() : rotation.Take(4).ToList();
 }
-@if (featured.Count > 0)
+<section class="home-hero">
+    <div class="ntca-container home-hero-inner">
+        <div>
+            <p class="eyebrow">Built by collectors, for collectors.</p>
+            <h1>Protecting, Promoting and Powering the Hobby.</h1>
+            <p class="lede">A national community of collectors, shops and events uniting the trading card hobby.</p>
+            <form class="hero-search" method="get" action="/shops" role="search">
+                <label>
+                    Search type
+                    <select name="what" aria-label="Find shops or events">
+                        <option value="shops" selected>Find shops &amp; events</option>
+                        <option value="events">Find events</option>
+                    </select>
+                </label>
+                <label>
+                    Location
+                    <input name="location" type="search" placeholder="City or ZIP code" autocomplete="postal-code" />
+                </label>
+                <button class="ntca-primary-action" type="submit">Explore</button>
+            </form>
+        </div>
+    </div>
+</section>
+<nav class="cat-nav" aria-label="Shop categories">
+    <div class="cat-nav-inner">
+        <a class="on" href="/shops">All cards</a>
+        <a href="/shops?specialty=SPORTS">Sports cards</a>
+        <a href="/shops?specialty=POKEMON">Pokémon</a>
+        <a href="/shops?specialty=MAGIC">Magic: The Gathering</a>
+        <a href="/shops?specialty=OTHER">Other TCGs</a>
+    </div>
+</nav>
+<section class="home-discover">
+    <div class="ntca-container">
+        <div class="home-discover-head">
+            <h2>Discover your next favorite shop</h2>
+        </div>
+        <div class="home-split">
+            <div>
+                @if (discover.Count == 0)
+                {
+                    <p class="lede">Shop listings will appear here from the NTCA directory.</p>
+                }
+                else
+                {
+                    <div class="home-shop-grid">
+                    @foreach (var s in discover)
+                    {
+                        @await Html.PartialAsync("~/Views/Shops/_ShopCard.cshtml", s)
+                    }
+                    </div>
+                }
+            </div>
+            <aside>
+                <a class="history-card" href="/new-to-trading-cards">
+                    <img src="~/img/history-hobby.jpeg" alt="Vintage trading cards" width="640" height="400" />
+                    <div>
+                        <p class="eyebrow">150 years of the hobby</p>
+                        <h2>From Advertising Cards to a Global Hobby</h2>
+                        <p class="meta">Explore the people, innovation and cultural moments that shaped 150 years of collecting.</p>
+                        <span class="btn ghost">Explore the history</span>
+                    </div>
+                </a>
+            </aside>
+        </div>
+    </div>
+</section>
+<section class="home-events" id="events">
+    <div class="ntca-container">
+        <h2>Meet. Trade. Collect.</h2>
+        <p class="lede">Find upcoming shows and community events near you.</p>
+        <div class="event-list">
+        @foreach (var e in Model.Shows.Take(4))
+        {
+            @await Html.PartialAsync("_EventCard", e)
+        }
+        </div>
+        @if (Model.Shows.Count == 0)
+        {
+            <p class="meta">No upcoming events listed.</p>
+        }
+        else
+        {
+            <p><a href="/calendar">View all events</a></p>
+        }
+    </div>
+</section>
+@if (Model.Posts.Count > 0)
 {
-<section>
-    <h2>Destination shops</h2>
-    <div class="grid">
-    @foreach (var s in featured)
-    {
-        <a class="card" href="@Ntca.Web.Services.ShopCopy.Loc(s)">
-            <h3>@s.Name</h3>
-            <p class="meta">@s.City, @s.StateCode · Destination</p>
-        </a>
-    }
+<section class="home-events">
+    <div class="ntca-container">
+        <h2>From the desk</h2>
+        <div class="grid">
+        @foreach (var p in Model.Posts)
+        {
+            <a class="card" href="/news/@p.Slug">
+                <h3>@p.Title</h3>
+                <p class="meta">@p.PublishedAt?.ToString("MMM d, yyyy") · @p.AuthorName</p>
+                <p>@p.Excerpt</p>
+            </a>
+        }
+        </div>
     </div>
 </section>
 }
-@if (rotation.Count > 0)
-{
-<section>
-    <h2>New in the directory</h2>
-    <div class="grid">
-    @foreach (var s in rotation)
-    {
-        <a class="card" href="@Ntca.Web.Services.ShopCopy.Loc(s)">
-            <h3>@s.Name</h3>
-            <p class="meta">@s.City, @s.StateCode</p>
-        </a>
-    }
-    </div>
-</section>
+@section Scripts {
+    <script>
+        document.querySelector(".hero-search")?.addEventListener("submit", function (e) {
+            var what = this.querySelector("[name=what]");
+            if (what && what.value === "events") {
+                e.preventDefault();
+                var loc = this.querySelector("[name=location]")?.value || "";
+                var url = "/calendar";
+                if (loc) url += "?q=" + encodeURIComponent(loc);
+                window.location = url;
+            }
+        });
+    </script>
 }
-<section>
-    <h2>Upcoming shows</h2>
-    <div class="grid">
-    @foreach (var e in Model.Shows)
-    {
-        <a class="card" href="@Ntca.Web.Controllers.CalendarController.Loc(e)">
-            <h3>@e.Title</h3>
-            <p class="meta">@e.StartsAt.ToString("MMM d, yyyy") · @(e.City ?? e.Venue?.City), @e.StateCode · @e.Scope</p>
-        </a>
-    }
-    </div>
-</section>
-<section>
-    <h2>From the desk</h2>
-    <div class="grid">
-    @foreach (var p in Model.Posts)
-    {
-        <a class="card" href="/news/@p.Slug">
-            <h3>@p.Title</h3>
-            <p class="meta">@p.PublishedAt?.ToString("MMM d, yyyy") · @p.AuthorName</p>
-            <p>@p.Excerpt</p>
-        </a>
-    }
-    </div>
-</section>

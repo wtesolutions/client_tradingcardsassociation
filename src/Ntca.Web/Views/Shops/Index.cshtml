@@ -1,16 +1,149 @@
+@using Ntca.Web.Services
 @model List<Ntca.Core.Shop>
 @{
-    ViewData["Title"] = "Shop directory";
+    ViewData["Title"] = "Find shops";
+    var query = ViewBag.Query as DirectoryQuery ?? new DirectoryQuery();
+    var total = ViewBag.Total as int? ?? Model.Count;
+    var page = ViewBag.Page as int? ?? 1;
+    var pageCount = ViewBag.PageCount as int? ?? 1;
+    var sort = (string)(ViewBag.Sort ?? "name");
+    var specialty = (string)(ViewBag.Specialty ?? "");
+    var radius = ViewBag.RadiusMiles as int? ?? 0;
+    var hasOrigin = ViewBag.HasOrigin is true;
+    var chips = ViewBag.Chips as IReadOnlyList<DirectoryChip> ?? [];
+    var locLabel = ViewBag.LocationLabel as string ?? "";
+    var openNow = ViewBag.OpenNow is true;
+    string Keep(string? drop = null, int? p = null) => "/shops" + ShopDirectory.QueryString(query, p, drop);
+    var clearAll = "/shops" + ShopDirectory.QueryString(query with { Specialty = "", OpenNow = false, RadiusMiles = null, Page = 1 });
 }
-<p class="kicker">Directory</p>
-<h1>Hobby shops</h1>
-<p class="lede">@Model.Count listings from the seeded NTCA directory. Search by name, city, or ZIP. Near me uses your browser location (opt-in).</p>
-@await Html.PartialAsync("_DirectoryBar")
-<div class="shop-card-list">
-@foreach (var s in Model)
-{
-    @await Html.PartialAsync("_ShopCard", s)
-}
+<section class="dir-mast">
+    <div class="ntca-dir-container">
+        <h1>Find your next favorite card shop.</h1>
+        @await Html.PartialAsync("_DirectoryBar")
+    </div>
+</section>
+<nav class="cat-nav" aria-label="Shop categories">
+    <div class="cat-nav-inner ntca-dir-container" style="width:min(calc(100% - 32px), var(--ntca-dir-container))">
+        @foreach (var cat in ShopDirectory.Categories)
+        {
+            var href = "/shops" + ShopDirectory.QueryString(query with { Specialty = cat.Key, Page = 1 });
+            <a class="@(cat.Key == specialty ? "on" : null)" href="@href">@cat.Label</a>
+        }
+    </div>
+</nav>
+<div class="ntca-dir-container dir-layout">
+    <aside>
+        <button type="button" class="btn ghost filters-toggle" data-filters-open>Filters@(chips.Count > 0 ? " (" + chips.Count + ")" : "")</button>
+        <div class="dir-filters-sheet" id="dir-filters" hidden>
+            <form class="dir-filters" method="get" action="/shops" id="dir-filter-form">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+                    <h2>Filters</h2>
+                    <button type="button" class="btn ghost filters-toggle" data-filters-close>Close</button>
+                </div>
+                <input type="hidden" name="q" value="@query.Q" />
+                <input type="hidden" name="location" value="@query.Location" />
+                <input type="hidden" name="lat" value="@(query.Lat?.ToString(System.Globalization.CultureInfo.InvariantCulture))" />
+                <input type="hidden" name="lng" value="@(query.Lng?.ToString(System.Globalization.CultureInfo.InvariantCulture))" />
+                <input type="hidden" name="sort" value="@sort" />
+                <fieldset>
+                    <legend>Distance</legend>
+                    <select name="radiusMiles" aria-label="Distance" disabled="@(hasOrigin ? null : "disabled")">
+                        <option value="any" selected="@(radius == 0 && query.RadiusMiles is not null ? "selected" : null)">Any distance</option>
+                        @foreach (var miles in ShopDirectory.RadiusChoices)
+                        {
+                            <option value="@miles" selected="@(radius == miles ? "selected" : null)">Within @miles miles</option>
+                        }
+                    </select>
+                    @if (!hasOrigin)
+                    {
+                        <p class="meta">Add a city or ZIP to filter by distance. <button type="button" class="btn ghost" id="near-me">Use my location</button></p>
+                    }
+                    else
+                    {
+                        <p><button type="button" class="btn ghost" id="near-me">Use my location</button></p>
+                    }
+                </fieldset>
+                <fieldset>
+                    <legend>Open now</legend>
+                    <label><input type="checkbox" name="openNow" value="1" checked="@(openNow ? "checked" : null)" /> Open now</label>
+                    <p class="meta">Only shops with listed hours can match.</p>
+                </fieldset>
+                <fieldset>
+                    <legend>Specialties</legend>
+                    @foreach (var cat in ShopDirectory.Categories.Where(c => c.Key.Length > 0))
+                    {
+                        <label><input type="radio" name="specialty" value="@cat.Key" checked="@(specialty == cat.Key ? "checked" : null)" /> @cat.Label</label>
+                    }
+                    <label><input type="radio" name="specialty" value="" checked="@(specialty.Length == 0 ? "checked" : null)" /> All cards</label>
+                </fieldset>
+                <button class="ntca-primary-action" type="submit">Apply filters</button>
+                <p><a href="@clearAll">Clear all</a></p>
+            </form>
+        </div>
+    </aside>
+    <div>
+        <div class="dir-chips" aria-live="polite">
+            @if (chips.Count > 0)
+            {
+                foreach (var chip in chips)
+                {
+                    <a class="chip-btn" href="@Keep(chip.Key)">@chip.Label ×</a>
+                }
+                <a href="@clearAll">Clear all</a>
+            }
+        </div>
+        <div class="dir-toolbar">
+            <p class="filter-count">
+                @total shop@(total == 1 ? "" : "s")
+                @if (locLabel.Length > 0)
+                {
+                    <text> near @locLabel</text>
+                }
+            </p>
+            <form method="get" action="/shops">
+                <input type="hidden" name="q" value="@query.Q" />
+                <input type="hidden" name="location" value="@query.Location" />
+                <input type="hidden" name="specialty" value="@specialty" />
+                <input type="hidden" name="openNow" value="@(openNow ? "1" : "")" />
+                @if (query.RadiusMiles is { } rm) { <input type="hidden" name="radiusMiles" value="@rm" /> }
+                <input type="hidden" name="lat" value="@(query.Lat?.ToString(System.Globalization.CultureInfo.InvariantCulture))" />
+                <input type="hidden" name="lng" value="@(query.Lng?.ToString(System.Globalization.CultureInfo.InvariantCulture))" />
+                <label class="visually-hidden" for="dir-sort">Sort</label>
+                <select id="dir-sort" name="sort" onchange="this.form.submit()">
+                    <option value="relevance" selected="@(sort == "relevance" ? "selected" : null)">Relevance</option>
+                    <option value="distance" selected="@(sort == "distance" ? "selected" : null)" disabled="@(hasOrigin ? null : "disabled")">Distance</option>
+                    <option value="name" selected="@(sort == "name" ? "selected" : null)">Shop name</option>
+                </select>
+            </form>
+        </div>
+        @if (Model.Count == 0)
+        {
+            <p class="lede">No shops matched those filters. Try a wider radius, clear a specialty, or <a href="/shops">browse all shops</a>.</p>
+        }
+        else
+        {
+            <div class="shop-card-list">
+            @foreach (var s in Model)
+            {
+                @await Html.PartialAsync("_ShopCard", s)
+            }
+            </div>
+        }
+        @if (pageCount > 1)
+        {
+            <nav class="pager" aria-label="Directory pages">
+                @if (page > 1)
+                {
+                    <a href="@Keep(null, page - 1)">Previous</a>
+                }
+                <span class="on">@(page) of @pageCount</span>
+                @if (page < pageCount)
+                {
+                    <a href="@Keep(null, page + 1)">Next</a>
+                }
+            </nav>
+        }
+    </div>
 </div>
 @section Scripts {
     <script src="~/js/directory.js" asp-append-version="true"></script>

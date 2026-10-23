@@ -1,0 +1,18 @@
+@model Ntca.Core.ShopEvent
+@{
+    var loc = Ntca.Web.Controllers.CalendarController.Loc(Model);
+    var when = Model.StartsAt;
+    var city = Model.City ?? Model.Venue?.City;
+    var state = Model.StateCode ?? Model.Venue?.StateCode;
+}
+<a class="event-card" href="@loc">
+    <div class="event-date" aria-hidden="true">
+        <span class="mo">@when.ToString("MMM").ToUpperInvariant()</span>
+        <span class="dy">@when.ToString("dd")</span>
+    </div>
+    <div>
+        <h3>@Model.Title</h3>
+        <p class="meta">@when.ToString("dddd, MMM d, yyyy")@if (!string.IsNullOrEmpty(city)) { <text> · @city, @state</text> }</p>
+        <span class="meta">View event</span>
+    </div>
+</a>

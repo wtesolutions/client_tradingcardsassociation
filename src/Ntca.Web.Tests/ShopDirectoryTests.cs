@@ -109,4 +109,86 @@ public sealed class ShopDirectoryTests
         Assert.Equal("2.4 mi", ShopCopy.FormatMiles(2.41));
         Assert.Equal("18 mi", ShopCopy.FormatMiles(18.2));
     }
+
+    [Fact]
+    public void Directory_pages_twelve()
+    {
+        Assert.Equal(12, ShopDirectory.PageSize);
+        var shops = Enumerable.Range(1, 30).Select(i => new Shop { ShopId = i, Name = $"Shop {i:00}", City = "Raleigh", StateCode = "NC" }).ToList();
+        var page1 = ShopDirectory.TakePage(shops, 1);
+        var page3 = ShopDirectory.TakePage(shops, 3);
+        Assert.Equal(12, page1.Count);
+        Assert.Equal(6, page3.Count);
+        Assert.Equal(3, ShopDirectory.PageCount(30));
+    }
+
+    [Fact]
+    public void Specialty_filter_treats_all_as_every_category()
+    {
+        Assert.True(ShopDirectory.MatchesSpecialty("ALL", "POKEMON"));
+        Assert.True(ShopDirectory.MatchesSpecialty("POKEMON", "POKEMON"));
+        Assert.False(ShopDirectory.MatchesSpecialty("SPORTS", "POKEMON"));
+        Assert.True(ShopDirectory.MatchesSpecialty("TCG_MIXED", "OTHER"));
+        Assert.True(ShopDirectory.MatchesSpecialty("SPORTS", ""));
+    }
+
+    [Fact]
+    public void Keyword_matches_name_and_description_not_unrelated_city()
+    {
+        var shop = new Shop { Name = "Coastal Cards", City = "Wilmington", StateCode = "NC", Description = "Pokémon singles and sealed", PrimarySpecialty = "POKEMON" };
+        Assert.True(ShopDirectory.MatchesKeyword(shop, "coastal"));
+        Assert.True(ShopDirectory.MatchesKeyword(shop, "pokémon"));
+        Assert.False(ShopDirectory.MatchesKeyword(shop, "raleigh"));
+    }
+
+    [Fact]
+    public void Owner_claimed_is_only_the_claim_status()
+    {
+        Assert.True(ShopCopy.IsClaimed(new Shop { ClaimStatus = "CLAIMED" }));
+        Assert.False(ShopCopy.IsClaimed(new Shop { ClaimStatus = "UNCLAIMED" }));
+        Assert.False(ShopCopy.IsClaimed(new Shop { ClaimStatus = "PENDING" }));
+    }
+
+    [Fact]
+    public void Opening_status_is_hidden_without_hours_and_never_invents_closed()
+    {
+        Assert.Null(ShopCopy.OpeningStatus([], "NC"));
+        Assert.Null(ShopCopy.OpeningStatus(null, "NC"));
+        Assert.False(ShopCopy.IsOpenNow([], "NC"));
+        var hours = new[]
+        {
+            new ShopHours { DayOfWeek = 1, OpensAt = new TimeOnly(10, 0), ClosesAt = new TimeOnly(18, 0) }
+        };
+        var mondayMorning = new DateTimeOffset(2026, 10, 26, 14, 0, 0, TimeSpan.Zero);
+        var status = ShopCopy.OpeningStatus(hours, "NC", mondayMorning);
+        Assert.NotNull(status);
+        Assert.True(status!.IsOpen);
+        Assert.Contains("Open until", status.Label);
+    }
+
+    [Fact]
+    public void Directory_apply_filters_radius_and_sorts_by_name()
+    {
+        var shops = new[]
+        {
+            new Shop { ShopId = 1, Name = "Zebra", City = "Raleigh", StateCode = "NC", Latitude = 35.78m, Longitude = -78.64m, PrimarySpecialty = "SPORTS" },
+            new Shop { ShopId = 2, Name = "Alpha", City = "Raleigh", StateCode = "NC", Latitude = 35.79m, Longitude = -78.64m, PrimarySpecialty = "POKEMON" },
+            new Shop { ShopId = 3, Name = "Far Away", City = "Los Angeles", StateCode = "CA", Latitude = 34.05m, Longitude = -118.25m, PrimarySpecialty = "SPORTS" }
+        };
+        var q = ShopDirectory.Parse(null, "Raleigh, NC", null, "SPORTS", "name", null, "25", 35.78, -78.64, 1);
+        var origin = ShopDirectory.ResolveOrigin(shops, q);
+        var result = ShopDirectory.Apply(shops, q, origin?.Lat, origin?.Lng);
+        Assert.Single(result);
+        Assert.Equal("Zebra", result[0].Name);
+    }
+
+    [Fact]
+    public void Active_filter_chips_omit_default_radius()
+    {
+        var q = ShopDirectory.Parse("topps", "27601", null, "POKEMON", null, "1", null, null, null, 1);
+        var chips = ShopDirectory.Chips(q, hasOrigin: true);
+        Assert.Contains(chips, c => c.Key == "specialty" && c.Label == "Pokémon");
+        Assert.Contains(chips, c => c.Key == "openNow");
+        Assert.DoesNotContain(chips, c => c.Key == "radiusMiles");
+    }
 }

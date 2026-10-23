@@ -52,7 +52,22 @@ public sealed class HomeController : Controller
         ViewBag.IsPreview = await _mode.IsPreviewAsync(ct);
         ViewBag.Featured = featured;
         ViewBag.Rotation = rotation;
+        ViewData["MainClass"] = "site-main";
         return View((shows, posts));
+    }
+
+    [HttpGet("/about")]
+    public IActionResult About()
+    {
+        ViewData["Title"] = "About NTCA";
+        return View();
+    }
+
+    [HttpGet("/saved")]
+    public IActionResult Saved()
+    {
+        ViewData["Title"] = "Saved shops";
+        return View();
     }
 
     public IActionResult Error() => View();

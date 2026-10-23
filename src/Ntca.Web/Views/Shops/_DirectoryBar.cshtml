@@ -1,34 +1,26 @@
+@using Ntca.Web.Services
 @{
-    var q = (string)(ViewBag.Q ?? "");
-    var state = (string)(ViewBag.State ?? "");
-    var zip = (string)(ViewBag.Zip ?? "");
-    var sort = (string)(ViewBag.Sort ?? "");
-    var states = ViewBag.States as List<string> ?? [];
+    var query = ViewBag.Query as DirectoryQuery ?? ShopDirectory.Parse(
+        ViewBag.Q as string, ViewBag.Location as string, ViewBag.Zip as string,
+        ViewBag.Specialty as string, ViewBag.Sort as string,
+        ViewBag.OpenNow is true ? "1" : null,
+        ViewBag.RadiusMiles?.ToString(),
+        ViewBag.OriginLat as double?, ViewBag.OriginLng as double?,
+        ViewBag.Page as int?);
+    var sort = (string)(ViewBag.Sort ?? ShopDirectory.ResolveSort(query, ViewBag.HasOrigin is true));
 }
-<form class="dir-bar" method="get" action="/shops" id="dir-bar">
-    <div class="dir-bar-row">
-        <input name="q" value="@q" placeholder="Search shops" aria-label="Search shops" />
-        <input name="zip" value="@zip" placeholder="ZIP" inputmode="numeric" maxlength="10" aria-label="ZIP code" />
+<form class="dir-search" method="get" action="/shops" id="dir-bar" role="search">
+    <div class="field">
+        <label for="dir-q">Shop name or specialty</label>
+        <input id="dir-q" name="q" value="@query.Q" placeholder="Shop name or specialty" />
     </div>
-    <div class="dir-bar-row">
-        <button type="button" class="btn ghost" id="near-me">Near me</button>
-        <select name="state" aria-label="State">
-            <option value="">All states</option>
-            @foreach (var st in states)
-            {
-                <option value="@st" selected="@(st == state)">@st</option>
-            }
-        </select>
-        <select name="sort" aria-label="Sort">
-            <option value="" selected="@(sort != "distance")">A–Z / state</option>
-            <option value="distance" selected="@(sort == "distance")">Distance</option>
-        </select>
-        <button class="btn" type="submit">Search</button>
+    <div class="field">
+        <label for="dir-location">City or ZIP code</label>
+        <input id="dir-location" name="location" value="@query.Location" placeholder="City or ZIP code" autocomplete="postal-code" />
     </div>
-    <input type="hidden" name="lat" id="dir-lat" value="@(ViewBag.OriginHow as string == "device" ? ViewBag.OriginLat : "")" />
-    <input type="hidden" name="lng" id="dir-lng" value="@(ViewBag.OriginHow as string == "device" ? ViewBag.OriginLng : "")" />
+    <button class="ntca-primary-action" type="submit">Search</button>
+    <input type="hidden" name="lat" id="dir-lat" value="@(query.Lat?.ToString(System.Globalization.CultureInfo.InvariantCulture))" />
+    <input type="hidden" name="lng" id="dir-lng" value="@(query.Lng?.ToString(System.Globalization.CultureInfo.InvariantCulture))" />
+    <input type="hidden" name="specialty" value="@query.Specialty" />
+    <input type="hidden" name="sort" value="@sort" />
 </form>
-@if (ViewBag.OriginHow is string how && how.Length > 0)
-{
-    <p class="meta">Distance from @(how == "device" ? "your location" : "ZIP " + zip). Shops without coordinates sort last.</p>
-}

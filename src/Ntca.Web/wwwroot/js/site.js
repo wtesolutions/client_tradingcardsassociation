@@ -1,4 +1,84 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿(function () {
+  var SAVE_KEY = "ntca.savedShops";
 
-// Write your JavaScript code.
+  function savedList() {
+    try { return JSON.parse(localStorage.getItem(SAVE_KEY) || "[]"); }
+    catch (e) { return []; }
+  }
+  function writeSaved(items) {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(items));
+  }
+  function isSaved(id) {
+    return savedList().some(function (s) { return String(s.id) === String(id); });
+  }
+  function toggleSave(btn) {
+    var card = btn.closest("[data-shop]");
+    var id = btn.getAttribute("data-shop") || (card && card.getAttribute("data-shop"));
+    if (!id) return;
+    var items = savedList();
+    var next;
+    if (isSaved(id)) {
+      next = items.filter(function (s) { return String(s.id) !== String(id); });
+      btn.setAttribute("aria-pressed", "false");
+    } else {
+      next = items.concat([{
+        id: id,
+        name: btn.getAttribute("data-name") || (card && card.getAttribute("data-name")) || "Shop",
+        loc: btn.getAttribute("data-loc") || (card && card.getAttribute("data-loc")) || "/shops",
+        where: btn.getAttribute("data-where") || (card && card.getAttribute("data-where")) || ""
+      }]);
+      btn.setAttribute("aria-pressed", "true");
+    }
+    writeSaved(next);
+  }
+  function syncSaves() {
+    document.querySelectorAll("[data-save-shop]").forEach(function (btn) {
+      var card = btn.closest("[data-shop]");
+      var id = btn.getAttribute("data-shop") || (card && card.getAttribute("data-shop"));
+      if (id) btn.setAttribute("aria-pressed", isSaved(id) ? "true" : "false");
+    });
+  }
+
+  document.addEventListener("click", function (e) {
+    var save = e.target.closest("[data-save-shop]");
+    if (save) {
+      e.preventDefault();
+      toggleSave(save);
+      return;
+    }
+    var share = e.target.closest("[data-share-shop]");
+    if (share) {
+      e.preventDefault();
+      var url = new URL(share.getAttribute("data-url") || window.location.href, window.location.origin).toString();
+      var title = share.getAttribute("data-title") || document.title;
+      if (navigator.share) {
+        navigator.share({ title: title, url: url }).catch(function () {});
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function () {
+          share.textContent = "Link copied";
+        });
+      }
+    }
+  });
+  syncSaves();
+
+  var openBtn = document.querySelector("[data-menu-open]");
+  var menu = document.getElementById("mobile-menu");
+  var closeBtn = document.querySelector("[data-menu-close]");
+  function setMenu(open) {
+    if (!menu || !openBtn) return;
+    menu.hidden = !open;
+    openBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    document.body.style.overflow = open ? "hidden" : "";
+    if (open) (closeBtn || menu).focus();
+    else openBtn.focus();
+  }
+  openBtn && openBtn.addEventListener("click", function () { setMenu(true); });
+  closeBtn && closeBtn.addEventListener("click", function () { setMenu(false); });
+  menu && menu.addEventListener("click", function (e) {
+    if (e.target === menu) setMenu(false);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && menu && !menu.hidden) setMenu(false);
+  });
+})();
