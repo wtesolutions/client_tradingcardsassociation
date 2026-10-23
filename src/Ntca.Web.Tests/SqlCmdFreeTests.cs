@@ -22,7 +22,7 @@ public sealed class SqlCmdFreeTests
             for (var i = 0; i < lines.Length; i++)
             {
                 var line = lines[i];
-                if (line.TrimStart().StartsWith(':', StringComparison.Ordinal))
+                if (line.TrimStart().StartsWith(":", StringComparison.Ordinal))
                     hits.Add($"{rel}:{i + 1}: line starts with ':'");
                 if (line.Contains("$(", StringComparison.Ordinal))
                     hits.Add($"{rel}:{i + 1}: contains '$('");
