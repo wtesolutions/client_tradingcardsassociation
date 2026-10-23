@@ -25,8 +25,8 @@
 else if (!onboarded)
 {
     <p>
-        <a class="btn" href="/onboarding@qs">@(funnel.OnboardingStatus == FunnelFlow.OnboardInProgress ? "Resume get to know you" : "Get to know you")</a>
-        <form method="post" action="/onboarding/skip@qs" style="display:inline">
+        <a class="btn" href="/onboarding@(qs)">@(funnel.OnboardingStatus == FunnelFlow.OnboardInProgress ? "Resume get to know you" : "Get to know you")</a>
+        <form method="post" action="/onboarding/skip@(qs)" style="display:inline">
             @Html.AntiForgeryToken()
             <button class="btn ghost" type="submit">Skip</button>
         </form>
@@ -37,7 +37,7 @@ else
     <p class="card">You’re all set. You can still browse shops and the calendar.</p>
     @if (funnel.OnboardingStatus == FunnelFlow.OnboardSkipped)
     {
-        <p><a class="btn ghost" href="/onboarding@qs">Start get to know you</a></p>
+        <p><a class="btn ghost" href="/onboarding@(qs)">Start get to know you</a></p>
     }
 }
 <p><a href="/">Home</a></p>

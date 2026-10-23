@@ -32,10 +32,10 @@
 </div>
 @if (back is not null && step != "done")
 {
-    <p class="funnel-back"><a class="btn ghost" href="/onboarding/@back@qs">← Back</a></p>
+    <p class="funnel-back"><a class="btn ghost" href="/onboarding/@back@(qs)">← Back</a></p>
 }
 <h1>@Question()</h1>
-<p class="meta">Optional. Multi-select who you are, then we’ll walk each role. Skip anytime — you can resume from <a href="/account@qs">your account</a>.</p>
+<p class="meta">Optional. Multi-select who you are, then we’ll walk each role. Skip anytime — you can resume from <a href="/account@(qs)">your account</a>.</p>
 @if (ViewBag.Error is string err)
 {
     <p class="card" role="alert">@err</p>
@@ -281,19 +281,19 @@ else if (step == "done")
             }
         </div>
     }
-    <p><a class="btn" href="/account@qs">My account</a> <a class="btn ghost" href="/">Home</a></p>
+    <p><a class="btn" href="/account@(qs)">My account</a> <a class="btn ghost" href="/">Home</a></p>
 }
 
 @if (step != "done" && step != "who")
 {
-    <form method="post" action="/onboarding/skip@qs" class="funnel-back">
+    <form method="post" action="/onboarding/skip@(qs)" class="funnel-back">
         @Html.AntiForgeryToken()
         <button class="btn ghost" type="submit">Skip for now</button>
     </form>
 }
 else if (step == "who")
 {
-    <form method="post" action="/onboarding/skip@qs" class="funnel-back">
+    <form method="post" action="/onboarding/skip@(qs)" class="funnel-back">
         @Html.AntiForgeryToken()
         <button class="btn ghost" type="submit">Skip for now</button>
     </form>
