@@ -224,5 +224,30 @@ WHEN NOT MATCHED THEN INSERT (SettingKey, SettingValue, ValueType, Description)
 VALUES (s.SettingKey, s.SettingValue, s.ValueType, s.Description);
 GO
 
+MERGE dir.ManufacturerCategory AS t
+USING (VALUES
+    ('SPORT',    N'Sport',     CAST(1 AS tinyint)),
+    ('NONSPORT', N'Non-sport', CAST(2 AS tinyint)),
+    ('TCG',      N'TCG',       CAST(3 AS tinyint))
+) AS s (CategoryCode, Name, SortOrder)
+ON t.CategoryCode = s.CategoryCode
+WHEN MATCHED THEN UPDATE SET Name = s.Name, SortOrder = s.SortOrder
+WHEN NOT MATCHED THEN INSERT (CategoryCode, Name, SortOrder)
+VALUES (s.CategoryCode, s.Name, s.SortOrder);
+GO
+
+MERGE mkt.PromoterTier AS t
+USING (VALUES
+    (CAST(1 AS tinyint), 'FREE',     N'Free listing', NULL, CAST(1 AS tinyint), CAST(1 AS bit)),
+    (CAST(2 AS tinyint), 'FEATURED', N'Featured',     NULL, CAST(2 AS tinyint), CAST(1 AS bit)),
+    (CAST(3 AS tinyint), 'PREMIUM',  N'Premium',      NULL, CAST(3 AS tinyint), CAST(1 AS bit))
+) AS s (PromoterTierId, TierCode, Name, MonthlyPriceCents, SortOrder, IsActive)
+ON t.PromoterTierId = s.PromoterTierId
+WHEN MATCHED THEN UPDATE SET
+    Name = s.Name, TierCode = s.TierCode, MonthlyPriceCents = s.MonthlyPriceCents, IsActive = s.IsActive
+WHEN NOT MATCHED THEN INSERT (PromoterTierId, TierCode, Name, MonthlyPriceCents, SortOrder, IsActive)
+VALUES (s.PromoterTierId, s.TierCode, s.Name, s.MonthlyPriceCents, s.SortOrder, s.IsActive);
+GO
+
 PRINT '02_seed: roles, tiers, features, entitlements, rotation, karma, badges, perks, site settings merged';
 GO

@@ -56,7 +56,7 @@ USE [$(NtcaDatabase)];
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'$(NtcaAppLogin)')
-    EXEC(N'CREATE USER [' + REPLACE(N'$(NtcaAppLogin)', N']', N']]') + N'] FOR LOGIN [' + REPLACE(N'$(NtcaAppLogin)', N']', N']]') + N']');
+    CREATE USER [$(NtcaAppLogin)] FOR LOGIN [$(NtcaAppLogin)];
 GO
 
 ALTER ROLE db_datareader ADD MEMBER [$(NtcaAppLogin)];
@@ -104,7 +104,7 @@ BEGIN
 
     USE [$(NtcaDatabase)];
     IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'$(NtcaMigratorLogin)')
-        EXEC(N'CREATE USER [' + REPLACE(N'$(NtcaMigratorLogin)', N']', N']]') + N'] FOR LOGIN [' + REPLACE(N'$(NtcaMigratorLogin)', N']', N']]') + N']');
+        CREATE USER [$(NtcaMigratorLogin)] FOR LOGIN [$(NtcaMigratorLogin)];
 
     ALTER ROLE db_ddladmin ADD MEMBER [$(NtcaMigratorLogin)];
     ALTER ROLE db_datareader ADD MEMBER [$(NtcaMigratorLogin)];

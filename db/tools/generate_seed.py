@@ -1072,7 +1072,7 @@ def main() -> int:
         write_seed("SEED_00_static_pages.sql", emit_static(pages)),
         write_seed("SEED_10_shops.sql", emit_shops(shops)),
         write_seed("SEED_15_ctca_members.sql", emit_ctca(ctca)),
-        write_seed("SEED_20_events.sql", emit_events(events) + "\n" + emit_calendar(shows)),
+        write_seed("SEED_20_events.sql", emit_events(events) + "\nGO\n" + emit_calendar(shows)),
         write_seed("SEED_30_blog_bloggers.sql", emit_blog(bloggers, posts)),
         write_seed("SEED_40_about_bios.sql", emit_bios(bios)),
         write_seed("SEED_50_gallery_media.sql", emit_gallery(gallery)),

@@ -179,6 +179,7 @@ VALUES
 
 PRINT 'SEED_20_events: 7 association cms.Event rows merged';
 
+GO
 MERGE mkt.PromoterTier AS t
 
 USING (VALUES
@@ -1198,13 +1199,13 @@ WHEN MATCHED THEN UPDATE SET
     PromoterId = (SELECT PromoterId FROM mkt.Promoter WHERE Slug = N'collect-a-con'),
     VenueId = (SELECT VenueId FROM mkt.Venue WHERE Slug = N'kay-bailey-hutchison-convention-center-dallas-tx'),
     RecurrenceSeries = N'collect-a-con',
-    Scope = N'LOCAL',
+    Scope = N'NATIONAL',
     TableCount = NULL,
     AdmissionText = NULL,
     AdmissionMinCents = NULL,
     ParkingText = NULL,
     FocusTags = N'SPORTS,POKEMON,TCG,MEMORABILIA',
-    IsFeatured = 0,
+    IsFeatured = 1,
     StateCode = 'TX',
     City = N'Dallas',
     PublishedAt = COALESCE(t.PublishedAt, @Now),
@@ -1222,10 +1223,19 @@ VALUES
      'PUBLISHED', 'IMPORT',
      (SELECT PromoterId FROM mkt.Promoter WHERE Slug = N'collect-a-con'),
      (SELECT VenueId FROM mkt.Venue WHERE Slug = N'kay-bailey-hutchison-convention-center-dallas-tx'),
-     N'collect-a-con', N'LOCAL', NULL,
+     N'collect-a-con', N'NATIONAL', NULL,
      NULL, NULL, NULL,
-     N'SPORTS,POKEMON,TCG,MEMORABILIA', N'https://collectaconusa.com/', 0,
+     N'SPORTS,POKEMON,TCG,MEMORABILIA', N'https://collectaconusa.com/', 1,
      'TX', N'Dallas', @Now, @Now, N'NTCA-SHOWS-HTML');
+
+
+IF NOT EXISTS (
+    SELECT 1 FROM feed.ShowFeedEntry f
+    JOIN mkt.ShopEvent e ON e.ShopEventId = f.ShopEventId
+    WHERE e.Slug = N'collect-a-con-dallas-2026-10' AND f.SlotCode = 'CALENDAR_FEATURED' AND f.IsActive = 1)
+INSERT INTO feed.ShowFeedEntry (SlotCode, ShopEventId, Reason, BaseWeight, IsPinned, EligibleFrom, EligibleUntil)
+SELECT 'CALENDAR_FEATURED', e.ShopEventId, 'FEATURED', 2.00, 0, @Now, DATEADD(day, 45, e.StartsAt)
+FROM mkt.ShopEvent e WHERE e.Slug = N'collect-a-con-dallas-2026-10';
 
 
 MERGE mkt.ShopEvent AS t
@@ -1486,13 +1496,13 @@ WHEN MATCHED THEN UPDATE SET
     PromoterId = (SELECT PromoterId FROM mkt.Promoter WHERE Slug = N'collect-a-con'),
     VenueId = (SELECT VenueId FROM mkt.Venue WHERE Slug = N'george-r-brown-convention-center-houston-tx'),
     RecurrenceSeries = N'collect-a-con',
-    Scope = N'LOCAL',
-    TableCount = NULL,
+    Scope = N'NATIONAL',
+    TableCount = 900,
     AdmissionText = NULL,
     AdmissionMinCents = NULL,
     ParkingText = NULL,
     FocusTags = N'SPORTS,POKEMON,TCG,MEMORABILIA',
-    IsFeatured = 0,
+    IsFeatured = 1,
     StateCode = 'TX',
     City = N'Houston',
     PublishedAt = COALESCE(t.PublishedAt, @Now),
@@ -1510,10 +1520,19 @@ VALUES
      'PUBLISHED', 'IMPORT',
      (SELECT PromoterId FROM mkt.Promoter WHERE Slug = N'collect-a-con'),
      (SELECT VenueId FROM mkt.Venue WHERE Slug = N'george-r-brown-convention-center-houston-tx'),
-     N'collect-a-con', N'LOCAL', NULL,
+     N'collect-a-con', N'NATIONAL', 900,
      NULL, NULL, NULL,
-     N'SPORTS,POKEMON,TCG,MEMORABILIA', N'https://collectaconusa.com/houston2/', 0,
+     N'SPORTS,POKEMON,TCG,MEMORABILIA', N'https://collectaconusa.com/houston2/', 1,
      'TX', N'Houston', @Now, @Now, N'NTCA-SHOWS-HTML');
+
+
+IF NOT EXISTS (
+    SELECT 1 FROM feed.ShowFeedEntry f
+    JOIN mkt.ShopEvent e ON e.ShopEventId = f.ShopEventId
+    WHERE e.Slug = N'collect-a-con-houston-2026-11' AND f.SlotCode = 'CALENDAR_FEATURED' AND f.IsActive = 1)
+INSERT INTO feed.ShowFeedEntry (SlotCode, ShopEventId, Reason, BaseWeight, IsPinned, EligibleFrom, EligibleUntil)
+SELECT 'CALENDAR_FEATURED', e.ShopEventId, 'FEATURED', 2.00, 0, @Now, DATEADD(day, 45, e.StartsAt)
+FROM mkt.ShopEvent e WHERE e.Slug = N'collect-a-con-houston-2026-11';
 
 
 MERGE mkt.ShopEvent AS t
@@ -2196,5 +2215,5 @@ VALUES
      N'SPORTS,POKEMON,TCG,MEMORABILIA', N'https://cardshows.io/events/sports-cards-pokemon-and-collectible-show-11-14-2026', 0,
      'MA', N'North Attleboro', @Now, @Now, N'NTCA-SHOWS-HTML');
 
-PRINT 'SEED_20_events calendar: 28 shows (national=2 regional=14 local=12) promoters=23 venues=27';
+PRINT 'SEED_20_events calendar: 28 shows (national=4 regional=14 local=10) promoters=23 venues=27';
 

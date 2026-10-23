@@ -749,6 +749,8 @@ def infer_scope(title: str, body: str, table_count: int | None) -> str:
         return "NATIONAL"
     if "convention-scale" in blob:
         return "NATIONAL"
+    if "large" in blob and "convention" in blob:
+        return "NATIONAL"
     if table_count and table_count >= 400 and ("convention" in blob or "showcase" in blob):
         return "NATIONAL"
     if "regional" in blob or "expo" in blob or (table_count and table_count >= 150):
@@ -775,7 +777,7 @@ def infer_focus(focus: str, body: str) -> str:
 
 
 def parse_table_count(body: str) -> int | None:
-    m = re.search(r"(\d{1,3}(?:,\d{3})+|\d+)\+?\s*-?\s*tables", body, re.I)
+    m = re.search(r"(\d{1,3}(?:,\d{3})+|\d+)\+?\s+(?:\w+\s+){0,3}tables", body, re.I)
     if m:
         return int(m.group(1).replace(",", ""))
     m = re.search(r"(\d{2,4})-table", body, re.I)
