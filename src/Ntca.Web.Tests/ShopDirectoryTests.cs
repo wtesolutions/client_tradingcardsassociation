@@ -44,6 +44,7 @@ public sealed class ShopDirectoryTests
     {
         Assert.Equal("Pokémon TCG", ShopCopy.SpecialtyLabel("POKEMON"));
         Assert.Equal("tel:+18188432600", ShopCopy.TelHref("+1 (818) 843-2600"));
+        Assert.Equal("0 mi", ShopCopy.FormatMiles(0.02));
         Assert.Equal("2.4 mi", ShopCopy.FormatMiles(2.41));
         Assert.Equal("18 mi", ShopCopy.FormatMiles(18.2));
     }

@@ -216,6 +216,8 @@ public static class ShopCopy
     {
         if (miles is null)
             return "";
+        if (miles.Value < 0.05)
+            return "0 mi";
         return miles.Value < 10
             ? miles.Value.ToString("0.0", CultureInfo.InvariantCulture) + " mi"
             : Math.Round(miles.Value).ToString("0", CultureInfo.InvariantCulture) + " mi";

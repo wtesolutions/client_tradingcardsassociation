@@ -107,9 +107,9 @@ input, select, textarea {
 .pill.dest { color: var(--accent-2); border-color: var(--accent); }
 .shop-card-blurb { margin: 8px 0 0; color: var(--muted); font-size: 13px; display: -webkit-box; -webkit-line-clamp: 1;
   -webkit-box-orient: vertical; overflow: hidden; }
-.shop-card-actions { display: flex; gap: 8px; margin: 12px 0 0; align-items: center; }
-.shop-card-actions .call { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; }
-.shop-card-actions .view { flex: 1 1 auto; text-align: center; }
+.shop-card-actions { display: flex; flex-wrap: nowrap; gap: 8px; margin: 12px 0 0; align-items: center; }
+.shop-card-actions .call { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; white-space: nowrap; }
+.shop-card-actions .view { flex: 1 1 auto; text-align: center; white-space: nowrap; }
 .shop-hero { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 14px; align-items: start; margin-bottom: 16px; }
 .shop-hero .shop-card-thumb { width: 140px; height: 140px; }
 .shop-hero-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; }
