@@ -14,7 +14,7 @@ The public site is moving off a **flat HTML GitHub Pages** site (`main` root) on
 | Deploy | GitHub Actions on the existing self-hosted Windows runner (`wte_apps3`): build → publish → stop pool → copy (preserve server `appsettings.Production.json`) → start pool → smoke |
 | SQL | New database `NTCA` on WTE server **HAMMER** (name is a sqlcmd variable; Eric can choose `NTCADirectory` instead) |
 | SQL logins | `ntca_app` (runtime, least privilege) and optional `ntca_migrator` (DDL only). See [db/README.md](../db/README.md) |
-| Email | SocketLabs (same account pattern as NCVetBiz; SMTP vs Injection API is an Eric decision) |
+| Email | SocketLabs Injection API from `reports@wte.net` (`SocketLabs:ServerId`, `SocketLabs:ApiKey` via user-secrets). Console / pickup-directory fallback when those keys are empty. |
 | Media | Amazon S3 + CloudFront; object keys in `core.MediaAsset` |
 
 **`main` stays untouched** so GitHub Pages keeps serving the current static site until cutover. This branch is a draft-only platform branch. **Do not merge** until IIS is ready and Pages is pointed away or retired.

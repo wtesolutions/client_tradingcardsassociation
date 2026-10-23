@@ -776,6 +776,34 @@ VALUES
      @FreeTier, 'UNCLAIMED', 'ACTIVE', {sql_str(s.get('source'))}, {sql_str(s.get('source_ref'))}, @Now);
 """)
     lines.append(f"PRINT 'SEED_10_shops: {len(shops)} shops merged';\n")
+    lines.append("""
+/* QA owner: SUPERADMIN (egarrison@wte.net) owns Burbank Sportscards so /owner
+   uses the same emailed-code login as /SADMIN. Idempotent. */
+IF EXISTS (SELECT 1 FROM core.AppUser WHERE Email = N'egarrison@wte.net')
+AND EXISTS (SELECT 1 FROM dir.Shop WHERE Slug = N'burbank-sportscards-burbank-ca')
+AND NOT EXISTS (
+    SELECT 1
+    FROM dir.ShopMember m
+    JOIN core.AppUser u ON u.UserId = m.UserId
+    JOIN dir.Shop s ON s.ShopId = m.ShopId
+    WHERE u.Email = N'egarrison@wte.net'
+      AND s.Slug = N'burbank-sportscards-burbank-ca'
+      AND m.RevokedAt IS NULL)
+BEGIN
+    INSERT INTO dir.ShopMember (ShopId, UserId, MemberRole)
+    SELECT s.ShopId, u.UserId, 'OWNER'
+    FROM dir.Shop AS s
+    CROSS JOIN core.AppUser AS u
+    WHERE s.Slug = N'burbank-sportscards-burbank-ca'
+      AND u.Email = N'egarrison@wte.net';
+
+    UPDATE dir.Shop
+    SET ClaimStatus = 'CLAIMED',
+        ClaimedAt = COALESCE(ClaimedAt, SYSUTCDATETIME()),
+        UpdatedAt = SYSUTCDATETIME()
+    WHERE Slug = N'burbank-sportscards-burbank-ca';
+END
+""")
     return "\n".join(lines)
 
 
@@ -1040,7 +1068,7 @@ def main() -> int:
         classify_ctca,
         emit_calendar,
         emit_ctca,
-        emit_glossary_todo,
+        emit_glossary,
         emit_manufacturers,
         load_ctca_rows,
         manufacturers_from_wikipedia,
@@ -1077,14 +1105,40 @@ def main() -> int:
         write_seed("SEED_40_about_bios.sql", emit_bios(bios)),
         write_seed("SEED_50_gallery_media.sql", emit_gallery(gallery)),
         write_seed("SEED_60_manufacturers.sql", emit_manufacturers(manufacturers)),
-        write_seed("SEED_65_glossary_conditions.sql", emit_glossary_todo()),
+        write_seed("SEED_65_glossary_conditions.sql", emit_glossary()),
     ]
+
+    pairs_path = ROOT / "docs" / "CTCA_MATCHED_PAIRS.md"
+    pair_lines = [
+        "# CTCA matched pairs (SEED_15)\n",
+        "\nLoose match: website domain **or** 10+ phone digits **or** stem+city+state ",
+        "(punctuation stripped; sports cards / cards / collectibles / Inc / LLC ignored). ",
+        "Retailer / grader / manufacturer listings from `legacy-site/*.html` are a match ",
+        "corpus so overlaps do not become duplicate shops.\n\n",
+        f"- shops_new = {len(ctca['shops_new'])}\n",
+        f"- shops_matched = {len(ctca['shops_matched'])}\n",
+        f"- listings_matched (as orgs) = {len(ctca.get('listings_matched') or [])}\n",
+        f"- orgs = {len(ctca['orgs'])}\n",
+        f"- mfrs_new = {len(ctca['mfrs_new'])}\n",
+        f"- mfrs_matched = {len(ctca['mfrs_matched'])}\n\n",
+        "| CTCA name | Matched to | Kind | Reason | Slug |\n",
+        "|---|---|---|---|---|\n",
+    ]
+    for p in ctca.get("pairs") or []:
+        pair_lines.append(
+            f"| {p['ctca']} | {p['target']} | {p['kind']} | {p['reason']} | `{p['slug']}` |\n"
+        )
+    if not ctca.get("pairs"):
+        pair_lines.append("| *(none)* | | | | |\n")
+    pairs_path.write_text("".join(pair_lines), encoding="utf-8")
 
     print(f"Wrote {schema.relative_to(ROOT)}")
     print(
         f"  shops={len(shops)} cms_events={len(events)} calendar_shows={len(shows)} "
         f"manufacturers={len(manufacturers)} "
-        f"ctca_shops_new={len(ctca['shops_new'])} ctca_orgs={len(ctca['orgs'])} "
+        f"ctca_shops_new={len(ctca['shops_new'])} ctca_shops_matched={len(ctca['shops_matched'])} "
+        f"ctca_listings_matched={len(ctca.get('listings_matched') or [])} "
+        f"ctca_orgs={len(ctca['orgs'])} "
         f"bloggers={len(bloggers)} posts={len(posts)} bios={len(bios)} "
         f"gallery={len(gallery)} static={len(pages)}"
     )

@@ -701,3 +701,27 @@ FROM    cms.GalleryItem AS g
 LEFT JOIN core.MediaAsset AS m ON m.MediaAssetId = g.MediaAssetId
 WHERE   g.IsPublished = 1;
 GO
+
+/* ---------------------------------------------------------------------
+   Owner listing edits that SADMIN must approve (plan /SADMIN queues)
+   --------------------------------------------------------------------- */
+CREATE TABLE dir.ShopEditRequest
+(
+    ShopEditRequestId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopEditRequest PRIMARY KEY,
+    PublicId          UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_ShopEdit_PublicId DEFAULT NEWSEQUENTIALID(),
+    ShopId            BIGINT         NOT NULL CONSTRAINT FK_ShopEdit_Shop REFERENCES dir.Shop(ShopId),
+    RequestedByUserId BIGINT         NOT NULL CONSTRAINT FK_ShopEdit_User REFERENCES core.AppUser(UserId),
+    ProposedJson      NVARCHAR(MAX)  NOT NULL,
+    Status            VARCHAR(20)    NOT NULL CONSTRAINT DF_ShopEdit_Status DEFAULT 'PENDING_REVIEW',
+    ReviewedByUserId  BIGINT         NULL CONSTRAINT FK_ShopEdit_ReviewedBy REFERENCES core.AppUser(UserId),
+    ReviewedAt        DATETIME2(3)   NULL,
+    DecisionReason    NVARCHAR(500)  NULL,
+    CreatedAt         DATETIME2(3)   NOT NULL CONSTRAINT DF_ShopEdit_Created DEFAULT SYSUTCDATETIME(),
+    UpdatedAt         DATETIME2(3)   NOT NULL CONSTRAINT DF_ShopEdit_Updated DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT UQ_ShopEdit_PublicId UNIQUE (PublicId),
+    CONSTRAINT CK_ShopEdit_Status CHECK (Status IN ('PENDING_REVIEW','APPROVED','REJECTED','WITHDRAWN')),
+    CONSTRAINT CK_ShopEdit_Json CHECK (ISJSON(ProposedJson) = 1)
+);
+GO
+CREATE INDEX IX_ShopEdit_Queue ON dir.ShopEditRequest (Status, CreatedAt);
+GO

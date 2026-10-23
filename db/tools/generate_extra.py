@@ -238,6 +238,43 @@ def norm_name(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+# Loose stem used for CTCA overlap matching (shops + retailers + graders + manufacturers).
+_STEM_STRIP = re.compile(
+    r"\b(the|inc|llc|ltd|co|company|group|corp|corporation|and more|"
+    r"sports?\s*cards?|sportscards?|cards?|collectibles?|"
+    r"hobby shop|card shop|grading|trading cards?)\b",
+    re.I,
+)
+
+
+def stem_name(text: str) -> str:
+    text = unescape(text or "").lower()
+    text = text.replace("&", " and ")
+    text = re.sub(r"'s\b", "s", text)
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    text = _STEM_STRIP.sub(" ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def phone_digits(phone: str | None) -> str:
+    digits = re.sub(r"\D", "", phone or "")
+    if len(digits) == 11 and digits.startswith("1"):
+        digits = digits[1:]
+    return digits if len(digits) >= 10 else ""
+
+
+def stems_overlap(a: str, b: str) -> bool:
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    shorter, longer = (a, b) if len(a) <= len(b) else (b, a)
+    # Single-token stems only match exactly ("dna" must not hit "psa dna").
+    if len(shorter.split()) < 2:
+        return False
+    return longer.startswith(shorter + " ")
+
+
 def host_of(url: str | None) -> str:
     if not url:
         return ""
@@ -506,18 +543,101 @@ def load_ctca_rows() -> list[dict]:
     return rows
 
 
-def classify_ctca(ctca_rows: list[dict], shops: list[dict], manufacturers: list[dict]) -> dict:
-    shop_idx = {}
-    for s in shops:
-        shop_idx[(norm_name(s["name"]), (s.get("state") or "").upper())] = s
-        if s.get("host"):
-            shop_idx[("host", s["host"])] = s
+def ntca_listings() -> list[dict]:
+    """Retailers / graders / manufacturers from the static directory pages.
 
+    Used only as a match corpus so CTCA overlaps do not become duplicate shops.
+    """
+    listings: list[dict] = []
+    for filename, kind in (
+        ("retailers.html", "retailer"),
+        ("grading-services.html", "grader"),
+        ("manufacturers.html", "manufacturer"),
+    ):
+        path = LEGACY / filename
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        for block in re.split(r'<div class="card dir-card"', text)[1:]:
+            title = re.search(r'<p class="card-title">(.*?)</p>', block, re.S)
+            if not title:
+                continue
+            name = unescape(re.sub(r"<[^>]+>", "", title.group(1)))
+            hrefs = re.findall(r'<p class="dir-link"><a href="([^"]+)"', block)
+            website = hrefs[0] if hrefs else None
+            loc = re.search(r"<li><span>Location</span>(.*?)</li>", block, re.S | re.I)
+            city, state = "", ""
+            if loc:
+                loc_plain = unescape(re.sub(r"<[^>]+>", "", loc.group(1)))
+                if "," in loc_plain:
+                    city, state = [p.strip() for p in loc_plain.split(",", 1)]
+                    state = state[:2].upper()
+            listings.append({
+                "name": name,
+                "kind": kind,
+                "source": filename,
+                "website": website,
+                "host": host_of(website),
+                "city": city.title() if city else "",
+                "state": state,
+                "stem": stem_name(name),
+                "normalized": norm_name(name),
+            })
+    return listings
+
+
+def _shop_match(rec: dict, shops: list[dict]) -> tuple[dict | None, str]:
+    rec_stem = rec.get("stem") or stem_name(rec["name"])
+    rec_phone = phone_digits(rec.get("phone"))
+    rec_host = rec.get("host") or ""
+    rec_city = (rec.get("city") or "").strip().lower()
+    rec_state = (rec.get("state") or "").upper()
+
+    for shop in shops:
+        shop_host = shop.get("host") or host_of(shop.get("website"))
+        if rec_host and shop_host and rec_host == shop_host:
+            return shop, "website"
+        shop_phone = phone_digits(shop.get("phone"))
+        if rec_phone and shop_phone and rec_phone == shop_phone:
+            return shop, "phone"
+        shop_stem = shop.get("stem") or stem_name(shop["name"])
+        shop_city = (shop.get("city") or "").strip().lower()
+        shop_state = (shop.get("state") or "").upper()
+        if (
+            rec_city
+            and rec_state
+            and rec_city == shop_city
+            and rec_state == shop_state
+            and stems_overlap(rec_stem, shop_stem)
+        ):
+            return shop, "stem+city+state"
+        # exact normalized name + state (legacy rule, still valid)
+        if rec_state == shop_state and norm_name(rec["name"]) == norm_name(shop["name"]):
+            return shop, "name+state"
+    return None, ""
+
+
+def _listing_match(rec: dict, listings: list[dict]) -> tuple[dict | None, str]:
+    rec_stem = rec.get("stem") or stem_name(rec["name"])
+    rec_host = rec.get("host") or ""
+    for listing in listings:
+        if rec_host and listing.get("host") and rec_host == listing["host"]:
+            return listing, "listing-website"
+        if stems_overlap(rec_stem, listing.get("stem") or ""):
+            return listing, "listing-stem"
+    return None, ""
+
+
+def classify_ctca(ctca_rows: list[dict], shops: list[dict], manufacturers: list[dict]) -> dict:
+    listings = ntca_listings()
     mfr_idx = {r["normalized"]: r for r in manufacturers}
     for alias, slug in MFR_ALIASES.items():
         match = next((m for m in manufacturers if m["slug"] == slug), None)
         if match:
             mfr_idx[alias] = match
+            mfr_idx[stem_name(alias)] = match
+    for m in manufacturers:
+        mfr_idx.setdefault(stem_name(m["name"]), m)
 
     used_shop = {s["slug"] for s in shops}
     used_org: set[str] = set()
@@ -526,33 +646,83 @@ def classify_ctca(ctca_rows: list[dict], shops: list[dict], manufacturers: list[
     result = {
         "shops_new": [],
         "shops_matched": [],
+        "listings_matched": [],
         "orgs": [],
         "mfrs_new": [],
         "mfrs_matched": [],
         "skipped": 1,  # Not Displayed
+        "pairs": [],
     }
 
     for rec in ctca_rows:
-        # Manufacturer merge by normalized name (not by state)
-        if rec["kind"] == "manufacturer" or rec["normalized"] in mfr_idx:
-            mfr = mfr_idx.get(rec["normalized"])
+        rec = {**rec, "stem": stem_name(rec["name"])}
+
+        # Manufacturer merge by normalized / stem / alias (not by state)
+        if rec["kind"] == "manufacturer" or rec["normalized"] in mfr_idx or rec["stem"] in mfr_idx:
+            mfr = mfr_idx.get(rec["normalized"]) or mfr_idx.get(rec["stem"])
             if mfr:
                 result["mfrs_matched"].append({**rec, "slug": mfr["slug"]})
+                result["pairs"].append({
+                    "ctca": rec["name"],
+                    "target": mfr["name"],
+                    "kind": "manufacturer",
+                    "reason": "name/alias",
+                    "slug": mfr["slug"],
+                })
             else:
                 slug = unique_slug(slugify(rec["name"]), used_mfr)
                 rec = {**rec, "slug": slug, "normalized": rec["normalized"]}
                 result["mfrs_new"].append(rec)
                 mfr_idx[rec["normalized"]] = rec
+                mfr_idx[rec["stem"]] = rec
             continue
 
-        matched_shop = shop_idx.get((rec["normalized"], rec.get("state") or ""))
-        if not matched_shop and rec["host"]:
-            # website match only when names are the same normalized token set
-            host_hit = shop_idx.get(("host", rec["host"]))
-            if host_hit and host_hit.get("normalized", norm_name(host_hit["name"])) == rec["normalized"]:
-                matched_shop = host_hit
+        matched_shop, shop_reason = _shop_match(rec, shops)
         if matched_shop:
-            result["shops_matched"].append({**rec, "slug": matched_shop["slug"]})
+            shop_host = matched_shop.get("host") or host_of(matched_shop.get("website"))
+            rec_host = rec.get("host") or ""
+            note = f"Directory import 2026-10-22 (matched existing shop via {shop_reason})"
+            if shop_host and rec_host and shop_host != rec_host:
+                note += f"; website mismatch kept existing ({shop_host} vs {rec_host})"
+            result["shops_matched"].append({
+                **rec,
+                "slug": matched_shop["slug"],
+                "match_reason": shop_reason,
+                "import_notes": note,
+                "matched_name": matched_shop["name"],
+            })
+            result["pairs"].append({
+                "ctca": rec["name"],
+                "target": matched_shop["name"],
+                "kind": "shop",
+                "reason": shop_reason,
+                "slug": matched_shop["slug"],
+            })
+            continue
+
+        listing, list_reason = _listing_match(rec, listings)
+        if listing:
+            org_type = rec.get("org_type")
+            if listing["kind"] == "grader":
+                org_type = "GRADER"
+            elif listing["kind"] == "retailer":
+                org_type = rec.get("org_type") if rec["kind"] != "hobby_shop" else "MARKETPLACE"
+            elif listing["kind"] == "manufacturer":
+                # Should have been caught above; keep as org OTHER rather than a new shop.
+                org_type = "OTHER"
+            slug = unique_slug(slugify(rec["name"]), used_org)
+            if rec.get("state"):
+                slug = unique_slug(slugify(f"{rec['name']}-{rec['state']}"), used_org)
+            row = {**rec, "slug": slug, "org_type": org_type, "match_reason": list_reason}
+            result["orgs"].append(row)
+            result["listings_matched"].append(row)
+            result["pairs"].append({
+                "ctca": rec["name"],
+                "target": listing["name"],
+                "kind": f"listing/{listing['kind']}",
+                "reason": list_reason,
+                "slug": slug,
+            })
             continue
 
         if rec["kind"] == "hobby_shop" and rec.get("city") and rec.get("state"):
@@ -613,6 +783,7 @@ VALUES
      @Src, N'Directory import 2026-10-22', @Now);
 """)
     for s in classified["shops_matched"]:
+        notes = s.get("import_notes") or "Directory import 2026-10-22 (matched existing shop)"
         lines.append(f"""
 UPDATE dir.Shop
 SET WebsiteUrl = COALESCE(WebsiteUrl, {sql_str(s.get('website'))}),
@@ -621,7 +792,7 @@ SET WebsiteUrl = COALESCE(WebsiteUrl, {sql_str(s.get('website'))}),
     Phone = COALESCE(Phone, {sql_str(s.get('phone'))}),
     PublicEmail = COALESCE(PublicEmail, {sql_str(s.get('email'))}),
     SourceSystem = @Src,
-    ImportNotes = COALESCE(ImportNotes, N'Directory import 2026-10-22 (matched existing shop)'),
+    ImportNotes = {sql_str(notes)},
     UpdatedAt = @Now
 WHERE Slug = {sql_str(s['slug'])};
 """)
@@ -703,6 +874,7 @@ SELECT ManufacturerId, 'SPORT' FROM dir.Manufacturer WHERE Slug = {sql_str(m['sl
     lines.append(
         "PRINT 'SEED_15_ctca_members: "
         f"shops_new={len(classified['shops_new'])} shops_matched={len(classified['shops_matched'])} "
+        f"listings_matched={len(classified.get('listings_matched') or [])} "
         f"orgs={len(classified['orgs'])} mfrs_new={len(classified['mfrs_new'])} "
         f"mfrs_matched={len(classified['mfrs_matched'])} skipped={classified['skipped']}';\n"
     )
@@ -999,22 +1171,111 @@ FROM mkt.ShopEvent e WHERE e.Slug = {sql_str(s['slug'])};
     return "\n".join(lines)
 
 
-def emit_glossary_todo() -> str:
+def parse_glossary_page(path: Path) -> tuple[list[dict], list[dict]]:
+    text = path.read_text(encoding="utf-8")
+    terms: list[dict] = []
+    for i, m in enumerate(
+        re.finditer(
+            r'<div class="glossary-item" id="([^"]+)"[^>]*>\s*<dt>(.*?)</dt>\s*<dd>(.*?)</dd>',
+            text,
+            re.S,
+        ),
+        start=1,
+    ):
+        slug = m.group(1).removeprefix("term-")
+        term = unescape(re.sub(r"<[^>]+>", "", m.group(2)))
+        definition = unescape(re.sub(r"<[^>]+>", " ", m.group(3)))
+        definition = re.sub(r"\s+", " ", definition).strip()
+        terms.append({
+            "slug": slug,
+            "term": term,
+            "definition": definition,
+            "order": i * 10,
+        })
+    grades: list[dict] = []
+    body = re.search(r'<table class="cond-table">(.*?)</table>', text, re.S)
+    if body:
+        rows = re.findall(r"<tr>\s*<th scope=\"row\">(.*?)</th>\s*<td>(.*?)</td>", body.group(1), re.S)
+        for rank, (name_html, desc_html) in enumerate(rows, start=1):
+            name = unescape(re.sub(r"<[^>]+>", " ", name_html))
+            name = re.sub(r"\s+", " ", name).strip()
+            desc = unescape(re.sub(r"<[^>]+>", " ", desc_html))
+            desc = re.sub(r"\s+", " ", desc).strip()
+            grades.append({
+                "slug": slugify(name, 80),
+                "name": name,
+                "rank": rank,
+                "description": desc,
+            })
+    return terms, grades
+
+
+def emit_glossary() -> str:
     candidates = [
         LEGACY / "new-to-trading-cards.html",
         LEGACY / "new-to-trading-cards.htm",
         LEGACY / "glossary.html",
     ]
     found = next((p for p in candidates if p.exists()), None)
-    if found:
+    if not found:
         return (
-            f"PRINT 'SEED_65_glossary_conditions: {found.name} is present but "
-            "a structured extractor has not been wired; leaving tables empty.';\n"
+            "PRINT 'SEED_65_glossary_conditions: TODO — New to Trading Cards page "
+            "not on main yet. cms.GlossaryTerm / cms.ConditionGrade stay empty.';\n"
         )
-    return (
-        "PRINT 'SEED_65_glossary_conditions: TODO — New to Trading Cards page "
-        "not on main yet. cms.GlossaryTerm / cms.ConditionGrade stay empty.';\n"
+    terms, grades = parse_glossary_page(found)
+    if not terms and not grades:
+        return (
+            f"PRINT 'SEED_65_glossary_conditions: {found.name} present but no "
+            "glossary-item / cond-table rows parsed.';\n"
+        )
+    source = found.name
+    lines = ["DECLARE @Now DATETIME2(3) = SYSUTCDATETIME();\n"]
+    for t in terms:
+        lines.append(f"""
+MERGE cms.GlossaryTerm AS t
+USING (SELECT {sql_str(t['slug'])} AS Slug) AS s
+ON t.Slug = s.Slug
+WHEN MATCHED THEN UPDATE SET
+    Term = {sql_str(t['term'])},
+    Definition = {sql_str(t['definition'])},
+    SortOrder = {t['order']},
+    SourcePage = {sql_str(source)},
+    IsPublished = 1,
+    UpdatedAt = @Now
+WHEN NOT MATCHED THEN INSERT
+    (Slug, Term, Definition, SortOrder, SourcePage, IsPublished)
+VALUES
+    ({sql_str(t['slug'])}, {sql_str(t['term'])}, {sql_str(t['definition'])},
+     {t['order']}, {sql_str(source)}, 1);
+""")
+    for g in grades:
+        lines.append(f"""
+MERGE cms.ConditionGrade AS t
+USING (SELECT {sql_str(g['slug'])} AS Slug) AS s
+ON t.Slug = s.Slug
+WHEN MATCHED THEN UPDATE SET
+    Name = {sql_str(g['name'])},
+    Rank = {g['rank']},
+    Description = {sql_str(g['description'])},
+    SourcePage = {sql_str(source)},
+    IsPublished = 1,
+    UpdatedAt = @Now
+WHEN NOT MATCHED THEN INSERT
+    (Slug, Name, Rank, Description, SourcePage, IsPublished)
+VALUES
+    ({sql_str(g['slug'])}, {sql_str(g['name'])}, {g['rank']},
+     {sql_str(g['description'])}, {sql_str(source)}, 1);
+""")
+    lines.append(
+        f"PRINT 'SEED_65_glossary_conditions: {len(terms)} terms, {len(grades)} grades "
+        f"from {source}';\n"
     )
+    return "\n".join(lines)
+
+
+def emit_glossary_todo() -> str:
+    """Back-compat alias — prefer emit_glossary()."""
+    return emit_glossary()
 
 
 def association_events(all_events: list[dict]) -> list[dict]:

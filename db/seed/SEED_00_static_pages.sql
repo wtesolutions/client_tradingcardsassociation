@@ -223,6 +223,19 @@ VALUES (N'members', N'/members', N'Members · NTCA', N'legacy-site/members.html'
 
 
 MERGE cms.StaticPage AS t
+USING (SELECT N'new-to-trading-cards' AS Slug) AS s
+ON t.Slug = s.Slug
+WHEN MATCHED THEN UPDATE SET
+    LocPath = N'/new-to-trading-cards',
+    Title = N'New to Trading Cards · NTCA',
+    SourceFile = N'legacy-site/new-to-trading-cards.html',
+    IsIndexed = 1,
+    UpdatedAt = @Now
+WHEN NOT MATCHED THEN INSERT (Slug, LocPath, Title, SourceFile, IsIndexed)
+VALUES (N'new-to-trading-cards', N'/new-to-trading-cards', N'New to Trading Cards · NTCA', N'legacy-site/new-to-trading-cards.html', 1);
+
+
+MERGE cms.StaticPage AS t
 USING (SELECT N'news' AS Slug) AS s
 ON t.Slug = s.Slug
 WHEN MATCHED THEN UPDATE SET
@@ -312,5 +325,5 @@ WHEN MATCHED THEN UPDATE SET
 WHEN NOT MATCHED THEN INSERT (Slug, LocPath, Title, SourceFile, IsIndexed)
 VALUES (N'calendar', N'/calendar', N'National Card Show Calendar · NTCA', N'app-route:/calendar', 1);
 
-PRINT 'SEED_00_static_pages: 23 pages merged';
+PRINT 'SEED_00_static_pages: 24 pages merged';
 

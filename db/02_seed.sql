@@ -249,5 +249,30 @@ WHEN NOT MATCHED THEN INSERT (PromoterTierId, TierCode, Name, MonthlyPriceCents,
 VALUES (s.PromoterTierId, s.TierCode, s.Name, s.MonthlyPriceCents, s.SortOrder, s.IsActive);
 GO
 
-PRINT '02_seed: roles, tiers, features, entitlements, rotation, karma, badges, perks, site settings merged';
+/* Placeholder SUPERADMIN for laptop QA. Passwordless — emailed-code login. */
+MERGE core.AppUser AS t
+USING (SELECT N'egarrison@wte.net' AS Email) AS s
+ON t.Email = s.Email
+WHEN MATCHED THEN UPDATE SET
+    Username = N'egarrison',
+    DisplayName = N'Eric Garrison',
+    IsStaff = 1,
+    AccountStatus = 'ACTIVE',
+    EmailVerifiedAt = COALESCE(t.EmailVerifiedAt, SYSUTCDATETIME())
+WHEN NOT MATCHED THEN INSERT
+    (Email, Username, DisplayName, AccountStatus, IsStaff, EmailVerifiedAt, MembershipLevel)
+VALUES
+    (N'egarrison@wte.net', N'egarrison', N'Eric Garrison', 'ACTIVE', 1, SYSUTCDATETIME(), 'SUPPORTER');
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM core.UserRole AS r
+    JOIN core.AppUser AS u ON u.UserId = r.UserId
+    WHERE u.Email = N'egarrison@wte.net' AND r.RoleCode = 'SUPERADMIN')
+INSERT INTO core.UserRole (UserId, RoleCode)
+SELECT UserId, 'SUPERADMIN' FROM core.AppUser WHERE Email = N'egarrison@wte.net';
+GO
+
+PRINT '02_seed: roles, tiers, features, entitlements, rotation, karma, badges, perks, site settings, SUPERADMIN merged';
 GO

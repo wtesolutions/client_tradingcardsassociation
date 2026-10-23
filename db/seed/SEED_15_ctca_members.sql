@@ -482,37 +482,6 @@ VALUES
 
 
 MERGE dir.Shop AS t
-USING (SELECT N'collector-store-st-peters-mo' AS Slug) AS s
-ON t.Slug = s.Slug
-WHEN MATCHED THEN UPDATE SET
-    Name = N'Collector Store',
-    AddressLine1 = COALESCE(NULL, t.AddressLine1),
-    City = N'St. Peters',
-    StateCode = 'MO',
-    PostalCode = COALESCE(NULL, t.PostalCode),
-    CountryCode = 'US',
-    Phone = COALESCE(NULL, t.Phone),
-    PublicEmail = COALESCE(NULL, t.PublicEmail),
-    WebsiteUrl = COALESCE(N'https://www.collectorstore.com/', t.WebsiteUrl),
-    Latitude = COALESCE(38.8003, t.Latitude),
-    Longitude = COALESCE(-90.6265, t.Longitude),
-    SourceSystem = @Src,
-    ImportNotes = N'Directory import 2026-10-22',
-    UpdatedAt = @Now
-WHEN NOT MATCHED THEN INSERT
-    (Slug, Name, AddressLine1, City, StateCode, PostalCode, CountryCode, Phone, PublicEmail,
-     WebsiteUrl, Latitude, Longitude, CurrentTierId, ClaimStatus, ListingStatus,
-     Source, SourceRef, SourceSystem, ImportNotes, PublishedAt)
-VALUES
-    (N'collector-store-st-peters-mo', N'Collector Store', NULL, N'St. Peters',
-     'MO', NULL, 'US',
-     NULL, NULL, N'https://www.collectorstore.com/',
-     38.8003, -90.6265,
-     @FreeTier, 'UNCLAIMED', 'ACTIVE', N'directory-import', N'ctca-id:36',
-     @Src, N'Directory import 2026-10-22', @Now);
-
-
-MERGE dir.Shop AS t
 USING (SELECT N'phantom-card-shop-collingswood-nj' AS Slug) AS s
 ON t.Slug = s.Slug
 WHEN MATCHED THEN UPDATE SET
@@ -540,37 +509,6 @@ VALUES
      N'856-333-7330', N'store@phantomcardshop.com', N'https://www.phantomcardshop.com/',
      39.919, -75.071,
      @FreeTier, 'UNCLAIMED', 'ACTIVE', N'directory-import', N'ctca-id:38',
-     @Src, N'Directory import 2026-10-22', @Now);
-
-
-MERGE dir.Shop AS t
-USING (SELECT N'dave-and-adam-s-card-world-buffalo-ny' AS Slug) AS s
-ON t.Slug = s.Slug
-WHEN MATCHED THEN UPDATE SET
-    Name = N'Dave and Adam''s Card World',
-    AddressLine1 = COALESCE(NULL, t.AddressLine1),
-    City = N'Buffalo',
-    StateCode = 'NY',
-    PostalCode = COALESCE(NULL, t.PostalCode),
-    CountryCode = 'US',
-    Phone = COALESCE(NULL, t.Phone),
-    PublicEmail = COALESCE(NULL, t.PublicEmail),
-    WebsiteUrl = COALESCE(N'https://www.dacardworld.com/', t.WebsiteUrl),
-    Latitude = COALESCE(42.8864, t.Latitude),
-    Longitude = COALESCE(-78.8784, t.Longitude),
-    SourceSystem = @Src,
-    ImportNotes = N'Directory import 2026-10-22',
-    UpdatedAt = @Now
-WHEN NOT MATCHED THEN INSERT
-    (Slug, Name, AddressLine1, City, StateCode, PostalCode, CountryCode, Phone, PublicEmail,
-     WebsiteUrl, Latitude, Longitude, CurrentTierId, ClaimStatus, ListingStatus,
-     Source, SourceRef, SourceSystem, ImportNotes, PublishedAt)
-VALUES
-    (N'dave-and-adam-s-card-world-buffalo-ny', N'Dave and Adam''s Card World', NULL, N'Buffalo',
-     'NY', NULL, 'US',
-     NULL, NULL, N'https://www.dacardworld.com/',
-     42.8864, -78.8784,
-     @FreeTier, 'UNCLAIMED', 'ACTIVE', N'directory-import', N'ctca-id:42',
      @Src, N'Directory import 2026-10-22', @Now);
 
 
@@ -854,37 +792,6 @@ VALUES
 
 
 MERGE dir.Shop AS t
-USING (SELECT N'midwest-cards-columbus-oh' AS Slug) AS s
-ON t.Slug = s.Slug
-WHEN MATCHED THEN UPDATE SET
-    Name = N'Midwest Cards',
-    AddressLine1 = COALESCE(NULL, t.AddressLine1),
-    City = N'Columbus',
-    StateCode = 'OH',
-    PostalCode = COALESCE(NULL, t.PostalCode),
-    CountryCode = 'US',
-    Phone = COALESCE(NULL, t.Phone),
-    PublicEmail = COALESCE(NULL, t.PublicEmail),
-    WebsiteUrl = COALESCE(N'https://www.midwestcards.com/', t.WebsiteUrl),
-    Latitude = COALESCE(39.9612, t.Latitude),
-    Longitude = COALESCE(-82.9988, t.Longitude),
-    SourceSystem = @Src,
-    ImportNotes = N'Directory import 2026-10-22',
-    UpdatedAt = @Now
-WHEN NOT MATCHED THEN INSERT
-    (Slug, Name, AddressLine1, City, StateCode, PostalCode, CountryCode, Phone, PublicEmail,
-     WebsiteUrl, Latitude, Longitude, CurrentTierId, ClaimStatus, ListingStatus,
-     Source, SourceRef, SourceSystem, ImportNotes, PublishedAt)
-VALUES
-    (N'midwest-cards-columbus-oh', N'Midwest Cards', NULL, N'Columbus',
-     'OH', NULL, 'US',
-     NULL, NULL, N'https://www.midwestcards.com/',
-     39.9612, -82.9988,
-     @FreeTier, 'UNCLAIMED', 'ACTIVE', N'directory-import', N'ctca-id:74',
-     @Src, N'Directory import 2026-10-22', @Now);
-
-
-MERGE dir.Shop AS t
 USING (SELECT N'evoretro-brossard-qc' AS Slug) AS s
 ON t.Slug = s.Slug
 WHEN MATCHED THEN UPDATE SET
@@ -912,68 +819,6 @@ VALUES
      NULL, NULL, N'https://www.evoretro.ca/',
      45.4504, -73.4683,
      @FreeTier, 'UNCLAIMED', 'ACTIVE', N'directory-import', N'ctca-id:76',
-     @Src, N'Directory import 2026-10-22', @Now);
-
-
-MERGE dir.Shop AS t
-USING (SELECT N'cardboard-gold-rancho-santa-margarita-ca' AS Slug) AS s
-ON t.Slug = s.Slug
-WHEN MATCHED THEN UPDATE SET
-    Name = N'Cardboard Gold',
-    AddressLine1 = COALESCE(NULL, t.AddressLine1),
-    City = N'Rancho Santa Margarita',
-    StateCode = 'CA',
-    PostalCode = COALESCE(NULL, t.PostalCode),
-    CountryCode = 'US',
-    Phone = COALESCE(NULL, t.Phone),
-    PublicEmail = COALESCE(NULL, t.PublicEmail),
-    WebsiteUrl = COALESCE(N'https://www.cardboardgold.com/', t.WebsiteUrl),
-    Latitude = COALESCE(33.6407, t.Latitude),
-    Longitude = COALESCE(-117.6031, t.Longitude),
-    SourceSystem = @Src,
-    ImportNotes = N'Directory import 2026-10-22',
-    UpdatedAt = @Now
-WHEN NOT MATCHED THEN INSERT
-    (Slug, Name, AddressLine1, City, StateCode, PostalCode, CountryCode, Phone, PublicEmail,
-     WebsiteUrl, Latitude, Longitude, CurrentTierId, ClaimStatus, ListingStatus,
-     Source, SourceRef, SourceSystem, ImportNotes, PublishedAt)
-VALUES
-    (N'cardboard-gold-rancho-santa-margarita-ca', N'Cardboard Gold', NULL, N'Rancho Santa Margarita',
-     'CA', NULL, 'US',
-     NULL, NULL, N'https://www.cardboardgold.com/',
-     33.6407, -117.6031,
-     @FreeTier, 'UNCLAIMED', 'ACTIVE', N'directory-import', N'ctca-id:81',
-     @Src, N'Directory import 2026-10-22', @Now);
-
-
-MERGE dir.Shop AS t
-USING (SELECT N'burbank-cards-burbank-ca' AS Slug) AS s
-ON t.Slug = s.Slug
-WHEN MATCHED THEN UPDATE SET
-    Name = N'Burbank Cards',
-    AddressLine1 = COALESCE(NULL, t.AddressLine1),
-    City = N'Burbank',
-    StateCode = 'CA',
-    PostalCode = COALESCE(NULL, t.PostalCode),
-    CountryCode = 'US',
-    Phone = COALESCE(NULL, t.Phone),
-    PublicEmail = COALESCE(NULL, t.PublicEmail),
-    WebsiteUrl = COALESCE(N'https://www.burbankcards.com/', t.WebsiteUrl),
-    Latitude = COALESCE(34.1808, t.Latitude),
-    Longitude = COALESCE(-118.309, t.Longitude),
-    SourceSystem = @Src,
-    ImportNotes = N'Directory import 2026-10-22',
-    UpdatedAt = @Now
-WHEN NOT MATCHED THEN INSERT
-    (Slug, Name, AddressLine1, City, StateCode, PostalCode, CountryCode, Phone, PublicEmail,
-     WebsiteUrl, Latitude, Longitude, CurrentTierId, ClaimStatus, ListingStatus,
-     Source, SourceRef, SourceSystem, ImportNotes, PublishedAt)
-VALUES
-    (N'burbank-cards-burbank-ca', N'Burbank Cards', NULL, N'Burbank',
-     'CA', NULL, 'US',
-     NULL, NULL, N'https://www.burbankcards.com/',
-     34.1808, -118.309,
-     @FreeTier, 'UNCLAIMED', 'ACTIVE', N'directory-import', N'ctca-id:83',
      @Src, N'Directory import 2026-10-22', @Now);
 
 
@@ -1102,37 +947,6 @@ VALUES
 
 
 MERGE dir.Shop AS t
-USING (SELECT N'steel-city-collectibles-white-oak-pa' AS Slug) AS s
-ON t.Slug = s.Slug
-WHEN MATCHED THEN UPDATE SET
-    Name = N'Steel City Collectibles',
-    AddressLine1 = COALESCE(NULL, t.AddressLine1),
-    City = N'White Oak',
-    StateCode = 'PA',
-    PostalCode = COALESCE(NULL, t.PostalCode),
-    CountryCode = 'US',
-    Phone = COALESCE(NULL, t.Phone),
-    PublicEmail = COALESCE(NULL, t.PublicEmail),
-    WebsiteUrl = COALESCE(N'https://www.sscwhiteoak.com/', t.WebsiteUrl),
-    Latitude = COALESCE(40.3367, t.Latitude),
-    Longitude = COALESCE(-79.8093, t.Longitude),
-    SourceSystem = @Src,
-    ImportNotes = N'Directory import 2026-10-22',
-    UpdatedAt = @Now
-WHEN NOT MATCHED THEN INSERT
-    (Slug, Name, AddressLine1, City, StateCode, PostalCode, CountryCode, Phone, PublicEmail,
-     WebsiteUrl, Latitude, Longitude, CurrentTierId, ClaimStatus, ListingStatus,
-     Source, SourceRef, SourceSystem, ImportNotes, PublishedAt)
-VALUES
-    (N'steel-city-collectibles-white-oak-pa', N'Steel City Collectibles', NULL, N'White Oak',
-     'PA', NULL, 'US',
-     NULL, NULL, N'https://www.sscwhiteoak.com/',
-     40.3367, -79.8093,
-     @FreeTier, 'UNCLAIMED', 'ACTIVE', N'directory-import', N'ctca-id:93',
-     @Src, N'Directory import 2026-10-22', @Now);
-
-
-MERGE dir.Shop AS t
 USING (SELECT N'meelypops-sc-spartanburg-sc' AS Slug) AS s
 ON t.Slug = s.Slug
 WHEN MATCHED THEN UPDATE SET
@@ -1254,6 +1068,18 @@ VALUES
      35.0844, -106.6504,
      @FreeTier, 'UNCLAIMED', 'ACTIVE', N'directory-import', N'ctca-id:99',
      @Src, N'Directory import 2026-10-22', @Now);
+
+
+UPDATE dir.Shop
+SET WebsiteUrl = COALESCE(WebsiteUrl, N'https://www.burbankcards.com/'),
+    Latitude = COALESCE(Latitude, 34.1808),
+    Longitude = COALESCE(Longitude, -118.309),
+    Phone = COALESCE(Phone, NULL),
+    PublicEmail = COALESCE(PublicEmail, NULL),
+    SourceSystem = @Src,
+    ImportNotes = N'Directory import 2026-10-22 (matched existing shop via stem+city+state)',
+    UpdatedAt = @Now
+WHERE Slug = N'burbank-sportscards-burbank-ca';
 
 
 MERGE dir.Organization AS t
@@ -1917,6 +1743,39 @@ VALUES
 
 
 MERGE dir.Organization AS t
+USING (SELECT N'collector-store-mo' AS Slug) AS s
+ON t.Slug = s.Slug
+WHEN MATCHED THEN UPDATE SET
+    Name = N'Collector Store',
+    NormalizedName = N'collector store',
+    OrgType = N'MARKETPLACE',
+    AddressLine1 = NULL,
+    City = N'St. Peters',
+    StateCode = 'MO',
+    PostalCode = NULL,
+    CountryCode = 'US',
+    Latitude = 38.8003,
+    Longitude = -90.6265,
+    Phone = NULL,
+    WebsiteUrl = N'https://www.collectorstore.com/',
+    PublicEmail = NULL,
+    SourceSystem = @Src,
+    SourceRef = N'id:36',
+    ImportNotes = N'Directory import 2026-10-22',
+    ListingStatus = 'ACTIVE',
+    UpdatedAt = @Now
+WHEN NOT MATCHED THEN INSERT
+    (Slug, Name, NormalizedName, OrgType, AddressLine1, City, StateCode, PostalCode, CountryCode,
+     Latitude, Longitude, Phone, WebsiteUrl, PublicEmail, Source, SourceRef, SourceSystem, ImportNotes, ListingStatus)
+VALUES
+    (N'collector-store-mo', N'Collector Store', N'collector store', N'MARKETPLACE',
+     NULL, N'St. Peters', 'MO', NULL,
+     'US', 38.8003, -90.6265,
+     NULL, N'https://www.collectorstore.com/', NULL,
+     N'directory-import', N'id:36', @Src, N'Directory import 2026-10-22', 'ACTIVE');
+
+
+MERGE dir.Organization AS t
 USING (SELECT N'hobbycomp-nc' AS Slug) AS s
 ON t.Slug = s.Slug
 WHEN MATCHED THEN UPDATE SET
@@ -2046,6 +1905,39 @@ VALUES
      'US', 40.6782, -73.9442,
      NULL, N'https://www.sportscardnationpodcast.com/', NULL,
      N'directory-import', N'id:41', @Src, N'Directory import 2026-10-22', 'ACTIVE');
+
+
+MERGE dir.Organization AS t
+USING (SELECT N'dave-and-adam-s-card-world-ny' AS Slug) AS s
+ON t.Slug = s.Slug
+WHEN MATCHED THEN UPDATE SET
+    Name = N'Dave and Adam''s Card World',
+    NormalizedName = N'dave and adam s card world',
+    OrgType = N'MARKETPLACE',
+    AddressLine1 = NULL,
+    City = N'Buffalo',
+    StateCode = 'NY',
+    PostalCode = NULL,
+    CountryCode = 'US',
+    Latitude = 42.8864,
+    Longitude = -78.8784,
+    Phone = NULL,
+    WebsiteUrl = N'https://www.dacardworld.com/',
+    PublicEmail = NULL,
+    SourceSystem = @Src,
+    SourceRef = N'id:42',
+    ImportNotes = N'Directory import 2026-10-22',
+    ListingStatus = 'ACTIVE',
+    UpdatedAt = @Now
+WHEN NOT MATCHED THEN INSERT
+    (Slug, Name, NormalizedName, OrgType, AddressLine1, City, StateCode, PostalCode, CountryCode,
+     Latitude, Longitude, Phone, WebsiteUrl, PublicEmail, Source, SourceRef, SourceSystem, ImportNotes, ListingStatus)
+VALUES
+    (N'dave-and-adam-s-card-world-ny', N'Dave and Adam''s Card World', N'dave and adam s card world', N'MARKETPLACE',
+     NULL, N'Buffalo', 'NY', NULL,
+     'US', 42.8864, -78.8784,
+     NULL, N'https://www.dacardworld.com/', NULL,
+     N'directory-import', N'id:42', @Src, N'Directory import 2026-10-22', 'ACTIVE');
 
 
 MERGE dir.Organization AS t
@@ -2676,6 +2568,39 @@ VALUES
 
 
 MERGE dir.Organization AS t
+USING (SELECT N'midwest-cards-oh' AS Slug) AS s
+ON t.Slug = s.Slug
+WHEN MATCHED THEN UPDATE SET
+    Name = N'Midwest Cards',
+    NormalizedName = N'midwest cards',
+    OrgType = N'MARKETPLACE',
+    AddressLine1 = NULL,
+    City = N'Columbus',
+    StateCode = 'OH',
+    PostalCode = NULL,
+    CountryCode = 'US',
+    Latitude = 39.9612,
+    Longitude = -82.9988,
+    Phone = NULL,
+    WebsiteUrl = N'https://www.midwestcards.com/',
+    PublicEmail = NULL,
+    SourceSystem = @Src,
+    SourceRef = N'id:74',
+    ImportNotes = N'Directory import 2026-10-22',
+    ListingStatus = 'ACTIVE',
+    UpdatedAt = @Now
+WHEN NOT MATCHED THEN INSERT
+    (Slug, Name, NormalizedName, OrgType, AddressLine1, City, StateCode, PostalCode, CountryCode,
+     Latitude, Longitude, Phone, WebsiteUrl, PublicEmail, Source, SourceRef, SourceSystem, ImportNotes, ListingStatus)
+VALUES
+    (N'midwest-cards-oh', N'Midwest Cards', N'midwest cards', N'MARKETPLACE',
+     NULL, N'Columbus', 'OH', NULL,
+     'US', 39.9612, -82.9988,
+     NULL, N'https://www.midwestcards.com/', NULL,
+     N'directory-import', N'id:74', @Src, N'Directory import 2026-10-22', 'ACTIVE');
+
+
+MERGE dir.Organization AS t
 USING (SELECT N'private-collection-insurance-on' AS Slug) AS s
 ON t.Slug = s.Slug
 WHEN MATCHED THEN UPDATE SET
@@ -2838,6 +2763,39 @@ VALUES
      'US', 34.0522, -118.2437,
      NULL, N'https://www.arenaclub.com/', NULL,
      N'directory-import', N'id:80', @Src, N'Directory import 2026-10-22', 'ACTIVE');
+
+
+MERGE dir.Organization AS t
+USING (SELECT N'cardboard-gold-ca' AS Slug) AS s
+ON t.Slug = s.Slug
+WHEN MATCHED THEN UPDATE SET
+    Name = N'Cardboard Gold',
+    NormalizedName = N'cardboard gold',
+    OrgType = N'MARKETPLACE',
+    AddressLine1 = NULL,
+    City = N'Rancho Santa Margarita',
+    StateCode = 'CA',
+    PostalCode = NULL,
+    CountryCode = 'US',
+    Latitude = 33.6407,
+    Longitude = -117.6031,
+    Phone = NULL,
+    WebsiteUrl = N'https://www.cardboardgold.com/',
+    PublicEmail = NULL,
+    SourceSystem = @Src,
+    SourceRef = N'id:81',
+    ImportNotes = N'Directory import 2026-10-22',
+    ListingStatus = 'ACTIVE',
+    UpdatedAt = @Now
+WHEN NOT MATCHED THEN INSERT
+    (Slug, Name, NormalizedName, OrgType, AddressLine1, City, StateCode, PostalCode, CountryCode,
+     Latitude, Longitude, Phone, WebsiteUrl, PublicEmail, Source, SourceRef, SourceSystem, ImportNotes, ListingStatus)
+VALUES
+    (N'cardboard-gold-ca', N'Cardboard Gold', N'cardboard gold', N'MARKETPLACE',
+     NULL, N'Rancho Santa Margarita', 'CA', NULL,
+     'US', 33.6407, -117.6031,
+     NULL, N'https://www.cardboardgold.com/', NULL,
+     N'directory-import', N'id:81', @Src, N'Directory import 2026-10-22', 'ACTIVE');
 
 
 MERGE dir.Organization AS t
@@ -3006,6 +2964,39 @@ VALUES
 
 
 MERGE dir.Organization AS t
+USING (SELECT N'steel-city-collectibles-pa' AS Slug) AS s
+ON t.Slug = s.Slug
+WHEN MATCHED THEN UPDATE SET
+    Name = N'Steel City Collectibles',
+    NormalizedName = N'steel city collectibles',
+    OrgType = N'MARKETPLACE',
+    AddressLine1 = NULL,
+    City = N'White Oak',
+    StateCode = 'PA',
+    PostalCode = NULL,
+    CountryCode = 'US',
+    Latitude = 40.3367,
+    Longitude = -79.8093,
+    Phone = NULL,
+    WebsiteUrl = N'https://www.sscwhiteoak.com/',
+    PublicEmail = NULL,
+    SourceSystem = @Src,
+    SourceRef = N'id:93',
+    ImportNotes = N'Directory import 2026-10-22',
+    ListingStatus = 'ACTIVE',
+    UpdatedAt = @Now
+WHEN NOT MATCHED THEN INSERT
+    (Slug, Name, NormalizedName, OrgType, AddressLine1, City, StateCode, PostalCode, CountryCode,
+     Latitude, Longitude, Phone, WebsiteUrl, PublicEmail, Source, SourceRef, SourceSystem, ImportNotes, ListingStatus)
+VALUES
+    (N'steel-city-collectibles-pa', N'Steel City Collectibles', N'steel city collectibles', N'MARKETPLACE',
+     NULL, N'White Oak', 'PA', NULL,
+     'US', 40.3367, -79.8093,
+     NULL, N'https://www.sscwhiteoak.com/', NULL,
+     N'directory-import', N'id:93', @Src, N'Directory import 2026-10-22', 'ACTIVE');
+
+
+MERGE dir.Organization AS t
 USING (SELECT N'nashcards-tn' AS Slug) AS s
 ON t.Slug = s.Slug
 WHEN MATCHED THEN UPDATE SET
@@ -3135,5 +3126,5 @@ IF NOT EXISTS (
 INSERT INTO dir.ManufacturerCategoryMap (ManufacturerId, CategoryCode)
 SELECT ManufacturerId, 'SPORT' FROM dir.Manufacturer WHERE Slug = N'onit-athlete-trading-cards';
 
-PRINT 'SEED_15_ctca_members: shops_new=40 shops_matched=0 orgs=55 mfrs_new=2 mfrs_matched=1 skipped=1';
+PRINT 'SEED_15_ctca_members: shops_new=34 shops_matched=1 listings_matched=8 orgs=60 mfrs_new=2 mfrs_matched=1 skipped=1';
 

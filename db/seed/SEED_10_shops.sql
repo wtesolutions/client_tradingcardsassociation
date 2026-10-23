@@ -1523,3 +1523,31 @@ VALUES
 
 PRINT 'SEED_10_shops: 58 shops merged';
 
+
+/* QA owner: SUPERADMIN (egarrison@wte.net) owns Burbank Sportscards so /owner
+   uses the same emailed-code login as /SADMIN. Idempotent. */
+IF EXISTS (SELECT 1 FROM core.AppUser WHERE Email = N'egarrison@wte.net')
+AND EXISTS (SELECT 1 FROM dir.Shop WHERE Slug = N'burbank-sportscards-burbank-ca')
+AND NOT EXISTS (
+    SELECT 1
+    FROM dir.ShopMember m
+    JOIN core.AppUser u ON u.UserId = m.UserId
+    JOIN dir.Shop s ON s.ShopId = m.ShopId
+    WHERE u.Email = N'egarrison@wte.net'
+      AND s.Slug = N'burbank-sportscards-burbank-ca'
+      AND m.RevokedAt IS NULL)
+BEGIN
+    INSERT INTO dir.ShopMember (ShopId, UserId, MemberRole)
+    SELECT s.ShopId, u.UserId, 'OWNER'
+    FROM dir.Shop AS s
+    CROSS JOIN core.AppUser AS u
+    WHERE s.Slug = N'burbank-sportscards-burbank-ca'
+      AND u.Email = N'egarrison@wte.net';
+
+    UPDATE dir.Shop
+    SET ClaimStatus = 'CLAIMED',
+        ClaimedAt = COALESCE(ClaimedAt, SYSUTCDATETIME()),
+        UpdatedAt = SYSUTCDATETIME()
+    WHERE Slug = N'burbank-sportscards-burbank-ca';
+END
+
