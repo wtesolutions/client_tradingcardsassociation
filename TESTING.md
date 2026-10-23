@@ -350,12 +350,14 @@ dotnet run --project src/Ntca.Web -- email test --to you@example.com
 
 ```bash
 dotnet user-secrets set "GooglePlaces:ApiKey" "<KEY>" --project src/Ntca.Web
-dotnet run --project src/Ntca.Web -- places enrich --dry-run
-dotnet run --project src/Ntca.Web -- places enrich --limit 5
+dotnet run --project src/Ntca.Web -- places enrich --top 100 --dry-run
+dotnet run --project src/Ntca.Web -- places enrich --top 100 --dry-run --export ranked.csv
+dotnet run --project src/Ntca.Web -- places enrich --top 100 --limit 30
+dotnet run --project src/Ntca.Web -- places enrich --top 100 --limit 30
 dotnet run --project src/Ntca.Web -- places status
 ```
 
-- **Expected:** Dry-run prints shop counts, need-match / need-details / need-website, estimated calls, SKU names, list price and after-free-cap price. No Google HTTP. `--limit 5` is resume-safe and rate-limited (1.5s). Review leftovers at `/SADMIN/google`. See `docs/PLACES.md`.
+- **Expected:** `--top 100 --dry-run` prints a ranked list (rank, shop id, name, city/ST, featured/owner/pop/complete/nc, already enriched?) and the call/cost estimate for shops in that list that still need work. `--limit 30` processes only the first 30 not-yet-enriched of those 100; a second run resumes with the next 30. `--export ranked.csv` writes the same list. No invented score weights. See `docs/PLACES.md`.
 - **Public check after a successful enrich:** shop detail `shop-google-reviews` shows author / stars / text + “Reviews from Google”. JSON-LD still has no third-party `aggregateRating`.
 
 ---

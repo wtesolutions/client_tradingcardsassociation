@@ -87,8 +87,9 @@ public sealed class PlacesEnrichTests
     [Fact]
     public void Places_cli_parses_limit_and_max_calls()
     {
-        var args = new[] { "places", "enrich", "--limit", "5", "--max-calls", "20", "--rate-ms", "1500", "--dry-run" };
-        Assert.Equal(5, PlacesCli.ParseInt(args, "--limit"));
+        var args = new[] { "places", "enrich", "--top", "100", "--limit", "30", "--max-calls", "20", "--rate-ms", "1500", "--dry-run" };
+        Assert.Equal(100, PlacesCli.ParseInt(args, "--top"));
+        Assert.Equal(30, PlacesCli.ParseInt(args, "--limit"));
         Assert.Equal(20, PlacesCli.ParseInt(args, "--max-calls"));
         Assert.Equal(1500, PlacesCli.ParseInt(args, "--rate-ms"));
     }
@@ -136,7 +137,7 @@ public sealed class PlacesEnrichTests
         Assert.Contains("GooglePlaces:ApiKey", md);
         Assert.Contains("dotnet user-secrets set \"GooglePlaces:ApiKey\" \"<KEY>\"", md);
         Assert.Contains("GooglePlaces__ApiKey", md);
-        Assert.Contains("places enrich --dry-run", md);
+        Assert.Contains("places enrich --top 100 --dry-run", md);
         Assert.Contains("Place Details Enterprise + Atmosphere", md);
         Assert.Contains("Text Search Enterprise", md);
     }

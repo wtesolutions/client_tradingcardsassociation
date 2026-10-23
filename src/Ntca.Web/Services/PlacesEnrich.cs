@@ -31,7 +31,16 @@ public sealed record PlacesEnrichResult(
     int ReviewsSaved,
     int WebsiteFilled,
     int CallsUsed,
-    bool HitLimit);
+    bool HitLimit,
+    IReadOnlyList<PlacesRankedShop> Ranked)
+{
+    public PlacesEnrichResult(
+        bool dryRun, bool noOp, string message, PlacesEnrichPlan plan,
+        int matched, int pendingReview, int detailsSaved, int photosSaved, int reviewsSaved,
+        int websiteFilled, int callsUsed, bool hitLimit)
+        : this(dryRun, noOp, message, plan, matched, pendingReview, detailsSaved, photosSaved,
+            reviewsSaved, websiteFilled, callsUsed, hitLimit, []) { }
+}
 
 public sealed class PlacesEnrich
 {
@@ -73,7 +82,10 @@ public sealed class PlacesEnrich
         bool skipWebsite,
         long? shopId,
         bool force,
-        CancellationToken ct)
+        CancellationToken ct,
+        int? top = null,
+        string? citiesPath = null,
+        string? exportPath = null)
     {
         if (!IsConfigured)
             return NoOp("GooglePlaces:ApiKey is missing or GooglePlaces:Enabled is false. Feature is off.");
@@ -106,42 +118,76 @@ public sealed class PlacesEnrich
         }
 
         var now = DateTime.UtcNow;
-        var needMatch = new List<Shop>();
-        var needDetails = new List<(Shop Shop, GooglePlaceMatch Match)>();
-        var needWebsite = new List<Shop>();
-        foreach (var shop in shops)
+        HashSet<long> ownerIds;
+        try
+        {
+            ownerIds = (await _db.ShopMembers.AsNoTracking()
+                .Where(m => m.RevokedAt == null && m.MemberRole == "OWNER")
+                .Select(m => m.ShopId)
+                .ToListAsync(ct)).ToHashSet();
+        }
+        catch (SqlException ex) when (ex.Number is 208 or 207)
+        {
+            ownerIds = [];
+        }
+
+        var cities = UsCitiesLookup.Load(citiesPath);
+        (bool Enriched, bool NeedsMatch, bool NeedsDetails, bool NeedsWebsite) StatusOf(Shop shop)
         {
             matches.TryGetValue(shop.ShopId, out var match);
             enrichRows.TryGetValue(shop.ShopId, out var enrich);
             caches.TryGetValue(shop.ShopId, out var cache);
             var linked = match is { GooglePlaceId: not null }
                          && (match.MatchStatus is "MATCHED" or "MANUAL");
-            if (!linked)
-            {
-                if (match is null || match.MatchStatus is "UNMATCHED" || force)
-                    needMatch.Add(shop);
-                continue;
-            }
-            var detailsFresh = !force
+            var needsMatch = !linked && (match is null || match.MatchStatus is "UNMATCHED" || force);
+            var detailsFresh = linked && !force
                 && (enrich?.LastDetailsUtc is { } d && now - d < FreshTtl
                     || cache?.ExpiresUtc is { } exp && exp > now && !string.IsNullOrWhiteSpace(cache.WebsiteUri));
-            if (!detailsFresh)
-                needDetails.Add((shop, match!));
-            if (!skipWebsite)
-            {
-                var webFresh = !force && enrich?.LastWebsiteUtc is { } w && now - w < FreshTtl;
-                if (!webFresh)
-                    needWebsite.Add(shop);
-            }
+            var needsDetails = linked && !detailsFresh;
+            var webFresh = !force && enrich?.LastWebsiteUtc is { } w && now - w < FreshTtl;
+            var needsWebsite = !skipWebsite && !webFresh;
+            if (!linked)
+                needsWebsite = false;
+            var needsWork = needsMatch || needsDetails || needsWebsite;
+            return (!needsWork, needsMatch, needsDetails, needsWebsite);
+        }
+
+        IReadOnlyList<PlacesRankedShop> ranked = [];
+        if (top is > 0 || !string.IsNullOrWhiteSpace(exportPath))
+        {
+            ranked = PlacesPriority.TakeTop(
+                PlacesPriority.Rank(shops, ownerIds, cities, StatusOf),
+                top);
+            shops = ranked.Select(r => r.Shop).ToList();
+        }
+
+        var needMatch = new List<Shop>();
+        var needDetails = new List<(Shop Shop, GooglePlaceMatch Match)>();
+        var needWebsite = new List<Shop>();
+        foreach (var shop in shops)
+        {
+            var st = StatusOf(shop);
+            if (st.NeedsMatch)
+                needMatch.Add(shop);
+            if (st.NeedsDetails && matches.TryGetValue(shop.ShopId, out var match))
+                needDetails.Add((shop, match));
+            if (st.NeedsWebsite)
+                needWebsite.Add(shop);
         }
 
         if (limit is > 0)
         {
-            var workIds = needMatch.Select(s => s.ShopId)
-                .Concat(needDetails.Select(x => x.Shop.ShopId))
-                .Concat(needWebsite.Select(s => s.ShopId))
-                .Distinct()
-                .Take(limit.Value)
+            var workIds = PlacesPriority.TakeWork(
+                    ranked.Count > 0
+                        ? ranked
+                        : shops.Select(s =>
+                        {
+                            var st = StatusOf(s);
+                            return new PlacesRankedShop(0, s, PlacesPriorityParts.From(s, ownerIds.Contains(s.ShopId), 0),
+                                st.Enriched, st.NeedsMatch, st.NeedsDetails, st.NeedsWebsite);
+                        }).ToList(),
+                    limit)
+                .Select(r => r.ShopId)
                 .ToHashSet();
             needMatch = needMatch.Where(s => workIds.Contains(s.ShopId)).ToList();
             needDetails = needDetails.Where(x => workIds.Contains(x.Shop.ShopId)).ToList();
@@ -159,9 +205,17 @@ public sealed class PlacesEnrich
             needDetails.Count,
             needDetails.Count * photoSlots);
 
+        if (!string.IsNullOrWhiteSpace(exportPath) && ranked.Count > 0)
+            PlacesPriority.WriteCsv(exportPath, ranked);
+
         if (dryRun)
         {
-            return new PlacesEnrichResult(true, false, FormatDryRun(plan), plan, 0, 0, 0, 0, 0, 0, 0, false);
+            var message = FormatDryRun(plan);
+            if (ranked.Count > 0)
+                message = PlacesPriority.FormatList(ranked) + Environment.NewLine + message;
+            if (cities.Count == 0 && (top is > 0 || !string.IsNullOrWhiteSpace(exportPath)))
+                message += " City population file missing — pop=0 for every shop. Expected data/places/uscities.tsv.";
+            return new PlacesEnrichResult(true, false, message, plan, 0, 0, 0, 0, 0, 0, 0, false, ranked);
         }
 
         var used = 0;

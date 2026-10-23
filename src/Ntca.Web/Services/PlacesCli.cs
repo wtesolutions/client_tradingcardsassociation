@@ -17,16 +17,20 @@ public static class PlacesCli
         var opt = scope.ServiceProvider.GetRequiredService<IOptions<GooglePlacesOptions>>().Value;
         var dry = args.Any(a => a is "--dry-run" or "-n");
         var limit = ParseInt(args, "--limit");
+        var top = ParseInt(args, "--top");
         var maxCalls = ParseInt(args, "--max-calls");
         var rateMs = ParseInt(args, "--rate-ms") ?? PlacesEnrich.DefaultRateMs;
         var shop = ParseLong(args, "--shop");
         var skipWebsite = args.Any(a => a is "--skip-website");
         var force = args.Any(a => a is "--force");
+        var cities = ParseString(args, "--cities");
+        var export = ParseString(args, "--export");
 
         switch (verb)
         {
             case "enrich":
-                var result = await enrich.EnrichAsync(dry, limit, maxCalls, rateMs, skipWebsite, shop, force, ct);
+                var result = await enrich.EnrichAsync(
+                    dry, limit, maxCalls, rateMs, skipWebsite, shop, force, ct, top, cities, export);
                 Console.WriteLine(result.Message);
                 Console.WriteLine(
                     $"plan shops={result.Plan.ShopsTotal} withPlaceId={result.Plan.WithPlaceId} needMatch={result.Plan.NeedMatch} "
@@ -72,7 +76,7 @@ public static class PlacesCli
     public static int Help()
     {
         Console.WriteLine("Usage:");
-        Console.WriteLine("  places enrich [--dry-run] [--limit N] [--max-calls N] [--rate-ms 1500] [--skip-website] [--shop ID] [--force]");
+        Console.WriteLine("  places enrich [--dry-run] [--top N] [--limit N] [--export ranked.csv] [--cities path] [--max-calls N] [--rate-ms 1500] [--skip-website] [--shop ID] [--force]");
         Console.WriteLine("  places refresh [--dry-run] [--limit N] [--shop ID]");
         Console.WriteLine("  places status");
         Console.WriteLine("Local CLI only. Key: GooglePlaces:ApiKey (user-secrets or GooglePlaces__ApiKey). Never committed.");
@@ -86,6 +90,16 @@ public static class PlacesCli
             if (string.Equals(args[i], name, StringComparison.OrdinalIgnoreCase)
                 && int.TryParse(args[i + 1], out var n))
                 return n;
+        }
+        return null;
+    }
+
+    public static string? ParseString(string[] args, string name)
+    {
+        for (var i = 0; i < args.Length - 1; i++)
+        {
+            if (string.Equals(args[i], name, StringComparison.OrdinalIgnoreCase))
+                return args[i + 1];
         }
         return null;
     }

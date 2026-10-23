@@ -36,14 +36,17 @@ If Google tables are missing, run `db/05_google_places.sql` first.
 From the repo root, Development environment (same connection string as `dotnet run`):
 
 ```bash
-# How many shops, how many need a Place ID, estimated calls + cost. No Google calls.
-dotnet run --project src/Ntca.Web -- places enrich --dry-run
+# Ranked top 100 (no Google calls). Prints rank / shop / score parts / already enriched? plus call+cost for those not yet enriched.
+dotnet run --project src/Ntca.Web -- places enrich --top 100 --dry-run
 
-# First small real run (5 shops that still need work).
-dotnet run --project src/Ntca.Web -- places enrich --limit 5
+# Optional CSV of that ranked list.
+dotnet run --project src/Ntca.Web -- places enrich --top 100 --dry-run --export ranked.csv
 
-# Full run (honors DailyCallLimit 300 / MonthlyCallLimit 3000 and --max-calls).
-dotnet run --project src/Ntca.Web -- places enrich
+# First 30 of the top 100 that still need work.
+dotnet run --project src/Ntca.Web -- places enrich --top 100 --limit 30
+
+# Next 30 (resume: already-enriched shops are skipped).
+dotnet run --project src/Ntca.Web -- places enrich --top 100 --limit 30
 
 # Counts + remaining quota.
 dotnet run --project src/Ntca.Web -- places status
@@ -52,9 +55,22 @@ dotnet run --project src/Ntca.Web -- places status
 dotnet run --project src/Ntca.Web -- places refresh --dry-run
 ```
 
-Useful flags: `--rate-ms 1500` (default), `--max-calls N`, `--skip-website`, `--shop ID`, `--force` (redo fresh rows), `--dry-run` / `-n`.
+Useful flags: `--rate-ms 1500` (default), `--max-calls N`, `--skip-website`, `--shop ID`, `--force` (redo fresh rows), `--cities path` (override TSV), `--dry-run` / `-n`.
 
-Resume: `dir.ShopPlaceEnrich` stores last match / details / website timestamps. Re-runs skip combos younger than 30 days unless `--force`. Low-confidence matches stay `PENDING_REVIEW` and are not retried until staff acts in `/SADMIN/google`.
+Resume: `dir.ShopPlaceEnrich` stores last match / details / website timestamps. Re-runs skip combos younger than 30 days unless `--force`. `--top 100 --limit 30` therefore picks the next unfinished shops on the same ranked list. Low-confidence matches stay `PENDING_REVIEW` and are not retried until staff acts in `/SADMIN/google`.
+
+## Priority (`--top`)
+
+No invented numeric weights. Shops are sorted lexicographically on real fields, then `--top N` keeps the first N ACTIVE shops:
+
+1. **Editorial Featured** (`dir.Shop.IsEditorialFeatured`) — Hobby Tyme first today
+2. **Verified owner** — `ClaimStatus = CLAIMED` or an unrevoked `dir.ShopMember` with `MemberRole = OWNER`
+3. **Metro population** of the shop’s city+state, descending. NTCA SQL has no city-population table; values come from `data/places/uscities.tsv` ([SimpleMaps US Cities Basic](https://simplemaps.com/data/us-cities), **CC BY 4.0**). Column used: `population` (metro), joined on `city`/`city_ascii` + `state_id`. Missing city → `0`
+4. **Listing completeness** — count of website / phone / street address / coordinates that are already filled (0–4)
+5. **NC before other states**
+6. **ShopId** ascending (stable)
+
+`--limit M` then takes the first M of that list that still need match, details, or website work.
 
 ## What enrich does
 
