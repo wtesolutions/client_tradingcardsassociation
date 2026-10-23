@@ -36,7 +36,7 @@ cd db
 SSMS: Query → SQLCMD Mode, then open `db/NTCA_FULL_INSTALL.sql` and:
 
 ```
-:setvar NtcaDatabase NTCA
+:setvar NtcaDatabase wte_NtcaDatabase
 :setvar NtcaAppLogin ntca_app
 :setvar NtcaAppPassword YourAppPasswordHere
 ```
@@ -48,7 +48,7 @@ SSMS: Query → SQLCMD Mode, then open `db/NTCA_FULL_INSTALL.sql` and:
 ```bash
 cd src/Ntca.Web
 dotnet user-secrets set ConnectionStrings:DefaultConnection \
-  "Server=localhost,1433;Database=NTCA;User ID=ntca_app;Password=NtcaAppDev2026x;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Application Name=Ntca.Web"
+  "Server=localhost,1433;Database=wte_NtcaDatabase;User ID=ntca_app;Password=NtcaAppDev2026x;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Application Name=Ntca.Web"
 ```
 
 Optional SocketLabs (login codes + signup confirmations from `reports@wte.net`):

@@ -36,25 +36,25 @@ From a workstation or the IIS box that can reach HAMMER (Windows auth as a DBA):
 
 ```bat
 cd db
-run_all.cmd -S HAMMER -E -v NtcaDatabase=NTCA -v NtcaAppPassword="***"
+run_all.cmd -S HAMMER -E -v NtcaAppPassword="***"
 ```
 
 Or each file in SSMS with **Query → SQLCMD Mode**, then:
 
 ```
-:setvar NtcaDatabase NTCA
+:setvar NtcaDatabase wte_NtcaDatabase
 :setvar NtcaAppPassword ***
 :r 00_create_database.sql
 ```
 
-Database name defaults to **`NTCA`**. Architecture plan also mentioned `NTCADirectory` — pass `-v NtcaDatabase=NTCADirectory` if Eric prefers that. Decide once; IIS connection strings must match.
+Database name defaults to **`wte_NtcaDatabase`**. Override with `-v NtcaDatabase=OtherName` if needed. IIS connection strings must match.
 
 ## App connection string (placeholder — password not in git)
 
 Set on the IIS app pool as `ConnectionStrings__DefaultConnection` (or the server secret store). Never commit the password.
 
 ```
-Server=HAMMER,1433;Database=NTCA;User ID=ntca_app;Password=***REPLACE***;
+Server=HAMMER,1433;Database=wte_NtcaDatabase;User ID=ntca_app;Password=***REPLACE***;
 Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Application Name=Ntca.Web
 ```
 

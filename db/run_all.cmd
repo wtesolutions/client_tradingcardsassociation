@@ -15,7 +15,7 @@ set SQLCMD=sqlcmd
 if exist "%ProgramFiles%\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\SQLCMD.EXE" set SQLCMD=%ProgramFiles%\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\SQLCMD.EXE
 
 REM Defaults first; any -v in ORIG overrides.
-set EXTRA=-v NtcaDatabase=NTCA -v NtcaAppLogin=ntca_app -v NtcaMigratorLogin=ntca_migrator -v NtcaMigratorPassword=__SKIP__
+set EXTRA=-v NtcaDatabase=wte_NtcaDatabase -v NtcaAppLogin=ntca_app -v NtcaMigratorLogin=ntca_migrator -v NtcaMigratorPassword=__SKIP__
 
 call :run 00_create_database.sql
 if errorlevel 1 exit /b 1

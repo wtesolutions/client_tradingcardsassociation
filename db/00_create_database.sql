@@ -1,15 +1,15 @@
 /* Create the NTCA database if it does not exist.
-   Required sqlcmd variable: NtcaDatabase (run_all passes NTCA).
+   Required sqlcmd variable: NtcaDatabase (run_all defaults to wte_NtcaDatabase).
    Optional: NtcaRecovery = FULL (default) or SIMPLE for local Docker.
 
-   sqlcmd -S HAMMER -E -i 00_create_database.sql -v NtcaDatabase=NTCA
+   sqlcmd -S HAMMER -E -i 00_create_database.sql -v NtcaDatabase=wte_NtcaDatabase
 */
 :on error exit
 
 IF LEN(N'$(NtcaDatabase)') = 0
    OR N'$(NtcaDatabase)' = N'$' + N'(NtcaDatabase)'
 BEGIN
-    RAISERROR('NtcaDatabase was not supplied. Pass -v NtcaDatabase=NTCA (or NTCADirectory).', 16, 1);
+    RAISERROR('NtcaDatabase was not supplied. Pass -v NtcaDatabase=wte_NtcaDatabase.', 16, 1);
     RETURN;
 END
 GO

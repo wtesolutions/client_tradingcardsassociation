@@ -69,7 +69,7 @@ While `core.SiteSetting` `Site:Mode` = `Preview` (or ASPNETCORE_ENVIRONMENT != P
 Runtime (Web + API app pools) uses **only** `ntca_app`:
 
 ```
-Server=HAMMER,1433;Database=NTCA;User ID=ntca_app;Password=***;
+Server=HAMMER,1433;Database=wte_NtcaDatabase;User ID=ntca_app;Password=***;
 Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True
 ```
 

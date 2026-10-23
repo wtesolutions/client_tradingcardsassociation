@@ -18,7 +18,7 @@
                   hostingModel="inprocess">
         <environmentVariables>
           <!-- Secrets live on the server / app pool, never in git.
-               ConnectionStrings__DefaultConnection=Server=HAMMER;Database=NTCA;User ID=ntca_app;Password=***;Encrypt=True;TrustServerCertificate=True -->
+               ConnectionStrings__DefaultConnection=Server=HAMMER;Database=wte_NtcaDatabase;User ID=ntca_app;Password=***;Encrypt=True;TrustServerCertificate=True -->
         </environmentVariables>
       </aspNetCore>
       <httpProtocol>

@@ -12,7 +12,7 @@ This file describes what is **actually on the branch**. Update it at the end of 
 
 | Script | Role |
 |---|---|
-| `db/00_create_database.sql` | Creates `NTCA` if missing |
+| `db/00_create_database.sql` | Creates `wte_NtcaDatabase` if missing |
 | `db/01_schema.sql` | Assembled, **re-runnable** schema (`IF NOT EXISTS` / `CREATE OR ALTER`) |
 | `db/02_seed.sql` | Lookup MERGE (roles, shop tiers, features, site settings, QA SUPERADMIN) |
 | `db/03_app_login.sql` | Least-privilege `ntca_app` login; `EXECUTE` on app schemas including `analytics` |
@@ -25,7 +25,7 @@ This file describes what is **actually on the branch**. Update it at the end of 
 | `db/tools/generate_seed.py` | `--schema-only` rebuilds `01_schema.sql` without rewriting seed docs |
 | `db/tools/generate_combined.py` | Writes `run_all.sql` + `NTCA_FULL_INSTALL.sql` |
 
-**Seed files and live counts** (Docker NTCA after a full `run_all`; second apply is idempotent):
+**Seed files and live counts** (Docker SQL after a full `run_all` into `wte_NtcaDatabase`; second apply is idempotent):
 
 | File | What it loads | Live / documented count |
 |---|---|---|
@@ -271,7 +271,7 @@ A second `run_all` is safe. `$(NtcaAppPassword)` is required. `NtcaMigratorPassw
 SSMS / Azure Data Studio: enable SQLCMD Mode, open `db/NTCA_FULL_INSTALL.sql`:
 
 ```
-:setvar NtcaDatabase NTCA
+:setvar NtcaDatabase wte_NtcaDatabase
 :setvar NtcaAppLogin ntca_app
 :setvar NtcaAppPassword NtcaAppDev2026x
 ```
@@ -281,7 +281,7 @@ SSMS / Azure Data Studio: enable SQLCMD Mode, open `db/NTCA_FULL_INSTALL.sql`:
 ```bash
 cd src/Ntca.Web
 dotnet user-secrets set ConnectionStrings:DefaultConnection \
-  "Server=localhost,1433;Database=NTCA;User ID=ntca_app;Password=NtcaAppDev2026x;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Application Name=Ntca.Web"
+  "Server=localhost,1433;Database=wte_NtcaDatabase;User ID=ntca_app;Password=NtcaAppDev2026x;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Application Name=Ntca.Web"
 ```
 
 Optional SocketLabs (otherwise console + `App_Data/mail/`):

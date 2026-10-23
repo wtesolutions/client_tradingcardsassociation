@@ -3,7 +3,7 @@
 # Usage:
 #   ./run_all.sh -S localhost,1433 -U sa -P 'Your_sa_Password1' \
 #       -v NtcaAppPassword='App_Password_Here_1'
-# Optional extra -v NtcaMigratorPassword=...  -v NtcaDatabase=NTCADirectory
+# Optional extra -v NtcaMigratorPassword=...  -v NtcaDatabase=OtherName
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
@@ -22,7 +22,7 @@ fi
 
 # Defaults the scripts require. Caller's -v later on the command line wins in some
 # sqlcmd builds; we also pass them explicitly so a bare run has a name.
-EXTRA=(-v NtcaDatabase=NTCA -v NtcaAppLogin=ntca_app -v NtcaMigratorLogin=ntca_migrator -v NtcaMigratorPassword=__SKIP__)
+EXTRA=(-v NtcaDatabase=wte_NtcaDatabase -v NtcaAppLogin=ntca_app -v NtcaMigratorLogin=ntca_migrator -v NtcaMigratorPassword=__SKIP__)
 ARGS=("$@")
 
 run() {

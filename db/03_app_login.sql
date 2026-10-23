@@ -1,5 +1,5 @@
 /* Least-privilege SQL Server logins for the NTCA app (IIS / ASP.NET Core).
-   Required:  -v NtcaAppPassword=...   -v NtcaDatabase=NTCA
+   Required:  -v NtcaAppPassword=...   -v NtcaDatabase=wte_NtcaDatabase
    Optional:  -v NtcaMigratorPassword=...  (creates ntca_migrator with DDL)
               -v NtcaAppLogin=ntca_app
               -v NtcaMigratorLogin=ntca_migrator
@@ -7,7 +7,7 @@
    Passwords MUST NOT be committed. This script fails if NtcaAppPassword is empty.
 
    HAMMER (Windows auth DBA session):
-     sqlcmd -S HAMMER -E -i 03_app_login.sql -v NtcaDatabase=NTCA -v NtcaAppPassword="***"
+     sqlcmd -S HAMMER -E -i 03_app_login.sql -v NtcaDatabase=wte_NtcaDatabase -v NtcaAppPassword="***"
 
    CHECK_POLICY = ON. Login is db_datareader + db_datawriter + EXECUTE on app
    schemas. Not db_owner, no CREATE TABLE.
@@ -16,7 +16,7 @@
 
 IF LEN(N'$(NtcaDatabase)') = 0 OR N'$(NtcaDatabase)' = N'$' + N'(NtcaDatabase)'
 BEGIN
-    RAISERROR('NtcaDatabase was not supplied. Pass -v NtcaDatabase=NTCA.', 16, 1);
+    RAISERROR('NtcaDatabase was not supplied. Pass -v NtcaDatabase=wte_NtcaDatabase.', 16, 1);
     RETURN;
 END
 IF LEN(N'$(NtcaAppPassword)') = 0 OR N'$(NtcaAppPassword)' = N'$' + N'(NtcaAppPassword)'
