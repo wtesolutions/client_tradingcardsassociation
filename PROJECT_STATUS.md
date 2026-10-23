@@ -18,7 +18,8 @@ This file describes what is **actually on the branch**. Update it at the end of 
 | `db/03_app_login.sql` | Least-privilege `ntca_app` login; `EXECUTE` on app schemas including `analytics` |
 | `db/run_all.sql` | sqlcmd `:r` chain |
 | `db/run_all.sh` / `db/run_all.cmd` | Apply 00 → 01 → 02 → `SEED_*` → 03; default `NtcaMigratorPassword=__SKIP__` |
-| `db/NTCA_FULL_INSTALL.sql` | Same chain inlined for SSMS SQLCMD Mode |
+| `db/NTCA_FULL_INSTALL.sql` | Same chain inlined for SSMS SQLCMD Mode (`wte_NtcaDatabase` / `NtcaAppDev2026x` defaults) |
+| `db/ssms/NTCA_FULL_INSTALL_SSMS.sql` | Plain T-SQL (no SQLCMD Mode); same defaults |
 | `db/source/ntca_schema.original.sql` | v1 tables |
 | `db/source/01_schema_additions.sql` | crm/cms/seo, owner hours/stats, industry figures, analytics impressions + **AI concierge** (`AgentUaRule` / `AgentVisit` / `AgentInquiry`) |
 | `db/source/01_schema_directory_calendar.sql` | Manufacturers, orgs, promoters, venues, exhibitors |

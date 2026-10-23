@@ -1,17 +1,13 @@
 #!/usr/bin/env bash
 # Apply NTCA database scripts with sqlcmd.
 # Usage:
-#   ./run_all.sh -S localhost,1433 -U sa -P 'Your_sa_Password1' \
-#       -v NtcaAppPassword='App_Password_Here_1'
-# Optional extra -v NtcaMigratorPassword=...  -v NtcaDatabase=OtherName
+#   ./run_all.sh -S localhost,1433 -U sa -P 'Your_sa_Password1' -C
+# Defaults (DEV ONLY — change for production):
+#   NtcaDatabase=wte_NtcaDatabase  NtcaAppLogin=ntca_app
+#   NtcaAppPassword=NtcaAppDev2026x
+# Optional: -v NtcaMigratorPassword=...  -v NtcaDatabase=OtherName
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
-
-if [[ " $* " != *" NtcaAppPassword="* && " $* " != *" NtcaAppPassword = "* ]]; then
-  echo "ERROR: pass -v NtcaAppPassword=... (do not commit the password)." >&2
-  echo "Example: $0 -S localhost,1433 -U sa -P '...' -C -v NtcaAppPassword='...'" >&2
-  exit 1
-fi
 
 SQLCMD=(sqlcmd)
 if command -v /opt/mssql-tools18/bin/sqlcmd >/dev/null 2>&1; then
@@ -22,7 +18,8 @@ fi
 
 # Defaults the scripts require. Caller's -v later on the command line wins in some
 # sqlcmd builds; we also pass them explicitly so a bare run has a name.
-EXTRA=(-v NtcaDatabase=wte_NtcaDatabase -v NtcaAppLogin=ntca_app -v NtcaMigratorLogin=ntca_migrator -v NtcaMigratorPassword=__SKIP__)
+# DEV ONLY — change NtcaAppPassword for production.
+EXTRA=(-v NtcaDatabase=wte_NtcaDatabase -v NtcaAppLogin=ntca_app -v NtcaAppPassword=NtcaAppDev2026x -v NtcaMigratorLogin=ntca_migrator -v NtcaMigratorPassword=__SKIP__)
 ARGS=("$@")
 
 run() {

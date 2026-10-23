@@ -1,3 +1,7 @@
+/* SSMS: enable Query > SQLCMD Mode before running.
+   ':' directives (:on error, :setvar, :r) and $(vars) fail if SQLCMD Mode is off.
+   Plain T-SQL (no SQLCMD Mode): db/ssms/NTCA_FULL_INSTALL_SSMS.sql
+*/
 /* Least-privilege SQL Server logins for the NTCA app (IIS / ASP.NET Core).
    Required:  -v NtcaAppPassword=...   -v NtcaDatabase=wte_NtcaDatabase
    Optional:  -v NtcaMigratorPassword=...  (creates ntca_migrator with DDL)

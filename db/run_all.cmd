@@ -1,21 +1,17 @@
 @echo off
 REM Apply NTCA database scripts with sqlcmd (SSMS SQLCMD mode or cmd).
-REM Example:
-REM   run_all.cmd -S HAMMER -E -v NtcaAppPassword="***"
-REM   run_all.cmd -S localhost,1433 -U sa -P "..." -C -v NtcaAppPassword="***"
+REM Example: run_all.cmd -S HAMMER -E
+REM          run_all.cmd -S localhost,1433 -U sa -P "..." -C
+REM DEV ONLY default password NtcaAppDev2026x — change for production.
 setlocal
 set DIR=%~dp0
 set ORIG=%*
-echo %ORIG% | find /I "NtcaAppPassword=" >nul
-if errorlevel 1 (
-  echo ERROR: pass -v NtcaAppPassword=...  Do not commit the password.
-  exit /b 1
-)
 set SQLCMD=sqlcmd
 if exist "%ProgramFiles%\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\SQLCMD.EXE" set SQLCMD=%ProgramFiles%\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\SQLCMD.EXE
 
 REM Defaults first; any -v in ORIG overrides.
-set EXTRA=-v NtcaDatabase=wte_NtcaDatabase -v NtcaAppLogin=ntca_app -v NtcaMigratorLogin=ntca_migrator -v NtcaMigratorPassword=__SKIP__
+REM DEV ONLY — change NtcaAppPassword for production.
+set EXTRA=-v NtcaDatabase=wte_NtcaDatabase -v NtcaAppLogin=ntca_app -v NtcaAppPassword=NtcaAppDev2026x -v NtcaMigratorLogin=ntca_migrator -v NtcaMigratorPassword=__SKIP__
 
 call :run 00_create_database.sql
 if errorlevel 1 exit /b 1

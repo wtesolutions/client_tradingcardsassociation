@@ -1,3 +1,7 @@
+/* SSMS: enable Query > SQLCMD Mode before running.
+   ':' directives (:on error, :setvar, :r) and $(vars) fail if SQLCMD Mode is off.
+   Plain T-SQL (no SQLCMD Mode): db/ssms/NTCA_FULL_INSTALL_SSMS.sql
+*/
 /* Staff-authored from the Oct 22, 2026 Gary Vaynerchuk dossier (WTE / NTCA).
    Facts only. Short quotes are attributed. No invented dates or appearances.
    Calendar: no upcoming card-show row — the dossier found no confirmed

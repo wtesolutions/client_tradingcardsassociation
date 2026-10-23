@@ -1,14 +1,12 @@
-/* One-shot sqlcmd apply. Requires SQLCMD mode (sqlcmd.exe or SSMS Query → SQLCMD Mode).
-   cd db
-   sqlcmd -S localhost,1433 -U sa -P "..." -C -I -i run_all.sql `
-     -v NtcaDatabase=wte_NtcaDatabase -v NtcaAppLogin=ntca_app `
-     -v NtcaAppPassword="..."
-   Optional: -v NtcaMigratorPassword=...
-   $(NtcaAppPassword) is required by 03_app_login.sql.
-   Default database name is wte_NtcaDatabase (set below; -v overrides login/db only if you omit :setvar).
+/* SSMS: enable Query > SQLCMD Mode before running.
+   ':' directives (:on error, :setvar, :r) and $(vars) fail if SQLCMD Mode is off.
+   Plain T-SQL (no SQLCMD Mode): db/ssms/NTCA_FULL_INSTALL_SSMS.sql
+   sqlcmd -S localhost,1433 -U sa -P "..." -C -I -i run_all.sql -v NtcaAppPassword="..."
+   Default database: wte_NtcaDatabase.
 */
 :setvar NtcaDatabase wte_NtcaDatabase
 :setvar NtcaAppLogin ntca_app
+:setvar NtcaAppPassword NtcaAppDev2026x
 :on error exit
 
 :r 00_create_database.sql

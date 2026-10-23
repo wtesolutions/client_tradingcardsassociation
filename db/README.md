@@ -2,6 +2,8 @@
 
 Ordered, idempotent where it matters, runnable with **sqlcmd** (command line or SSMS SQLCMD mode).
 
+**SSMS without SQLCMD Mode:** execute `db/ssms/NTCA_FULL_INSTALL_SSMS.sql` (plain T-SQL, database `wte_NtcaDatabase`, login `ntca_app` / `NtcaAppDev2026x` — DEV ONLY).
+
 Target: Microsoft SQL Server 2019+ on WTE **HAMMER**. Validated in this branch against `mcr.microsoft.com/mssql/server:2022-latest`.
 
 ## Order

@@ -1,3 +1,7 @@
+/* SSMS: enable Query > SQLCMD Mode before running.
+   ':' directives (:on error, :setvar, :r) and $(vars) fail if SQLCMD Mode is off.
+   Plain T-SQL (no SQLCMD Mode): db/ssms/NTCA_FULL_INSTALL_SSMS.sql
+*/
 /* Create the NTCA database if it does not exist.
    Required sqlcmd variable: NtcaDatabase (run_all defaults to wte_NtcaDatabase).
    Optional: NtcaRecovery = FULL (default) or SIMPLE for local Docker.

@@ -1,3 +1,7 @@
+/* SSMS: enable Query > SQLCMD Mode before running.
+   ':' directives (:on error, :setvar, :r) and $(vars) fail if SQLCMD Mode is off.
+   Plain T-SQL (no SQLCMD Mode): db/ssms/NTCA_FULL_INSTALL_SSMS.sql
+*/
 /* Assembled by db/tools/generate_seed.py from
    db/source/ntca_schema.original.sql + db/source/01_schema_additions.sql
    + db/source/01_schema_directory_calendar.sql

@@ -1,3 +1,7 @@
+/* SSMS: enable Query > SQLCMD Mode before running assembled db/01_schema.sql.
+   This source file is assembled — do not run it alone.
+   Plain T-SQL: db/ssms/01_schema_SSMS.sql or db/ssms/NTCA_FULL_INSTALL_SSMS.sql
+*/
 /* =====================================================================
    NTCA schema additions (architecture plan §8 / §12 + SEO discovery)
    Applied after the v1 36-table script. Draft 2026-10-23.

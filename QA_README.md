@@ -33,7 +33,9 @@ cd db
   -v NtcaAppPassword='NtcaAppDev2026x'
 ```
 
-SSMS: Query → SQLCMD Mode, then open `db/NTCA_FULL_INSTALL.sql` and:
+SSMS **without** SQLCMD Mode: open `db/ssms/NTCA_FULL_INSTALL_SSMS.sql` and Execute (database `wte_NtcaDatabase`, login `ntca_app` / `NtcaAppDev2026x` — DEV ONLY).
+
+SSMS with SQLCMD Mode: open `db/NTCA_FULL_INSTALL.sql` (defaults already set) or:
 
 ```
 :setvar NtcaDatabase wte_NtcaDatabase
