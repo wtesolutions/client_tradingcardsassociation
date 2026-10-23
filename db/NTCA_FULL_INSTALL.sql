@@ -37,7 +37,10 @@ ELSE
 GO
 
 ALTER DATABASE [$(NtcaDatabase)] SET RECOVERY FULL;
-ALTER DATABASE [$(NtcaDatabase)] SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;
+IF NOT EXISTS (
+    SELECT 1 FROM sys.databases
+    WHERE name = N'$(NtcaDatabase)' AND is_read_committed_snapshot_on = 1)
+    ALTER DATABASE [$(NtcaDatabase)] SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;
 ALTER DATABASE [$(NtcaDatabase)] SET ALLOW_SNAPSHOT_ISOLATION ON;
 ALTER DATABASE [$(NtcaDatabase)] SET AUTO_CREATE_STATISTICS ON;
 ALTER DATABASE [$(NtcaDatabase)] SET AUTO_UPDATE_STATISTICS ON;
@@ -51,6 +54,7 @@ GO
 /* Assembled by db/tools/generate_seed.py from
    db/source/ntca_schema.original.sql + db/source/01_schema_additions.sql
    + db/source/01_schema_directory_calendar.sql
+   Idempotent: CREATE SCHEMA/TABLE/INDEX guarded; views/procs CREATE OR ALTER.
    Do not edit 01_schema.sql by hand; change the source files and re-run.
 */
 :on error exit
@@ -76,26 +80,34 @@ SET CONCAT_NULL_YIELDS_NULL ON;
 SET NUMERIC_ROUNDABORT OFF;
 GO
 
-CREATE SCHEMA core;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'core')
+    EXEC(N'CREATE SCHEMA core');
 GO
-CREATE SCHEMA dir;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'dir')
+    EXEC(N'CREATE SCHEMA dir');
 GO
-CREATE SCHEMA bill;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'bill')
+    EXEC(N'CREATE SCHEMA bill');
 GO
-CREATE SCHEMA mkt;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'mkt')
+    EXEC(N'CREATE SCHEMA mkt');
 GO
-CREATE SCHEMA feed;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'feed')
+    EXEC(N'CREATE SCHEMA feed');
 GO
-CREATE SCHEMA ugc;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'ugc')
+    EXEC(N'CREATE SCHEMA ugc');
 GO
-CREATE SCHEMA karma;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'karma')
+    EXEC(N'CREATE SCHEMA karma');
 GO
 
 /* =====================================================================
    1. USERS / PROFILES
    ===================================================================== */
-CREATE TABLE core.AppUser
-(
+IF OBJECT_ID(N'core.AppUser', N'U') IS NULL
+BEGIN
+CREATE TABLE core.AppUser (
     UserId           BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AppUser PRIMARY KEY,
     PublicId         UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_AppUser_PublicId DEFAULT NEWSEQUENTIALID(),
     Email            NVARCHAR(320)  NOT NULL,
@@ -115,10 +127,12 @@ CREATE TABLE core.AppUser
     CONSTRAINT CK_AppUser_Status CHECK (AccountStatus IN ('ACTIVE','SUSPENDED','BANNED','DELETED')),
     CONSTRAINT CK_AppUser_KarmaStatus CHECK (KarmaStatus IN ('NORMAL','PROBATION','FROZEN'))
 );
+END
 GO
 
-CREATE TABLE core.UserProfile
-(
+IF OBJECT_ID(N'core.UserProfile', N'U') IS NULL
+BEGIN
+CREATE TABLE core.UserProfile (
     UserId           BIGINT         NOT NULL CONSTRAINT PK_UserProfile PRIMARY KEY
                                     CONSTRAINT FK_UserProfile_User REFERENCES core.AppUser(UserId),
     Bio              NVARCHAR(1000) NULL,
@@ -130,24 +144,28 @@ CREATE TABLE core.UserProfile
     ShowBadges       BIT            NOT NULL CONSTRAINT DF_UserProfile_ShowBadges DEFAULT 1,
     UpdatedAt        DATETIME2(3)   NOT NULL CONSTRAINT DF_UserProfile_UpdatedAt DEFAULT SYSUTCDATETIME()
 );
+END
 GO
 
 -- Suggested: site roles (moderator/admin) kept separate from shop roles
-CREATE TABLE core.UserRole
-(
+IF OBJECT_ID(N'core.UserRole', N'U') IS NULL
+BEGIN
+CREATE TABLE core.UserRole (
     UserId    BIGINT       NOT NULL CONSTRAINT FK_UserRole_User REFERENCES core.AppUser(UserId),
     RoleCode  VARCHAR(20)  NOT NULL,
     GrantedAt DATETIME2(3) NOT NULL CONSTRAINT DF_UserRole_GrantedAt DEFAULT SYSUTCDATETIME(),
     CONSTRAINT PK_UserRole PRIMARY KEY (UserId, RoleCode),
     CONSTRAINT CK_UserRole_Code CHECK (RoleCode IN ('SUPERADMIN','ADMIN','MODERATOR','EDITOR'))
 );
+END
 GO
 
 /* =====================================================================
    2. SHOP DIRECTORY + THREE TIERS (entitlements as data)
    ===================================================================== */
-CREATE TABLE dir.ShopTier
-(
+IF OBJECT_ID(N'dir.ShopTier', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ShopTier (
     TierId            TINYINT       NOT NULL CONSTRAINT PK_ShopTier PRIMARY KEY,
     TierCode          VARCHAR(20)   NOT NULL,
     Name              NVARCHAR(50)  NOT NULL,
@@ -158,28 +176,34 @@ CREATE TABLE dir.ShopTier
     CONSTRAINT UQ_ShopTier_Code UNIQUE (TierCode),
     CONSTRAINT CK_ShopTier_Price CHECK (ISNULL(MonthlyPriceCents,0) >= 0 AND ISNULL(AnnualPriceCents,0) >= 0)
 );
+END
 GO
 
-CREATE TABLE dir.Feature
-(
+IF OBJECT_ID(N'dir.Feature', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.Feature (
     FeatureCode  VARCHAR(50)   NOT NULL CONSTRAINT PK_Feature PRIMARY KEY,
     Name         NVARCHAR(100) NOT NULL,
     Description  NVARCHAR(400) NULL
 );
+END
 GO
 
-CREATE TABLE dir.TierFeature
-(
+IF OBJECT_ID(N'dir.TierFeature', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.TierFeature (
     TierId       TINYINT     NOT NULL CONSTRAINT FK_TierFeature_Tier REFERENCES dir.ShopTier(TierId),
     FeatureCode  VARCHAR(50) NOT NULL CONSTRAINT FK_TierFeature_Feature REFERENCES dir.Feature(FeatureCode),
     IsEnabled    BIT         NOT NULL CONSTRAINT DF_TierFeature_IsEnabled DEFAULT 1,
     LimitValue   INT         NULL,     -- e.g. campaigns/month; NULL = unlimited
     CONSTRAINT PK_TierFeature PRIMARY KEY (TierId, FeatureCode)
 );
+END
 GO
 
-CREATE TABLE dir.Shop
-(
+IF OBJECT_ID(N'dir.Shop', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.Shop (
     ShopId            BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Shop PRIMARY KEY,
     PublicId          UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_Shop_PublicId DEFAULT NEWSEQUENTIALID(),
     Slug              NVARCHAR(120)  NOT NULL,
@@ -221,15 +245,20 @@ CREATE TABLE dir.Shop
     CONSTRAINT CK_Shop_Lat CHECK (Latitude  IS NULL OR Latitude  BETWEEN -90  AND 90),
     CONSTRAINT CK_Shop_Lng CHECK (Longitude IS NULL OR Longitude BETWEEN -180 AND 180)
 );
+END
 GO
-CREATE INDEX IX_Shop_State_City ON dir.Shop (StateCode, City) INCLUDE (Name, CurrentTierId, ListingStatus);
-CREATE INDEX IX_Shop_Published  ON dir.Shop (PublishedAt) WHERE ListingStatus = 'ACTIVE';
-CREATE INDEX IX_Shop_Tier       ON dir.Shop (CurrentTierId, ClaimStatus);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Shop_State_City' AND object_id = OBJECT_ID(N'dir.Shop'))
+    CREATE INDEX IX_Shop_State_City ON dir.Shop (StateCode, City) INCLUDE (Name, CurrentTierId, ListingStatus);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Shop_Published' AND object_id = OBJECT_ID(N'dir.Shop'))
+    CREATE INDEX IX_Shop_Published  ON dir.Shop (PublishedAt) WHERE ListingStatus = 'ACTIVE';
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Shop_Tier' AND object_id = OBJECT_ID(N'dir.Shop'))
+    CREATE INDEX IX_Shop_Tier       ON dir.Shop (CurrentTierId, ClaimStatus);
 GO
 
 -- Shop owners / managers (result of an approved claim). Used to block self-karma.
-CREATE TABLE dir.ShopMember
-(
+IF OBJECT_ID(N'dir.ShopMember', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ShopMember (
     ShopMemberId    BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopMember PRIMARY KEY,
     ShopId          BIGINT       NOT NULL CONSTRAINT FK_ShopMember_Shop REFERENCES dir.Shop(ShopId),
     UserId          BIGINT       NOT NULL CONSTRAINT FK_ShopMember_User REFERENCES core.AppUser(UserId),
@@ -240,15 +269,20 @@ CREATE TABLE dir.ShopMember
     RevokedAt       DATETIME2(3) NULL,
     CONSTRAINT CK_ShopMember_Role CHECK (MemberRole IN ('OWNER','MANAGER','STAFF'))
 );
+END
 GO
-CREATE UNIQUE INDEX UX_ShopMember_ActiveUser ON dir.ShopMember (ShopId, UserId) WHERE RevokedAt IS NULL;
-CREATE UNIQUE INDEX UX_ShopMember_OneOwner   ON dir.ShopMember (ShopId) WHERE RevokedAt IS NULL AND MemberRole = 'OWNER';
-CREATE INDEX IX_ShopMember_User ON dir.ShopMember (UserId) INCLUDE (ShopId, MemberRole) WHERE RevokedAt IS NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_ShopMember_ActiveUser' AND object_id = OBJECT_ID(N'dir.ShopMember'))
+    CREATE UNIQUE INDEX UX_ShopMember_ActiveUser ON dir.ShopMember (ShopId, UserId) WHERE RevokedAt IS NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_ShopMember_OneOwner' AND object_id = OBJECT_ID(N'dir.ShopMember'))
+    CREATE UNIQUE INDEX UX_ShopMember_OneOwner   ON dir.ShopMember (ShopId) WHERE RevokedAt IS NULL AND MemberRole = 'OWNER';
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopMember_User' AND object_id = OBJECT_ID(N'dir.ShopMember'))
+    CREATE INDEX IX_ShopMember_User ON dir.ShopMember (UserId) INCLUDE (ShopId, MemberRole) WHERE RevokedAt IS NULL;
 GO
 
 -- Claim / adoption workflow
-CREATE TABLE dir.ShopClaimRequest
-(
+IF OBJECT_ID(N'dir.ShopClaimRequest', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ShopClaimRequest (
     ClaimRequestId       BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopClaimRequest PRIMARY KEY,
     ShopId               BIGINT         NOT NULL CONSTRAINT FK_Claim_Shop REFERENCES dir.Shop(ShopId),
     RequestedByUserId    BIGINT         NOT NULL CONSTRAINT FK_Claim_User REFERENCES core.AppUser(UserId),
@@ -273,18 +307,23 @@ CREATE TABLE dir.ShopClaimRequest
     CONSTRAINT CK_Claim_Method CHECK (VerificationMethod IS NULL OR VerificationMethod IN ('EMAIL_DOMAIN','PHONE_CALL','POSTCARD_CODE','DOCUMENT','SOCIAL_DM','ADMIN')),
     CONSTRAINT CK_Claim_NoSelfReferral CHECK (ReferredByUserId IS NULL OR ReferredByUserId <> RequestedByUserId)
 );
+END
 GO
-CREATE UNIQUE INDEX UX_Claim_OneOpenPerUserShop ON dir.ShopClaimRequest (ShopId, RequestedByUserId)
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_Claim_OneOpenPerUserShop' AND object_id = OBJECT_ID(N'dir.ShopClaimRequest'))
+    CREATE UNIQUE INDEX UX_Claim_OneOpenPerUserShop ON dir.ShopClaimRequest (ShopId, RequestedByUserId)
     WHERE Status IN ('PENDING','VERIFYING');
-CREATE INDEX IX_Claim_Queue ON dir.ShopClaimRequest (Status, SubmittedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Claim_Queue' AND object_id = OBJECT_ID(N'dir.ShopClaimRequest'))
+    CREATE INDEX IX_Claim_Queue ON dir.ShopClaimRequest (Status, SubmittedAt);
 GO
-ALTER TABLE dir.ShopMember ADD CONSTRAINT FK_ShopMember_Claim FOREIGN KEY (ClaimRequestId) REFERENCES dir.ShopClaimRequest(ClaimRequestId);
+IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE name = N'FK_ShopMember_Claim')
+    ALTER TABLE dir.ShopMember ADD CONSTRAINT FK_ShopMember_Claim FOREIGN KEY (ClaimRequestId) REFERENCES dir.ShopClaimRequest(ClaimRequestId);
 GO
 /* =====================================================================
    3. SUBSCRIPTIONS / BILLING HISTORY (Stripe)
    ===================================================================== */
-CREATE TABLE bill.ShopSubscription
-(
+IF OBJECT_ID(N'bill.ShopSubscription', N'U') IS NULL
+BEGIN
+CREATE TABLE bill.ShopSubscription (
     SubscriptionId          BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopSubscription PRIMARY KEY,
     ShopId                  BIGINT        NOT NULL CONSTRAINT FK_Sub_Shop REFERENCES dir.Shop(ShopId),
     TierId                  TINYINT       NOT NULL CONSTRAINT FK_Sub_Tier REFERENCES dir.ShopTier(TierId),
@@ -305,13 +344,17 @@ CREATE TABLE bill.ShopSubscription
     CONSTRAINT CK_Sub_Interval CHECK (BillingInterval IN ('MONTH','YEAR','COMP')),
     CONSTRAINT CK_Sub_Period   CHECK (CurrentPeriodEnd IS NULL OR CurrentPeriodStart IS NULL OR CurrentPeriodEnd > CurrentPeriodStart)
 );
+END
 GO
-CREATE UNIQUE INDEX UX_Sub_OneLivePerShop ON bill.ShopSubscription (ShopId) WHERE Status IN ('TRIALING','ACTIVE','PAST_DUE');
-CREATE UNIQUE INDEX UX_Sub_External ON bill.ShopSubscription (Provider, ExternalSubscriptionId) WHERE ExternalSubscriptionId IS NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_Sub_OneLivePerShop' AND object_id = OBJECT_ID(N'bill.ShopSubscription'))
+    CREATE UNIQUE INDEX UX_Sub_OneLivePerShop ON bill.ShopSubscription (ShopId) WHERE Status IN ('TRIALING','ACTIVE','PAST_DUE');
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_Sub_External' AND object_id = OBJECT_ID(N'bill.ShopSubscription'))
+    CREATE UNIQUE INDEX UX_Sub_External ON bill.ShopSubscription (Provider, ExternalSubscriptionId) WHERE ExternalSubscriptionId IS NOT NULL;
 GO
 
-CREATE TABLE bill.Payment
-(
+IF OBJECT_ID(N'bill.Payment', N'U') IS NULL
+BEGIN
+CREATE TABLE bill.Payment (
     PaymentId          BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Payment PRIMARY KEY,
     SubscriptionId     BIGINT       NOT NULL CONSTRAINT FK_Payment_Sub REFERENCES bill.ShopSubscription(SubscriptionId),
     AmountCents        INT          NOT NULL,
@@ -325,13 +368,16 @@ CREATE TABLE bill.Payment
     CONSTRAINT CK_Payment_Status CHECK (Status IN ('PENDING','PAID','FAILED','REFUNDED','VOID')),
     CONSTRAINT CK_Payment_Amount CHECK (AmountCents >= 0)
 );
+END
 GO
-CREATE UNIQUE INDEX UX_Payment_ExternalInvoice ON bill.Payment (ExternalInvoiceId) WHERE ExternalInvoiceId IS NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_Payment_ExternalInvoice' AND object_id = OBJECT_ID(N'bill.Payment'))
+    CREATE UNIQUE INDEX UX_Payment_ExternalInvoice ON bill.Payment (ExternalInvoiceId) WHERE ExternalInvoiceId IS NOT NULL;
 GO
 
 -- Every tier change (upgrade, downgrade, lapse, comp): audit trail behind dir.Shop.CurrentTierId
-CREATE TABLE bill.ShopTierHistory
-(
+IF OBJECT_ID(N'bill.ShopTierHistory', N'U') IS NULL
+BEGIN
+CREATE TABLE bill.ShopTierHistory (
     TierHistoryId   BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopTierHistory PRIMARY KEY,
     ShopId          BIGINT        NOT NULL CONSTRAINT FK_TierHist_Shop REFERENCES dir.Shop(ShopId),
     FromTierId      TINYINT       NULL CONSTRAINT FK_TierHist_From REFERENCES dir.ShopTier(TierId),
@@ -342,15 +388,18 @@ CREATE TABLE bill.ShopTierHistory
     ChangedByUserId BIGINT        NULL CONSTRAINT FK_TierHist_User REFERENCES core.AppUser(UserId),
     CONSTRAINT CK_TierHist_Reason CHECK (Reason IN ('INITIAL','UPGRADE','DOWNGRADE','PAYMENT_LAPSED','CANCELED','COMP','ADMIN'))
 );
+END
 GO
-CREATE INDEX IX_TierHist_Shop ON bill.ShopTierHistory (ShopId, ChangedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_TierHist_Shop' AND object_id = OBJECT_ID(N'bill.ShopTierHistory'))
+    CREATE INDEX IX_TierHist_Shop ON bill.ShopTierHistory (ShopId, ChangedAt);
 GO
 
 /* =====================================================================
    4. PREMIUM FEATURES (calendar, promotion, mailbox parsing, FB/IG monitoring)
    ===================================================================== */
-CREATE TABLE mkt.ShopEvent
-(
+IF OBJECT_ID(N'mkt.ShopEvent', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.ShopEvent (
     ShopEventId     BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopEvent PRIMARY KEY,
     ShopId          BIGINT         NULL CONSTRAINT FK_ShopEvent_Shop REFERENCES dir.Shop(ShopId),
     Title           NVARCHAR(200)  NOT NULL,
@@ -376,13 +425,17 @@ CREATE TABLE mkt.ShopEvent
     CONSTRAINT CK_ShopEvent_Source CHECK (SourceType IN ('MANUAL','MAILBOX','FACEBOOK','INSTAGRAM','IMPORT','SUBMIT')),
     CONSTRAINT CK_ShopEvent_Times  CHECK (EndsAt IS NULL OR EndsAt >= StartsAt)
 );
+END
 GO
-CREATE INDEX IX_ShopEvent_Upcoming ON mkt.ShopEvent (StartsAt) INCLUDE (ShopId, Title, EventType) WHERE Status = 'PUBLISHED';
-CREATE INDEX IX_ShopEvent_Shop ON mkt.ShopEvent (ShopId, StartsAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopEvent_Upcoming' AND object_id = OBJECT_ID(N'mkt.ShopEvent'))
+    CREATE INDEX IX_ShopEvent_Upcoming ON mkt.ShopEvent (StartsAt) INCLUDE (ShopId, Title, EventType) WHERE Status = 'PUBLISHED';
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopEvent_Shop' AND object_id = OBJECT_ID(N'mkt.ShopEvent'))
+    CREATE INDEX IX_ShopEvent_Shop ON mkt.ShopEvent (ShopId, StartsAt);
 GO
 
-CREATE TABLE mkt.PromotionCampaign
-(
+IF OBJECT_ID(N'mkt.PromotionCampaign', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.PromotionCampaign (
     CampaignId       BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_PromotionCampaign PRIMARY KEY,
     ShopId           BIGINT         NOT NULL CONSTRAINT FK_Campaign_Shop REFERENCES dir.Shop(ShopId),
     ShopEventId      BIGINT         NULL CONSTRAINT FK_Campaign_Event REFERENCES mkt.ShopEvent(ShopEventId),
@@ -404,13 +457,16 @@ CREATE TABLE mkt.PromotionCampaign
     CONSTRAINT CK_Campaign_Channel CHECK (Channel IN ('EMAIL','FACEBOOK','INSTAGRAM','X','SITE_FEATURE','NEWSLETTER')),
     CONSTRAINT CK_Campaign_Status  CHECK (Status IN ('DRAFT','PENDING_REVIEW','SCHEDULED','SENT','CANCELED','FAILED'))
 );
+END
 GO
-CREATE INDEX IX_Campaign_Schedule ON mkt.PromotionCampaign (Status, ScheduledFor);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Campaign_Schedule' AND object_id = OBJECT_ID(N'mkt.PromotionCampaign'))
+    CREATE INDEX IX_Campaign_Schedule ON mkt.PromotionCampaign (Status, ScheduledFor);
 GO
 
 -- Mailbox parsing: each premium shop gets an inbound address (or forwards its inbox)
-CREATE TABLE mkt.ShopMailbox
-(
+IF OBJECT_ID(N'mkt.ShopMailbox', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.ShopMailbox (
     MailboxId            BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopMailbox PRIMARY KEY,
     ShopId               BIGINT        NOT NULL CONSTRAINT FK_Mailbox_Shop REFERENCES dir.Shop(ShopId),
     InboundAddress       NVARCHAR(320) NOT NULL,   -- e.g. {slug}@in.tradingcardsassociation.com
@@ -423,10 +479,12 @@ CREATE TABLE mkt.ShopMailbox
     CONSTRAINT UQ_Mailbox_Address UNIQUE (InboundAddress),
     CONSTRAINT CK_Mailbox_Rules CHECK (ParseRulesJson IS NULL OR ISJSON(ParseRulesJson) = 1)
 );
+END
 GO
 
-CREATE TABLE mkt.InboundEmail
-(
+IF OBJECT_ID(N'mkt.InboundEmail', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.InboundEmail (
     InboundEmailId  BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_InboundEmail PRIMARY KEY,
     MailboxId       BIGINT         NOT NULL CONSTRAINT FK_InboundEmail_Mailbox REFERENCES mkt.ShopMailbox(MailboxId),
     MessageId       NVARCHAR(400)  NOT NULL,    -- RFC 5322 Message-ID, dedupe key
@@ -440,13 +498,16 @@ CREATE TABLE mkt.InboundEmail
     CONSTRAINT UQ_InboundEmail_Msg UNIQUE (MailboxId, MessageId),
     CONSTRAINT CK_InboundEmail_Status CHECK (ParseStatus IN ('PENDING','PARSED','NEEDS_REVIEW','IGNORED','FAILED'))
 );
+END
 GO
-CREATE INDEX IX_InboundEmail_Queue ON mkt.InboundEmail (ParseStatus, ReceivedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_InboundEmail_Queue' AND object_id = OBJECT_ID(N'mkt.InboundEmail'))
+    CREATE INDEX IX_InboundEmail_Queue ON mkt.InboundEmail (ParseStatus, ReceivedAt);
 GO
 
 -- Facebook / Instagram monitoring
-CREATE TABLE mkt.SocialAccount
-(
+IF OBJECT_ID(N'mkt.SocialAccount', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.SocialAccount (
     SocialAccountId   BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_SocialAccount PRIMARY KEY,
     ShopId            BIGINT        NOT NULL CONSTRAINT FK_Social_Shop REFERENCES dir.Shop(ShopId),
     Platform          VARCHAR(20)   NOT NULL,
@@ -461,10 +522,12 @@ CREATE TABLE mkt.SocialAccount
     CONSTRAINT CK_Social_Platform CHECK (Platform IN ('FACEBOOK','INSTAGRAM')),
     CONSTRAINT CK_Social_Status   CHECK (Status IN ('ACTIVE','TOKEN_EXPIRED','DISCONNECTED','ERROR'))
 );
+END
 GO
 
-CREATE TABLE mkt.SocialPost
-(
+IF OBJECT_ID(N'mkt.SocialPost', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.SocialPost (
     SocialPostId    BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_SocialPost PRIMARY KEY,
     SocialAccountId BIGINT         NOT NULL CONSTRAINT FK_SocialPost_Account REFERENCES mkt.SocialAccount(SocialAccountId),
     ExternalPostId  VARCHAR(100)   NOT NULL,
@@ -477,11 +540,13 @@ CREATE TABLE mkt.SocialPost
     CONSTRAINT UQ_SocialPost_External UNIQUE (SocialAccountId, ExternalPostId),
     CONSTRAINT CK_SocialPost_Status CHECK (ProcessStatus IN ('PENDING','PARSED','NEEDS_REVIEW','IGNORED','FAILED'))
 );
+END
 GO
 
 -- Structured items extracted from an email OR a social post
-CREATE TABLE mkt.ParsedItem
-(
+IF OBJECT_ID(N'mkt.ParsedItem', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.ParsedItem (
     ParsedItemId     BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ParsedItem PRIMARY KEY,
     ShopId           BIGINT        NOT NULL CONSTRAINT FK_ParsedItem_Shop REFERENCES dir.Shop(ShopId),
     InboundEmailId   BIGINT        NULL CONSTRAINT FK_ParsedItem_Email REFERENCES mkt.InboundEmail(InboundEmailId),
@@ -500,16 +565,20 @@ CREATE TABLE mkt.ParsedItem
     CONSTRAINT CK_ParsedItem_Json   CHECK (ISJSON(ExtractedJson) = 1),
     CONSTRAINT CK_ParsedItem_Conf   CHECK (Confidence IS NULL OR Confidence BETWEEN 0 AND 1)
 );
+END
 GO
-CREATE INDEX IX_ParsedItem_Review ON mkt.ParsedItem (ReviewStatus, CreatedAt) INCLUDE (ShopId, ItemType);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ParsedItem_Review' AND object_id = OBJECT_ID(N'mkt.ParsedItem'))
+    CREATE INDEX IX_ParsedItem_Review ON mkt.ParsedItem (ReviewStatus, CreatedAt) INCLUDE (ShopId, ItemType);
 GO
-ALTER TABLE mkt.ShopEvent ADD CONSTRAINT FK_ShopEvent_ParsedItem FOREIGN KEY (ParsedItemId) REFERENCES mkt.ParsedItem(ParsedItemId);
+IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE name = N'FK_ShopEvent_ParsedItem')
+    ALTER TABLE mkt.ShopEvent ADD CONSTRAINT FK_ShopEvent_ParsedItem FOREIGN KEY (ParsedItemId) REFERENCES mkt.ParsedItem(ParsedItemId);
 GO
 /* =====================================================================
    5. NEW-SHOPS ROTATION FEED
    ===================================================================== */
-CREATE TABLE feed.RotationSlot
-(
+IF OBJECT_ID(N'feed.RotationSlot', N'U') IS NULL
+BEGIN
+CREATE TABLE feed.RotationSlot (
     SlotCode             VARCHAR(30)   NOT NULL CONSTRAINT PK_RotationSlot PRIMARY KEY,
     Name                 NVARCHAR(100) NOT NULL,
     MaxItems             TINYINT       NOT NULL,
@@ -518,21 +587,25 @@ CREATE TABLE feed.RotationSlot
     IsActive             BIT           NOT NULL CONSTRAINT DF_RotationSlot_IsActive DEFAULT 1,
     CONSTRAINT CK_RotationSlot_Max CHECK (MaxItems BETWEEN 1 AND 50)
 );
+END
 GO
 
 -- Suggested: paid tiers get more weight / a longer stay in the feed; free shops always appear
-CREATE TABLE feed.TierRotationWeight
-(
+IF OBJECT_ID(N'feed.TierRotationWeight', N'U') IS NULL
+BEGIN
+CREATE TABLE feed.TierRotationWeight (
     TierId           TINYINT      NOT NULL CONSTRAINT PK_TierRotationWeight PRIMARY KEY
                                   CONSTRAINT FK_TierRotWeight_Tier REFERENCES dir.ShopTier(TierId),
     WeightMultiplier DECIMAL(5,2) NOT NULL,
     WindowDays       SMALLINT     NOT NULL,
     CONSTRAINT CK_TierRotWeight CHECK (WeightMultiplier > 0 AND WindowDays > 0)
 );
+END
 GO
 
-CREATE TABLE feed.NewShopFeedEntry
-(
+IF OBJECT_ID(N'feed.NewShopFeedEntry', N'U') IS NULL
+BEGIN
+CREATE TABLE feed.NewShopFeedEntry (
     FeedEntryId      BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_NewShopFeedEntry PRIMARY KEY,
     SlotCode         VARCHAR(30)   NOT NULL CONSTRAINT FK_FeedEntry_Slot REFERENCES feed.RotationSlot(SlotCode),
     ShopId           BIGINT        NOT NULL CONSTRAINT FK_FeedEntry_Shop REFERENCES dir.Shop(ShopId),
@@ -548,13 +621,17 @@ CREATE TABLE feed.NewShopFeedEntry
     CONSTRAINT CK_FeedEntry_Window CHECK (EligibleUntil > EligibleFrom),
     CONSTRAINT CK_FeedEntry_Weight CHECK (BaseWeight > 0)
 );
+END
 GO
-CREATE UNIQUE INDEX UX_FeedEntry_ActivePerSlotShop ON feed.NewShopFeedEntry (SlotCode, ShopId) WHERE IsActive = 1;
-CREATE INDEX IX_FeedEntry_Window ON feed.NewShopFeedEntry (SlotCode, EligibleFrom, EligibleUntil) INCLUDE (ShopId, BaseWeight, IsPinned) WHERE IsActive = 1;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_FeedEntry_ActivePerSlotShop' AND object_id = OBJECT_ID(N'feed.NewShopFeedEntry'))
+    CREATE UNIQUE INDEX UX_FeedEntry_ActivePerSlotShop ON feed.NewShopFeedEntry (SlotCode, ShopId) WHERE IsActive = 1;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_FeedEntry_Window' AND object_id = OBJECT_ID(N'feed.NewShopFeedEntry'))
+    CREATE INDEX IX_FeedEntry_Window ON feed.NewShopFeedEntry (SlotCode, EligibleFrom, EligibleUntil) INCLUDE (ShopId, BaseWeight, IsPinned) WHERE IsActive = 1;
 GO
 
-CREATE TABLE feed.FeedImpression
-(
+IF OBJECT_ID(N'feed.FeedImpression', N'U') IS NULL
+BEGIN
+CREATE TABLE feed.FeedImpression (
     ImpressionId  BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_FeedImpression PRIMARY KEY,
     FeedEntryId   BIGINT       NOT NULL CONSTRAINT FK_Impression_Entry REFERENCES feed.NewShopFeedEntry(FeedEntryId),
     ShownAt       DATETIME2(3) NOT NULL CONSTRAINT DF_Impression_ShownAt DEFAULT SYSUTCDATETIME(),
@@ -563,15 +640,18 @@ CREATE TABLE feed.FeedImpression
     SessionHash   BINARY(32)   NULL,   -- hashed anonymous session id, no raw IP stored
     ClickedAt     DATETIME2(3) NULL
 );
+END
 GO
-CREATE INDEX IX_Impression_Entry ON feed.FeedImpression (FeedEntryId, ShownAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Impression_Entry' AND object_id = OBJECT_ID(N'feed.FeedImpression'))
+    CREATE INDEX IX_Impression_Entry ON feed.FeedImpression (FeedEntryId, ShownAt);
 GO
 
 /* =====================================================================
    6. USER-GENERATED CONTENT (photos, reviews, feedback, votes, moderation)
    ===================================================================== */
-CREATE TABLE ugc.ShopPhoto
-(
+IF OBJECT_ID(N'ugc.ShopPhoto', N'U') IS NULL
+BEGIN
+CREATE TABLE ugc.ShopPhoto (
     PhotoId                 BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopPhoto PRIMARY KEY,
     PublicId                UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_ShopPhoto_PublicId DEFAULT NEWSEQUENTIALID(),
     ShopId                  BIGINT         NOT NULL CONSTRAINT FK_ShopPhoto_Shop REFERENCES dir.Shop(ShopId),
@@ -597,17 +677,24 @@ CREATE TABLE ugc.ShopPhoto
     CONSTRAINT CK_ShopPhoto_Kind CHECK (PhotoKind IN ('EXTERIOR','INTERIOR','SIGNAGE','INVENTORY','EVENT','OTHER')),
     CONSTRAINT CK_ShopPhoto_Mod  CHECK (ModerationStatus IN ('PENDING','APPROVED','REJECTED','REMOVED'))
 );
+END
 GO
-CREATE UNIQUE INDEX UX_ShopPhoto_HashPerShop ON ugc.ShopPhoto (ShopId, ContentHash) WHERE ModerationStatus IN ('PENDING','APPROVED');
-CREATE INDEX IX_ShopPhoto_Shop  ON ugc.ShopPhoto (ShopId, ModerationStatus, CreatedAt);
-CREATE INDEX IX_ShopPhoto_User  ON ugc.ShopPhoto (UploadedByUserId, CreatedAt);
-CREATE INDEX IX_ShopPhoto_Queue ON ugc.ShopPhoto (CreatedAt) WHERE ModerationStatus = 'PENDING';
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_ShopPhoto_HashPerShop' AND object_id = OBJECT_ID(N'ugc.ShopPhoto'))
+    CREATE UNIQUE INDEX UX_ShopPhoto_HashPerShop ON ugc.ShopPhoto (ShopId, ContentHash) WHERE ModerationStatus IN ('PENDING','APPROVED');
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopPhoto_Shop' AND object_id = OBJECT_ID(N'ugc.ShopPhoto'))
+    CREATE INDEX IX_ShopPhoto_Shop  ON ugc.ShopPhoto (ShopId, ModerationStatus, CreatedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopPhoto_User' AND object_id = OBJECT_ID(N'ugc.ShopPhoto'))
+    CREATE INDEX IX_ShopPhoto_User  ON ugc.ShopPhoto (UploadedByUserId, CreatedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopPhoto_Queue' AND object_id = OBJECT_ID(N'ugc.ShopPhoto'))
+    CREATE INDEX IX_ShopPhoto_Queue ON ugc.ShopPhoto (CreatedAt) WHERE ModerationStatus = 'PENDING';
 GO
-ALTER TABLE dir.Shop ADD CONSTRAINT FK_Shop_CoverPhoto FOREIGN KEY (CoverPhotoId) REFERENCES ugc.ShopPhoto(PhotoId);
+IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE name = N'FK_Shop_CoverPhoto')
+    ALTER TABLE dir.Shop ADD CONSTRAINT FK_Shop_CoverPhoto FOREIGN KEY (CoverPhotoId) REFERENCES ugc.ShopPhoto(PhotoId);
 GO
 
-CREATE TABLE ugc.ShopReview
-(
+IF OBJECT_ID(N'ugc.ShopReview', N'U') IS NULL
+BEGIN
+CREATE TABLE ugc.ShopReview (
     ReviewId          BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopReview PRIMARY KEY,
     PublicId          UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_ShopReview_PublicId DEFAULT NEWSEQUENTIALID(),
     ShopId            BIGINT         NOT NULL CONSTRAINT FK_ShopReview_Shop REFERENCES dir.Shop(ShopId),
@@ -628,15 +715,20 @@ CREATE TABLE ugc.ShopReview
     CONSTRAINT CK_ShopReview_Rating CHECK (Rating BETWEEN 1 AND 5),
     CONSTRAINT CK_ShopReview_Mod    CHECK (ModerationStatus IN ('PENDING','APPROVED','REJECTED','REMOVED'))
 );
+END
 GO
-CREATE UNIQUE INDEX UX_ShopReview_OnePerUserShop ON ugc.ShopReview (ShopId, AuthorUserId) WHERE ModerationStatus IN ('PENDING','APPROVED');
-CREATE INDEX IX_ShopReview_Shop ON ugc.ShopReview (ShopId, ModerationStatus) INCLUDE (Rating, CreatedAt);
-CREATE INDEX IX_ShopReview_User ON ugc.ShopReview (AuthorUserId, CreatedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_ShopReview_OnePerUserShop' AND object_id = OBJECT_ID(N'ugc.ShopReview'))
+    CREATE UNIQUE INDEX UX_ShopReview_OnePerUserShop ON ugc.ShopReview (ShopId, AuthorUserId) WHERE ModerationStatus IN ('PENDING','APPROVED');
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopReview_Shop' AND object_id = OBJECT_ID(N'ugc.ShopReview'))
+    CREATE INDEX IX_ShopReview_Shop ON ugc.ShopReview (ShopId, ModerationStatus) INCLUDE (Rating, CreatedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopReview_User' AND object_id = OBJECT_ID(N'ugc.ShopReview'))
+    CREATE INDEX IX_ShopReview_User ON ugc.ShopReview (AuthorUserId, CreatedAt);
 GO
 
 -- Suggested: owner reply to a review (PAID/PREMIUM feature OWNER_RESPONSES)
-CREATE TABLE ugc.ReviewResponse
-(
+IF OBJECT_ID(N'ugc.ReviewResponse', N'U') IS NULL
+BEGIN
+CREATE TABLE ugc.ReviewResponse (
     ReviewId          BIGINT         NOT NULL CONSTRAINT PK_ReviewResponse PRIMARY KEY
                                      CONSTRAINT FK_ReviewResponse_Review REFERENCES ugc.ShopReview(ReviewId),
     ResponderUserId   BIGINT         NOT NULL CONSTRAINT FK_ReviewResponse_User REFERENCES core.AppUser(UserId),
@@ -644,10 +736,12 @@ CREATE TABLE ugc.ReviewResponse
     CreatedAt         DATETIME2(3)   NOT NULL CONSTRAINT DF_ReviewResponse_CreatedAt DEFAULT SYSUTCDATETIME(),
     EditedAt          DATETIME2(3)   NULL
 );
+END
 GO
 
-CREATE TABLE ugc.Feedback
-(
+IF OBJECT_ID(N'ugc.Feedback', N'U') IS NULL
+BEGIN
+CREATE TABLE ugc.Feedback (
     FeedbackId          BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Feedback PRIMARY KEY,
     SubmittedByUserId   BIGINT         NOT NULL CONSTRAINT FK_Feedback_User REFERENCES core.AppUser(UserId),
     ShopId              BIGINT         NULL CONSTRAINT FK_Feedback_Shop REFERENCES dir.Shop(ShopId),
@@ -664,14 +758,18 @@ CREATE TABLE ugc.Feedback
     CONSTRAINT CK_Feedback_Status CHECK (Status IN ('OPEN','ACCEPTED','REJECTED','DUPLICATE','SPAM')),
     CONSTRAINT CK_Feedback_Json   CHECK (ProposedChangesJson IS NULL OR ISJSON(ProposedChangesJson) = 1)
 );
+END
 GO
-CREATE INDEX IX_Feedback_Queue ON ugc.Feedback (Status, CreatedAt) INCLUDE (FeedbackType, ShopId);
-CREATE INDEX IX_Feedback_User  ON ugc.Feedback (SubmittedByUserId, CreatedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Feedback_Queue' AND object_id = OBJECT_ID(N'ugc.Feedback'))
+    CREATE INDEX IX_Feedback_Queue ON ugc.Feedback (Status, CreatedAt) INCLUDE (FeedbackType, ShopId);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Feedback_User' AND object_id = OBJECT_ID(N'ugc.Feedback'))
+    CREATE INDEX IX_Feedback_User  ON ugc.Feedback (SubmittedByUserId, CreatedAt);
 GO
 
 -- Up/down votes (photos) and helpful/unhelpful (reviews): Reddit-style "received" karma
-CREATE TABLE ugc.ContentVote
-(
+IF OBJECT_ID(N'ugc.ContentVote', N'U') IS NULL
+BEGIN
+CREATE TABLE ugc.ContentVote (
     VoteId       BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ContentVote PRIMARY KEY,
     VoterUserId  BIGINT       NOT NULL CONSTRAINT FK_Vote_User REFERENCES core.AppUser(UserId),
     PhotoId      BIGINT       NULL CONSTRAINT FK_Vote_Photo  REFERENCES ugc.ShopPhoto(PhotoId),
@@ -683,15 +781,20 @@ CREATE TABLE ugc.ContentVote
                                        + CASE WHEN ReviewId IS NULL THEN 0 ELSE 1 END) = 1),
     CONSTRAINT CK_Vote_Value CHECK (VoteValue IN (-1, 0, 1))
 );
+END
 GO
-CREATE UNIQUE INDEX UX_Vote_Photo  ON ugc.ContentVote (PhotoId, VoterUserId)  WHERE PhotoId  IS NOT NULL;
-CREATE UNIQUE INDEX UX_Vote_Review ON ugc.ContentVote (ReviewId, VoterUserId) WHERE ReviewId IS NOT NULL;
-CREATE INDEX IX_Vote_Voter ON ugc.ContentVote (VoterUserId, CreatedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_Vote_Photo' AND object_id = OBJECT_ID(N'ugc.ContentVote'))
+    CREATE UNIQUE INDEX UX_Vote_Photo  ON ugc.ContentVote (PhotoId, VoterUserId)  WHERE PhotoId  IS NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_Vote_Review' AND object_id = OBJECT_ID(N'ugc.ContentVote'))
+    CREATE UNIQUE INDEX UX_Vote_Review ON ugc.ContentVote (ReviewId, VoterUserId) WHERE ReviewId IS NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Vote_Voter' AND object_id = OBJECT_ID(N'ugc.ContentVote'))
+    CREATE INDEX IX_Vote_Voter ON ugc.ContentVote (VoterUserId, CreatedAt);
 GO
 
 -- Suggested: user flags on content
-CREATE TABLE ugc.ContentReport
-(
+IF OBJECT_ID(N'ugc.ContentReport', N'U') IS NULL
+BEGIN
+CREATE TABLE ugc.ContentReport (
     ReportId         BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ContentReport PRIMARY KEY,
     ReporterUserId   BIGINT        NOT NULL CONSTRAINT FK_Report_User REFERENCES core.AppUser(UserId),
     TargetType       VARCHAR(20)   NOT NULL,
@@ -706,12 +809,15 @@ CREATE TABLE ugc.ContentReport
     CONSTRAINT CK_Report_Reason CHECK (ReasonCode IN ('SPAM','FAKE','OFFENSIVE','WRONG_SHOP','COPYRIGHT','CONFLICT_OF_INTEREST','OTHER')),
     CONSTRAINT CK_Report_Status CHECK (Status IN ('OPEN','UPHELD','DISMISSED'))
 );
+END
 GO
-CREATE UNIQUE INDEX UX_Report_OneOpenPerReporter ON ugc.ContentReport (TargetType, TargetId, ReporterUserId) WHERE Status = 'OPEN';
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_Report_OneOpenPerReporter' AND object_id = OBJECT_ID(N'ugc.ContentReport'))
+    CREATE UNIQUE INDEX UX_Report_OneOpenPerReporter ON ugc.ContentReport (TargetType, TargetId, ReporterUserId) WHERE Status = 'OPEN';
 GO
 
-CREATE TABLE ugc.ModerationAction
-(
+IF OBJECT_ID(N'ugc.ModerationAction', N'U') IS NULL
+BEGIN
+CREATE TABLE ugc.ModerationAction (
     ModerationActionId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ModerationAction PRIMARY KEY,
     ModeratorUserId    BIGINT        NOT NULL CONSTRAINT FK_ModAction_User REFERENCES core.AppUser(UserId),
     TargetType         VARCHAR(20)   NOT NULL,
@@ -722,23 +828,28 @@ CREATE TABLE ugc.ModerationAction
     CONSTRAINT CK_ModAction_Target CHECK (TargetType IN ('PHOTO','REVIEW','REVIEW_RESPONSE','FEEDBACK','USER','SHOP','CLAIM','BADGE','LEDGER')),
     CONSTRAINT CK_ModAction_Code   CHECK (ActionCode IN ('APPROVE','REJECT','REMOVE','RESTORE','WARN','SUSPEND','BAN','FREEZE_KARMA','UNFREEZE_KARMA','REVOKE_BADGE','ADJUST_POINTS'))
 );
+END
 GO
-CREATE INDEX IX_ModAction_Target ON ugc.ModerationAction (TargetType, TargetId, CreatedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ModAction_Target' AND object_id = OBJECT_ID(N'ugc.ModerationAction'))
+    CREATE INDEX IX_ModAction_Target ON ugc.ModerationAction (TargetType, TargetId, CreatedAt);
 GO
 /* =====================================================================
    7. KARMA: categories, action rules, append-only points ledger
    ===================================================================== */
-CREATE TABLE karma.Category
-(
+IF OBJECT_ID(N'karma.Category', N'U') IS NULL
+BEGIN
+CREATE TABLE karma.Category (
     CategoryCode VARCHAR(20)  NOT NULL CONSTRAINT PK_KarmaCategory PRIMARY KEY,
     Name         NVARCHAR(50) NOT NULL,
     DisplayOrder TINYINT      NOT NULL
 );
+END
 GO
 
 -- Rules table: point values and anti-gaming limits live in data, not code
-CREATE TABLE karma.ActionType
-(
+IF OBJECT_ID(N'karma.ActionType', N'U') IS NULL
+BEGIN
+CREATE TABLE karma.ActionType (
     ActionCode          VARCHAR(40)   NOT NULL CONSTRAINT PK_ActionType PRIMARY KEY,
     CategoryCode        VARCHAR(20)   NOT NULL CONSTRAINT FK_ActionType_Category REFERENCES karma.Category(CategoryCode),
     Name                NVARCHAR(100) NOT NULL,
@@ -753,13 +864,15 @@ CREATE TABLE karma.ActionType
     CONSTRAINT CK_ActionType_Points CHECK (Points <> 0 OR ActionCode IN ('ADMIN_ADJUSTMENT','BADGE_BONUS')),
     CONSTRAINT CK_ActionType_Caps   CHECK (ISNULL(DailyPointCap,1) > 0 AND ISNULL(CooldownSeconds,0) >= 0 AND ISNULL(PerShopLifetimeCap,1) > 0)
 );
+END
 GO
 
 /* PointsLedger: one row per point event. Never updated or deleted.
    Corrections = a new row with negative Points that references the original (ReversesLedgerId).
    SourceKey makes every award idempotent: re-processing an approval cannot double-pay. */
-CREATE TABLE karma.PointsLedger
-(
+IF OBJECT_ID(N'karma.PointsLedger', N'U') IS NULL
+BEGIN
+CREATE TABLE karma.PointsLedger (
     LedgerId          BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_PointsLedger PRIMARY KEY,
     UserId            BIGINT        NOT NULL CONSTRAINT FK_Ledger_User REFERENCES core.AppUser(UserId),
     ActionCode        VARCHAR(40)   NOT NULL CONSTRAINT FK_Ledger_Action REFERENCES karma.ActionType(ActionCode),
@@ -778,15 +891,21 @@ CREATE TABLE karma.PointsLedger
     CONSTRAINT CK_Ledger_SourceType CHECK (SourceType IN ('PHOTO','REVIEW','FEEDBACK','CLAIM','SHOP','BADGE','VOTE','ADMIN')),
     CONSTRAINT CK_Ledger_ReversalReason CHECK (ReversesLedgerId IS NULL OR Reason IS NOT NULL)
 );
+END
 GO
-CREATE UNIQUE INDEX UX_Ledger_OneReversal ON karma.PointsLedger (ReversesLedgerId) WHERE ReversesLedgerId IS NOT NULL;
-CREATE INDEX IX_Ledger_User_Time   ON karma.PointsLedger (UserId, CreatedAt) INCLUDE (ActionCode, Points, ShopId);
-CREATE INDEX IX_Ledger_User_Action ON karma.PointsLedger (UserId, ActionCode, CreatedAt) INCLUDE (Points, ShopId, ReversesLedgerId);
-CREATE INDEX IX_Ledger_Source      ON karma.PointsLedger (SourceType, SourceId);
-CREATE INDEX IX_Ledger_Shop        ON karma.PointsLedger (ShopId, CreatedAt) WHERE ShopId IS NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_Ledger_OneReversal' AND object_id = OBJECT_ID(N'karma.PointsLedger'))
+    CREATE UNIQUE INDEX UX_Ledger_OneReversal ON karma.PointsLedger (ReversesLedgerId) WHERE ReversesLedgerId IS NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Ledger_User_Time' AND object_id = OBJECT_ID(N'karma.PointsLedger'))
+    CREATE INDEX IX_Ledger_User_Time   ON karma.PointsLedger (UserId, CreatedAt) INCLUDE (ActionCode, Points, ShopId);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Ledger_User_Action' AND object_id = OBJECT_ID(N'karma.PointsLedger'))
+    CREATE INDEX IX_Ledger_User_Action ON karma.PointsLedger (UserId, ActionCode, CreatedAt) INCLUDE (Points, ShopId, ReversesLedgerId);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Ledger_Source' AND object_id = OBJECT_ID(N'karma.PointsLedger'))
+    CREATE INDEX IX_Ledger_Source      ON karma.PointsLedger (SourceType, SourceId);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Ledger_Shop' AND object_id = OBJECT_ID(N'karma.PointsLedger'))
+    CREATE INDEX IX_Ledger_Shop        ON karma.PointsLedger (ShopId, CreatedAt) WHERE ShopId IS NOT NULL;
 GO
 
-CREATE TRIGGER karma.TR_PointsLedger_AppendOnly
+CREATE OR ALTER TRIGGER karma.TR_PointsLedger_AppendOnly
 ON karma.PointsLedger
 INSTEAD OF UPDATE, DELETE
 AS
@@ -798,7 +917,10 @@ GO
 
 /* Indexed (materialized) view: running karma per user per category, maintained by SQL Server.
    Gives O(1) profile reads without a mutable balance column. */
-CREATE VIEW karma.vw_UserKarmaByCategory
+IF OBJECT_ID(N'karma.vw_UserKarmaByCategory', N'V') IS NOT NULL AND EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UCX_vw_UserKarmaByCategory' AND object_id = OBJECT_ID(N'karma.vw_UserKarmaByCategory'))
+    DROP INDEX UCX_vw_UserKarmaByCategory ON karma.vw_UserKarmaByCategory;
+GO
+CREATE OR ALTER VIEW karma.vw_UserKarmaByCategory
 WITH SCHEMABINDING
 AS
 SELECT  l.UserId,
@@ -808,14 +930,16 @@ SELECT  l.UserId,
 FROM    karma.PointsLedger AS l
 GROUP BY l.UserId, l.CategoryCode;
 GO
-CREATE UNIQUE CLUSTERED INDEX UCX_vw_UserKarmaByCategory ON karma.vw_UserKarmaByCategory (UserId, CategoryCode);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UCX_vw_UserKarmaByCategory' AND object_id = OBJECT_ID(N'karma.vw_UserKarmaByCategory'))
+    CREATE UNIQUE CLUSTERED INDEX UCX_vw_UserKarmaByCategory ON karma.vw_UserKarmaByCategory (UserId, CategoryCode);
 GO
 
 /* =====================================================================
    8. BADGES + PERKS
    ===================================================================== */
-CREATE TABLE karma.BadgeDefinition
-(
+IF OBJECT_ID(N'karma.BadgeDefinition', N'U') IS NULL
+BEGIN
+CREATE TABLE karma.BadgeDefinition (
     BadgeId        INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_BadgeDefinition PRIMARY KEY,
     BadgeCode      VARCHAR(40)   NOT NULL,
     Name           NVARCHAR(80)  NOT NULL,
@@ -844,10 +968,12 @@ CREATE TABLE karma.BadgeDefinition
         OR (CriteriaType IN ('DISTINCT_SHOPS','DISTINCT_STATES') AND ActionCode IS NOT NULL AND Threshold > 0)
         OR (CriteriaType = 'ACCOUNT_AGE_DAYS' AND Threshold > 0))
 );
+END
 GO
 
-CREATE TABLE karma.UserBadge
-(
+IF OBJECT_ID(N'karma.UserBadge', N'U') IS NULL
+BEGIN
+CREATE TABLE karma.UserBadge (
     UserBadgeId      BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_UserBadge PRIMARY KEY,
     UserId           BIGINT        NOT NULL CONSTRAINT FK_UserBadge_User  REFERENCES core.AppUser(UserId),
     BadgeId          INT           NOT NULL CONSTRAINT FK_UserBadge_Badge REFERENCES karma.BadgeDefinition(BadgeId),
@@ -865,14 +991,18 @@ CREATE TABLE karma.UserBadge
     CONSTRAINT CK_UserBadge_Pin    CHECK (PinOrder IS NULL OR PinOrder BETWEEN 1 AND 3),
     CONSTRAINT CK_UserBadge_Revoke CHECK (RevokedAt IS NULL OR RevokedReason IS NOT NULL)
 );
+END
 GO
-CREATE UNIQUE INDEX UX_UserBadge_Pin ON karma.UserBadge (UserId, PinOrder) WHERE PinOrder IS NOT NULL AND RevokedAt IS NULL;
-CREATE INDEX IX_UserBadge_Profile ON karma.UserBadge (UserId) INCLUDE (BadgeId, AwardedAt, PinOrder, IsDisplayed) WHERE RevokedAt IS NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_UserBadge_Pin' AND object_id = OBJECT_ID(N'karma.UserBadge'))
+    CREATE UNIQUE INDEX UX_UserBadge_Pin ON karma.UserBadge (UserId, PinOrder) WHERE PinOrder IS NOT NULL AND RevokedAt IS NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_UserBadge_Profile' AND object_id = OBJECT_ID(N'karma.UserBadge'))
+    CREATE INDEX IX_UserBadge_Profile ON karma.UserBadge (UserId) INCLUDE (BadgeId, AwardedAt, PinOrder, IsDisplayed) WHERE RevokedAt IS NULL;
 GO
 
 -- Suggested: karma unlocks privileges (Reddit-style thresholds), defined as data
-CREATE TABLE karma.Perk
-(
+IF OBJECT_ID(N'karma.Perk', N'U') IS NULL
+BEGIN
+CREATE TABLE karma.Perk (
     PerkCode            VARCHAR(40)   NOT NULL CONSTRAINT PK_Perk PRIMARY KEY,
     Name                NVARCHAR(100) NOT NULL,
     Description         NVARCHAR(300) NULL,
@@ -885,13 +1015,14 @@ CREATE TABLE karma.Perk
     IsActive            BIT           NOT NULL CONSTRAINT DF_Perk_IsActive DEFAULT 1,
     CONSTRAINT CK_Perk_Category CHECK ((MinCategoryCode IS NULL AND MinCategoryKarma IS NULL) OR (MinCategoryCode IS NOT NULL AND MinCategoryKarma IS NOT NULL))
 );
+END
 GO
 /* =====================================================================
    9. VIEWS
    ===================================================================== */
 
 -- Profile karma: total + per-category breakdown (reads the indexed view)
-CREATE VIEW karma.vw_UserKarma
+CREATE OR ALTER VIEW karma.vw_UserKarma
 AS
 SELECT  u.UserId,
         u.Username,
@@ -909,7 +1040,7 @@ GROUP BY u.UserId, u.Username, u.KarmaStatus;
 GO
 
 -- Karma over time (profile chart / leaderboards by month)
-CREATE VIEW karma.vw_UserKarmaMonthly
+CREATE OR ALTER VIEW karma.vw_UserKarmaMonthly
 AS
 SELECT  l.UserId,
         DATEFROMPARTS(YEAR(l.CreatedAt), MONTH(l.CreatedAt), 1) AS MonthStart,
@@ -921,7 +1052,7 @@ GROUP BY l.UserId, DATEFROMPARTS(YEAR(l.CreatedAt), MONTH(l.CreatedAt), 1), l.Ca
 GO
 
 -- What each shop is entitled to, given its current tier
-CREATE VIEW dir.vw_ShopEntitlement
+CREATE OR ALTER VIEW dir.vw_ShopEntitlement
 AS
 SELECT  s.ShopId,
         s.CurrentTierId,
@@ -935,7 +1066,7 @@ GO
 
 /* Public directory listing: website / email / social links are masked unless the tier allows them.
    FREE tier = no website or email links (per the three-tier structure). */
-CREATE VIEW dir.vw_ShopPublicListing
+CREATE OR ALTER VIEW dir.vw_ShopPublicListing
 AS
 SELECT  s.ShopId,
         s.PublicId,
@@ -976,7 +1107,7 @@ GO
 
 /* New-shops rotation: eligible entries with an effective weight.
    EffectiveWeight = BaseWeight x tier multiplier x freshness (linear decay 1.0 -> 0.25 across the window). */
-CREATE VIEW feed.vw_NewShopRotation
+CREATE OR ALTER VIEW feed.vw_NewShopRotation
 AS
 SELECT  e.FeedEntryId,
         e.SlotCode,
@@ -1008,7 +1139,7 @@ WHERE   e.IsActive = 1
 GO
 
 -- Suggested: perks each user currently qualifies for
-CREATE VIEW karma.vw_UserPerk
+CREATE OR ALTER VIEW karma.vw_UserPerk
 AS
 SELECT  u.UserId,
         p.PerkCode
@@ -1034,7 +1165,7 @@ WHERE   p.IsActive = 1
 GO
 
 -- Suggested: shops don't hold karma; they get a community-activity score derived from members' contributions
-CREATE VIEW dir.vw_ShopCommunityScore
+CREATE OR ALTER VIEW dir.vw_ShopCommunityScore
 AS
 SELECT  l.ShopId,
         SUM(l.Points)                                   AS CommunityPoints,
@@ -1051,7 +1182,7 @@ GO
 /* Evaluate every active, rule-based badge the user doesn't hold yet; award those whose criteria are met.
    Counts are NET of reversals, so removed content doesn't count toward a badge.
    Badges are NOT auto-revoked when counts later drop (Reddit-style permanence); moderators revoke manually. */
-CREATE PROCEDURE karma.usp_EvaluateBadges
+CREATE OR ALTER PROCEDURE karma.usp_EvaluateBadges
     @UserId          BIGINT,
     @TriggerLedgerId BIGINT = NULL
 AS
@@ -1124,7 +1255,7 @@ GO
 
 /* Award points for one action. Idempotent: the same SourceKey can only ever be paid once.
    @Result: AWARDED | DUPLICATE | CAPPED | COOLDOWN | SELF_SHOP | SHOP_CAP | INELIGIBLE | INACTIVE_ACTION */
-CREATE PROCEDURE karma.usp_AwardPoints
+CREATE OR ALTER PROCEDURE karma.usp_AwardPoints
     @UserId          BIGINT,
     @ActionCode      VARCHAR(40),
     @SourceType      VARCHAR(20),
@@ -1265,7 +1396,7 @@ GO
 
 /* Claw back points: either one ledger row (@LedgerId) or every live award tied to a source
    (e.g. a photo later removed). Inserts negating rows; never edits history. */
-CREATE PROCEDURE karma.usp_ReverseForSource
+CREATE OR ALTER PROCEDURE karma.usp_ReverseForSource
     @SourceType  VARCHAR(20)   = NULL,
     @SourceId    BIGINT        = NULL,
     @LedgerId    BIGINT        = NULL,
@@ -1299,7 +1430,7 @@ GO
 
 /* Cast / change / retract a vote. Photos: up/down. Reviews: helpful(+1)/unhelpful(-1). 0 = retract.
    The content author's karma moves with the vote; prior vote karma is reversed first. */
-CREATE PROCEDURE ugc.usp_CastVote
+CREATE OR ALTER PROCEDURE ugc.usp_CastVote
     @VoterUserId BIGINT,
     @PhotoId     BIGINT   = NULL,
     @ReviewId    BIGINT   = NULL,
@@ -1384,7 +1515,7 @@ END;
 GO
 
 /* Moderator approves a pending photo: sets first-photo / cover, then awards karma. */
-CREATE PROCEDURE ugc.usp_ApprovePhoto
+CREATE OR ALTER PROCEDURE ugc.usp_ApprovePhoto
     @PhotoId         BIGINT,
     @ModeratorUserId BIGINT
 AS
@@ -1448,7 +1579,7 @@ GO
    ===================================================================== */
 
 -- Run on a schedule (e.g. every 15 min): expire old entries, add newly published / newly claimed shops
-CREATE PROCEDURE feed.usp_RefreshNewShopFeed
+CREATE OR ALTER PROCEDURE feed.usp_RefreshNewShopFeed
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -1488,7 +1619,7 @@ GO
 
 /* Serve a slot: pinned entries first, then weighted-random (Efraimidis-Spirakis: sort by -ln(U)/w).
    Every page view gets a different, fair mix; higher tiers and fresher shops show up more often. */
-CREATE PROCEDURE feed.usp_GetNewShopRotation
+CREATE OR ALTER PROCEDURE feed.usp_GetNewShopRotation
     @SlotCode       VARCHAR(30),
     @UserId         BIGINT     = NULL,
     @SessionHash    BINARY(32) = NULL,
@@ -1539,28 +1670,33 @@ GO
    Schemas added: crm (signup/preview), cms (public content), seo (sitemap views)
    ===================================================================== */
 
-CREATE SCHEMA crm;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'crm')
+    EXEC(N'CREATE SCHEMA crm');
 GO
-CREATE SCHEMA cms;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'cms')
+    EXEC(N'CREATE SCHEMA cms');
 GO
-CREATE SCHEMA seo;
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'seo')
+    EXEC(N'CREATE SCHEMA seo');
 GO
 
 /* ---------------------------------------------------------------------
    Roles catalog (UserRole.RoleCode stays the grant table)
    --------------------------------------------------------------------- */
-CREATE TABLE core.Role
-(
+IF OBJECT_ID(N'core.Role', N'U') IS NULL
+BEGIN
+CREATE TABLE core.Role (
     RoleCode     VARCHAR(20)   NOT NULL CONSTRAINT PK_Role PRIMARY KEY,
     Name         NVARCHAR(80)  NOT NULL,
     Description  NVARCHAR(300) NULL,
     SortOrder    TINYINT       NOT NULL,
     CONSTRAINT CK_Role_Code CHECK (RoleCode IN ('SUPERADMIN','ADMIN','MODERATOR','EDITOR'))
 );
+END
 GO
 
-ALTER TABLE core.UserRole
-    ADD CONSTRAINT FK_UserRole_Role FOREIGN KEY (RoleCode) REFERENCES core.Role(RoleCode);
+IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE name = N'FK_UserRole_Role')
+    ALTER TABLE core.UserRole ADD CONSTRAINT FK_UserRole_Role FOREIGN KEY (RoleCode) REFERENCES core.Role(RoleCode);
 GO
 
 /* ---------------------------------------------------------------------
@@ -1569,8 +1705,9 @@ GO
    crm.EmailVerification = emailed links + codes (signup confirm, etc.).
    Both exist: different lifetimes and callers.
    --------------------------------------------------------------------- */
-CREATE TABLE core.VerificationCode
-(
+IF OBJECT_ID(N'core.VerificationCode', N'U') IS NULL
+BEGIN
+CREATE TABLE core.VerificationCode (
     VerificationCodeId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_VerificationCode PRIMARY KEY,
     UserId             BIGINT         NULL CONSTRAINT FK_VerificationCode_User REFERENCES core.AppUser(UserId),
     Email              NVARCHAR(320)  NOT NULL,
@@ -1584,12 +1721,15 @@ CREATE TABLE core.VerificationCode
     CreatedAt          DATETIME2(3)   NOT NULL CONSTRAINT DF_VerificationCode_CreatedAt DEFAULT SYSUTCDATETIME(),
     CONSTRAINT CK_VerificationCode_Purpose CHECK (Purpose IN ('LOGIN','SADMIN_LOGIN','CLAIM','EMAIL_CHANGE'))
 );
+END
 GO
-CREATE INDEX IX_VerificationCode_Email ON core.VerificationCode (Email, Purpose, ExpiresAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_VerificationCode_Email' AND object_id = OBJECT_ID(N'core.VerificationCode'))
+    CREATE INDEX IX_VerificationCode_Email ON core.VerificationCode (Email, Purpose, ExpiresAt);
 GO
 
-CREATE TABLE core.RefreshToken
-(
+IF OBJECT_ID(N'core.RefreshToken', N'U') IS NULL
+BEGIN
+CREATE TABLE core.RefreshToken (
     RefreshTokenId     BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_RefreshToken PRIMARY KEY,
     UserId             BIGINT         NOT NULL CONSTRAINT FK_RefreshToken_User REFERENCES core.AppUser(UserId),
     TokenHash          VARBINARY(32)  NOT NULL,
@@ -1602,12 +1742,15 @@ CREATE TABLE core.RefreshToken
     ReplacedByTokenId  BIGINT         NULL CONSTRAINT FK_RefreshToken_Replaced REFERENCES core.RefreshToken(RefreshTokenId),
     CONSTRAINT UQ_RefreshToken_Hash UNIQUE (TokenHash)
 );
+END
 GO
-CREATE INDEX IX_RefreshToken_User ON core.RefreshToken (UserId, ExpiresAt) WHERE RevokedAt IS NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_RefreshToken_User' AND object_id = OBJECT_ID(N'core.RefreshToken'))
+    CREATE INDEX IX_RefreshToken_User ON core.RefreshToken (UserId, ExpiresAt) WHERE RevokedAt IS NULL;
 GO
 
-CREATE TABLE core.UserDevice
-(
+IF OBJECT_ID(N'core.UserDevice', N'U') IS NULL
+BEGIN
+CREATE TABLE core.UserDevice (
     UserDeviceId     BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_UserDevice PRIMARY KEY,
     UserId           BIGINT        NOT NULL CONSTRAINT FK_UserDevice_User REFERENCES core.AppUser(UserId),
     Platform         VARCHAR(20)   NOT NULL,
@@ -1617,13 +1760,15 @@ CREATE TABLE core.UserDevice
     CreatedAt        DATETIME2(3)  NOT NULL CONSTRAINT DF_UserDevice_CreatedAt DEFAULT SYSUTCDATETIME(),
     CONSTRAINT CK_UserDevice_Platform CHECK (Platform IN ('IOS','ANDROID','WEB'))
 );
+END
 GO
 
 /* ---------------------------------------------------------------------
    Media (plan §6 / §8.5)
    --------------------------------------------------------------------- */
-CREATE TABLE core.MediaAsset
-(
+IF OBJECT_ID(N'core.MediaAsset', N'U') IS NULL
+BEGIN
+CREATE TABLE core.MediaAsset (
     MediaAssetId     BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_MediaAsset PRIMARY KEY,
     PublicId         UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_MediaAsset_PublicId DEFAULT NEWSEQUENTIALID(),
     Bucket           NVARCHAR(100)  NULL,
@@ -1645,31 +1790,48 @@ CREATE TABLE core.MediaAsset
     CONSTRAINT CK_MediaAsset_Vis CHECK (Visibility IN ('PRIVATE','PUBLIC')),
     CONSTRAINT CK_MediaAsset_Status CHECK (Status IN ('PENDING_UPLOAD','READY','REJECTED','DELETED'))
 );
+END
 GO
-CREATE INDEX IX_MediaAsset_Legacy ON core.MediaAsset (LegacyPath) WHERE LegacyPath IS NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_MediaAsset_Legacy' AND object_id = OBJECT_ID(N'core.MediaAsset'))
+    CREATE INDEX IX_MediaAsset_Legacy ON core.MediaAsset (LegacyPath) WHERE LegacyPath IS NOT NULL;
 GO
 
+IF COL_LENGTH(N'core.UserProfile', N'AvatarMediaId') IS NULL
+BEGIN
 ALTER TABLE core.UserProfile ADD
     AvatarMediaId    BIGINT        NULL CONSTRAINT FK_UserProfile_Avatar REFERENCES core.MediaAsset(MediaAssetId),
     IsPublicProfile  BIT           NOT NULL CONSTRAINT DF_UserProfile_IsPublic DEFAULT 0;
+END
 GO
 
+IF COL_LENGTH(N'ugc.ShopPhoto', N'MediaAssetId') IS NULL
+BEGIN
 ALTER TABLE ugc.ShopPhoto ADD
     MediaAssetId BIGINT        NULL CONSTRAINT FK_ShopPhoto_Media REFERENCES core.MediaAsset(MediaAssetId),
     UpdatedAt    DATETIME2(3)  NOT NULL CONSTRAINT DF_ShopPhoto_UpdatedAt DEFAULT SYSUTCDATETIME();
+END
 GO
 
+IF COL_LENGTH(N'dir.Shop', N'LogoMediaId') IS NULL
+BEGIN
 ALTER TABLE dir.Shop ADD
     LogoMediaId      BIGINT NULL CONSTRAINT FK_Shop_LogoMedia REFERENCES core.MediaAsset(MediaAssetId),
     UpdatedByUserId  BIGINT NULL CONSTRAINT FK_Shop_UpdatedBy REFERENCES core.AppUser(UserId);
+END
 GO
 
+IF COL_LENGTH(N'karma.BadgeDefinition', N'IconMediaId') IS NULL
+BEGIN
 ALTER TABLE karma.BadgeDefinition ADD
     IconMediaId BIGINT NULL CONSTRAINT FK_Badge_IconMedia REFERENCES core.MediaAsset(MediaAssetId);
+END
 GO
 
+IF COL_LENGTH(N'dir.ShopClaimRequest', N'EvidenceMediaId') IS NULL
+BEGIN
 ALTER TABLE dir.ShopClaimRequest ADD
     EvidenceMediaId BIGINT NULL CONSTRAINT FK_Claim_EvidenceMedia REFERENCES core.MediaAsset(MediaAssetId);
+END
 GO
 
 /* ShopEvent.Slug + UpdatedAt are patched into the v1 CREATE in assemble.
@@ -1678,8 +1840,9 @@ GO
 /* ---------------------------------------------------------------------
    Owner analytics / hours / leads (plan §8.7–8.9)
    --------------------------------------------------------------------- */
-CREATE TABLE dir.ShopHours
-(
+IF OBJECT_ID(N'dir.ShopHours', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ShopHours (
     ShopHoursId  BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopHours PRIMARY KEY,
     ShopId       BIGINT        NOT NULL CONSTRAINT FK_ShopHours_Shop REFERENCES dir.Shop(ShopId),
     DayOfWeek    TINYINT       NOT NULL,
@@ -1689,10 +1852,12 @@ CREATE TABLE dir.ShopHours
     CONSTRAINT UQ_ShopHours_Day UNIQUE (ShopId, DayOfWeek),
     CONSTRAINT CK_ShopHours_Dow CHECK (DayOfWeek BETWEEN 0 AND 6)
 );
+END
 GO
 
-CREATE TABLE dir.ShopHoursException
-(
+IF OBJECT_ID(N'dir.ShopHoursException', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ShopHoursException (
     ShopHoursExceptionId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopHoursException PRIMARY KEY,
     ShopId               BIGINT        NOT NULL CONSTRAINT FK_ShopHoursEx_Shop REFERENCES dir.Shop(ShopId),
     ExceptionDate        DATE          NOT NULL,
@@ -1702,10 +1867,12 @@ CREATE TABLE dir.ShopHoursException
     Note                 NVARCHAR(200) NULL,
     CONSTRAINT UQ_ShopHoursEx UNIQUE (ShopId, ExceptionDate)
 );
+END
 GO
 
-CREATE TABLE dir.ShopContactRequest
-(
+IF OBJECT_ID(N'dir.ShopContactRequest', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ShopContactRequest (
     ShopContactRequestId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopContactRequest PRIMARY KEY,
     ShopId               BIGINT         NOT NULL CONSTRAINT FK_ShopContact_Shop REFERENCES dir.Shop(ShopId),
     FromUserId           BIGINT         NULL CONSTRAINT FK_ShopContact_User REFERENCES core.AppUser(UserId),
@@ -1717,10 +1884,12 @@ CREATE TABLE dir.ShopContactRequest
     CreatedAt            DATETIME2(3)   NOT NULL CONSTRAINT DF_ShopContact_CreatedAt DEFAULT SYSUTCDATETIME(),
     CONSTRAINT CK_ShopContact_Status CHECK (Status IN ('NEW','READ','REPLIED','SPAM','CLOSED'))
 );
+END
 GO
 
-CREATE TABLE dir.ShopDailyStat
-(
+IF OBJECT_ID(N'dir.ShopDailyStat', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ShopDailyStat (
     ShopId            BIGINT        NOT NULL CONSTRAINT FK_ShopDailyStat_Shop REFERENCES dir.Shop(ShopId),
     StatDate          DATE          NOT NULL,
     ListingViews      INT           NOT NULL CONSTRAINT DF_ShopDailyStat_Views DEFAULT 0,
@@ -1729,13 +1898,15 @@ CREATE TABLE dir.ShopDailyStat
     DirectionsClicks  INT           NOT NULL CONSTRAINT DF_ShopDailyStat_Dir DEFAULT 0,
     CONSTRAINT PK_ShopDailyStat PRIMARY KEY (ShopId, StatDate)
 );
+END
 GO
 
 /* ---------------------------------------------------------------------
    Logging (plan §8.4 — NCVetBiz Activity / Audit / Search / Email)
    --------------------------------------------------------------------- */
-CREATE TABLE core.ActivityLog
-(
+IF OBJECT_ID(N'core.ActivityLog', N'U') IS NULL
+BEGIN
+CREATE TABLE core.ActivityLog (
     ActivityLogId    BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ActivityLog PRIMARY KEY,
     UserId           BIGINT         NULL CONSTRAINT FK_ActivityLog_User REFERENCES core.AppUser(UserId),
     ActivityType     VARCHAR(40)    NOT NULL,
@@ -1745,13 +1916,17 @@ CREATE TABLE core.ActivityLog
     IpHash           BINARY(32)     NULL,
     CreatedAt        DATETIME2(3)   NOT NULL CONSTRAINT DF_ActivityLog_CreatedAt DEFAULT SYSUTCDATETIME()
 );
+END
 GO
-CREATE INDEX IX_ActivityLog_Time ON core.ActivityLog (CreatedAt DESC);
-CREATE INDEX IX_ActivityLog_User ON core.ActivityLog (UserId, CreatedAt DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ActivityLog_Time' AND object_id = OBJECT_ID(N'core.ActivityLog'))
+    CREATE INDEX IX_ActivityLog_Time ON core.ActivityLog (CreatedAt DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ActivityLog_User' AND object_id = OBJECT_ID(N'core.ActivityLog'))
+    CREATE INDEX IX_ActivityLog_User ON core.ActivityLog (UserId, CreatedAt DESC);
 GO
 
-CREATE TABLE core.AuditLog
-(
+IF OBJECT_ID(N'core.AuditLog', N'U') IS NULL
+BEGIN
+CREATE TABLE core.AuditLog (
     AuditLogId          BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AuditLog PRIMARY KEY,
     EntityType          VARCHAR(40)    NOT NULL,
     EntityId            BIGINT         NOT NULL,
@@ -1763,12 +1938,15 @@ CREATE TABLE core.AuditLog
     CreatedAt           DATETIME2(3)   NOT NULL CONSTRAINT DF_AuditLog_CreatedAt DEFAULT SYSUTCDATETIME(),
     CONSTRAINT CK_AuditLog_Json CHECK (ChangesJson IS NULL OR ISJSON(ChangesJson) = 1)
 );
+END
 GO
-CREATE INDEX IX_AuditLog_Entity ON core.AuditLog (EntityType, EntityId, CreatedAt DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_AuditLog_Entity' AND object_id = OBJECT_ID(N'core.AuditLog'))
+    CREATE INDEX IX_AuditLog_Entity ON core.AuditLog (EntityType, EntityId, CreatedAt DESC);
 GO
 
-CREATE TABLE core.EmailLog
-(
+IF OBJECT_ID(N'core.EmailLog', N'U') IS NULL
+BEGIN
+CREATE TABLE core.EmailLog (
     EmailLogId       BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_EmailLog PRIMARY KEY,
     TemplateKey      VARCHAR(60)    NOT NULL,
     ToEmail          NVARCHAR(320)  NOT NULL,
@@ -1782,12 +1960,15 @@ CREATE TABLE core.EmailLog
     CreatedAt        DATETIME2(3)   NOT NULL CONSTRAINT DF_EmailLog_CreatedAt DEFAULT SYSUTCDATETIME(),
     CONSTRAINT CK_EmailLog_Status CHECK (Status IN ('QUEUED','SENT','FAILED','BOUNCED','SUPPRESSED'))
 );
+END
 GO
-CREATE INDEX IX_EmailLog_To ON core.EmailLog (ToEmail, CreatedAt DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_EmailLog_To' AND object_id = OBJECT_ID(N'core.EmailLog'))
+    CREATE INDEX IX_EmailLog_To ON core.EmailLog (ToEmail, CreatedAt DESC);
 GO
 
-CREATE TABLE dir.SearchLog
-(
+IF OBJECT_ID(N'dir.SearchLog', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.SearchLog (
     SearchLogId   BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_SearchLog PRIMARY KEY,
     UserId        BIGINT         NULL CONSTRAINT FK_SearchLog_User REFERENCES core.AppUser(UserId),
     QueryText     NVARCHAR(200)  NOT NULL,
@@ -1796,10 +1977,12 @@ CREATE TABLE dir.SearchLog
     SessionHash   BINARY(32)     NULL,
     CreatedAt     DATETIME2(3)   NOT NULL CONSTRAINT DF_SearchLog_CreatedAt DEFAULT SYSUTCDATETIME()
 );
+END
 GO
 
-CREATE TABLE core.SiteSetting
-(
+IF OBJECT_ID(N'core.SiteSetting', N'U') IS NULL
+BEGIN
+CREATE TABLE core.SiteSetting (
     SettingKey       VARCHAR(80)    NOT NULL CONSTRAINT PK_SiteSetting PRIMARY KEY,
     SettingValue     NVARCHAR(MAX)  NOT NULL,
     ValueType        VARCHAR(20)    NOT NULL CONSTRAINT DF_SiteSetting_Type DEFAULT 'STRING',
@@ -1808,13 +1991,15 @@ CREATE TABLE core.SiteSetting
     UpdatedByUserId  BIGINT         NULL CONSTRAINT FK_SiteSetting_User REFERENCES core.AppUser(UserId),
     CONSTRAINT CK_SiteSetting_Type CHECK (ValueType IN ('STRING','INT','BOOL','JSON'))
 );
+END
 GO
 
 /* ---------------------------------------------------------------------
    Native signup / Preview (plan §12.8)
    --------------------------------------------------------------------- */
-CREATE TABLE crm.Signup
-(
+IF OBJECT_ID(N'crm.Signup', N'U') IS NULL
+BEGIN
+CREATE TABLE crm.Signup (
     SignupId             BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Signup PRIMARY KEY,
     PublicId             UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_Signup_PublicId DEFAULT NEWSEQUENTIALID(),
     FormKey              VARCHAR(20)    NOT NULL,
@@ -1856,15 +2041,19 @@ CREATE TABLE crm.Signup
         ('Collector','Local Card Shop','Dealer','Breaker','Content Creator','Grading / Authentication','Manufacturer','Other')),
     CONSTRAINT CK_Signup_Json CHECK (ExtraJson IS NULL OR ISJSON(ExtraJson) = 1)
 );
+END
 GO
-CREATE UNIQUE INDEX UX_Signup_EmailForm_Live ON crm.Signup (EmailNormalized, FormKey)
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_Signup_EmailForm_Live' AND object_id = OBJECT_ID(N'crm.Signup'))
+    CREATE UNIQUE INDEX UX_Signup_EmailForm_Live ON crm.Signup (EmailNormalized, FormKey)
     WHERE Status <> 'MERGED' AND Status <> 'DELETED';
-CREATE UNIQUE INDEX UX_Signup_External ON crm.Signup (ExternalSource, ExternalId)
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_Signup_External' AND object_id = OBJECT_ID(N'crm.Signup'))
+    CREATE UNIQUE INDEX UX_Signup_External ON crm.Signup (ExternalSource, ExternalId)
     WHERE ExternalId IS NOT NULL;
 GO
 
-CREATE TABLE crm.EmailVerification
-(
+IF OBJECT_ID(N'crm.EmailVerification', N'U') IS NULL
+BEGIN
+CREATE TABLE crm.EmailVerification (
     EmailVerificationId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_EmailVerification PRIMARY KEY,
     TokenHash           VARBINARY(32)  NOT NULL,
     Kind                VARCHAR(10)    NOT NULL,
@@ -1880,10 +2069,12 @@ CREATE TABLE crm.EmailVerification
     CONSTRAINT CK_EmailVer_Kind CHECK (Kind IN ('LINK','CODE')),
     CONSTRAINT CK_EmailVer_Purpose CHECK (Purpose IN ('CONFIRM_SIGNUP','VERIFY_EMAIL','LOGIN','CLAIM','UNSUBSCRIBE'))
 );
+END
 GO
 
-CREATE TABLE crm.ConsentRecord
-(
+IF OBJECT_ID(N'crm.ConsentRecord', N'U') IS NULL
+BEGIN
+CREATE TABLE crm.ConsentRecord (
     ConsentRecordId     BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ConsentRecord PRIMARY KEY,
     SignupId            BIGINT         NULL CONSTRAINT FK_Consent_Signup REFERENCES crm.Signup(SignupId),
     UserId              BIGINT         NULL CONSTRAINT FK_Consent_User REFERENCES core.AppUser(UserId),
@@ -1898,10 +2089,12 @@ CREATE TABLE crm.ConsentRecord
     CONSTRAINT CK_Consent_Type CHECK (ConsentType IN ('MARKETING_EMAIL','SMS','TERMS','PRIVACY')),
     CONSTRAINT CK_Consent_Source CHECK (Source IN ('WEB','MAUI','JOTFORM_IMPORT','SADMIN'))
 );
+END
 GO
 
-CREATE TABLE crm.EmailSuppression
-(
+IF OBJECT_ID(N'crm.EmailSuppression', N'U') IS NULL
+BEGIN
+CREATE TABLE crm.EmailSuppression (
     EmailNormalized  NVARCHAR(320) NOT NULL CONSTRAINT PK_EmailSuppression PRIMARY KEY,
     Reason           VARCHAR(20)   NOT NULL,
     Source           VARCHAR(40)   NULL,
@@ -1909,10 +2102,12 @@ CREATE TABLE crm.EmailSuppression
     CreatedByUserId  BIGINT        NULL CONSTRAINT FK_EmailSuppression_User REFERENCES core.AppUser(UserId),
     CONSTRAINT CK_EmailSuppression_Reason CHECK (Reason IN ('UNSUBSCRIBE','HARD_BOUNCE','COMPLAINT','MANUAL','SPAM'))
 );
+END
 GO
 
-CREATE TABLE crm.InviteCode
-(
+IF OBJECT_ID(N'crm.InviteCode', N'U') IS NULL
+BEGIN
+CREATE TABLE crm.InviteCode (
     InviteCodeId      BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_InviteCode PRIMARY KEY,
     CodeHash          VARBINARY(32)  NOT NULL,
     CodeHint          VARCHAR(12)    NOT NULL,
@@ -1928,14 +2123,17 @@ CREATE TABLE crm.InviteCode
     CONSTRAINT UQ_Invite_Hash UNIQUE (CodeHash),
     CONSTRAINT CK_Invite_Kind CHECK (Kind IN ('SHARED','PERSONAL'))
 );
+END
 GO
 
-ALTER TABLE crm.Signup ADD CONSTRAINT FK_Signup_InviteUsed
+IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE name = N'FK_Signup_InviteUsed')
+    ALTER TABLE crm.Signup ADD CONSTRAINT FK_Signup_InviteUsed
     FOREIGN KEY (InviteCodeUsedId) REFERENCES crm.InviteCode(InviteCodeId);
 GO
 
-CREATE TABLE crm.InviteRedemption
-(
+IF OBJECT_ID(N'crm.InviteRedemption', N'U') IS NULL
+BEGIN
+CREATE TABLE crm.InviteRedemption (
     InviteRedemptionId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_InviteRedemption PRIMARY KEY,
     InviteCodeId       BIGINT        NOT NULL CONSTRAINT FK_InviteRed_Code REFERENCES crm.InviteCode(InviteCodeId),
     SignupId           BIGINT        NULL CONSTRAINT FK_InviteRed_Signup REFERENCES crm.Signup(SignupId),
@@ -1944,10 +2142,12 @@ CREATE TABLE crm.InviteRedemption
     Channel            VARCHAR(20)   NOT NULL CONSTRAINT DF_InviteRed_Channel DEFAULT 'WEB',
     RedeemedAt         DATETIME2(3)  NOT NULL CONSTRAINT DF_InviteRed_At DEFAULT SYSUTCDATETIME()
 );
+END
 GO
 
-CREATE TABLE crm.ContactMessage
-(
+IF OBJECT_ID(N'crm.ContactMessage', N'U') IS NULL
+BEGIN
+CREATE TABLE crm.ContactMessage (
     ContactMessageId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ContactMessage PRIMARY KEY,
     PublicId         UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_ContactMessage_PublicId DEFAULT NEWSEQUENTIALID(),
     SignupId         BIGINT         NULL CONSTRAINT FK_ContactMessage_Signup REFERENCES crm.Signup(SignupId),
@@ -1961,14 +2161,16 @@ CREATE TABLE crm.ContactMessage
     CONSTRAINT UQ_ContactMessage_PublicId UNIQUE (PublicId),
     CONSTRAINT CK_ContactMessage_Status CHECK (Status IN ('NEW','ANSWERED','CLOSED','SPAM'))
 );
+END
 GO
 
 /* ---------------------------------------------------------------------
    Public CMS (events, news/posts, bloggers, bios, gallery, static pages)
    Used by content seeds and seo sitemap views. Slugs are unique.
    --------------------------------------------------------------------- */
-CREATE TABLE cms.StaticPage
-(
+IF OBJECT_ID(N'cms.StaticPage', N'U') IS NULL
+BEGIN
+CREATE TABLE cms.StaticPage (
     PageId       INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_StaticPage PRIMARY KEY,
     Slug         NVARCHAR(120)  NOT NULL,
     LocPath      NVARCHAR(200)  NOT NULL,
@@ -1979,10 +2181,12 @@ CREATE TABLE cms.StaticPage
     CONSTRAINT UQ_StaticPage_Slug UNIQUE (Slug),
     CONSTRAINT UQ_StaticPage_Loc UNIQUE (LocPath)
 );
+END
 GO
 
-CREATE TABLE cms.Event
-(
+IF OBJECT_ID(N'cms.Event', N'U') IS NULL
+BEGIN
+CREATE TABLE cms.Event (
     EventId      BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_CmsEvent PRIMARY KEY,
     PublicId     UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_CmsEvent_PublicId DEFAULT NEWSEQUENTIALID(),
     Slug         NVARCHAR(160)  NOT NULL,
@@ -2005,12 +2209,15 @@ CREATE TABLE cms.Event
     CONSTRAINT CK_CmsEvent_Type CHECK (EventType IN ('CARD_SHOW','RELEASE_DAY','TRADE_NIGHT','TOURNAMENT','SIGNING','BREAK','SALE','MEETUP','CONVENTION','EDUCATION','CHARITY','ADVOCACY','INDUSTRY','COMMUNITY','OTHER')),
     CONSTRAINT CK_CmsEvent_Status CHECK (Status IN ('DRAFT','PENDING_REVIEW','PUBLISHED','CANCELED'))
 );
+END
 GO
-CREATE INDEX IX_CmsEvent_Starts ON cms.Event (StartsAt) WHERE Status = 'PUBLISHED';
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_CmsEvent_Starts' AND object_id = OBJECT_ID(N'cms.Event'))
+    CREATE INDEX IX_CmsEvent_Starts ON cms.Event (StartsAt) WHERE Status = 'PUBLISHED';
 GO
 
-CREATE TABLE cms.Post
-(
+IF OBJECT_ID(N'cms.Post', N'U') IS NULL
+BEGIN
+CREATE TABLE cms.Post (
     PostId         BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_CmsPost PRIMARY KEY,
     PublicId       UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_CmsPost_PublicId DEFAULT NEWSEQUENTIALID(),
     Slug           NVARCHAR(160)  NOT NULL,
@@ -2029,10 +2236,12 @@ CREATE TABLE cms.Post
     CONSTRAINT UQ_CmsPost_Slug UNIQUE (Slug),
     CONSTRAINT CK_CmsPost_Status CHECK (Status IN ('DRAFT','PUBLISHED','ARCHIVED'))
 );
+END
 GO
 
-CREATE TABLE cms.Blogger
-(
+IF OBJECT_ID(N'cms.Blogger', N'U') IS NULL
+BEGIN
+CREATE TABLE cms.Blogger (
     BloggerId    BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Blogger PRIMARY KEY,
     Slug         NVARCHAR(160)  NOT NULL,
     Name         NVARCHAR(200)  NOT NULL,
@@ -2046,10 +2255,12 @@ CREATE TABLE cms.Blogger
     UpdatedAt    DATETIME2(3)   NOT NULL CONSTRAINT DF_Blogger_UpdatedAt DEFAULT SYSUTCDATETIME(),
     CONSTRAINT UQ_Blogger_Slug UNIQUE (Slug)
 );
+END
 GO
 
-CREATE TABLE cms.PersonBio
-(
+IF OBJECT_ID(N'cms.PersonBio', N'U') IS NULL
+BEGIN
+CREATE TABLE cms.PersonBio (
     PersonBioId  BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_PersonBio PRIMARY KEY,
     Slug         NVARCHAR(160)  NOT NULL,
     FullName     NVARCHAR(120)  NOT NULL,
@@ -2064,10 +2275,12 @@ CREATE TABLE cms.PersonBio
     UpdatedAt    DATETIME2(3)   NOT NULL CONSTRAINT DF_PersonBio_UpdatedAt DEFAULT SYSUTCDATETIME(),
     CONSTRAINT UQ_PersonBio_Slug UNIQUE (Slug)
 );
+END
 GO
 
-CREATE TABLE cms.GalleryItem
-(
+IF OBJECT_ID(N'cms.GalleryItem', N'U') IS NULL
+BEGIN
+CREATE TABLE cms.GalleryItem (
     GalleryItemId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_GalleryItem PRIMARY KEY,
     Slug          NVARCHAR(160)  NOT NULL,
     Caption       NVARCHAR(300)  NOT NULL,
@@ -2080,6 +2293,7 @@ CREATE TABLE cms.GalleryItem
     UpdatedAt     DATETIME2(3)   NOT NULL CONSTRAINT DF_GalleryItem_UpdatedAt DEFAULT SYSUTCDATETIME(),
     CONSTRAINT UQ_GalleryItem_Slug UNIQUE (Slug)
 );
+END
 GO
 
 /* ---------------------------------------------------------------------
@@ -2089,8 +2303,9 @@ GO
    (same public-content schema as posts/pages), not a separate content
    schema. Do not invent terms or grades — generate_seed reads the page.
    --------------------------------------------------------------------- */
-CREATE TABLE cms.GlossaryTerm
-(
+IF OBJECT_ID(N'cms.GlossaryTerm', N'U') IS NULL
+BEGIN
+CREATE TABLE cms.GlossaryTerm (
     GlossaryTermId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_GlossaryTerm PRIMARY KEY,
     Slug           NVARCHAR(160)  NOT NULL,
     Term           NVARCHAR(120)  NOT NULL,
@@ -2103,12 +2318,15 @@ CREATE TABLE cms.GlossaryTerm
     UpdatedAt      DATETIME2(3)   NOT NULL CONSTRAINT DF_GlossaryTerm_UpdatedAt DEFAULT SYSUTCDATETIME(),
     CONSTRAINT UQ_GlossaryTerm_Slug UNIQUE (Slug)
 );
+END
 GO
-CREATE INDEX IX_GlossaryTerm_Sort ON cms.GlossaryTerm (SortOrder, Term);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_GlossaryTerm_Sort' AND object_id = OBJECT_ID(N'cms.GlossaryTerm'))
+    CREATE INDEX IX_GlossaryTerm_Sort ON cms.GlossaryTerm (SortOrder, Term);
 GO
 
-CREATE TABLE cms.ConditionGrade
-(
+IF OBJECT_ID(N'cms.ConditionGrade', N'U') IS NULL
+BEGIN
+CREATE TABLE cms.ConditionGrade (
     ConditionGradeId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ConditionGrade PRIMARY KEY,
     Slug             NVARCHAR(80)   NOT NULL,
     Name             NVARCHAR(80)   NOT NULL,
@@ -2122,12 +2340,13 @@ CREATE TABLE cms.ConditionGrade
     CONSTRAINT UQ_ConditionGrade_Rank UNIQUE (Rank),
     CONSTRAINT UQ_ConditionGrade_Name UNIQUE (Name)
 );
+END
 GO
 
 /* ---------------------------------------------------------------------
    SEO sitemap views — loc path + lastmod, public content only
    --------------------------------------------------------------------- */
-CREATE VIEW seo.vw_SitemapStatic
+CREATE OR ALTER VIEW seo.vw_SitemapStatic
 AS
 SELECT  p.LocPath,
         p.UpdatedAt AS LastModUtc,
@@ -2137,7 +2356,7 @@ FROM    cms.StaticPage AS p
 WHERE   p.IsIndexed = 1;
 GO
 
-CREATE VIEW seo.vw_SitemapShops
+CREATE OR ALTER VIEW seo.vw_SitemapShops
 AS
 SELECT  CONCAT(N'/shops/', LOWER(s.StateCode), N'/',
                LOWER(REPLACE(REPLACE(s.City, N' ', N'-'), N'.', N'')), N'/',
@@ -2152,7 +2371,7 @@ WHERE   s.ListingStatus = 'ACTIVE'
   AND   s.Slug IS NOT NULL;
 GO
 
-CREATE VIEW seo.vw_SitemapEvents
+CREATE OR ALTER VIEW seo.vw_SitemapEvents
 AS
 SELECT  CONCAT(N'/events/', e.Slug) AS LocPath,
         e.UpdatedAt AS LastModUtc,
@@ -2178,7 +2397,7 @@ WHERE   ev.Status = 'PUBLISHED'
   AND   ev.Slug IS NOT NULL;
 GO
 
-CREATE VIEW seo.vw_SitemapPosts
+CREATE OR ALTER VIEW seo.vw_SitemapPosts
 AS
 SELECT  CONCAT(N'/news/', p.Slug) AS LocPath,
         p.UpdatedAt AS LastModUtc,
@@ -2189,7 +2408,7 @@ WHERE   p.Status = 'PUBLISHED'
   AND   p.PublishedAt IS NOT NULL;
 GO
 
-CREATE VIEW seo.vw_SitemapBloggers
+CREATE OR ALTER VIEW seo.vw_SitemapBloggers
 AS
 SELECT  CONCAT(N'/bloggers/', b.Slug) AS LocPath,
         b.UpdatedAt AS LastModUtc,
@@ -2199,7 +2418,7 @@ FROM    cms.Blogger AS b
 WHERE   b.IsActive = 1;
 GO
 
-CREATE VIEW seo.vw_SitemapProfiles
+CREATE OR ALTER VIEW seo.vw_SitemapProfiles
 AS
 SELECT  CONCAT(N'/members/', u.Username) AS LocPath,
         p.UpdatedAt AS LastModUtc,
@@ -2212,7 +2431,7 @@ WHERE   p.IsPublicProfile = 1
   AND   (p.ShowKarma = 1 OR p.ShowBadges = 1);
 GO
 
-CREATE VIEW seo.vw_SitemapImages
+CREATE OR ALTER VIEW seo.vw_SitemapImages
 AS
 SELECT  CONCAT(N'/shops/', LOWER(s.StateCode), N'/',
                LOWER(REPLACE(REPLACE(s.City, N' ', N'-'), N'.', N'')), N'/',
@@ -2240,8 +2459,9 @@ GO
 /* ---------------------------------------------------------------------
    Owner listing edits that SADMIN must approve (plan /SADMIN queues)
    --------------------------------------------------------------------- */
-CREATE TABLE dir.ShopEditRequest
-(
+IF OBJECT_ID(N'dir.ShopEditRequest', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ShopEditRequest (
     ShopEditRequestId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopEditRequest PRIMARY KEY,
     PublicId          UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_ShopEdit_PublicId DEFAULT NEWSEQUENTIALID(),
     ShopId            BIGINT         NOT NULL CONSTRAINT FK_ShopEdit_Shop REFERENCES dir.Shop(ShopId),
@@ -2257,16 +2477,19 @@ CREATE TABLE dir.ShopEditRequest
     CONSTRAINT CK_ShopEdit_Status CHECK (Status IN ('PENDING_REVIEW','APPROVED','REJECTED','WITHDRAWN')),
     CONSTRAINT CK_ShopEdit_Json CHECK (ISJSON(ProposedJson) = 1)
 );
+END
 GO
-CREATE INDEX IX_ShopEdit_Queue ON dir.ShopEditRequest (Status, CreatedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopEdit_Queue' AND object_id = OBJECT_ID(N'dir.ShopEditRequest'))
+    CREATE INDEX IX_ShopEdit_Queue ON dir.ShopEditRequest (Status, CreatedAt);
 GO
 
 /* ---------------------------------------------------------------------
    Hobby / industry figures (influencers, executives) for SADMIN review.
    Public pages only show IsPublished = 1. Staff drafts stay off the site.
    --------------------------------------------------------------------- */
-CREATE TABLE cms.IndustryFigure
-(
+IF OBJECT_ID(N'cms.IndustryFigure', N'U') IS NULL
+BEGIN
+CREATE TABLE cms.IndustryFigure (
     IndustryFigureId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_IndustryFigure PRIMARY KEY,
     PublicId         UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_IndustryFigure_PublicId DEFAULT NEWSEQUENTIALID(),
     Slug             NVARCHAR(160)  NOT NULL,
@@ -2282,10 +2505,12 @@ CREATE TABLE cms.IndustryFigure
     CONSTRAINT UQ_IndustryFigure_PublicId UNIQUE (PublicId),
     CONSTRAINT UQ_IndustryFigure_Slug UNIQUE (Slug)
 );
+END
 GO
 
-CREATE TABLE cms.IndustryFigureSource
-(
+IF OBJECT_ID(N'cms.IndustryFigureSource', N'U') IS NULL
+BEGIN
+CREATE TABLE cms.IndustryFigureSource (
     IndustryFigureSourceId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_IndustryFigureSource PRIMARY KEY,
     IndustryFigureId       BIGINT         NOT NULL CONSTRAINT FK_FigureSource_Figure REFERENCES cms.IndustryFigure(IndustryFigureId),
     SortOrder              SMALLINT       NOT NULL,
@@ -2293,12 +2518,17 @@ CREATE TABLE cms.IndustryFigureSource
     Url                    NVARCHAR(500)  NOT NULL,
     RetrievedOn            DATE           NULL
 );
+END
 GO
-CREATE INDEX IX_FigureSource_Figure ON cms.IndustryFigureSource (IndustryFigureId, SortOrder);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_FigureSource_Figure' AND object_id = OBJECT_ID(N'cms.IndustryFigureSource'))
+    CREATE INDEX IX_FigureSource_Figure ON cms.IndustryFigureSource (IndustryFigureId, SortOrder);
 GO
 
+IF COL_LENGTH(N'cms.Post', N'IndustryFigureId') IS NULL
+BEGIN
 ALTER TABLE cms.Post ADD
     IndustryFigureId BIGINT NULL CONSTRAINT FK_CmsPost_Figure REFERENCES cms.IndustryFigure(IndustryFigureId);
+END
 GO
 
 /* =====================================================================
@@ -2311,16 +2541,20 @@ GO
 /* ---------------------------------------------------------------------
    Import marker on shops (CTCA and later imports). Not public branding.
    --------------------------------------------------------------------- */
+IF COL_LENGTH(N'dir.Shop', N'SourceSystem') IS NULL
+BEGIN
 ALTER TABLE dir.Shop ADD
     SourceSystem NVARCHAR(40)  NULL,
     ImportNotes  NVARCHAR(500) NULL;
+END
 GO
 
 /* ---------------------------------------------------------------------
    Manufacturers (Wikipedia Trading card article + later merges)
    --------------------------------------------------------------------- */
-CREATE TABLE dir.Manufacturer
-(
+IF OBJECT_ID(N'dir.Manufacturer', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.Manufacturer (
     ManufacturerId   BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Manufacturer PRIMARY KEY,
     PublicId         UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_Manufacturer_PublicId DEFAULT NEWSEQUENTIALID(),
     Slug             NVARCHAR(160)  NOT NULL,
@@ -2339,28 +2573,35 @@ CREATE TABLE dir.Manufacturer
     CONSTRAINT UQ_Manufacturer_Slug UNIQUE (Slug),
     CONSTRAINT CK_Manufacturer_Section CHECK (SourceSection IN ('Manufacturers','Non-sports','Import','NTCA'))
 );
+END
 GO
-CREATE UNIQUE INDEX UX_Manufacturer_Normalized ON dir.Manufacturer (NormalizedName);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_Manufacturer_Normalized' AND object_id = OBJECT_ID(N'dir.Manufacturer'))
+    CREATE UNIQUE INDEX UX_Manufacturer_Normalized ON dir.Manufacturer (NormalizedName);
 GO
 
-CREATE TABLE dir.ManufacturerCategory
-(
+IF OBJECT_ID(N'dir.ManufacturerCategory', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ManufacturerCategory (
     CategoryCode  VARCHAR(20)   NOT NULL CONSTRAINT PK_ManufacturerCategory PRIMARY KEY,
     Name          NVARCHAR(80)  NOT NULL,
     SortOrder     TINYINT       NOT NULL
 );
+END
 GO
 
-CREATE TABLE dir.ManufacturerCategoryMap
-(
+IF OBJECT_ID(N'dir.ManufacturerCategoryMap', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ManufacturerCategoryMap (
     ManufacturerId BIGINT      NOT NULL CONSTRAINT FK_MfrCatMap_Mfr REFERENCES dir.Manufacturer(ManufacturerId),
     CategoryCode   VARCHAR(20) NOT NULL CONSTRAINT FK_MfrCatMap_Cat REFERENCES dir.ManufacturerCategory(CategoryCode),
     CONSTRAINT PK_ManufacturerCategoryMap PRIMARY KEY (ManufacturerId, CategoryCode)
 );
+END
 GO
 
-CREATE TABLE dir.ManufacturerTopic
-(
+IF OBJECT_ID(N'dir.ManufacturerTopic', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ManufacturerTopic (
     ManufacturerTopicId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ManufacturerTopic PRIMARY KEY,
     ManufacturerId      BIGINT        NOT NULL CONSTRAINT FK_MfrTopic_Mfr REFERENCES dir.Manufacturer(ManufacturerId),
     TopicGroup          VARCHAR(20)   NOT NULL,
@@ -2368,10 +2609,12 @@ CREATE TABLE dir.ManufacturerTopic
     CONSTRAINT UQ_ManufacturerTopic UNIQUE (ManufacturerId, TopicGroup, TopicName),
     CONSTRAINT CK_MfrTopic_Group CHECK (TopicGroup IN ('SPORT','NONSPORT'))
 );
+END
 GO
 
-CREATE TABLE dir.ManufacturerProduct
-(
+IF OBJECT_ID(N'dir.ManufacturerProduct', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ManufacturerProduct (
     ManufacturerProductId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ManufacturerProduct PRIMARY KEY,
     ManufacturerId        BIGINT        NOT NULL CONSTRAINT FK_MfrProduct_Mfr REFERENCES dir.Manufacturer(ManufacturerId),
     Slug                  NVARCHAR(160) NOT NULL,
@@ -2382,23 +2625,27 @@ CREATE TABLE dir.ManufacturerProduct
     SourceSection         VARCHAR(40)   NULL,
     CONSTRAINT UQ_ManufacturerProduct_Slug UNIQUE (Slug)
 );
+END
 GO
 
-CREATE TABLE dir.ManufacturerLink
-(
+IF OBJECT_ID(N'dir.ManufacturerLink', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.ManufacturerLink (
     ManufacturerLinkId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ManufacturerLink PRIMARY KEY,
     ManufacturerId     BIGINT        NOT NULL CONSTRAINT FK_MfrLink_Mfr REFERENCES dir.Manufacturer(ManufacturerId),
     Rel                VARCHAR(30)   NOT NULL,
     Url                NVARCHAR(500) NOT NULL,
     CONSTRAINT CK_MfrLink_Rel CHECK (Rel IN ('WIKIPEDIA','WEBSITE','SAMEAS'))
 );
+END
 GO
 
 /* ---------------------------------------------------------------------
    Organizations: graders, marketplaces, breakers, media, services, other
    --------------------------------------------------------------------- */
-CREATE TABLE dir.Organization
-(
+IF OBJECT_ID(N'dir.Organization', N'U') IS NULL
+BEGIN
+CREATE TABLE dir.Organization (
     OrganizationId  BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Organization PRIMARY KEY,
     PublicId        UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_Organization_PublicId DEFAULT NEWSEQUENTIALID(),
     Slug            NVARCHAR(160)  NOT NULL,
@@ -2431,16 +2678,20 @@ CREATE TABLE dir.Organization
     CONSTRAINT CK_Organization_Lat CHECK (Latitude  IS NULL OR Latitude  BETWEEN -90  AND 90),
     CONSTRAINT CK_Organization_Lng CHECK (Longitude IS NULL OR Longitude BETWEEN -180 AND 180)
 );
+END
 GO
-CREATE INDEX IX_Organization_Type ON dir.Organization (OrgType, ListingStatus);
-CREATE INDEX IX_Organization_State ON dir.Organization (StateCode, City) WHERE StateCode IS NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Organization_Type' AND object_id = OBJECT_ID(N'dir.Organization'))
+    CREATE INDEX IX_Organization_Type ON dir.Organization (OrgType, ListingStatus);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Organization_State' AND object_id = OBJECT_ID(N'dir.Organization'))
+    CREATE INDEX IX_Organization_State ON dir.Organization (StateCode, City) WHERE StateCode IS NOT NULL;
 GO
 
 /* ---------------------------------------------------------------------
    Promoters and venues (national calendar)
    --------------------------------------------------------------------- */
-CREATE TABLE mkt.PromoterTier
-(
+IF OBJECT_ID(N'mkt.PromoterTier', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.PromoterTier (
     PromoterTierId    TINYINT       NOT NULL CONSTRAINT PK_PromoterTier PRIMARY KEY,
     TierCode          VARCHAR(20)   NOT NULL,
     Name              NVARCHAR(80)  NOT NULL,
@@ -2449,10 +2700,12 @@ CREATE TABLE mkt.PromoterTier
     IsActive          BIT           NOT NULL CONSTRAINT DF_PromoterTier_Active DEFAULT 1,
     CONSTRAINT UQ_PromoterTier_Code UNIQUE (TierCode)
 );
+END
 GO
 
-CREATE TABLE mkt.Promoter
-(
+IF OBJECT_ID(N'mkt.Promoter', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.Promoter (
     PromoterId       BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Promoter PRIMARY KEY,
     PublicId         UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_Promoter_PublicId DEFAULT NEWSEQUENTIALID(),
     Slug             VARCHAR(200)   NOT NULL,
@@ -2475,10 +2728,12 @@ CREATE TABLE mkt.Promoter
     CONSTRAINT UQ_Promoter_Slug UNIQUE (Slug),
     CONSTRAINT CK_Promoter_Claim CHECK (ClaimStatus IN ('UNCLAIMED','PENDING','CLAIMED'))
 );
+END
 GO
 
-CREATE TABLE mkt.PromoterMember
-(
+IF OBJECT_ID(N'mkt.PromoterMember', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.PromoterMember (
     PromoterId      BIGINT       NOT NULL CONSTRAINT FK_PromoterMember_Promoter REFERENCES mkt.Promoter(PromoterId),
     UserId          BIGINT       NOT NULL CONSTRAINT FK_PromoterMember_User REFERENCES core.AppUser(UserId),
     Role            VARCHAR(20)  NOT NULL,
@@ -2487,10 +2742,12 @@ CREATE TABLE mkt.PromoterMember
     CONSTRAINT PK_PromoterMember PRIMARY KEY (PromoterId, UserId),
     CONSTRAINT CK_PromoterMember_Role CHECK (Role IN ('OWNER','EDITOR'))
 );
+END
 GO
 
-CREATE TABLE mkt.PromoterClaimRequest
-(
+IF OBJECT_ID(N'mkt.PromoterClaimRequest', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.PromoterClaimRequest (
     PromoterClaimRequestId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_PromoterClaimRequest PRIMARY KEY,
     PromoterId             BIGINT         NOT NULL CONSTRAINT FK_PromoterClaim_Promoter REFERENCES mkt.Promoter(PromoterId),
     RequestedByUserId      BIGINT         NOT NULL CONSTRAINT FK_PromoterClaim_User REFERENCES core.AppUser(UserId),
@@ -2514,14 +2771,18 @@ CREATE TABLE mkt.PromoterClaimRequest
     CONSTRAINT CK_PromoterClaim_Method CHECK (VerificationMethod IS NULL OR VerificationMethod IN
         ('EMAIL_DOMAIN','PHONE_CALL','POSTCARD_CODE','DOCUMENT','SOCIAL_DM','ADMIN'))
 );
+END
 GO
-CREATE UNIQUE INDEX UX_PromoterClaim_Open ON mkt.PromoterClaimRequest (PromoterId, RequestedByUserId)
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_PromoterClaim_Open' AND object_id = OBJECT_ID(N'mkt.PromoterClaimRequest'))
+    CREATE UNIQUE INDEX UX_PromoterClaim_Open ON mkt.PromoterClaimRequest (PromoterId, RequestedByUserId)
     WHERE Status IN ('PENDING','VERIFYING');
-CREATE INDEX IX_PromoterClaim_Queue ON mkt.PromoterClaimRequest (Status, SubmittedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_PromoterClaim_Queue' AND object_id = OBJECT_ID(N'mkt.PromoterClaimRequest'))
+    CREATE INDEX IX_PromoterClaim_Queue ON mkt.PromoterClaimRequest (Status, SubmittedAt);
 GO
 
-CREATE TABLE mkt.Venue
-(
+IF OBJECT_ID(N'mkt.Venue', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.Venue (
     VenueId      BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Venue PRIMARY KEY,
     PublicId     UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_Venue_PublicId DEFAULT NEWSEQUENTIALID(),
     Slug         NVARCHAR(160)  NOT NULL,
@@ -2541,8 +2802,10 @@ CREATE TABLE mkt.Venue
     CONSTRAINT CK_Venue_Lat CHECK (Latitude  IS NULL OR Latitude  BETWEEN -90  AND 90),
     CONSTRAINT CK_Venue_Lng CHECK (Longitude IS NULL OR Longitude BETWEEN -180 AND 180)
 );
+END
 GO
-CREATE INDEX IX_Venue_StateCity ON mkt.Venue (StateCode, City);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Venue_StateCity' AND object_id = OBJECT_ID(N'mkt.Venue'))
+    CREATE INDEX IX_Venue_StateCity ON mkt.Venue (StateCode, City);
 GO
 
 /* ---------------------------------------------------------------------
@@ -2556,16 +2819,22 @@ GO
 ALTER TABLE mkt.ShopEvent ALTER COLUMN ShopId BIGINT NULL;
 GO
 
-ALTER TABLE mkt.ShopEvent DROP CONSTRAINT CK_ShopEvent_Status;
-ALTER TABLE mkt.ShopEvent ADD CONSTRAINT CK_ShopEvent_Status
+IF EXISTS (SELECT 1 FROM sys.objects WHERE name = N'CK_ShopEvent_Status')
+    ALTER TABLE mkt.ShopEvent DROP CONSTRAINT CK_ShopEvent_Status;
+IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE name = N'CK_ShopEvent_Status')
+    ALTER TABLE mkt.ShopEvent ADD CONSTRAINT CK_ShopEvent_Status
     CHECK (Status IN ('DRAFT','PENDING_REVIEW','PUBLISHED','CANCELED','POSTPONED'));
 GO
 
-ALTER TABLE mkt.ShopEvent DROP CONSTRAINT CK_ShopEvent_Source;
-ALTER TABLE mkt.ShopEvent ADD CONSTRAINT CK_ShopEvent_Source
+IF EXISTS (SELECT 1 FROM sys.objects WHERE name = N'CK_ShopEvent_Source')
+    ALTER TABLE mkt.ShopEvent DROP CONSTRAINT CK_ShopEvent_Source;
+IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE name = N'CK_ShopEvent_Source')
+    ALTER TABLE mkt.ShopEvent ADD CONSTRAINT CK_ShopEvent_Source
     CHECK (SourceType IN ('MANUAL','MAILBOX','FACEBOOK','INSTAGRAM','IMPORT','SUBMIT'));
 GO
 
+IF COL_LENGTH(N'mkt.ShopEvent', N'PublicId') IS NULL
+BEGIN
 ALTER TABLE mkt.ShopEvent ADD
     PublicId           UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_ShopEvent_PublicId DEFAULT NEWSEQUENTIALID(),
     PromoterId         BIGINT         NULL CONSTRAINT FK_ShopEvent_Promoter REFERENCES mkt.Promoter(PromoterId),
@@ -2592,18 +2861,25 @@ ALTER TABLE mkt.ShopEvent ADD
     SourceSystem       NVARCHAR(40)   NULL,
     CONSTRAINT CK_ShopEvent_Scope CHECK (Scope IN ('LOCAL','REGIONAL','NATIONAL')),
     CONSTRAINT CK_ShopEvent_Owner CHECK (ShopId IS NOT NULL OR PromoterId IS NOT NULL);
+END
 GO
 
-CREATE UNIQUE INDEX UX_ShopEvent_PublicId ON mkt.ShopEvent (PublicId);
-CREATE UNIQUE INDEX UX_ShopEvent_Slug ON mkt.ShopEvent (Slug) WHERE Slug IS NOT NULL;
-CREATE INDEX IX_ShopEvent_Calendar ON mkt.ShopEvent (StartsAt, StateCode)
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_ShopEvent_PublicId' AND object_id = OBJECT_ID(N'mkt.ShopEvent'))
+    CREATE UNIQUE INDEX UX_ShopEvent_PublicId ON mkt.ShopEvent (PublicId);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_ShopEvent_Slug' AND object_id = OBJECT_ID(N'mkt.ShopEvent'))
+    CREATE UNIQUE INDEX UX_ShopEvent_Slug ON mkt.ShopEvent (Slug) WHERE Slug IS NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopEvent_Calendar' AND object_id = OBJECT_ID(N'mkt.ShopEvent'))
+    CREATE INDEX IX_ShopEvent_Calendar ON mkt.ShopEvent (StartsAt, StateCode)
     INCLUDE (Scope, Status, IsFeatured, Title, Slug, PromoterId, VenueId);
-CREATE INDEX IX_ShopEvent_Series ON mkt.ShopEvent (RecurrenceSeries, StartsAt) WHERE RecurrenceSeries IS NOT NULL;
-CREATE INDEX IX_ShopEvent_Featured ON mkt.ShopEvent (IsFeatured, StartsAt) WHERE Status = 'PUBLISHED';
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopEvent_Series' AND object_id = OBJECT_ID(N'mkt.ShopEvent'))
+    CREATE INDEX IX_ShopEvent_Series ON mkt.ShopEvent (RecurrenceSeries, StartsAt) WHERE RecurrenceSeries IS NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopEvent_Featured' AND object_id = OBJECT_ID(N'mkt.ShopEvent'))
+    CREATE INDEX IX_ShopEvent_Featured ON mkt.ShopEvent (IsFeatured, StartsAt) WHERE Status = 'PUBLISHED';
 GO
 
-CREATE TABLE mkt.EventExhibitor
-(
+IF OBJECT_ID(N'mkt.EventExhibitor', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.EventExhibitor (
     ShopEventId  BIGINT        NOT NULL CONSTRAINT FK_EventExhibitor_Event REFERENCES mkt.ShopEvent(ShopEventId),
     ShopId       BIGINT        NOT NULL CONSTRAINT FK_EventExhibitor_Shop REFERENCES dir.Shop(ShopId),
     TableLabel   VARCHAR(20)   NULL,
@@ -2613,10 +2889,12 @@ CREATE TABLE mkt.EventExhibitor
     CONSTRAINT PK_EventExhibitor PRIMARY KEY (ShopEventId, ShopId),
     CONSTRAINT CK_EventExhibitor_Status CHECK (Status IN ('CLAIMED','CONFIRMED_BY_PROMOTER','REMOVED'))
 );
+END
 GO
 
-CREATE TABLE mkt.EventGuest
-(
+IF OBJECT_ID(N'mkt.EventGuest', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.EventGuest (
     EventGuestId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_EventGuest PRIMARY KEY,
     ShopEventId  BIGINT        NOT NULL CONSTRAINT FK_EventGuest_Event REFERENCES mkt.ShopEvent(ShopEventId),
     Name         NVARCHAR(150) NOT NULL,
@@ -2625,18 +2903,22 @@ CREATE TABLE mkt.EventGuest
     PriceText    NVARCHAR(100) NULL,
     CONSTRAINT CK_EventGuest_Type CHECK (GuestType IN ('ATHLETE','ARTIST','CREATOR','GRADER_ONSITE','OTHER'))
 );
+END
 GO
 
-CREATE TABLE mkt.EventManufacturer
-(
+IF OBJECT_ID(N'mkt.EventManufacturer', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.EventManufacturer (
     ShopEventId    BIGINT NOT NULL CONSTRAINT FK_EventMfr_Event REFERENCES mkt.ShopEvent(ShopEventId),
     ManufacturerId BIGINT NOT NULL CONSTRAINT FK_EventMfr_Mfr REFERENCES dir.Manufacturer(ManufacturerId),
     CONSTRAINT PK_EventManufacturer PRIMARY KEY (ShopEventId, ManufacturerId)
 );
+END
 GO
 
-CREATE TABLE mkt.EventFollow
-(
+IF OBJECT_ID(N'mkt.EventFollow', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.EventFollow (
     ShopEventId         BIGINT        NOT NULL CONSTRAINT FK_EventFollow_Event REFERENCES mkt.ShopEvent(ShopEventId),
     UserId              BIGINT        NOT NULL CONSTRAINT FK_EventFollow_User REFERENCES core.AppUser(UserId),
     Going               BIT           NOT NULL CONSTRAINT DF_EventFollow_Going DEFAULT 0,
@@ -2644,29 +2926,35 @@ CREATE TABLE mkt.EventFollow
     CreatedAt           DATETIME2(3)  NOT NULL CONSTRAINT DF_EventFollow_Created DEFAULT SYSUTCDATETIME(),
     CONSTRAINT PK_EventFollow PRIMARY KEY (ShopEventId, UserId)
 );
+END
 GO
 
-CREATE TABLE mkt.PromoterFollow
-(
+IF OBJECT_ID(N'mkt.PromoterFollow', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.PromoterFollow (
     PromoterId BIGINT NOT NULL CONSTRAINT FK_PromoterFollow_Promoter REFERENCES mkt.Promoter(PromoterId),
     UserId     BIGINT NOT NULL CONSTRAINT FK_PromoterFollow_User REFERENCES core.AppUser(UserId),
     CreatedAt  DATETIME2(3) NOT NULL CONSTRAINT DF_PromoterFollow_Created DEFAULT SYSUTCDATETIME(),
     CONSTRAINT PK_PromoterFollow PRIMARY KEY (PromoterId, UserId)
 );
+END
 GO
 
-CREATE TABLE core.UserCalendarToken
-(
+IF OBJECT_ID(N'core.UserCalendarToken', N'U') IS NULL
+BEGIN
+CREATE TABLE core.UserCalendarToken (
     UserId    BIGINT      NOT NULL CONSTRAINT PK_UserCalendarToken PRIMARY KEY
                           CONSTRAINT FK_UserCalToken_User REFERENCES core.AppUser(UserId),
     Token     CHAR(32)    NOT NULL,
     CreatedAt DATETIME2(3) NOT NULL CONSTRAINT DF_UserCalToken_Created DEFAULT SYSUTCDATETIME(),
     CONSTRAINT UQ_UserCalToken UNIQUE (Token)
 );
+END
 GO
 
-CREATE TABLE mkt.EventSubmission
-(
+IF OBJECT_ID(N'mkt.EventSubmission', N'U') IS NULL
+BEGIN
+CREATE TABLE mkt.EventSubmission (
     EventSubmissionId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_EventSubmission PRIMARY KEY,
     PublicId          UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_EventSubmission_PublicId DEFAULT NEWSEQUENTIALID(),
     SubmittedByUserId BIGINT         NULL CONSTRAINT FK_EventSub_User REFERENCES core.AppUser(UserId),
@@ -2702,12 +2990,15 @@ CREATE TABLE mkt.EventSubmission
     CONSTRAINT CK_EventSub_Scope CHECK (Scope IN ('LOCAL','REGIONAL','NATIONAL')),
     CONSTRAINT CK_EventSub_Status CHECK (Status IN ('PENDING_REVIEW','APPROVED','REJECTED','WITHDRAWN'))
 );
+END
 GO
-CREATE INDEX IX_EventSubmission_Queue ON mkt.EventSubmission (Status, CreatedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_EventSubmission_Queue' AND object_id = OBJECT_ID(N'mkt.EventSubmission'))
+    CREATE INDEX IX_EventSubmission_Queue ON mkt.EventSubmission (Status, CreatedAt);
 GO
 
-CREATE TABLE feed.ShowFeedEntry
-(
+IF OBJECT_ID(N'feed.ShowFeedEntry', N'U') IS NULL
+BEGIN
+CREATE TABLE feed.ShowFeedEntry (
     ShowFeedEntryId  BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShowFeedEntry PRIMARY KEY,
     SlotCode         VARCHAR(30)   NOT NULL CONSTRAINT FK_ShowFeed_Slot REFERENCES feed.RotationSlot(SlotCode),
     ShopEventId      BIGINT        NOT NULL CONSTRAINT FK_ShowFeed_Event REFERENCES mkt.ShopEvent(ShopEventId),
@@ -2723,16 +3014,19 @@ CREATE TABLE feed.ShowFeedEntry
     CONSTRAINT CK_ShowFeed_Window CHECK (EligibleUntil > EligibleFrom),
     CONSTRAINT CK_ShowFeed_Weight CHECK (BaseWeight > 0)
 );
+END
 GO
-CREATE UNIQUE INDEX UX_ShowFeed_Active ON feed.ShowFeedEntry (SlotCode, ShopEventId) WHERE IsActive = 1;
-CREATE INDEX IX_ShowFeed_Window ON feed.ShowFeedEntry (SlotCode, EligibleFrom, EligibleUntil)
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_ShowFeed_Active' AND object_id = OBJECT_ID(N'feed.ShowFeedEntry'))
+    CREATE UNIQUE INDEX UX_ShowFeed_Active ON feed.ShowFeedEntry (SlotCode, ShopEventId) WHERE IsActive = 1;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShowFeed_Window' AND object_id = OBJECT_ID(N'feed.ShowFeedEntry'))
+    CREATE INDEX IX_ShowFeed_Window ON feed.ShowFeedEntry (SlotCode, EligibleFrom, EligibleUntil)
     INCLUDE (ShopEventId, BaseWeight, IsPinned) WHERE IsActive = 1;
 GO
 
 /* ---------------------------------------------------------------------
    Calendar + sitemap views
    --------------------------------------------------------------------- */
-CREATE VIEW mkt.vw_CalendarUpcoming
+CREATE OR ALTER VIEW mkt.vw_CalendarUpcoming
 AS
 SELECT  e.ShopEventId,
         e.PublicId,
@@ -2786,7 +3080,7 @@ WHERE   e.Status IN ('PUBLISHED', 'POSTPONED')
   AND   e.EventType = 'CARD_SHOW';
 GO
 
-CREATE VIEW seo.vw_SitemapShows
+CREATE OR ALTER VIEW seo.vw_SitemapShows
 AS
 SELECT  c.LocPath,
         c.UpdatedAt AS LastModUtc,
@@ -2803,7 +3097,7 @@ WHERE   c.Status IN ('PUBLISHED', 'POSTPONED')
   AND   c.Slug IS NOT NULL;
 GO
 
-CREATE VIEW seo.vw_SitemapShowStates
+CREATE OR ALTER VIEW seo.vw_SitemapShowStates
 AS
 SELECT  CONCAT(N'/shows/', LOWER(c.StateCode)) AS LocPath,
         MAX(c.UpdatedAt) AS LastModUtc,
@@ -2814,7 +3108,7 @@ WHERE   c.StateCode IS NOT NULL
 GROUP BY c.StateCode;
 GO
 
-CREATE VIEW seo.vw_SitemapShowCities
+CREATE OR ALTER VIEW seo.vw_SitemapShowCities
 AS
 SELECT  CONCAT(N'/shows/', LOWER(c.StateCode), N'/',
                LOWER(REPLACE(REPLACE(c.City, N' ', N'-'), N'.', N''))) AS LocPath,
@@ -2828,7 +3122,7 @@ WHERE   c.StateCode IS NOT NULL
 GROUP BY c.StateCode, c.City;
 GO
 
-CREATE VIEW seo.vw_SitemapPromoters
+CREATE OR ALTER VIEW seo.vw_SitemapPromoters
 AS
 SELECT  CONCAT(N'/promoters/', p.Slug) AS LocPath,
         p.UpdatedAt AS LastModUtc,
@@ -2837,7 +3131,7 @@ SELECT  CONCAT(N'/promoters/', p.Slug) AS LocPath,
 FROM    mkt.Promoter AS p;
 GO
 
-CREATE VIEW seo.vw_SitemapManufacturers
+CREATE OR ALTER VIEW seo.vw_SitemapManufacturers
 AS
 SELECT  CONCAT(N'/manufacturers/', m.Slug) AS LocPath,
         m.UpdatedAt AS LastModUtc,
@@ -19897,6 +20191,7 @@ GO
 
 IF LEN(N'$(NtcaMigratorPassword)') > 0
    AND N'$(NtcaMigratorPassword)' <> N'$' + N'(NtcaMigratorPassword)'
+   AND N'$(NtcaMigratorPassword)' <> N'__SKIP__'
    AND LEN(N'$(NtcaMigratorLogin)') > 0
    AND N'$(NtcaMigratorLogin)' <> N'$' + N'(NtcaMigratorLogin)'
 BEGIN

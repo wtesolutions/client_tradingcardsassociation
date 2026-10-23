@@ -22,7 +22,7 @@ fi
 
 # Defaults the scripts require. Caller's -v later on the command line wins in some
 # sqlcmd builds; we also pass them explicitly so a bare run has a name.
-EXTRA=(-v NtcaDatabase=NTCA -v NtcaAppLogin=ntca_app -v NtcaMigratorLogin=ntca_migrator)
+EXTRA=(-v NtcaDatabase=NTCA -v NtcaAppLogin=ntca_app -v NtcaMigratorLogin=ntca_migrator -v NtcaMigratorPassword=__SKIP__)
 ARGS=("$@")
 
 run() {

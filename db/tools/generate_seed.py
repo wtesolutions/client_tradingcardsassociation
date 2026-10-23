@@ -1042,13 +1042,143 @@ def assemble_schema() -> Path:
         "/* Assembled by db/tools/generate_seed.py from\n"
         "   db/source/ntca_schema.original.sql + db/source/01_schema_additions.sql\n"
         "   + db/source/01_schema_directory_calendar.sql\n"
+        "   Idempotent: CREATE SCHEMA/TABLE/INDEX guarded; views/procs CREATE OR ALTER.\n"
         "   Do not edit 01_schema.sql by hand; change the source files and re-run.\n*/\n"
         ":on error exit\n"
         "USE [$(NtcaDatabase)];\n"
         "GO\n"
     )
-    out.write_text(header + schema, encoding="utf-8")
+    out.write_text(header + make_schema_idempotent(schema), encoding="utf-8")
     return out
+
+
+def make_schema_idempotent(sql: str) -> str:
+    """Wrap CREATE SCHEMA/TABLE/INDEX/ALTER ADD so 01_schema can re-run."""
+    sql = re.sub(
+        r"^CREATE SCHEMA\s+(\w+)\s*;?\s*$",
+        lambda m: (
+            f"IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'{m.group(1)}')\n"
+            f"    EXEC(N'CREATE SCHEMA {m.group(1)}');"
+        ),
+        sql,
+        flags=re.M,
+    )
+    sql = re.sub(
+        r"^CREATE TABLE\s+((?:\[\w+\]|\w+)\.(?:\[\w+\]|\w+))\s*\(",
+        lambda m: (
+            f"IF OBJECT_ID(N'{_bare(m.group(1))}', N'U') IS NULL\n"
+            f"BEGIN\nCREATE TABLE {m.group(1)} ("
+        ),
+        sql,
+        flags=re.M,
+    )
+    # Close the IF OBJECT_ID BEGIN after each CREATE TABLE body.
+    sql = re.sub(
+        r"(IF OBJECT_ID\(N'[^']+', N'U'\) IS NULL\nBEGIN\nCREATE TABLE[\s\S]+?^\);)",
+        lambda m: m.group(1) + "\nEND",
+        sql,
+        flags=re.M,
+    )
+    sql = re.sub(r"^CREATE VIEW\s+", "CREATE OR ALTER VIEW ", sql, flags=re.M)
+    sql = re.sub(r"^CREATE PROCEDURE\s+", "CREATE OR ALTER PROCEDURE ", sql, flags=re.M)
+    sql = re.sub(r"^CREATE TRIGGER\s+", "CREATE OR ALTER TRIGGER ", sql, flags=re.M)
+
+    def wrap_index(m: re.Match) -> str:
+        idx = m.group("idx")
+        tbl = _bare(m.group("tbl"))
+        stmt = m.group(0).rstrip()
+        if stmt.endswith(";"):
+            body = stmt
+        else:
+            body = stmt + ";"
+        return (
+            f"IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'{idx}' "
+            f"AND object_id = OBJECT_ID(N'{tbl}'))\n    {body}"
+        )
+
+    sql = re.sub(
+        r"^CREATE(?:\s+UNIQUE)?(?:\s+CLUSTERED)?\s+INDEX\s+"
+        r"(?P<idx>\w+)\s+ON\s+(?P<tbl>[\w.\[\]]+)[^\n]*(?:\n[ \t]+[^\n]+)*;?",
+        wrap_index,
+        sql,
+        flags=re.M,
+    )
+
+    def wrap_drop_ck(m: re.Match) -> str:
+        table, name = m.group(1), m.group(2)
+        return (
+            f"IF EXISTS (SELECT 1 FROM sys.objects WHERE name = N'{name}')\n"
+            f"    ALTER TABLE {table} DROP CONSTRAINT {name};"
+        )
+
+    sql = re.sub(
+        r"^ALTER TABLE\s+(\S+)\s+DROP CONSTRAINT\s+(\w+)\s*;?\s*$",
+        wrap_drop_ck,
+        sql,
+        flags=re.M,
+    )
+
+    def wrap_add_constraint(m: re.Match) -> str:
+        table, name = m.group(1), m.group(2)
+        rest = m.group(3)
+        return (
+            f"IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE name = N'{name}')\n"
+            f"    ALTER TABLE {table} ADD CONSTRAINT {name}{rest}"
+        )
+
+    sql = re.sub(
+        r"^ALTER TABLE\s+(\S+)\s+ADD CONSTRAINT\s+(\w+)([\s\S]+?;)\s*$",
+        wrap_add_constraint,
+        sql,
+        flags=re.M,
+    )
+
+    # Multi-line: ALTER TABLE x \n    ADD CONSTRAINT name
+    sql = re.sub(
+        r"^ALTER TABLE\s+(\S+)\s*\n\s+ADD CONSTRAINT\s+(\w+)([\s\S]+?;)\s*$",
+        wrap_add_constraint,
+        sql,
+        flags=re.M,
+    )
+
+    def wrap_add_columns(m: re.Match) -> str:
+        table = m.group(1)
+        block = m.group(0)
+        first = re.search(r"ADD\s+(?!CONSTRAINT)(\w+)", block)
+        if not first:
+            return block
+        col = first.group(1)
+        return (
+            f"IF COL_LENGTH(N'{_bare(table)}', N'{col}') IS NULL\n"
+            f"BEGIN\n{block.rstrip()}\nEND"
+        )
+
+    sql = re.sub(
+        r"^ALTER TABLE\s+(\S+)\s+ADD\s+(?!CONSTRAINT)[\s\S]+?;\s*$",
+        wrap_add_columns,
+        sql,
+        flags=re.M,
+    )
+
+    # Indexed view: drop clustered index before CREATE OR ALTER VIEW
+    sql = re.sub(
+        r"(CREATE OR ALTER VIEW\s+(karma\.vw_UserKarmaByCategory)\b)",
+        (
+            "IF OBJECT_ID(N'karma.vw_UserKarmaByCategory', N'V') IS NOT NULL "
+            "AND EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UCX_vw_UserKarmaByCategory' "
+            "AND object_id = OBJECT_ID(N'karma.vw_UserKarmaByCategory'))\n"
+            "    DROP INDEX UCX_vw_UserKarmaByCategory ON karma.vw_UserKarmaByCategory;\n"
+            "GO\n"
+            r"\1"
+        ),
+        sql,
+        count=1,
+    )
+    return sql
+
+
+def _bare(name: str) -> str:
+    return name.replace("[", "").replace("]", "")
 
 
 def main() -> int:

@@ -73,7 +73,7 @@ docker run -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='A_Demo_Password_1' \
   -v NtcaMigratorPassword='A_Demo_Mig_Password_1'
 ```
 
-Run `run_all` a **second** time to confirm seeds are idempotent.
+Run `run_all` a **second** time to confirm schema + seeds are idempotent.
 
 ## Source files
 

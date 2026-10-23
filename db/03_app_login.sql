@@ -80,6 +80,7 @@ GO
 
 IF LEN(N'$(NtcaMigratorPassword)') > 0
    AND N'$(NtcaMigratorPassword)' <> N'$' + N'(NtcaMigratorPassword)'
+   AND N'$(NtcaMigratorPassword)' <> N'__SKIP__'
    AND LEN(N'$(NtcaMigratorLogin)') > 0
    AND N'$(NtcaMigratorLogin)' <> N'$' + N'(NtcaMigratorLogin)'
 BEGIN

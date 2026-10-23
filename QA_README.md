@@ -41,7 +41,7 @@ SSMS: Query → SQLCMD Mode, then open `db/NTCA_FULL_INSTALL.sql` and:
 :setvar NtcaAppPassword YourAppPasswordHere
 ```
 
-`$(NtcaAppPassword)` is required. Avoid `#` in passwords (sqlcmd `-v` can truncate). Re-run `02_seed` + `seed/SEED_*.sql` to confirm idempotence. A second full `run_all` will fail on `CREATE SCHEMA` unless you drop the database first.
+`$(NtcaAppPassword)` is required. Avoid `#` in passwords (sqlcmd `-v` can truncate). A second full `run_all` is safe: `01_schema.sql` uses `IF NOT EXISTS` / `CREATE OR ALTER`, and `run_all` passes `NtcaMigratorPassword=__SKIP__` unless you set a real migrator password.
 
 ## Connection string (never commit)
 
@@ -94,7 +94,7 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 - Turnstile is off in Development.
 - Upcoming GaryVee card-show rows were **not** seeded: the 2026-10-22 dossier had no confirmed card show with date + location + his role.
 - Top-100 destination shops are in `SEED_16` (`SourceSystem=TOP100-2026-10-22`). Matched rows fill empty fields only. See `docs/TOP100_SHOPS.md`.
-- Schema apply is not fully idempotent (`CREATE SCHEMA`). Drop the database to start clean.
+- Schema apply is idempotent (`IF NOT EXISTS` / `CREATE OR ALTER`). A second full `run_all` succeeds on an existing database.
 
 ## Email
 
