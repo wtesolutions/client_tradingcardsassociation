@@ -54,8 +54,10 @@ public static class FunnelFlow
 
     public static int Progress(string? role, string step)
     {
-        var path = Path(role);
+        var path = role is null ? Path("collector") : Path(role);
         var i = Math.Max(0, Array.IndexOf(path, step));
+        if (i < 0)
+            i = 0;
         return (int)Math.Round(100.0 * (i + 1) / path.Length);
     }
 

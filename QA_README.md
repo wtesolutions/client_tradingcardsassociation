@@ -158,6 +158,8 @@ Expect Triangle Area Trading Cards (Raleigh) and an NC card show when one is pub
 
 Walk Collector → Pokémon → ZIP 27601 → email and confirm Triangle Area + the Raleigh show on the results screen.
 
+Screenshots (390×844 unless noted): `/opt/cursor/artifacts/ntca_shops_390.png`, `ntca_shops_1440.png` (1440×900), `ntca_shop_detail_390.png`, `ntca_funnel_who_390.png`, `ntca_funnel_interests_390.png`, `ntca_funnel_experience_390.png`, `ntca_funnel_zip_390.png`, `ntca_funnel_travel_390.png`, `ntca_funnel_email_390.png`, `ntca_funnel_results_390.png`.
+
 ## Desktop screenshots (1440×900)
 
 Captured from this branch against the local Docker DB:

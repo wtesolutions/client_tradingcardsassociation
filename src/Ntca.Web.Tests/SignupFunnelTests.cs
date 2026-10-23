@@ -18,6 +18,10 @@ public sealed class SignupFunnelTests
     public void Back_from_who_is_null()
         => Assert.Null(FunnelFlow.Back(null, "who"));
 
+    [Fact]
+    public void Progress_on_who_is_not_full_before_role()
+        => Assert.InRange(FunnelFlow.Progress(null, "who"), 1, 20);
+
     [Theory]
     [InlineData("collector", "Collector")]
     [InlineData("shop_owner", "Local Card Shop")]

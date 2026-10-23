@@ -18,7 +18,7 @@
 {
     <p class="card">@err</p>
 }
-@if (back is not null)
+@if (back is not null && step != "results")
 {
     <p><a class="btn ghost" href="/signup/@back">← Back</a></p>
 }
@@ -178,6 +178,9 @@ else if (step == "email")
 else if (step == "results")
 {
     var answer = (AgentAnswer)ViewBag.Answer;
+    var md = answer.Markdown ?? "";
+    var cut = md.IndexOf("## ", StringComparison.Ordinal);
+    if (cut >= 0) { md = md[cut..]; }
     <h2>You’re on the Preview list</h2>
     <p class="lede">Confirm the email we just sent (Development: watch the console / App_Data/mail). Matches below are live directory rows — same facts the AI concierge uses.</p>
     @if (role == "parent")
@@ -188,6 +191,6 @@ else if (step == "results")
     {
         <p class="card">We emailed a claim code for that shop. Sign in at <a href="/owner/login">/owner/login</a>.</p>
     }
-    <pre class="prose">@answer.Markdown</pre>
+    <pre class="prose">@md</pre>
     <p><a class="btn" href="/shops">Browse shops</a> <a class="btn ghost" href="/calendar">Calendar</a></p>
 }
