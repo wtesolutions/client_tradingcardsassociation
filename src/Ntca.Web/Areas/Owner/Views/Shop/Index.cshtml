@@ -99,13 +99,13 @@
     <form method="post" action="/owner/logo" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
         <input type="hidden" name="shopId" value="@Model.ShopId" />
-        <p><label>Shop logo<br /><input type="file" name="file" accept="image/jpeg,image/png,image/webp" data-testid="owner-logo-input" /></label></p>
+        <p><label>Shop logo<br /><input type="file" name="file" accept="image/jpeg,image/png,image/webp" data-testid="owner-logo-input" required /></label></p>
         <button class="btn" type="submit" data-testid="owner-logo-upload">Upload logo</button>
     </form>
     <form method="post" action="/owner/photos" enctype="multipart/form-data" style="margin-top:16px">
         @Html.AntiForgeryToken()
         <input type="hidden" name="shopId" value="@Model.ShopId" />
-        <p><label>Add a photo<br /><input type="file" name="file" accept="image/jpeg,image/png,image/webp" data-testid="owner-photo-input" /></label></p>
+        <p><label>Add a photo<br /><input type="file" name="file" accept="image/jpeg,image/png,image/webp" data-testid="owner-photo-input" required /></label></p>
         <p><label>Alt text<br /><input name="alt" data-testid="owner-photo-alt" /></label></p>
         <p><label>Caption<br /><input name="caption" /></label></p>
         <button class="btn" type="submit" data-testid="owner-photo-upload">Upload photo</button>
