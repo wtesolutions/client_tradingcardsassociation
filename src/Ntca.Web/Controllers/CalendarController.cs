@@ -14,9 +14,33 @@ public sealed class CalendarController : Controller
 
     [HttpGet("/calendar")]
     [HttpGet("/shows")]
-    public async Task<IActionResult> Index(string? state, string? q, string? scope, CancellationToken ct)
+    public async Task<IActionResult> Index(string? state, string? q, string? scope, string? view, int? year, int? month, CancellationToken ct)
     {
-        var rows = await Filter(state, q, scope).OrderBy(e => e.StartsAt).Take(200).ToListAsync(ct);
+        view = (view ?? "month").Trim().ToLowerInvariant();
+        if (view is not ("month" or "list" or "map"))
+            view = "month";
+
+        var query = Filter(state, q, scope);
+        List<ShopEvent> rows;
+        if (view == "month")
+        {
+            var (y, m) = await ResolveMonthAsync(query, year, month, ct);
+            var start = new DateTime(y, m, 1);
+            var end = start.AddMonths(1);
+            rows = await query
+                .Where(e => e.StartsAt < end && (e.EndsAt ?? e.StartsAt) >= start)
+                .OrderBy(e => e.StartsAt)
+                .ToListAsync(ct);
+            ViewBag.Year = y;
+            ViewBag.Month = m;
+            ViewBag.MonthStart = start;
+        }
+        else
+        {
+            rows = await query.OrderBy(e => e.StartsAt).Take(200).ToListAsync(ct);
+        }
+
+        ViewBag.View = view;
         ViewBag.State = state ?? "";
         ViewBag.Q = q ?? "";
         ViewBag.Scope = scope ?? "";
@@ -26,6 +50,17 @@ public sealed class CalendarController : Controller
             .Distinct()
             .OrderBy(s => s)
             .ToListAsync(ct);
+        ViewBag.MapPoints = rows
+            .Where(e => e.Venue?.Latitude is not null && e.Venue?.Longitude is not null)
+            .Select(e => new
+            {
+                lat = e.Venue!.Latitude,
+                lng = e.Venue.Longitude,
+                title = e.Title,
+                loc = Loc(e),
+                when = e.StartsAt.ToString("MMM d, yyyy")
+            })
+            .ToList();
         return View(rows);
     }
 
@@ -93,7 +128,9 @@ public sealed class CalendarController : Controller
             e.StateCode,
             venue = e.Venue?.Name,
             promoter = e.Promoter?.Name,
-            loc = Loc(e)
+            loc = Loc(e),
+            lat = e.Venue?.Latitude,
+            lng = e.Venue?.Longitude
         }));
     }
 
@@ -113,6 +150,19 @@ public sealed class CalendarController : Controller
             query = query.Where(e => e.Title.Contains(term) || (e.City != null && e.City.Contains(term)));
         }
         return query;
+    }
+
+    private static async Task<(int Year, int Month)> ResolveMonthAsync(IQueryable<ShopEvent> query, int? year, int? month, CancellationToken ct)
+    {
+        if (year is >= 2000 and <= 2100 && month is >= 1 and <= 12)
+            return (year.Value, month.Value);
+        var now = DateTime.UtcNow.Date;
+        var next = await query.Where(e => e.StartsAt >= now).OrderBy(e => e.StartsAt).Select(e => e.StartsAt).FirstOrDefaultAsync(ct);
+        if (next == default)
+            next = await query.OrderBy(e => e.StartsAt).Select(e => e.StartsAt).FirstOrDefaultAsync(ct);
+        if (next == default)
+            return (now.Year, now.Month);
+        return (next.Year, next.Month);
     }
 
     public static string Loc(ShopEvent e)

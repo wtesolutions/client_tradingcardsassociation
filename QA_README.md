@@ -75,7 +75,7 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | `/` | Home with real shop / show / manufacturer counts |
 | `/shops` | Directory, state filter; destination shops show a Destination chip |
 | `/shops/{state}/{city}/{slug}` | Shop detail (try Burbank Sportscards) |
-| `/calendar` and `/shows` | Show list; Subscribe (.ics) |
+| `/calendar` and `/shows` | Month (default), list, map; Subscribe (.ics) |
 | `/shows/{state}` | State hub |
 | `/shows/{state}/{city}/{slug}` | Show detail + Add to calendar (Google / Outlook / .ics) |
 | `/calendar.ics` | National ICS feed |
@@ -92,7 +92,7 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 
 ## Known gaps
 
-- Calendar month/map views are not in this pass yet (list + ICS + state hub + detail + JSON `/api/v1/calendar` are).
+- Calendar map plots only venues that already have lat/lng. Seeded `shows.html` editions have no coordinates, so the map is empty until staff add them.
 - No S3 / CloudFront — uploads go to `wwwroot/uploads`.
 - Turnstile is off in Development.
 - Upcoming GaryVee card-show rows were **not** seeded: the 2026-10-22 dossier had no confirmed card show with date + location + his role.
