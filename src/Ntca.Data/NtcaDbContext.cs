@@ -200,6 +200,7 @@ public sealed class NtcaDbContext : DbContext
             e.HasKey(x => x.ManufacturerId);
             e.Property(x => x.Slug).HasMaxLength(160);
             e.Property(x => x.Name).HasMaxLength(200);
+            e.Property(x => x.LogoUrl).HasMaxLength(500);
             e.Property(x => x.RetrievedOn).HasColumnType("date");
         });
 

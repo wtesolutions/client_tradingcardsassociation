@@ -208,6 +208,8 @@ public sealed class Manufacturer
     public string? CountryName { get; set; }
     public string? WebsiteUrl { get; set; }
     public string? WikipediaTitle { get; set; }
+    public string? DescriptionHtml { get; set; }
+    public string? LogoUrl { get; set; }
     public string SourceSection { get; set; } = "Manufacturers";
     public string? SourceSystem { get; set; }
     public DateTime? RetrievedOn { get; set; }

@@ -3886,6 +3886,23 @@ WHERE s.InstagramHandle IS NOT NULL
         WHERE x.ShopId = s.ShopId AND x.PlatformCode = 'INSTAGRAM');
 GO
 
+/* ==== 07_manufacturer_detail.sql ==== */
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
+   Database: wte_NtcaDatabase (hardcoded).
+   Idempotent: safe to run twice on an existing database.
+   Adds staff-authored long-form copy and a logo URL on dir.Manufacturer.
+*/
+USE [wte_NtcaDatabase];
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+GO
+
+IF COL_LENGTH(N'dir.Manufacturer', N'DescriptionHtml') IS NULL
+    ALTER TABLE dir.Manufacturer ADD DescriptionHtml NVARCHAR(MAX) NULL;
+IF COL_LENGTH(N'dir.Manufacturer', N'LogoUrl') IS NULL
+    ALTER TABLE dir.Manufacturer ADD LogoUrl NVARCHAR(500) NULL;
+GO
+
 /* ==== 02_seed.sql ==== */
 /* Plain T-SQL for SSMS. SQLCMD Mode is not required.
    Database: wte_NtcaDatabase (hardcoded).
@@ -19491,6 +19508,26 @@ VALUES (s.ManufacturerId, s.Rel, N'https://en.wikipedia.org/wiki/Trading_card');
 
 PRINT 'SEED_60_manufacturers: 66 manufacturers (sport=65 nonsport=17 both=16)';
 
+GO
+
+/* ==== seed/SEED_61_skybox_logo.sql ==== */
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
+   Database: wte_NtcaDatabase (hardcoded).
+   Idempotent: safe to run twice on an existing database.
+   Sets SkyBox LogoUrl to the committed Wikimedia Commons JPEG.
+   Does not invent a manufacturer description.
+*/
+USE [wte_NtcaDatabase];
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+GO
+
+UPDATE dir.Manufacturer
+SET
+    LogoUrl = N'/media/manufacturers/skybox.jpg',
+    UpdatedAt = SYSUTCDATETIME()
+WHERE Slug = N'skybox'
+  AND (LogoUrl IS NULL OR LogoUrl <> N'/media/manufacturers/skybox.jpg');
 GO
 
 /* ==== seed/SEED_65_glossary_conditions.sql ==== */

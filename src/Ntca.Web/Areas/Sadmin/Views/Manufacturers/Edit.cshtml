@@ -1,0 +1,19 @@
+@model Ntca.Core.Manufacturer
+@{
+    ViewData["Title"] = "Edit · " + Model.Name;
+}
+<h1>@Model.Name</h1>
+<p class="meta">@Model.Slug · @Model.SourceSection · @Model.CountryName</p>
+@if (TempData["Saved"] is string msg) { <p class="card">@msg</p> }
+<form method="post" action="/SADMIN/manufacturers/@Model.ManufacturerId" class="card">
+    @Html.AntiForgeryToken()
+    <p><label>Website URL<br /><input name="websiteUrl" value="@Model.WebsiteUrl" style="width:100%" /></label></p>
+    <p><label>Logo URL<br /><input name="logoUrl" value="@Model.LogoUrl" placeholder="/media/manufacturers/slug.jpg" style="width:100%" /></label></p>
+    <p><label>Long-form description (HTML, leave empty to hide)<br />
+        <textarea name="descriptionHtml" rows="12" style="width:100%">@Model.DescriptionHtml</textarea>
+    </label></p>
+    <input type="hidden" name="isActive" value="false" />
+    <p><label><input type="checkbox" name="isActive" value="true" checked="@(Model.IsActive ? "checked" : null)" /> Active</label></p>
+    <p><button class="btn" type="submit">Save</button> <a class="btn ghost" href="/SADMIN/manufacturers">All manufacturers</a></p>
+</form>
+<p class="meta">Empty description is not rendered on the public page. Do not invent history copy.</p>

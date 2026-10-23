@@ -120,7 +120,9 @@ INSERT INTO @Cols VALUES
     (N'04', N'crm.SignupFunnel',     N'OnboardingStartedAt'),
     (N'04', N'crm.SignupFunnel',     N'OnboardingCompletedAt'),
     (N'04', N'crm.SignupStepEvent',  N'Stage'),
-    (N'04', N'crm.SignupStepEvent',  N'RoleKey');
+    (N'04', N'crm.SignupStepEvent',  N'RoleKey'),
+    (N'07', N'dir.Manufacturer',     N'DescriptionHtml'),
+    (N'07', N'dir.Manufacturer',     N'LogoUrl');
 
 INSERT INTO @Out (Area, [Check], Expected, Actual, Result)
 SELECT
@@ -335,6 +337,17 @@ IF OBJECT_ID(N'dir.Manufacturer', N'U') IS NOT NULL
         CASE WHEN m.IsActive = 1 THEN N'PASS' ELSE N'FAIL' END
     FROM (VALUES (N'fanatics'), (N'onit-athlete-trading-cards')) v(Slug)
     LEFT JOIN dir.Manufacturer m ON m.Slug = v.Slug;
+
+IF OBJECT_ID(N'dir.Manufacturer', N'U') IS NOT NULL AND COL_LENGTH(N'dir.Manufacturer', N'LogoUrl') IS NOT NULL
+    INSERT INTO @Out (Area, [Check], Expected, Actual, Result)
+    SELECT
+        N'seed',
+        N'SkyBox LogoUrl',
+        N'/media/manufacturers/skybox.jpg',
+        ISNULL(m.LogoUrl, N'missing'),
+        CASE WHEN m.LogoUrl = N'/media/manufacturers/skybox.jpg' THEN N'PASS' ELSE N'FAIL' END
+    FROM dir.Manufacturer m
+    WHERE m.Slug = N'skybox';
 
 IF OBJECT_ID(N'cms.GlossaryTerm', N'U') IS NOT NULL
     SELECT @act = COUNT(*) FROM cms.GlossaryTerm;

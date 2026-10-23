@@ -1,17 +1,30 @@
+@using Ntca.Web.Services
 @model List<Ntca.Core.Manufacturer>
 @{
     ViewData["Title"] = "Manufacturers";
+    ViewData["MainClass"] = "site-main";
 }
-<p class="kicker">Directory</p>
-<h1>Manufacturers</h1>
-<p class="lede">@Model.Count companies from the Wikipedia Trading card tables plus directory merges. Factual fields only.</p>
-<form class="tools" method="get"><input name="q" value="@ViewBag.Q" placeholder="Search manufacturers" /><button class="btn" type="submit">Search</button></form>
-<div class="grid">
-@foreach (var m in Model)
-{
-    <a class="card" href="/manufacturers/@m.Slug">
-        <h3>@m.Name</h3>
-        <p class="meta">@m.SourceSection @(m.CountryName)</p>
-    </a>
-}
+<div class="ntca-container page-prose">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>Manufacturers</span>
+    </nav>
+    <p class="kicker">Directory</p>
+    <h1>Manufacturers</h1>
+    <p class="lede">@Model.Count companies from the Wikipedia Trading card tables plus directory merges. Factual fields only.</p>
+    <form class="tools" method="get"><input name="q" value="@ViewBag.Q" placeholder="Search manufacturers" /><button class="btn" type="submit">Search</button></form>
+    <div class="grid mfr-grid">
+    @foreach (var m in Model)
+    {
+        <a class="card mfr-card" href="/manufacturers/@m.Slug">
+            @if (ManufacturerCopy.LogoSrc(m) is string logo)
+            {
+                <img class="mfr-logo" src="@logo" alt="" width="180" height="52" />
+            }
+            <h3>@m.Name</h3>
+            <p class="meta">@m.SourceSection @(m.CountryName)</p>
+        </a>
+    }
+    </div>
 </div>

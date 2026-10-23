@@ -1,0 +1,22 @@
+@model List<Ntca.Core.Manufacturer>
+@{
+    ViewData["Title"] = "Manufacturers";
+}
+<h1>Manufacturers</h1>
+<form class="tools" method="get" action="/SADMIN/manufacturers">
+    <input name="q" value="@ViewBag.Q" placeholder="Name or slug" />
+    <button class="btn" type="submit">Filter</button>
+</form>
+<table>
+    <tr><th>Name</th><th>Slug</th><th>Logo</th><th>Description</th><th></th></tr>
+    @foreach (var m in Model)
+    {
+        <tr>
+            <td><a href="/SADMIN/manufacturers/@m.ManufacturerId">@m.Name</a></td>
+            <td>@m.Slug</td>
+            <td>@(string.IsNullOrWhiteSpace(m.LogoUrl) ? "" : "yes")</td>
+            <td>@(string.IsNullOrWhiteSpace(m.DescriptionHtml) ? "" : "yes")</td>
+            <td><a href="/manufacturers/@m.Slug">Public</a></td>
+        </tr>
+    }
+</table>

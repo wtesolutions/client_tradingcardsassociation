@@ -27,6 +27,8 @@ This file describes what is **actually on the branch**. Update it at the end of 
 | `db/tools/generate_ssms.py` | Copies canonical `db/` scripts to identical `db/ssms/*_SSMS.sql` files |
 | `db/05_google_places.sql` | Idempotent Google Places match / 30-day cache / photo / call-log tables |
 | `db/06_shop_social.sql` | Social platform catalog + `dir.ShopSocial`; migrates Website/Facebook/Instagram |
+| `db/07_manufacturer_detail.sql` | `dir.Manufacturer.DescriptionHtml` + `LogoUrl` |
+| `db/seed/SEED_61_skybox_logo.sql` | SkyBox `LogoUrl` = `/media/manufacturers/skybox.jpg` |
 | `db/seed/SEED_17_shop_enrichment_manual.sql` | Verified 2026-10-23 first-10 enrichment (socials, Beckett-only sites, coords, hours) + SADMIN review notes |
 | `db/seed/SEED_18_legacy_content_fix.sql` | Corrected About bios + boys/hall gallery rows |
 | `db/99_verify.sql` | Read-only SSMS cross-check (one PASS/FAIL/WARN grid). Copy: `db/ssms/99_verify_SSMS.sql` |
@@ -292,7 +294,7 @@ A second `run_all` is safe. App login is hardcoded `ntca_app` / `NtcaAppDev2026x
 
 SSMS / Azure Data Studio: open `db/NTCA_FULL_INSTALL.sql` (or the identical `db/ssms/NTCA_FULL_INSTALL_SSMS.sql`) and Execute. SQLCMD Mode is not required.
 
-**Existing QA database:** run `04_onboarding_funnel.sql`, `05_google_places.sql`, `06_shop_social.sql`, `SEED_17_shop_enrichment_manual.sql`, `SEED_18_legacy_content_fix.sql` in that order.
+**Existing QA database:** run `04_onboarding_funnel.sql`, `05_google_places.sql`, `06_shop_social.sql`, `SEED_17_shop_enrichment_manual.sql`, `SEED_18_legacy_content_fix.sql`, `07_manufacturer_detail.sql`, `SEED_61_skybox_logo.sql` in that order.
 
 ### 3.6 App connection
 

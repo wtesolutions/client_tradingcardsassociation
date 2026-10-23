@@ -20,6 +20,7 @@ public sealed class ManufacturersController : Controller
         }
         var rows = await query.OrderBy(m => m.Name).ToListAsync(ct);
         ViewBag.Q = q ?? "";
+        ViewData["MainClass"] = "site-main";
         return View(rows);
     }
 
@@ -32,6 +33,7 @@ public sealed class ManufacturersController : Controller
             .FirstOrDefaultAsync(m => m.Slug == slug, ct);
         if (mfr is null)
             return NotFound();
+        ViewData["MainClass"] = "site-main";
         return View(mfr);
     }
 }

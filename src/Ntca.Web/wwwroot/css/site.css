@@ -858,6 +858,31 @@ body.is-shop-detail .visit-dock { display: flex; }
 .home-kickoff { margin-top: 24px; padding: 20px; background: var(--ntca-navy); color: #fff; border-radius: var(--ntca-radius); }
 .home-kickoff a { color: var(--ntca-gold); }
 .net-hero { margin: 0 0 24px; }
+.mfr-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  margin: 0 0 20px;
+}
+.mfr-logo {
+  display: block;
+  max-width: 180px;
+  max-height: 64px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--ntca-border);
+  border-radius: var(--ntca-radius);
+  padding: 8px;
+}
+.mfr-logo-lg { max-width: 220px; max-height: 80px; }
+.mfr-card { display: flex; flex-direction: column; gap: 10px; color: inherit; text-decoration: none; }
+.mfr-card:hover { border-color: var(--ntca-gold); text-decoration: none; }
+.mfr-card h3 { margin: 0; }
+.mfr-prose { max-width: 46rem; }
+.mfr-prose p { margin: 0 0 12px; }
 @media (max-width: 720px) {
   .evt-card { grid-template-columns: 64px 1fr; }
   .evt-card .btn { grid-column: 1 / -1; }
