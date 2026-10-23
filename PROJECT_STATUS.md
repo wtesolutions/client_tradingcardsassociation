@@ -154,6 +154,7 @@ Static HTML/CSV snapshot used as seed input (`hobby-shop-directory.csv`, `shows.
 | `eba4172` | Mobile-first shop directory cards + Near me / ZIP distance |
 | `4133ffa` / `4a572a5` | Directory cards matched to Eric’s list layout (static-map thumbs, Call/View) |
 | `76e81b1` | Multi-step Preview signup funnel + SADMIN funnel report |
+| `49464f2` / `e7e944f` | Funnel polish: ZIP early, icon cards, travel radius, live result cards |
 
 ---
 
@@ -169,7 +170,7 @@ Update the **Status** column when a later run lands the item.
 | AI-optimized shop JSON-LD + AI summary + `.md` | **Done** (`d5e57c3`, `9bdacc0`) | Real fields only; `llms.txt` lists shop markdown |
 | AI concierge / VIP AI visitors + `POST /api/v1/agent/ask` + SADMIN AI Visitors | **Done** (`881fc67`) | UA catalog (SADMIN-editable), welcome aside (no cloaking), `Link` + `X-NTCA-Agent-*`, `/.well-known/ai-concierge`, `/agent`, rate-limited ask API, anonymized `AgentVisit`/`AgentInquiry`, `/shows/submit` for promoters |
 | Mobile directory cards (SoberNation-style) | **Done** (`4133ffa`, `4a572a5`) | Cards on `/shops` + state/city; OSM static-map thumb; sticky ZIP/Near me; `/t/view` + `/t/phone`; compact shop-detail header |
-| Care.com-style multi-step signup funnel + funnel report | **Done** (`76e81b1`) | `/signup` + `/join`; `crm.SignupFunnel` / `SignupStepEvent`; SADMIN `/SADMIN/funnel`; same intent model as `/api/v1/agent/ask` |
+| Care.com-style multi-step signup funnel + funnel report | **Done** (`76e81b1`, `49464f2`, `e7e944f`) | `/signup` + `/join`; collector/parent **who → ZIP → interests → experience → travel → email**; icon cards; `crm.SignupFunnel` / `SignupStepEvent`; SADMIN `/SADMIN/funnel`; `AgentAsk.TravelMiles` shared with `/api/v1/agent/ask`; live shop/show/guide cards on results |
 
 ### Remaining platform
 

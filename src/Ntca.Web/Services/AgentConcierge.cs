@@ -280,6 +280,11 @@ public sealed class AgentAnswer
     public List<string> Warnings { get; set; } = [];
     public string? Assistant { get; set; }
     public string? HumanRole { get; set; }
+    public string? City { get; set; }
+    public string? StateCode { get; set; }
+    public string? Zip3 { get; set; }
+    public List<string> Interests { get; set; } = [];
+    public int? TravelMiles { get; set; }
     public string Markdown { get; set; } = "";
     public List<object> Shops { get; set; } = [];
     public List<object> Shows { get; set; } = [];
@@ -392,6 +397,11 @@ public sealed class AgentAnswerBuilder
             Warnings = ask.Warnings,
             Assistant = ask.Assistant,
             HumanRole = ask.HumanRole,
+            City = ask.City,
+            StateCode = ask.StateCode,
+            Zip3 = ask.Zip3,
+            Interests = ask.Interests,
+            TravelMiles = ask.TravelMiles,
             Shops = shops.Select(s => (object)new
             {
                 s.Name,
