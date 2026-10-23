@@ -47,14 +47,25 @@ public sealed class AccountController : Controller
         }
         if (string.IsNullOrWhiteSpace(form.Code))
         {
-            await _codes.IssueAsync(email, "SADMIN_LOGIN", user.UserId, ct);
-            ViewBag.Sent = true;
+            try
+            {
+                var send = await _codes.IssueAsync(email, "SADMIN_LOGIN", user.UserId, ct);
+                ViewBag.Sent = true;
+                ViewBag.DevBypass = _codes.BypassEnabled;
+                if (!send.Delivered)
+                    ViewBag.MailHint = send.UserMessage;
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Could not send the sign-in code: " + ex.Message);
+            }
             return View(form);
         }
         if (!await _codes.VerifyAsync(email, "SADMIN_LOGIN", form.Code, ct))
         {
             ModelState.AddModelError("", "That code is invalid or expired.");
             ViewBag.Sent = true;
+            ViewBag.DevBypass = _codes.BypassEnabled;
             return View(form);
         }
         user.LastLoginAt = DateTime.UtcNow;

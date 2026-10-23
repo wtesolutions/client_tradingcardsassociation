@@ -41,6 +41,19 @@ public sealed class VerificationCode
     public DateTime CreatedAt { get; set; }
 }
 
+public sealed class AuditLog
+{
+    public long AuditLogId { get; set; }
+    public string EntityType { get; set; } = "";
+    public long EntityId { get; set; }
+    public string Action { get; set; } = "";
+    public long? UserId { get; set; }
+    public long? ImpersonatorUserId { get; set; }
+    public string? ChangesJson { get; set; }
+    public byte[]? IpHash { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
 public sealed class SiteSetting
 {
     public string SettingKey { get; set; } = "";

@@ -3,10 +3,18 @@
     ViewData["Title"] = "Shop owner sign-in";
 }
 <h1>Shop owner sign-in</h1>
-<p class="lede">Passwordless. We email a 6-digit code. In Development the code is also printed in the console when SocketLabs is not configured.</p>
+<p class="lede">Passwordless. We email a 6-digit code.</p>
 <form method="post">
     @Html.AntiForgeryToken()
     <div asp-validation-summary="All"></div>
+    @if (ViewBag.MailHint is string hint)
+    {
+        <p class="card" role="status">@hint</p>
+    }
+    @if (ViewBag.DevBypass as bool? == true)
+    {
+        <p class="meta">Development bypass is on: enter <strong>888888</strong> after requesting a code.</p>
+    }
     <p><label>Email<br /><input asp-for="Email" type="email" required /></label></p>
     @if (ViewBag.Sent as bool? == true)
     {

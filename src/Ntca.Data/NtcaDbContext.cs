@@ -10,6 +10,7 @@ public sealed class NtcaDbContext : DbContext
     public DbSet<AppUser> Users => Set<AppUser>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<VerificationCode> VerificationCodes => Set<VerificationCode>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
     public DbSet<Shop> Shops => Set<Shop>();
     public DbSet<ShopTier> ShopTiers => Set<ShopTier>();
@@ -84,6 +85,15 @@ public sealed class NtcaDbContext : DbContext
             e.Property(x => x.Email).HasMaxLength(320);
             e.Property(x => x.Purpose).HasMaxLength(30);
             e.Property(x => x.CodeHash).HasMaxLength(32).IsRequired();
+        });
+
+        model.Entity<AuditLog>(e =>
+        {
+            e.ToTable("AuditLog", "core");
+            e.HasKey(x => x.AuditLogId);
+            e.Property(x => x.EntityType).HasMaxLength(40);
+            e.Property(x => x.Action).HasMaxLength(30);
+            e.Property(x => x.ChangesJson).HasColumnType("nvarchar(max)");
         });
 
         model.Entity<SiteSetting>(e =>

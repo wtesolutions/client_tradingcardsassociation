@@ -115,6 +115,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(o =>
 });
 
 var app = builder.Build();
+var authOpts = app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<AuthOptions>>().Value;
+if (DevLoginBypass.IsEnabled(app.Environment, authOpts))
+    app.Logger.LogWarning("DEV login bypass code is active (Auth:DevBypassCode). Never enable this in Production.");
 
 app.UseForwardedHeaders();
 if (app.Environment.IsDevelopment())
@@ -159,6 +162,7 @@ static void AddNtcaServices(WebApplicationBuilder builder)
     builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
     builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("Storage"));
     builder.Services.Configure<GooglePlacesOptions>(builder.Configuration.GetSection("GooglePlaces"));
+    builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("Auth"));
     var conn = builder.Configuration.GetConnectionString("DefaultConnection")
         ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is required. Set it with dotnet user-secrets.");
     builder.Services.AddDbContext<NtcaDbContext>(opt =>

@@ -31,7 +31,7 @@ public sealed class CompositeEmailSender : IAppEmailSender
     public bool IsConfigured =>
         _socket.ServerId > 0 && !string.IsNullOrWhiteSpace(_socket.ApiKey);
 
-    public async Task SendAsync(string toEmail, string subject, string textBody, string? htmlBody = null, CancellationToken ct = default)
+    public async Task<EmailSendResult> SendAsync(string toEmail, string subject, string textBody, string? htmlBody = null, CancellationToken ct = default)
     {
         if (IsConfigured)
         {
@@ -51,31 +51,60 @@ public sealed class CompositeEmailSender : IAppEmailSender
                 _log.LogInformation(
                     "SocketLabs send {Result} to {To} subject {Subject} (from {From}, serverId set={HasServer})",
                     response.Result, toEmail, subject, _email.FromAddress, _socket.ServerId > 0);
-                if (response.Result != SendResult.Success)
+                if (response.Result == SendResult.Success)
+                    return new EmailSendResult(true, "socketlabs", "Sign-in code emailed.");
+
+                var err = response.Result + (string.IsNullOrWhiteSpace(response.ResponseMessage) ? "" : ": " + response.ResponseMessage);
+                _log.LogWarning("SocketLabs send did not succeed: {Result} {Error}", response.Result, response.ResponseMessage);
+                if (_env.IsDevelopment())
                 {
-                    _log.LogWarning("SocketLabs send did not succeed: {Result} {Error}", response.Result, response.ResponseMessage);
+                    var failedPickup = await WriteDevMailAsync(toEmail, subject, textBody, ct);
+                    return new EmailSendResult(false, "socketlabs-failed",
+                        "SocketLabs did not send the email (" + err + "). A copy is in " + failedPickup + " and the console.",
+                        failedPickup);
                 }
+                throw new InvalidOperationException("SocketLabs send failed: " + err);
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "SocketLabs send failed to {To} subject {Subject}", toEmail, subject);
+                if (_env.IsDevelopment())
+                {
+                    var failedPickup = await WriteDevMailAsync(toEmail, subject, textBody, ct);
+                    return new EmailSendResult(false, "socketlabs-error",
+                        "SocketLabs threw: " + ex.Message + ". A copy is in " + failedPickup + " and the console.",
+                        failedPickup);
+                }
                 throw;
             }
-            return;
         }
 
-        var pickup = Path.Combine(_env.ContentRootPath, "App_Data", "mail");
+        var pickup = await WriteDevMailAsync(toEmail, subject, textBody, ct);
+        _log.LogWarning(
+            "SocketLabs ServerId/ApiKey are empty — no email was sent. Wrote {File} to {To} subject {Subject}.",
+            pickup, toEmail, subject);
+        if (_env.IsDevelopment())
+            _log.LogWarning("DEV email body to {To}:\n{Body}", toEmail, textBody);
+        return new EmailSendResult(false, "dev-file",
+            "SocketLabs is not configured, so no email was sent. The message (including the code) is in the console and in " + pickup + ".",
+            pickup);
+    }
+
+    public static string DevMailFolder(string contentRoot)
+        => Path.Combine(contentRoot, "App_Data", "dev-mail");
+
+    private async Task<string> WriteDevMailAsync(string toEmail, string subject, string textBody, CancellationToken ct)
+    {
+        var pickup = DevMailFolder(_env.ContentRootPath);
         Directory.CreateDirectory(pickup);
         var file = Path.Combine(pickup, $"{DateTime.UtcNow:yyyyMMddHHmmssfff}-{Guid.NewGuid():N}.txt");
         var payload = $"From: {_email.FromName} <{_email.FromAddress}>\nTo: {toEmail}\nSubject: {subject}\n\n{textBody}\n";
         await File.WriteAllTextAsync(file, payload, ct);
-        _log.LogInformation(
-            "Email fallback (pickup-directory) wrote {File} to {To} subject {Subject}. SocketLabs ServerId/ApiKey are empty.",
-            Path.GetFileName(file), toEmail, subject);
-        if (_env.IsDevelopment())
-        {
-            _log.LogInformation("DEV email body to {To}:\n{Body}", toEmail, textBody);
-        }
+        return file;
     }
 }
 
@@ -171,15 +200,24 @@ public sealed class LoginCodeService
     private readonly NtcaDbContext _db;
     private readonly IAppEmailSender _email;
     private readonly IWebHostEnvironment _env;
+    private readonly AuthOptions _auth;
     private readonly ILogger<LoginCodeService> _log;
 
-    public LoginCodeService(NtcaDbContext db, IAppEmailSender email, IWebHostEnvironment env, ILogger<LoginCodeService> log)
+    public LoginCodeService(
+        NtcaDbContext db,
+        IAppEmailSender email,
+        IWebHostEnvironment env,
+        IOptions<AuthOptions> auth,
+        ILogger<LoginCodeService> log)
     {
         _db = db;
         _email = email;
         _env = env;
+        _auth = auth.Value;
         _log = log;
     }
+
+    public bool BypassEnabled => DevLoginBypass.IsEnabled(_env, _auth);
 
     public static byte[] HashCode(string email, string code)
     {
@@ -187,7 +225,7 @@ public sealed class LoginCodeService
         return SHA256.HashData(material);
     }
 
-    public async Task<string> IssueAsync(string email, string purpose, long? userId, CancellationToken ct = default)
+    public async Task<EmailSendResult> IssueAsync(string email, string purpose, long? userId, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
         var existing = await _db.VerificationCodes
@@ -215,12 +253,18 @@ public sealed class LoginCodeService
             ? "Your NTCA staff sign-in code"
             : "Your NTCA shop-owner sign-in code";
         var body = $"Your National Trading Card Association sign-in code is {code}. It expires in 15 minutes.\n\nIf you did not request this, ignore this email.";
-        await _email.SendAsync(email, subject, body, ct: ct);
-        return code;
+        return await _email.SendAsync(email, subject, body, ct: ct);
     }
 
     public async Task<bool> VerifyAsync(string email, string purpose, string code, CancellationToken ct = default)
     {
+        if (DevLoginBypass.Accepts(_env, _auth, code))
+        {
+            _log.LogWarning("DEV bypass code accepted for {Email} ({Purpose})", email, purpose);
+            await WriteBypassAuditAsync(email, purpose, ct);
+            return true;
+        }
+
         var now = DateTime.UtcNow;
         var hash = HashCode(email, code);
         var row = await _db.VerificationCodes
@@ -240,6 +284,31 @@ public sealed class LoginCodeService
         row.UsedAt = now;
         await _db.SaveChangesAsync(ct);
         return true;
+    }
+
+    private async Task WriteBypassAuditAsync(string email, string purpose, CancellationToken ct)
+    {
+        try
+        {
+            var userId = await _db.Users.AsNoTracking()
+                .Where(u => u.Email == email)
+                .Select(u => (long?)u.UserId)
+                .FirstOrDefaultAsync(ct);
+            _db.AuditLogs.Add(new AuditLog
+            {
+                EntityType = "AppUser",
+                EntityId = userId ?? 0,
+                Action = "DEV_BYPASS_LOGIN",
+                UserId = userId,
+                ChangesJson = "{\"purpose\":\"" + purpose.Replace("\"", "") + "\",\"email\":\"" + email.Replace("\"", "") + "\"}",
+                CreatedAt = DateTime.UtcNow
+            });
+            await _db.SaveChangesAsync(ct);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "Failed to write DEV bypass audit row for {Email}", email);
+        }
     }
 }
 

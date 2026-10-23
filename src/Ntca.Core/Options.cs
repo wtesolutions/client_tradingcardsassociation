@@ -12,6 +12,14 @@ public sealed class EmailOptions
     public string FromName { get; set; } = "National Trading Card Association";
 }
 
+public sealed class AuthOptions
+{
+    /// <summary>Development-only. Ignored when the host environment is Production.</summary>
+    public bool DevBypassCode { get; set; }
+}
+
+public sealed record EmailSendResult(bool Delivered, string Channel, string UserMessage, string? PickupPath = null);
+
 public sealed class StorageOptions
 {
     public string Provider { get; set; } = "Local";
@@ -48,7 +56,7 @@ public sealed class GooglePlacesOptions
 public interface IAppEmailSender
 {
     bool IsConfigured { get; }
-    Task SendAsync(string toEmail, string subject, string textBody, string? htmlBody = null, CancellationToken ct = default);
+    Task<EmailSendResult> SendAsync(string toEmail, string subject, string textBody, string? htmlBody = null, CancellationToken ct = default);
 }
 
 public interface IFileStorage

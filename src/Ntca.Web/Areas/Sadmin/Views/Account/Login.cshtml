@@ -4,10 +4,18 @@
     Layout = "/Views/Shared/_Layout.cshtml";
 }
 <h1>Staff sign-in</h1>
-<p class="lede">Emailed code. Seeded SUPERADMIN: egarrison@wte.net. In Development the code is written to the console.</p>
+<p class="lede">Emailed code. Seeded SUPERADMIN: egarrison@wte.net.</p>
 <form method="post" action="/SADMIN/login">
     @Html.AntiForgeryToken()
     <div asp-validation-summary="All"></div>
+    @if (ViewBag.MailHint is string hint)
+    {
+        <p class="card" role="status">@hint</p>
+    }
+    @if (ViewBag.DevBypass as bool? == true)
+    {
+        <p class="meta">Development bypass is on: enter <strong>888888</strong> after requesting a code (staff email required).</p>
+    }
     <p><label>Email<br /><input asp-for="Email" type="email" required /></label></p>
     @if (ViewBag.Sent as bool? == true)
     {

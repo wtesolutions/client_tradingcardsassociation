@@ -66,7 +66,7 @@ Solution `src/Ntca.sln` (**net9.0**):
 
 **Auth:** signed cookies `ntca.owner` and `ntca.sadmin` (passwordless emailed 6-digit codes). QA user `egarrison@wte.net` is SUPERADMIN and owns Burbank Sportscards.
 
-**Email:** official `SocketLabs.EmailDelivery` **2.0.1**, from `reports@wte.net` / National Trading Card Association. Empty ServerId/ApiKey → console log + `App_Data/mail/` pickup. Dev prints the login code in the console.
+**Email:** official `SocketLabs.EmailDelivery` **2.0.1**, from `reports@wte.net` / National Trading Card Association. Empty ServerId/ApiKey → console log + `App_Data/dev-mail/` pickup, and the login UI says the email was not sent. Dev prints the login code in the console. Development-only staff/owner bypass: `888888` when `Auth:DevBypassCode` is true (logged to `core.AuditLog`).
 
 **Uploads:** `wwwroot/uploads` via `IFileStorage` (no S3 on this branch).
 
@@ -308,7 +308,7 @@ dotnet user-secrets set ConnectionStrings:DefaultConnection \
   "Server=localhost,1433;Database=wte_NtcaDatabase;User ID=ntca_app;Password=NtcaAppDev2026x;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Application Name=Ntca.Web"
 ```
 
-Optional SocketLabs (otherwise console + `App_Data/mail/`):
+Optional SocketLabs (otherwise console + `App_Data/dev-mail/`, and the login UI says the email was not sent):
 
 ```bash
 dotnet user-secrets set SocketLabs:ServerId "12345"
@@ -325,7 +325,7 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 
 Open http://localhost:5290
 
-**Login codes:** `/owner/login` and `/SADMIN/login` with `egarrison@wte.net`. With SocketLabs empty, the six-digit code is printed in the **terminal** (`DEV login code for egarrison@wte.net (LOGIN|SADMIN_LOGIN): ######`) and written under `src/Ntca.Web/App_Data/mail/`.
+**Login codes:** `/owner/login` and `/SADMIN/login` with `egarrison@wte.net`. With SocketLabs empty, the six-digit code is printed in the **terminal**, written under `src/Ntca.Web/App_Data/dev-mail/`, and the UI says no email was sent. Development also accepts `888888` for an existing staff/owner account.
 
 ### 3.8 QA checklist
 

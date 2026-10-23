@@ -14,7 +14,7 @@ The public site is moving off a **flat HTML GitHub Pages** site (`main` root) on
 | Deploy | GitHub Actions on the existing self-hosted Windows runner (`wte_apps3`): build → publish → stop pool → copy (preserve server `appsettings.Production.json`) → start pool → smoke |
 | SQL | New database `NTCA` on WTE server **HAMMER** (name is a sqlcmd variable; Eric can choose `NTCADirectory` instead) |
 | SQL logins | `ntca_app` (runtime, least privilege) and optional `ntca_migrator` (DDL only). See [db/README.md](../db/README.md) |
-| Email | SocketLabs Injection API from `reports@wte.net` (`SocketLabs:ServerId`, `SocketLabs:ApiKey` via user-secrets). Console / pickup-directory fallback when those keys are empty. |
+| Email | SocketLabs Injection API from `reports@wte.net` (`SocketLabs:ServerId`, `SocketLabs:ApiKey` via user-secrets). When those keys are empty, Development writes the message (including login codes) to the console and `App_Data/dev-mail/` and the login UI says the email was not sent. `Auth:DevBypassCode` / `888888` is Development-only and never active in Production. |
 | Media | Amazon S3 + CloudFront (OAC). Local disk is the Development default. Object keys in `core.MediaAsset` (`legacy/assets/…`, `google-cache/…`) |
 
 **`main` stays untouched** so GitHub Pages keeps serving the current static site until cutover. This branch is a draft-only platform branch. **Do not merge** until IIS is ready and Pages is pointed away or retired.

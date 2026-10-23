@@ -64,11 +64,12 @@ dotnet user-secrets set ConnectionStrings:DefaultConnection \
 Optional SocketLabs (login codes + signup confirmations from `reports@wte.net`):
 
 ```bash
-dotnet user-secrets set SocketLabs:ServerId "12345"
-dotnet user-secrets set SocketLabs:ApiKey "YOUR-KEY"
+cd src/Ntca.Web
+dotnet user-secrets set SocketLabs:ServerId "YOUR-SERVER-ID"
+dotnet user-secrets set SocketLabs:ApiKey "YOUR-API-KEY"
 ```
 
-Leave those empty on a laptop. The app logs the message and writes `App_Data/mail/`. In Development the **login code is printed in the console**.
+Leave those empty on a laptop. The app does **not** pretend the email was sent: the SADMIN/owner UI says SocketLabs is missing, writes `src/Ntca.Web/App_Data/dev-mail/`, and prints the code in the console. In Development, staff/owner login also accepts **888888** (`Auth:DevBypassCode`, default on in `appsettings.Development.json` only — never in Production).
 
 Optional Google Places (batch only — visitor pages never call Google):
 
