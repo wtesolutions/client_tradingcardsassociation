@@ -3903,6 +3903,52 @@ IF COL_LENGTH(N'dir.Manufacturer', N'LogoUrl') IS NULL
     ALTER TABLE dir.Manufacturer ADD LogoUrl NVARCHAR(500) NULL;
 GO
 
+/* ==== 08_owner_workspace.sql ==== */
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
+   Database: wte_NtcaDatabase (hardcoded).
+   Idempotent: safe to run twice on an existing database.
+   Editorial Featured flag + owner field locks for Google Places skip.
+   dir.ShopClaimRequest already exists in 01_schema.
+*/
+USE [wte_NtcaDatabase];
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+GO
+
+IF COL_LENGTH(N'dir.Shop', N'IsEditorialFeatured') IS NULL
+    ALTER TABLE dir.Shop ADD IsEditorialFeatured BIT NOT NULL CONSTRAINT DF_Shop_EditorialFeatured DEFAULT 0;
+IF COL_LENGTH(N'dir.Shop', N'EditorialFeaturedNote') IS NULL
+    ALTER TABLE dir.Shop ADD EditorialFeaturedNote NVARCHAR(240) NULL;
+IF COL_LENGTH(N'dir.Shop', N'EditorialFeaturedAt') IS NULL
+    ALTER TABLE dir.Shop ADD EditorialFeaturedAt DATETIME2(3) NULL;
+IF COL_LENGTH(N'dir.Shop', N'OwnerFieldLocks') IS NULL
+    ALTER TABLE dir.Shop ADD OwnerFieldLocks NVARCHAR(400) NULL;
+IF COL_LENGTH(N'dir.Shop', N'LogoObjectKey') IS NULL
+    ALTER TABLE dir.Shop ADD LogoObjectKey NVARCHAR(400) NULL;
+IF COL_LENGTH(N'dir.ShopEditRequest', N'RequestKind') IS NULL
+    ALTER TABLE dir.ShopEditRequest ADD RequestKind VARCHAR(20) NOT NULL CONSTRAINT DF_ShopEdit_Kind DEFAULT 'REVIEW';
+GO
+
+IF COL_LENGTH(N'ugc.ShopPhoto', N'ObjectKey') IS NULL
+    ALTER TABLE ugc.ShopPhoto ADD ObjectKey NVARCHAR(400) NULL;
+IF COL_LENGTH(N'ugc.ShopPhoto', N'SortOrder') IS NULL
+    ALTER TABLE ugc.ShopPhoto ADD SortOrder INT NOT NULL CONSTRAINT DF_ShopPhoto_Sort DEFAULT 0;
+IF COL_LENGTH(N'ugc.ShopPhoto', N'IsCover') IS NULL
+    ALTER TABLE ugc.ShopPhoto ADD IsCover BIT NOT NULL CONSTRAINT DF_ShopPhoto_Cover DEFAULT 0;
+IF COL_LENGTH(N'ugc.ShopPhoto', N'AltText') IS NULL
+    ALTER TABLE ugc.ShopPhoto ADD AltText NVARCHAR(200) NULL;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Shop_EditorialFeatured' AND object_id = OBJECT_ID(N'dir.Shop'))
+    CREATE INDEX IX_Shop_EditorialFeatured ON dir.Shop (IsEditorialFeatured, ListingStatus) WHERE IsEditorialFeatured = 1;
+GO
+
+IF EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_ShopEdit_Status' AND parent_object_id = OBJECT_ID(N'dir.ShopEditRequest'))
+    ALTER TABLE dir.ShopEditRequest DROP CONSTRAINT CK_ShopEdit_Status;
+ALTER TABLE dir.ShopEditRequest ADD CONSTRAINT CK_ShopEdit_Status
+    CHECK (Status IN ('PENDING_REVIEW','APPROVED','REJECTED','WITHDRAWN','FYI','UNDONE'));
+GO
+
 /* ==== 02_seed.sql ==== */
 /* Plain T-SQL for SSMS. SQLCMD Mode is not required.
    Database: wte_NtcaDatabase (hardcoded).
@@ -20513,6 +20559,86 @@ Sources listed on cms.IndustryFigureSource for slug gary-vaynerchuk.',
 GO
 
 PRINT 'SEED_70_industry_figures: Gary Vaynerchuk figure (unpublished) + DRAFT post; no calendar rows (no upcoming card show with date+location+role).';
+GO
+
+/* ==== seed/SEED_21_hobby_tyme_featured.sql ==== */
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
+   Database: wte_NtcaDatabase (hardcoded).
+   Idempotent. Marks Hobby Tyme Sports Cards & Toys (Mebane NC) as
+   editorial Featured — not paid / Sponsored. Leaves Cards And Stuff
+   DATA_REVIEW notes unchanged.
+
+   Optional owner account: set @OwnerEmail below if Eric wants a login
+   for /owner (Development 888888 bypass). Leave empty to skip.
+   Do not invent Jay Dudley's email or phone.
+*/
+USE [wte_NtcaDatabase];
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+GO
+
+DECLARE @Slug nvarchar(160) = N'hobby-tyme-sports-cards-toys-mebane-nc';
+DECLARE @Note nvarchar(240) = N'Featured by Eric 2026-10-23 (editorial)';
+DECLARE @OwnerEmail nvarchar(320) = N''; -- Eric: set this to create/link a non-staff owner login. Example: N'eric+hobbytyme@wte.net'
+DECLARE @ShopId bigint;
+DECLARE @Now datetime2(3) = SYSUTCDATETIME();
+
+SELECT @ShopId = ShopId
+FROM dir.Shop
+WHERE Slug = @Slug;
+
+IF @ShopId IS NULL
+BEGIN
+    RAISERROR(N'SEED_21: shop slug hobby-tyme-sports-cards-toys-mebane-nc not found. Run SEED_10 first.', 16, 1);
+    RETURN;
+END;
+
+UPDATE dir.Shop
+SET
+    IsEditorialFeatured = 1,
+    EditorialFeaturedNote = @Note,
+    EditorialFeaturedAt = COALESCE(EditorialFeaturedAt, @Now),
+    UpdatedAt = @Now
+WHERE ShopId = @ShopId
+  AND (
+        IsEditorialFeatured = 0
+        OR ISNULL(EditorialFeaturedNote, N'') <> @Note
+      );
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM core.AuditLog
+    WHERE EntityType = N'Shop'
+      AND EntityId = @ShopId
+      AND Action = N'FEATURE_EDITORIAL'
+      AND ChangesJson LIKE N'%"note":"Featured by Eric 2026-10-23 (editorial)"%')
+INSERT INTO core.AuditLog (EntityType, EntityId, Action, ChangesJson, CreatedAt)
+VALUES (
+    N'Shop',
+    @ShopId,
+    N'FEATURE_EDITORIAL',
+    N'{"note":"Featured by Eric 2026-10-23 (editorial)","promotionType":"editorial","slug":"hobby-tyme-sports-cards-toys-mebane-nc"}',
+    @Now
+);
+
+IF NULLIF(LTRIM(RTRIM(@OwnerEmail)), N'') IS NOT NULL
+BEGIN
+    DECLARE @Email nvarchar(320) = LOWER(LTRIM(RTRIM(@OwnerEmail)));
+    DECLARE @User nvarchar(40) = LEFT(REPLACE(@Email, N'@', N'.'), 40);
+
+    MERGE core.AppUser AS t
+    USING (SELECT @Email AS Email) AS s
+    ON t.Email = s.Email
+    WHEN MATCHED THEN UPDATE SET
+        AccountStatus = 'ACTIVE',
+        EmailVerifiedAt = COALESCE(t.EmailVerifiedAt, @Now)
+    WHEN NOT MATCHED THEN INSERT
+        (Email, Username, DisplayName, AccountStatus, IsStaff, EmailVerifiedAt, MembershipLevel)
+    VALUES
+        (@Email, @User, N'Hobby Tyme owner (dev)', 'ACTIVE', 0, @Now, 'SUPPORTER');
+END;
+
+PRINT 'SEED_21_hobby_tyme_featured: editorial Featured set on Hobby Tyme. Cards And Stuff DATA_REVIEW unchanged.';
 GO
 
 /* ==== 03_app_login.sql ==== */

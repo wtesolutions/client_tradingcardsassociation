@@ -44,8 +44,10 @@ SSMS: open `db/NTCA_FULL_INSTALL.sql` (or the identical `db/ssms/NTCA_FULL_INSTA
 6. `SEED_19_bio_fix.sql` — force-set Craig / Eric / Jay `BioText` (and Quote) to their own legacy founder-body; use this if `99_verify` still reports a bio LEAK after SEED_18
 7. `07_manufacturer_detail.sql` — `dir.Manufacturer.DescriptionHtml` + `LogoUrl`
 8. `SEED_61_skybox_logo.sql` — SkyBox `LogoUrl` = `/media/manufacturers/skybox.jpg`
+9. `08_owner_workspace.sql` — editorial Featured, owner locks/logo, photo columns, FYI edit status
+10. `SEED_21_hobby_tyme_featured.sql` — Hobby Tyme editorial Featured (optional `@OwnerEmail`; do not invent Jay’s email)
 
-All eight are safe to run twice. A second full `run_all` is also safe: `01_schema.sql` uses `IF NOT EXISTS` / `CREATE OR ALTER`. Optional migrator: edit `DECLARE @MigratorPassword` at the top of `03_app_login.sql` (default `N'__SKIP__'`).
+All ten are safe to run twice. Playwright cases: **[TESTING.md](TESTING.md)** at the repo root (`dotnet run` → http://localhost:5290). A second full `run_all` is also safe: `01_schema.sql` uses `IF NOT EXISTS` / `CREATE OR ALTER`. Optional migrator: edit `DECLARE @MigratorPassword` at the top of `03_app_login.sql` (default `N'__SKIP__'`).
 
 **After those scripts:** open `db/99_verify.sql` (or the identical `db/ssms/99_verify_SSMS.sql`) and Execute. It is read-only and returns one PASS/FAIL/WARN grid (schema, seed counts, SEED_18 bios, data quality, Google tables, DATA_REVIEW flags) plus a summary row. Edit the `@Expect` table at the top if a documented count changes. `db/tools/validate.sql` only points at this file.
 

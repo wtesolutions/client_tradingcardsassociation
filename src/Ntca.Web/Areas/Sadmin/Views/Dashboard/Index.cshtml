@@ -2,54 +2,103 @@
 @{
     ViewData["Title"] = "Dashboard";
 }
-<h1>Operations</h1>
-<p class="meta">Site mode: <strong>@Model.Mode</strong></p>
-<form method="post" action="/SADMIN/dashboard/mode">
-    @Html.AntiForgeryToken()
-    <button class="btn" name="mode" value="Preview" type="submit">Set Preview</button>
-    <button class="btn ghost" name="mode" value="Live" type="submit">Set Live</button>
-</form>
-<div class="kpis">
-    <div class="kpi"><b>@Model.Shops</b><span>Active shops</span></div>
-    <div class="kpi"><b>@Model.UpcomingShows</b><span>Upcoming shows</span></div>
-    <div class="kpi"><b>@Model.PendingEvents</b><span>Event submissions</span></div>
-    <div class="kpi"><b>@Model.PendingEdits</b><span>Owner edits</span></div>
-    <div class="kpi"><b>@Model.DraftPosts</b><span>Draft posts</span></div>
-    <div class="kpi"><b>@Model.Signups7d</b><span>Signups (7d)</span></div>
-    <div class="kpi"><b>@Model.Manufacturers</b><span>Manufacturers</span></div>
-    <div class="kpi"><b>@Model.Impressions7d</b><span>Shop impressions (7d)</span></div>
-    <div class="kpi"><b>@Model.Views7d</b><span>Shop views (7d)</span></div>
-    <div class="kpi"><b>@Model.Clicks7d</b><span>Shop clicks (7d)</span></div>
-    <div class="kpi"><b>@Model.AgentVisits7d</b><span>AI visits (7d)</span></div>
-    <div class="kpi"><b>@Model.AgentInquiries7d</b><span>AI inquiries (7d)</span></div>
+<p class="admin-crumbs">Workspace / Dashboard</p>
+<h1 class="admin-h1" data-testid="dashboard-h1">Operations</h1>
+<p class="admin-sub">Manage the directory. Support the hobby.</p>
+
+<div class="admin-mode" data-testid="site-mode">
+    <span>Site mode: <strong data-testid="site-mode-value">@Model.Mode</strong></span>
+    <a class="admin-ghost" href="/SADMIN/dashboard/mode" data-testid="manage-mode">Manage mode</a>
 </div>
-<p class="meta"><a href="/SADMIN/agents">AI Visitors</a> — assistants, roles, UA catalog</p>
-<h2>Top shops (7 days)</h2>
-@if (!Model.TopShops.Any()) { <p class="meta">No impressions yet. Browse <a href="/shops">/shops</a> then refresh.</p> }
-<table>
-@foreach (var row in Model.TopShops)
+@if (TempData["ModeSaved"] is string saved)
 {
-    <tr>
-        <td>@row.Shop!.Name</td>
-        <td>@row.Shop.City, @row.Shop.StateCode</td>
-        <td>@row.Impressions</td>
-        <td><a href="/SADMIN/shops/@row.Shop.ShopId/stats">Stats</a></td>
-    </tr>
+    <p class="admin-ok" data-testid="mode-saved">@saved</p>
 }
-</table>
-<h2>Latest shops</h2>
-@if (!Model.LatestShops.Any()) { <p class="meta">No shops yet.</p> }
-<table>
-@foreach (var s in Model.LatestShops)
+
+@if (Model.InventoryOk)
 {
-    <tr><td>@s.Name</td><td>@s.City, @s.StateCode</td><td>@s.ClaimStatus</td></tr>
+    <div class="admin-strip" data-testid="inventory-strip">
+        <a class="admin-stat" href="/SADMIN/shops" data-testid="kpi-shops"><b class="num">@Model.Shops</b><span>Active shops</span></a>
+        <a class="admin-stat" href="/calendar" data-testid="kpi-shows"><b class="num">@Model.UpcomingShows</b><span>Upcoming shows</span></a>
+        <a class="admin-stat" href="/SADMIN/manufacturers" data-testid="kpi-manufacturers"><b class="num">@Model.Manufacturers</b><span>Manufacturers</span></a>
+    </div>
 }
-</table>
-<h2>Upcoming shows</h2>
-@if (!Model.Upcoming.Any()) { <p class="meta">No upcoming published shows.</p> }
-<table>
-@foreach (var e in Model.Upcoming)
+else
 {
-    <tr><td>@e.Title</td><td>@e.StartsAt.ToString("MMM d")</td><td>@e.StateCode</td></tr>
+    <p class="admin-error" data-testid="inventory-error">Inventory counts are not available.</p>
 }
-</table>
+
+<div class="admin-split">
+    <div class="admin-col">
+        <h2>Needs attention</h2>
+        @if (!Model.AttentionOk)
+        {
+            <p class="admin-error" data-testid="attention-error">Could not load the queues.</p>
+        }
+        else if (Model.PendingEvents + Model.PendingEdits + Model.DraftPosts == 0)
+        {
+            <p class="admin-empty" data-testid="attention-empty">No pending items</p>
+        }
+        else
+        {
+            <ul data-testid="attention-list">
+                <li><a href="/SADMIN/queue/events">Event submissions</a> <span class="num" data-testid="kpi-events">@Model.PendingEvents</span></li>
+                <li><a href="/SADMIN/queue/edits">Owner edits</a> <span class="num" data-testid="kpi-edits">@Model.PendingEdits</span></li>
+                <li>
+                    <a href="/SADMIN/queue/drafts">Draft posts</a>
+                    <span class="num" data-testid="kpi-drafts">@Model.DraftPosts</span>
+                    @if (Model.DraftPosts == 1)
+                    {
+                        <a class="admin-gold" href="/SADMIN/queue/drafts">Review draft →</a>
+                    }
+                </li>
+            </ul>
+        }
+    </div>
+    <div class="admin-col">
+        <h2>Activity</h2>
+        @if (!Model.ActivityOk)
+        {
+            <p class="admin-error" data-testid="activity-error">Not available</p>
+        }
+        else
+        {
+            <ul data-testid="activity-list">
+                <li>Shop impressions <span class="num" data-testid="kpi-impressions">@Model.Impressions7d</span></li>
+                <li>Shop views <span class="num" data-testid="kpi-views">@Model.Views7d</span></li>
+                <li>Shop clicks <span class="num" data-testid="kpi-clicks">@Model.Clicks7d</span></li>
+                <li>Signups <span class="num" data-testid="kpi-signups">@Model.Signups7d</span></li>
+                <li>AI visits <span class="num" data-testid="kpi-ai-visits">@Model.AgentVisits7d</span></li>
+                <li>AI inquiries <span class="num" data-testid="kpi-ai-inquiries">@Model.AgentInquiries7d</span></li>
+            </ul>
+        }
+    </div>
+</div>
+
+<h2>Top shops</h2>
+<p class="admin-sub">Impressions (7 days), excluding click surfaces. Bots excluded.</p>
+@if (!Model.TopShops.Any())
+{
+    <p class="admin-empty">No impressions yet. Browse <a href="/shops">/shops</a> then refresh.</p>
+}
+else
+{
+    <div class="admin-table-wrap">
+        <table data-testid="top-shops">
+            <thead>
+                <tr><th>Shop</th><th>Location</th><th class="num">Impressions (7 days)</th><th></th></tr>
+            </thead>
+            <tbody>
+            @foreach (var row in Model.TopShops)
+            {
+                <tr>
+                    <td>@row.Shop!.Name</td>
+                    <td>@row.Shop.City, @row.Shop.StateCode</td>
+                    <td class="num">@row.Impressions</td>
+                    <td><a href="/SADMIN/shops/@row.Shop.ShopId/stats">Stats →</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

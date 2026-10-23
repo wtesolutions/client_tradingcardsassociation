@@ -25,7 +25,7 @@
         _ => "Get to know you"
     };
 }
-<div class="funnel">
+<div class="funnel" data-testid="onboarding-step" data-step="@step">
 <p class="kicker">Get to know you</p>
 <div class="funnel-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@progress" aria-label="Onboarding progress">
     <span style="width:@progress%"></span>
@@ -46,7 +46,7 @@
     <p class="lede">Pick every hat you wear. A collector who owns a shop can choose both.</p>
     <form method="post" action="@Action("who")" class="funnel-options">
         @Html.AntiForgeryToken()
-        <fieldset class="funnel-options">
+        <fieldset class="funnel-options" data-testid="onboarding-roles">
             <legend class="visually-hidden">Who are you?</legend>
             @foreach (var r in FunnelFlow.Roles)
             {
@@ -134,7 +134,7 @@ else if (step == "shop_find")
     <form method="post" action="@Action("shop_find")" class="tools" data-typeahead="shops" data-id-field="shopId">
         @Html.AntiForgeryToken()
         <p><label for="shopQ" class="visually-hidden">Shop name, city, or ZIP</label>
-        <input id="shopQ" name="shopQ" class="typeahead-q" value="@Val("shopQ")" placeholder="Shop name, city, or ZIP" autocomplete="off" /></p>
+        <input id="shopQ" name="shopQ" class="typeahead-q" value="@Val("shopQ")" placeholder="Shop name, city, or ZIP" autocomplete="off" data-testid="onboarding-shop-q" /></p>
         <button class="btn ghost" type="submit" name="stay" value="1">Search</button>
     </form>
     <form method="post" action="@Action("shop_find")">

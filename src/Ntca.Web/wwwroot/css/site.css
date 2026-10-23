@@ -543,7 +543,47 @@ body.is-shops-dir .ntca-header-inner {
   border-radius: 4px;
 }
 .ribbon.dest { background: var(--ntca-navy); color: #fff; }
-.ribbon.feat { background: var(--ntca-gold); color: var(--ntca-ink); }
+.ribbon.feat { background: var(--ntca-gold); color: var(--ntca-navy); }
+.shop-card-logo {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border: 2px solid #fff;
+  background: #fff;
+  border-radius: 6px;
+}
+.shop-detail-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border: 1px solid var(--ntca-gold);
+  background: #fff;
+  margin-bottom: 12px;
+}
+.impersonate-banner {
+  background: var(--ntca-gold);
+  color: var(--ntca-navy);
+  padding: 10px 16px;
+  text-align: center;
+  font-weight: 600;
+}
+.impersonate-banner button {
+  background: var(--ntca-navy);
+  color: #fff;
+  border: 0;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.owner-photos { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.owner-photos figure { margin: 0; width: 160px; }
+.owner-shops { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.owner-shops a { min-height: 44px; display: inline-flex; align-items: center; padding: 8px 12px; border: 1px solid #dce1e8; border-radius: 6px; }
+.owner-shops a.on { background: #fbf5e6; border-color: var(--ntca-gold); }
 .save-btn {
   position: absolute;
   top: 10px;

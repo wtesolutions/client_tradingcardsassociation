@@ -48,6 +48,9 @@ builder.Services.AddScoped<IAgentAnswerEnricher, NoOpAgentAnswerEnricher>();
 builder.Services.AddHostedService<AgentVisitFlushService>();
 builder.Services.AddScoped<LoginCodeService>();
 builder.Services.AddScoped<SiteModeService>();
+builder.Services.AddScoped<ImpersonationService>();
+builder.Services.AddScoped<OwnerShopWork>();
+builder.Services.AddScoped<ShopMediaService>();
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -107,6 +110,12 @@ builder.Services.AddAuthorization(options =>
             ctx.User.IsInRole("SUPERADMIN") || ctx.User.IsInRole("ADMIN") || ctx.User.IsInRole("MODERATOR") ||
             ctx.User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "EDITOR"));
     });
+    options.AddPolicy("Impersonate", p =>
+    {
+        p.AddAuthenticationSchemes(AuthSchemes.Sadmin);
+        p.RequireAuthenticatedUser();
+        p.RequireAssertion(ctx => ctx.User.IsInRole("SUPERADMIN") || ctx.User.IsInRole("ADMIN"));
+    });
 });
 
 builder.Services.AddControllersWithViews();
@@ -142,6 +151,7 @@ app.Use(async (ctx, next) =>
 app.UseRouting();
 app.UseRateLimiter();
 app.UseAuthentication();
+app.UseMiddleware<ImpersonationMiddleware>();
 app.UseAuthorization();
 app.UseStaticFiles();
 

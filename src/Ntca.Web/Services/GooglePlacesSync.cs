@@ -223,8 +223,8 @@ public sealed class GooglePlacesSync
         foreach (var match in targets)
         {
             var shop = match.Shop ?? await _db.Shops.Include(s => s.Hours).FirstAsync(s => s.ShopId == match.ShopId, ct);
-            var skipHours = ShopCopy.HasUsableHours(shop.Hours);
-            var skipPhotos = await HasOwnerPhotosAsync(shop.ShopId, ct);
+            var skipHours = ShopCopy.HasUsableHours(shop.Hours) || ShopAdminCopy.Locks(shop, "hours");
+            var skipPhotos = await HasOwnerPhotosAsync(shop, ct);
             shops.Add((match, shop, skipHours, skipPhotos));
             details++;
             if (!skipPhotos)
@@ -549,9 +549,15 @@ public sealed class GooglePlacesSync
         await _db.SaveChangesAsync(ct);
     }
 
-    private async Task<bool> HasOwnerPhotosAsync(long shopId, CancellationToken ct)
-        => await _files.ExistsAsync($"shops/{shopId}/1.jpg", ct)
-           || await _files.ExistsAsync($"shops/{shopId}/1.png", ct);
+    private async Task<bool> HasOwnerPhotosAsync(Shop shop, CancellationToken ct)
+    {
+        if (ShopAdminCopy.Locks(shop, "photos") || !string.IsNullOrWhiteSpace(shop.LogoObjectKey))
+            return true;
+        if (await _db.ShopPhotos.AnyAsync(p => p.ShopId == shop.ShopId && p.ModerationStatus == "APPROVED", ct))
+            return true;
+        return await _files.ExistsAsync($"shops/{shop.ShopId}/1.jpg", ct)
+            || await _files.ExistsAsync($"shops/{shop.ShopId}/1.png", ct);
+    }
 
     private static void ApplyMatch(GooglePlaceMatch row, Shop shop, string placeId, decimal? lat, decimal? lng, string status)
     {
@@ -559,7 +565,7 @@ public sealed class GooglePlacesSync
         row.MatchStatus = status;
         row.MatchedAt = DateTime.UtcNow;
         row.UpdatedAt = DateTime.UtcNow;
-        if (lat is { } la && lng is { } ln)
+        if (lat is { } la && lng is { } ln && !ShopAdminCopy.Locks(shop, "location"))
         {
             shop.Latitude = la;
             shop.Longitude = ln;

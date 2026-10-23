@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Ntca.Core;
 using Ntca.Data;
+using Ntca.Web.Areas.Owner.Controllers;
 using Ntca.Web.Auth;
+using Ntca.Web.Services;
 
 namespace Ntca.Web.Areas.Sadmin.Controllers;
 
@@ -14,7 +16,14 @@ namespace Ntca.Web.Areas.Sadmin.Controllers;
 public sealed class QueueController : Controller
 {
     private readonly NtcaDbContext _db;
-    public QueueController(NtcaDbContext db) => _db = db;
+    private readonly OwnerShopWork _owner;
+    private readonly ShopMediaService _media;
+    public QueueController(NtcaDbContext db, OwnerShopWork owner, ShopMediaService media)
+    {
+        _db = db;
+        _owner = owner;
+        _media = media;
+    }
 
     [HttpGet("/SADMIN/queue/events")]
     public async Task<IActionResult> Events(CancellationToken ct)
@@ -99,12 +108,18 @@ public sealed class QueueController : Controller
     [HttpGet("/SADMIN/queue/edits")]
     public async Task<IActionResult> Edits(CancellationToken ct)
     {
-        var rows = await _db.ShopEditRequests.AsNoTracking()
+        var pending = await _db.ShopEditRequests.AsNoTracking()
             .Include(e => e.Shop)
             .Where(s => s.Status == "PENDING_REVIEW")
             .OrderBy(s => s.CreatedAt)
             .ToListAsync(ct);
-        return View(rows);
+        var fyi = await _db.ShopEditRequests.AsNoTracking()
+            .Include(e => e.Shop)
+            .Where(s => s.Status == "FYI")
+            .OrderByDescending(s => s.CreatedAt)
+            .Take(40)
+            .ToListAsync(ct);
+        return View((pending, fyi));
     }
 
     [HttpPost("/SADMIN/queue/edits/{id:long}")]
@@ -119,21 +134,32 @@ public sealed class QueueController : Controller
         row.ReviewedAt = DateTime.UtcNow;
         row.DecisionReason = reason;
         row.UpdatedAt = DateTime.UtcNow;
+        if (decision == "undo")
+        {
+            await _media.UndoFyiAsync(row, ct);
+            return Redirect("/SADMIN/queue/edits");
+        }
         if (decision == "approve" && row.Shop is not null)
         {
             row.Status = "APPROVED";
-            using var doc = JsonDocument.Parse(row.ProposedJson);
+            using var doc = JsonDocument.Parse(string.IsNullOrWhiteSpace(row.ProposedJson) ? "{}" : row.ProposedJson);
             var r = doc.RootElement;
-            row.Shop.Name = Str(r, "Name") ?? row.Shop.Name;
-            row.Shop.AddressLine1 = Str(r, "AddressLine1") ?? row.Shop.AddressLine1;
-            row.Shop.City = Str(r, "City") ?? row.Shop.City;
-            row.Shop.StateCode = (Str(r, "StateCode") ?? row.Shop.StateCode).ToUpperInvariant();
-            row.Shop.PostalCode = Str(r, "PostalCode") ?? row.Shop.PostalCode;
-            row.Shop.Phone = Str(r, "Phone") ?? row.Shop.Phone;
-            row.Shop.WebsiteUrl = Str(r, "WebsiteUrl") ?? row.Shop.WebsiteUrl;
-            row.Shop.PublicEmail = Str(r, "PublicEmail") ?? row.Shop.PublicEmail;
-            row.Shop.Description = Str(r, "Description") ?? row.Shop.Description;
-            row.Shop.UpdatedAt = DateTime.UtcNow;
+            var kind = r.TryGetProperty("kind", out var k) ? k.GetString() : null;
+            if (string.Equals(kind, "identity", StringComparison.OrdinalIgnoreCase))
+                await _owner.ApplyApprovedIdentityAsync(row.Shop, r);
+            else
+            {
+                row.Shop.Name = Str(r, "Name") ?? row.Shop.Name;
+                row.Shop.AddressLine1 = Str(r, "AddressLine1") ?? row.Shop.AddressLine1;
+                row.Shop.City = Str(r, "City") ?? row.Shop.City;
+                row.Shop.StateCode = (Str(r, "StateCode") ?? row.Shop.StateCode).ToUpperInvariant();
+                row.Shop.PostalCode = Str(r, "PostalCode") ?? row.Shop.PostalCode;
+                row.Shop.Phone = Str(r, "Phone") ?? row.Shop.Phone;
+                row.Shop.WebsiteUrl = Str(r, "WebsiteUrl") ?? row.Shop.WebsiteUrl;
+                row.Shop.PublicEmail = Str(r, "PublicEmail") ?? row.Shop.PublicEmail;
+                row.Shop.Description = Str(r, "Description") ?? row.Shop.Description;
+                row.Shop.UpdatedAt = DateTime.UtcNow;
+            }
         }
         else
         {
@@ -141,6 +167,27 @@ public sealed class QueueController : Controller
         }
         await _db.SaveChangesAsync(ct);
         return Redirect("/SADMIN/queue/edits");
+    }
+
+    [HttpGet("/SADMIN/queue/claims")]
+    public async Task<IActionResult> Claims(CancellationToken ct)
+    {
+        var rows = await _db.ShopClaimRequests.AsNoTracking()
+            .Include(c => c.Shop)
+            .Include(c => c.RequestedBy)
+            .Where(c => c.Status == "PENDING" || c.Status == "VERIFYING")
+            .OrderBy(c => c.SubmittedAt)
+            .ToListAsync(ct);
+        return View(rows);
+    }
+
+    [HttpPost("/SADMIN/queue/claims/{id:long}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DecideClaim(long id, string decision, string? reason, CancellationToken ct)
+    {
+        var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await _owner.DecideClaimAsync(id, userId, decision == "approve", reason, ct);
+        return Redirect("/SADMIN/queue/claims");
     }
 
     [HttpGet("/SADMIN/queue/drafts")]
@@ -220,8 +267,12 @@ public sealed class QueueController : Controller
     }
 
     [HttpGet("/SADMIN/shops")]
-    public async Task<IActionResult> Shops(string? q, string? state, CancellationToken ct)
+    public async Task<IActionResult> Shops(
+        string? q, string? state, string? claim, string? listing, string? designation,
+        int? page, int? pageSize, long? inspect, CancellationToken ct)
     {
+        var size = pageSize is 50 or 100 ? pageSize.Value : 25;
+        var p = page is > 0 ? page.Value : 1;
         var query = _db.Shops.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(state))
             query = query.Where(s => s.StateCode == state.Trim().ToUpperInvariant());
@@ -230,21 +281,102 @@ public sealed class QueueController : Controller
             var term = q.Trim();
             query = query.Where(s => s.Name.Contains(term) || s.City.Contains(term));
         }
-        var rows = await query.OrderBy(s => s.StateCode).ThenBy(s => s.Name).Take(400).ToListAsync(ct);
+        if (!string.IsNullOrWhiteSpace(claim))
+            query = query.Where(s => s.ClaimStatus == claim.Trim().ToUpperInvariant());
+        if (!string.IsNullOrWhiteSpace(listing))
+            query = query.Where(s => s.ListingStatus == listing.Trim().ToUpperInvariant());
+        if (string.Equals(designation, "featured", StringComparison.OrdinalIgnoreCase))
+            query = query.Where(s => s.IsEditorialFeatured);
+        else if (string.Equals(designation, "destination", StringComparison.OrdinalIgnoreCase))
+            query = query.Where(s => s.SourceSystem == "TOP100-2026-10-22"
+                || (s.ImportNotes != null && s.ImportNotes.Contains("Destination shop")));
+        else if (string.Equals(designation, "none", StringComparison.OrdinalIgnoreCase))
+            query = query.Where(s => !s.IsEditorialFeatured
+                && s.SourceSystem != "TOP100-2026-10-22"
+                && (s.ImportNotes == null || !s.ImportNotes.Contains("Destination shop")));
+
+        var total = await query.CountAsync(ct);
+        var rows = await query.OrderBy(s => s.StateCode).ThenBy(s => s.Name)
+            .Skip((p - 1) * size).Take(size).ToListAsync(ct);
         var from = DateTime.UtcNow.Date.AddDays(-6);
         var counts = await _db.ShopImpressions.AsNoTracking()
             .Where(i => !i.IsBot && i.CreatedAt >= from && !i.Surface.StartsWith("CLICK_"))
             .GroupBy(i => i.ShopId)
             .Select(g => new { g.Key, N = g.Count() })
             .ToDictionaryAsync(x => x.Key, x => x.N, ct);
-        ViewBag.Q = q ?? "";
-        ViewBag.State = state ?? "";
-        ViewBag.Imp7 = counts;
-        return View(rows);
+
+        Shop? inspectShop = null;
+        ShopMember? owner = null;
+        if (inspect is long id)
+        {
+            inspectShop = rows.FirstOrDefault(s => s.ShopId == id)
+                ?? await _db.Shops.AsNoTracking().FirstOrDefaultAsync(s => s.ShopId == id, ct);
+            if (inspectShop is not null)
+                owner = await _db.ShopMembers.AsNoTracking().Include(m => m.User)
+                    .FirstOrDefaultAsync(m => m.ShopId == id && m.RevokedAt == null && m.MemberRole == "OWNER", ct);
+        }
+
+        return View(new SadminShopListVm
+        {
+            Rows = rows,
+            Inspect = inspectShop,
+            Owner = owner,
+            Q = q ?? "",
+            State = state ?? "",
+            Claim = claim ?? "",
+            Listing = listing ?? "",
+            Designation = designation ?? "",
+            Page = p,
+            PageSize = size,
+            Total = total,
+            Imp7 = counts,
+            CanImpersonate = ImpersonationService.CanImpersonate(User)
+        });
     }
+
 
     private static string? Str(JsonElement r, string name)
         => r.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
+
+    [HttpGet("/SADMIN/shops/{id:long}/proxy")]
+    public async Task<IActionResult> Proxy(long id, CancellationToken ct)
+    {
+        var shop = await _db.Shops.Include(s => s.Hours).FirstOrDefaultAsync(s => s.ShopId == id, ct);
+        if (shop is null)
+            return NotFound();
+        return View(shop);
+    }
+
+    [HttpPost("/SADMIN/shops/{id:long}/proxy")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Proxy(long id, ShopEditForm form, CancellationToken ct)
+    {
+        var shop = await _db.Shops.Include(s => s.Hours).FirstOrDefaultAsync(s => s.ShopId == id, ct);
+        if (shop is null)
+            return NotFound();
+        var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await _owner.PublishImmediateAsync(shop, userId, form, HoursFromForm(), ct);
+        TempData["Saved"] = "Owner-proxy edit published.";
+        return Redirect("/SADMIN/shops/" + id + "/proxy");
+    }
+
+    private IReadOnlyList<HourRow> HoursFromForm()
+    {
+        var hours = new List<HourRow>();
+        for (byte d = 0; d <= 6; d++)
+        {
+            var closed = string.Equals(Request.Form[$"hours[{d}].Closed"], "true", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(Request.Form[$"hours[{d}].Closed"], "on", StringComparison.OrdinalIgnoreCase);
+            hours.Add(new HourRow
+            {
+                Day = d,
+                Closed = closed,
+                Opens = Request.Form[$"hours[{d}].Opens"],
+                Closes = Request.Form[$"hours[{d}].Closes"]
+            });
+        }
+        return hours;
+    }
 
     private static string Slugify(string text)
     {
@@ -254,4 +386,21 @@ public sealed class QueueController : Controller
             slug = slug.Replace("--", "-", StringComparison.Ordinal);
         return slug.Trim('-');
     }
+}
+
+public sealed class SadminShopListVm
+{
+    public List<Shop> Rows { get; set; } = [];
+    public Shop? Inspect { get; set; }
+    public ShopMember? Owner { get; set; }
+    public string Q { get; set; } = "";
+    public string State { get; set; } = "";
+    public string Claim { get; set; } = "";
+    public string Listing { get; set; } = "";
+    public string Designation { get; set; } = "";
+    public int Page { get; set; } = 1;
+    public int PageSize { get; set; } = 25;
+    public int Total { get; set; }
+    public Dictionary<long, int> Imp7 { get; set; } = [];
+    public bool CanImpersonate { get; set; }
 }

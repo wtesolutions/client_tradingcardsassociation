@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "Manage site mode";
+    var mode = (string)(ViewBag.Mode ?? "Preview");
+}
+<p class="admin-crumbs"><a href="/SADMIN/dashboard">Workspace</a> / Manage mode</p>
+<h1 class="admin-h1">Manage site mode</h1>
+<p class="admin-sub">Current mode is <strong data-testid="mode-current">@mode</strong>. This writes <code>Site:Mode</code> and is audited.</p>
+@if (TempData["ModeError"] is string err)
+{
+    <p class="admin-error" role="alert">@err</p>
+}
+<form method="post" action="/SADMIN/dashboard/mode" data-testid="mode-form">
+    @Html.AntiForgeryToken()
+    <p>
+        <label>New mode
+            <select name="mode" data-testid="mode-select">
+                <option value="Preview" selected="@(mode == "Preview" ? "selected" : null)">Preview</option>
+                <option value="Live" selected="@(mode == "Live" ? "selected" : null)">Live</option>
+            </select>
+        </label>
+    </p>
+    <p>
+        <label>
+            <input type="checkbox" name="confirm" value="yes" data-testid="mode-confirm" />
+            I understand Preview keeps <code>noindex</code> and Live is public.
+        </label>
+    </p>
+    <button class="admin-gold" type="submit" data-testid="mode-save">Apply mode</button>
+    <a class="admin-ghost" href="/SADMIN/dashboard">Cancel</a>
+</form>

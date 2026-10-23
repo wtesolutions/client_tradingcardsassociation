@@ -23,12 +23,12 @@
         @await Html.PartialAsync("_DirectoryBar")
     </div>
 </section>
-<nav class="cat-nav" aria-label="Shop categories">
+<nav class="cat-nav" aria-label="Shop categories" data-testid="shops-categories">
     <div class="cat-nav-inner ntca-dir-container">
         @foreach (var cat in ShopDirectory.Categories)
         {
             var href = "/shops" + ShopDirectory.QueryString(query with { Specialty = cat.Key, Page = 1 });
-            <a class="@(cat.Key == specialty ? "on" : null)" href="@href">
+            <a class="@(cat.Key == specialty ? "on" : null)" href="@href" data-testid="cat-@(string.IsNullOrEmpty(cat.Key) ? "all" : cat.Key.ToLowerInvariant())">
                 <span class="cat-ico" aria-hidden="true">@Html.Raw(ShopDirectory.CategoryIcon(cat.Key))</span>
                 @cat.Label
             </a>
@@ -37,9 +37,9 @@
 </nav>
 <div class="ntca-dir-container dir-layout">
     <aside>
-        <button type="button" class="btn ghost filters-toggle" data-filters-open>Filters@(chips.Count > 0 ? " (" + chips.Count + ")" : "")</button>
+        <button type="button" class="btn ghost filters-toggle" data-filters-open data-testid="shops-filters-open">Filters@(chips.Count > 0 ? " (" + chips.Count + ")" : "")</button>
         <div class="dir-filters-sheet" id="dir-filters" hidden>
-            <form class="dir-filters" method="get" action="/shops" id="dir-filter-form">
+            <form class="dir-filters" method="get" action="/shops" id="dir-filter-form" data-testid="shops-filters">
                 <div class="dir-filters-head">
                     <h2>Filters</h2>
                     <a href="@clearAll">Clear all</a>
@@ -86,18 +86,18 @@
         </div>
     </aside>
     <div>
-        <div class="dir-chips" aria-live="polite">
+        <div class="dir-chips" aria-live="polite" data-testid="shops-chips">
             @if (chips.Count > 0)
             {
                 foreach (var chip in chips)
                 {
-                    <a class="chip-btn" href="@Keep(chip.Key)">@chip.Label ×</a>
+                    <a class="chip-btn" href="@Keep(chip.Key)" data-testid="chip-@chip.Key">@chip.Label ×</a>
                 }
-                <a href="@clearAll">Clear all</a>
+                <a href="@clearAll" data-testid="shops-clear-all">Clear all</a>
             }
         </div>
         <div class="dir-toolbar">
-            <h2 class="filter-count">
+            <h2 class="filter-count" data-testid="shops-result-count">
                 @total shop@(total == 1 ? "" : "s")
                 @if (locLabel.Length > 0)
                 {

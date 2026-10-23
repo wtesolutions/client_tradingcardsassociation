@@ -24,10 +24,10 @@
             <a class="@(string.Equals(c, current, StringComparison.OrdinalIgnoreCase) ? "on" : null)" href="/gallery?category=@Uri.EscapeDataString(c)">@c</a>
         }
     </nav>
-    <div class="gallery-grid" id="gallery-grid">
+    <div class="gallery-grid" id="gallery-grid" data-testid="gallery-grid">
     @foreach (var (item, url, category) in Model)
     {
-        <figure class="gallery-item" id="@item.Slug" data-full="@url" data-caption="@item.Caption" tabindex="0">
+        <figure class="gallery-item" id="@item.Slug" data-full="@url" data-caption="@item.Caption" tabindex="0" data-testid="gallery-item">
             <button type="button" class="gallery-open" data-lightbox>
                 <img src="@url" alt="@(item.AltText ?? item.Caption)" width="640" height="480" />
             </button>
@@ -44,7 +44,7 @@
         <a class="btn" href="/signup">Join the association</a>
     </p>
 </div>
-<dialog class="lightbox" id="lightbox" aria-label="Photo">
+<dialog class="lightbox" id="lightbox" aria-label="Photo" data-testid="lightbox">
     <button type="button" class="lightbox-close" data-lightbox-close>Close</button>
     <img alt="" />
     <p class="lightbox-caption"></p>

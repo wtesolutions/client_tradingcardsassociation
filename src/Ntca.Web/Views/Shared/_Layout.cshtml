@@ -37,23 +37,36 @@
         <link rel="agent-concierge" href="/.well-known/ai-concierge" />
     }
 </head>
-<body class="@bodyClass.Trim()">
-<header class="ntca-header">
+@{
+    var imp = Http.HttpContext?.Items["Impersonation"] as Ntca.Web.Services.ImpersonationState;
+}
+<body class="@bodyClass.Trim()" data-testid="public-body">
+@if (imp?.Active == true)
+{
+    <div class="impersonate-banner" data-testid="impersonate-banner" role="status">
+        Viewing as @imp.OwnerName —
+        <form method="post" action="/SADMIN/impersonate/stop" style="display:inline">
+            @Html.AntiForgeryToken()
+            <button type="submit" data-testid="impersonate-stop">Stop impersonating</button>
+        </form>
+    </div>
+}
+<header class="ntca-header" data-testid="site-header">
     <div class="ntca-header-inner">
-        <a class="brand" href="/" aria-label="National Trading Card Association home">
+        <a class="brand" href="/" aria-label="National Trading Card Association home" data-testid="nav-home">
             <img class="brand-mark" src="~/ntca-logo.png" alt="" width="96" height="96" />
             <span class="brand-name">National<br />Trading Card<br />Association</span>
         </a>
         @if (!isFunnel)
         {
-            <nav class="ntca-nav" aria-label="Primary">
+            <nav class="ntca-nav" aria-label="Primary" data-testid="nav-primary">
                 @foreach (var item in nav)
                 {
-                    <a href="@item.Href">@item.Label</a>
+                    <a href="@item.Href" data-testid="nav-@item.Label.ToLowerInvariant().Replace(" ", "-").Replace("&", "and")">@item.Label</a>
                 }
             </nav>
-            <a class="ntca-primary-action header-cta" href="/signup">Join the association →</a>
-            <button type="button" class="menu-toggle" data-menu-open aria-controls="mobile-menu" aria-expanded="false">Menu</button>
+            <a class="ntca-primary-action header-cta" href="/signup" data-testid="header-join">Join the association →</a>
+            <button type="button" class="menu-toggle" data-menu-open aria-controls="mobile-menu" aria-expanded="false" data-testid="nav-menu">Menu</button>
         }
     </div>
     @if (!isFunnel)
@@ -91,13 +104,13 @@
 }
     @RenderBody()
 </main>
-<footer class="ntca-footer">
+<footer class="ntca-footer" data-testid="site-footer">
     <div class="ntca-footer-inner">
         <a class="brand" href="/" aria-label="National Trading Card Association home">
             <img class="brand-mark brand-mark-sm" src="~/ntca-logo.png" alt="" width="72" height="72" />
             <span class="brand-name">National<br />Trading Card<br />Association</span>
         </a>
-        <nav class="ntca-footer-nav" aria-label="Footer">
+        <nav class="ntca-footer-nav" aria-label="Footer" data-testid="footer-nav">
             <a href="/shops">Find shops</a>
             <a href="/calendar">Shows &amp; events</a>
             <a href="/new-to-trading-cards">Card history</a>

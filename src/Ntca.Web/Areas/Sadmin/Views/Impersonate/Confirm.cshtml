@@ -1,0 +1,38 @@
+@model Ntca.Core.Shop
+@{
+    ViewData["Title"] = "Impersonate owner";
+    var owner = ViewBag.Owner as Ntca.Core.AppUser;
+    var email = ViewBag.Email as string ?? "";
+}
+<p class="admin-crumbs"><a href="/SADMIN/shops">Directory</a> / Impersonate</p>
+<h1 class="admin-h1">Impersonate owner</h1>
+<p class="admin-sub">@Model.Name · @Model.City, @Model.StateCode. Session lasts 60 minutes and is audited.</p>
+@if (TempData["ImpersonateError"] is string err)
+{
+    <p class="admin-error" role="alert" data-testid="impersonate-error">@err</p>
+}
+<form method="post" action="/SADMIN/impersonate/@Model.ShopId" data-testid="impersonate-form">
+    @Html.AntiForgeryToken()
+    @if (owner is null)
+    {
+        <p>
+            <label>Owner email
+                <input name="email" type="email" value="@email" required data-testid="impersonate-email" />
+            </label>
+        </p>
+        <p class="admin-sub">This shop has no owner. Staff-entered email creates a non-staff account and grants OWNER.</p>
+    }
+    else
+    {
+        <p>Owner: @owner.DisplayName (@owner.Email)</p>
+        <input type="hidden" name="email" value="@owner.Email" />
+    }
+    <p>
+        <label>
+            <input type="checkbox" name="confirm" value="yes" data-testid="impersonate-confirm" />
+            I will act as this owner. Every change is logged as staff impersonating owner.
+        </label>
+    </p>
+    <button class="admin-gold" type="submit" data-testid="impersonate-start">Start impersonating</button>
+    <a class="admin-ghost" href="/SADMIN/shops?inspect=@Model.ShopId">Cancel</a>
+</form>

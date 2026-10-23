@@ -13,14 +13,16 @@ public sealed class HomeController : Controller
     private readonly IImpressionTracker _track;
     private readonly GooglePlacesSync _google;
     private readonly IFileStorage _files;
+    private readonly ShopMediaService _media;
 
-    public HomeController(NtcaDbContext db, SiteModeService mode, IImpressionTracker track, GooglePlacesSync google, IFileStorage files)
+    public HomeController(NtcaDbContext db, SiteModeService mode, IImpressionTracker track, GooglePlacesSync google, IFileStorage files, ShopMediaService media)
     {
         _db = db;
         _mode = mode;
         _track = track;
         _google = google;
         _files = files;
+        _media = media;
     }
 
     public async Task<IActionResult> Index(CancellationToken ct)
@@ -41,8 +43,12 @@ public sealed class HomeController : Controller
             .ToListAsync(ct);
         var featured = await _db.Shops.AsNoTracking()
             .Include(s => s.Socials).ThenInclude(x => x.Platform)
-            .Where(s => s.ListingStatus == "ACTIVE" && (s.SourceSystem == "TOP100-2026-10-22" || (s.ImportNotes != null && s.ImportNotes.Contains("Destination shop"))))
-            .OrderBy(s => s.Name)
+            .Where(s => s.ListingStatus == "ACTIVE" && (
+                s.IsEditorialFeatured
+                || s.SourceSystem == "TOP100-2026-10-22"
+                || (s.ImportNotes != null && s.ImportNotes.Contains("Destination shop"))))
+            .OrderByDescending(s => s.IsEditorialFeatured)
+            .ThenBy(s => s.Name)
             .Take(6)
             .ToListAsync(ct);
         var rotation = await _db.Shops.AsNoTracking()
@@ -60,6 +66,7 @@ public sealed class HomeController : Controller
         ViewBag.Featured = featured;
         ViewBag.Rotation = rotation;
         ViewBag.Google = await _google.LoadViewsAsync(featured.Concat(rotation).Select(s => s.ShopId), ct);
+        ViewBag.OwnerMedia = await _media.LoadPublicAsync(featured.Concat(rotation), ct);
         var gallery = await _db.GalleryItems.AsNoTracking()
             .Where(g => g.IsPublished)
             .OrderBy(g => g.DisplayOrder)

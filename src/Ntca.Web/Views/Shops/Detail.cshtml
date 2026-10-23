@@ -21,8 +21,8 @@
     <span>@s.Name</span>
 </nav>
 <p><a href="/shops">Back to results</a></p>
-<header class="shop-id">
-    <h1>@s.Name</h1>
+<header class="shop-id" data-testid="shop-detail">
+    <h1 data-testid="shop-detail-name">@s.Name</h1>
     @if (claimed)
     {
         <span class="owner-badge" title="This listing is managed by the business owner.">Owner claimed</span>
@@ -49,7 +49,12 @@
                 }
             </span>
         }
-        @if (s.IsDestinationShop) { <span class="ribbon dest" style="position:static">Destination</span> }
+        @if (s.IsEditorialFeatured) { <span class="ribbon feat" style="position:static" data-testid="shop-featured-ribbon">Featured</span> }
+        else if (s.IsDestinationShop) { <span class="ribbon dest" style="position:static">Destination</span> }
+        @if (s.IsEditorialFeatured && s.IsDestinationShop)
+        {
+            <span data-testid="shop-destination-note">Destination — imported, review needed</span>
+        }
     </p>
     <p class="shop-id-actions">
         <button type="button" class="btn ghost" data-save-shop data-shop="@s.ShopId" data-name="@s.Name" data-loc="@Ntca.Web.Services.ShopCopy.Loc(s)" data-where="@s.City, @s.StateCode" aria-pressed="false">Save</button>
@@ -57,14 +62,22 @@
     </p>
 </header>
 <div class="shop-stage">
-    <div class="shop-gallery" aria-label="Shop photos">
-        @if (Model.Google?.Photos.Count > 0)
+    <div class="shop-gallery" aria-label="Shop photos" data-testid="shop-gallery">
+        @if (!string.IsNullOrEmpty(Model.LogoUrl))
+        {
+            <img class="shop-detail-logo" src="@Model.LogoUrl" alt="@s.Name logo" width="120" height="120" data-testid="shop-detail-logo" />
+        }
+        @if (!string.IsNullOrEmpty(Model.CoverUrl))
+        {
+            <img src="@Model.CoverUrl" alt="Photo of @s.Name" width="1200" height="675" data-testid="shop-detail-cover" />
+        }
+        else if (Model.Google?.Photos.Count > 0)
         {
             <img src="/media/gplace/@s.ShopId/@Model.Google.Photos[0].Slot" alt="Photo of @s.Name" width="1200" height="675" />
         }
         else
         {
-            <div class="shop-card-ph" role="img" aria-label="No photos yet for @s.Name">NTCA<small>Photo coming soon</small></div>
+            <div class="shop-card-ph" role="img" aria-label="No photos yet for @s.Name" data-testid="shop-detail-placeholder">NTCA<small>Photo coming soon</small></div>
         }
     </div>
     <aside class="visit-card sticky">
@@ -85,7 +98,9 @@
         </div>
         @if (Model.Socials.Count > 0)
         {
+            <div data-testid="shop-socials">
             @await Html.PartialAsync("~/Views/Shared/_SocialIcons.cshtml", Model.Socials)
+            </div>
         }
         <p>
             @if (address.Length > 0) { @address <br /> }
@@ -168,7 +183,22 @@
 </section>
 <section id="photos">
     <h2>Photos</h2>
-    @if (Model.Google?.Photos.Count > 0)
+    @if (Model.Photos.Count > 0)
+    {
+        <div class="shop-card-list" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))" data-testid="shop-owner-photos">
+        @foreach (var photo in Model.Photos)
+        {
+            <figure data-testid="shop-photo-@photo.PhotoId">
+                <img src="@photo.CardUrl" alt="@(photo.Alt ?? ("Photo of " + s.Name))" width="640" height="360" loading="lazy" />
+                @if (!string.IsNullOrEmpty(photo.Caption))
+                {
+                    <figcaption class="meta">@photo.Caption</figcaption>
+                }
+            </figure>
+        }
+        </div>
+    }
+    else if (Model.Google?.Photos.Count > 0)
     {
         <div class="shop-card-list" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
         @foreach (var photo in Model.Google.Photos)

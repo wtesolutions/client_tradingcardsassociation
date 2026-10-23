@@ -11,12 +11,14 @@ public sealed class ShopsController : Controller
     private readonly NtcaDbContext _db;
     private readonly IImpressionTracker _track;
     private readonly GooglePlacesSync _google;
+    private readonly ShopMediaService _media;
 
-    public ShopsController(NtcaDbContext db, IImpressionTracker track, GooglePlacesSync google)
+    public ShopsController(NtcaDbContext db, IImpressionTracker track, GooglePlacesSync google, ShopMediaService media)
     {
         _db = db;
         _track = track;
         _google = google;
+        _media = media;
     }
 
     [HttpGet("/shops")]
@@ -71,6 +73,7 @@ public sealed class ShopsController : Controller
         ViewBag.HasOrigin = oLat is not null;
         ViewBag.LocationLabel = ShopDirectory.LocationLabel(dir, oLat is not null);
         ViewBag.Google = await _google.LoadViewsAsync(pageItems.Select(s => s.ShopId), ct);
+        ViewBag.OwnerMedia = await _media.LoadPublicAsync(pageItems, ct);
         ViewData["MainClass"] = "site-main";
         ViewData["Title"] = "Find shops";
         return View(pageItems);
@@ -98,6 +101,7 @@ public sealed class ShopsController : Controller
         ViewBag.StateName = ShopCopy.StateName(code);
         ViewBag.JsonLd = ShopJsonLd.BuildStateHub($"{Request.Scheme}://{Request.Host}", code, shops.Count);
         ViewBag.Google = await _google.LoadViewsAsync(shops.Select(s => s.ShopId), ct);
+        ViewBag.OwnerMedia = await _media.LoadPublicAsync(shops, ct);
         ViewData["MainClass"] = "site-main";
         return View(shops);
     }
@@ -119,6 +123,7 @@ public sealed class ShopsController : Controller
         ViewBag.StateName = ShopCopy.StateName(code);
         ViewBag.City = shops[0].City;
         ViewBag.Google = await _google.LoadViewsAsync(shops.Select(s => s.ShopId), ct);
+        ViewBag.OwnerMedia = await _media.LoadPublicAsync(shops, ct);
         ViewData["MainClass"] = "site-main";
         return View(shops);
     }
@@ -196,7 +201,10 @@ public sealed class ShopsController : Controller
         var canonical = origin + ShopCopy.Loc(shop);
         var summary = ShopCopy.Summary(shop, hours);
         var google = (await _google.LoadViewsAsync([shop.ShopId], ct)).GetValueOrDefault(shop.ShopId);
+        var ownerMedia = (await _media.LoadPublicAsync([shop], ct)).GetValueOrDefault(shop.ShopId);
         var leadPhoto = google?.Photos.FirstOrDefault();
+        var imageUrl = ownerMedia?.CoverLargeUrl
+            ?? (leadPhoto is null ? null : origin + "/media/gplace/" + shop.ShopId + "/" + leadPhoto.Slot);
         var jsonLd = ShopJsonLd.Build(new ShopSchemaInput
         {
             Shop = shop,
@@ -209,7 +217,7 @@ public sealed class ShopsController : Controller
             ApprovedReviewCount = reviews.Count,
             AverageRating = reviews.Count == 0 ? null : (decimal)reviews.Average(),
             Offers = offers,
-            ImageUrl = leadPhoto is null ? null : origin + "/media/gplace/" + shop.ShopId + "/" + leadPhoto.Slot,
+            ImageUrl = imageUrl,
             SameAs = socials.Where(l => l.IsSameAs).Select(l => l.Url).ToList()
         });
 
@@ -233,7 +241,10 @@ public sealed class ShopsController : Controller
             TierName = shop.Tier?.Name,
             Services = ShopCopy.ServiceLabels(shop, events),
             Google = google,
-            Socials = socials
+            Socials = socials,
+            LogoUrl = ownerMedia?.LogoUrl,
+            CoverUrl = ownerMedia?.CoverLargeUrl,
+            Photos = ownerMedia?.Photos ?? []
         });
     }
 
@@ -263,4 +274,7 @@ public sealed class ShopDetailVm
     public string? TierName { get; init; }
     public GooglePlaceView? Google { get; init; }
     public IReadOnlyList<ShopSocialLink> Socials { get; init; } = [];
+    public string? LogoUrl { get; init; }
+    public string? CoverUrl { get; init; }
+    public IReadOnlyList<ShopPhotoView> Photos { get; init; } = [];
 }

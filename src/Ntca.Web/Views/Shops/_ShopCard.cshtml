@@ -9,19 +9,36 @@
     var open = Ntca.Web.Services.ShopCopy.OpeningStatus(Model.Hours, Model.StateCode);
     var googleMap = ViewBag.Google as IReadOnlyDictionary<long, Ntca.Web.Services.GooglePlaceView>;
     var google = googleMap != null && googleMap.TryGetValue(Model.ShopId, out var gv) ? gv : null;
+    var mediaMap = ViewBag.OwnerMedia as IReadOnlyDictionary<long, Ntca.Web.Services.ShopPublicMedia>;
+    var media = mediaMap != null && mediaMap.TryGetValue(Model.ShopId, out var om) ? om : null;
+    var ownerCover = media?.CoverCardUrl;
+    var logo = media?.LogoUrl;
     var photo = google?.Photos.FirstOrDefault();
+    var featured = Ntca.Web.Services.ShopCopy.IsFeatured(Model);
 }
-<article class="shop-card" data-shop="@Model.ShopId" data-name="@Model.Name" data-loc="@loc" data-where="@Model.City, @Model.StateCode">
+<article class="shop-card" data-shop="@Model.ShopId" data-name="@Model.Name" data-loc="@loc" data-where="@Model.City, @Model.StateCode" data-testid="shop-card-@Model.Slug">
     <div class="shop-card-media">
-        @if (photo is not null)
+        @if (!string.IsNullOrEmpty(ownerCover))
+        {
+            <img src="@ownerCover" alt="" width="640" height="360" loading="lazy" decoding="async" data-testid="shop-cover-@Model.Slug" />
+        }
+        else if (photo is not null)
         {
             <img src="/media/gplace/@Model.ShopId/@photo.Slot" alt="" width="640" height="360" loading="lazy" decoding="async" />
         }
         else
         {
-            <div class="shop-card-ph" aria-hidden="true">NTCA<small>Photo coming soon</small></div>
+            <div class="shop-card-ph" aria-hidden="true" data-testid="shop-placeholder-@Model.Slug">NTCA<small>Photo coming soon</small></div>
         }
-        @if (Model.IsDestinationShop)
+        @if (!string.IsNullOrEmpty(logo))
+        {
+            <img class="shop-card-logo" src="@logo" alt="@Model.Name logo" width="48" height="48" data-testid="shop-logo-@Model.Slug" />
+        }
+        @if (featured)
+        {
+            <span class="ribbon feat" data-testid="shop-featured-@Model.Slug">Featured</span>
+        }
+        else if (Model.IsDestinationShop)
         {
             <span class="ribbon dest">Destination</span>
         }
@@ -67,6 +84,10 @@
                     }
                 }
             </p>
+        }
+        @if (featured && Model.IsDestinationShop)
+        {
+            <p class="meta" data-testid="shop-destination-note-@Model.Slug">Destination — imported, review needed</p>
         }
         @if (claimed)
         {

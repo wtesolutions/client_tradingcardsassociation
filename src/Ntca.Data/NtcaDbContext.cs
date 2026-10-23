@@ -17,7 +17,9 @@ public sealed class NtcaDbContext : DbContext
     public DbSet<ShopHours> ShopHours => Set<ShopHours>();
     public DbSet<ShopReview> ShopReviews => Set<ShopReview>();
     public DbSet<ShopMember> ShopMembers => Set<ShopMember>();
+    public DbSet<ShopClaimRequest> ShopClaimRequests => Set<ShopClaimRequest>();
     public DbSet<ShopEditRequest> ShopEditRequests => Set<ShopEditRequest>();
+    public DbSet<ShopPhoto> ShopPhotos => Set<ShopPhoto>();
     public DbSet<ShopDailyStat> ShopDailyStatsLegacy => Set<ShopDailyStat>();
     public DbSet<ShopImpression> ShopImpressions => Set<ShopImpression>();
     public DbSet<ShopDailyStats> ShopDailyStats => Set<ShopDailyStats>();
@@ -118,6 +120,9 @@ public sealed class NtcaDbContext : DbContext
             e.Property(x => x.Longitude).HasPrecision(9, 6);
             e.Property(x => x.ClaimStatus).HasMaxLength(20);
             e.Property(x => x.ListingStatus).HasMaxLength(20);
+            e.Property(x => x.EditorialFeaturedNote).HasMaxLength(240);
+            e.Property(x => x.OwnerFieldLocks).HasMaxLength(400);
+            e.Property(x => x.LogoObjectKey).HasMaxLength(400);
             e.HasOne(x => x.Tier).WithMany().HasForeignKey(x => x.CurrentTierId);
             e.HasMany(x => x.Hours).WithOne(x => x.Shop).HasForeignKey(x => x.ShopId);
             e.HasMany(x => x.Socials).WithOne(x => x.Shop).HasForeignKey(x => x.ShopId);
@@ -191,8 +196,35 @@ public sealed class NtcaDbContext : DbContext
         {
             e.ToTable("ShopMember", "dir");
             e.HasKey(x => x.ShopMemberId);
+            e.Property(x => x.MemberRole).HasMaxLength(20);
             e.HasOne(x => x.Shop).WithMany().HasForeignKey(x => x.ShopId);
             e.HasOne(x => x.User).WithMany(x => x.ShopMemberships).HasForeignKey(x => x.UserId);
+        });
+
+        model.Entity<ShopClaimRequest>(e =>
+        {
+            e.ToTable("ShopClaimRequest", "dir");
+            e.HasKey(x => x.ClaimRequestId);
+            e.Property(x => x.ClaimType).HasMaxLength(20);
+            e.Property(x => x.Status).HasMaxLength(20);
+            e.Property(x => x.VerificationMethod).HasMaxLength(20);
+            e.Property(x => x.ContactEmail).HasMaxLength(320);
+            e.HasOne(x => x.Shop).WithMany().HasForeignKey(x => x.ShopId);
+            e.HasOne(x => x.RequestedBy).WithMany().HasForeignKey(x => x.RequestedByUserId);
+        });
+
+        model.Entity<ShopPhoto>(e =>
+        {
+            e.ToTable("ShopPhoto", "ugc");
+            e.HasKey(x => x.PhotoId);
+            e.Property(x => x.StorageUrl).HasMaxLength(500);
+            e.Property(x => x.ThumbnailUrl).HasMaxLength(500);
+            e.Property(x => x.ObjectKey).HasMaxLength(400);
+            e.Property(x => x.AltText).HasMaxLength(200);
+            e.Property(x => x.PhotoKind).HasMaxLength(20);
+            e.Property(x => x.ModerationStatus).HasMaxLength(20);
+            e.Property(x => x.ContentHash).HasMaxLength(32).IsRequired();
+            e.HasOne(x => x.Shop).WithMany().HasForeignKey(x => x.ShopId);
         });
 
         model.Entity<ShopEditRequest>(e =>
@@ -200,6 +232,7 @@ public sealed class NtcaDbContext : DbContext
             e.ToTable("ShopEditRequest", "dir");
             e.HasKey(x => x.ShopEditRequestId);
             e.Property(x => x.ProposedJson).HasColumnType("nvarchar(max)");
+            e.Property(x => x.RequestKind).HasMaxLength(20);
             e.Property(x => x.Status).HasMaxLength(20);
             e.HasOne(x => x.Shop).WithMany().HasForeignKey(x => x.ShopId);
         });

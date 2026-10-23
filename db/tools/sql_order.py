@@ -8,6 +8,7 @@ FILES = [
     "05_google_places.sql",
     "06_shop_social.sql",
     "07_manufacturer_detail.sql",
+    "08_owner_workspace.sql",
     "02_seed.sql",
     "seed/SEED_00_static_pages.sql",
     "seed/SEED_10_shops.sql",
@@ -24,6 +25,7 @@ FILES = [
     "seed/SEED_61_skybox_logo.sql",
     "seed/SEED_65_glossary_conditions.sql",
     "seed/SEED_70_industry_figures.sql",
+    "seed/SEED_21_hobby_tyme_featured.sql",
     "03_app_login.sql",
 ]
 

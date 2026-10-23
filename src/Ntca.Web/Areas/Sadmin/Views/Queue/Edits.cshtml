@@ -1,19 +1,45 @@
-@model List<Ntca.Core.ShopEditRequest>
+@model (List<Ntca.Core.ShopEditRequest> Pending, List<Ntca.Core.ShopEditRequest> Fyi)
 @{
     ViewData["Title"] = "Owner edits";
 }
-<h1>Owner edit queue</h1>
-@if (!Model.Any()) { <p class="meta">No owner edits waiting.</p> }
-@foreach (var s in Model)
+<p class="admin-crumbs">Workspace / Edit queue</p>
+<h1 class="admin-h1">Owner edit queue</h1>
+@if (!Model.Pending.Any())
 {
-    <div class="card" style="margin-bottom:12px">
+    <p class="admin-empty" data-testid="edits-empty">No owner edits waiting.</p>
+}
+<div data-testid="edits-pending">
+@foreach (var s in Model.Pending)
+{
+    <div class="card" style="margin-bottom:12px" data-testid="edit-row-@s.ShopEditRequestId">
         <h3>@(s.Shop?.Name ?? ("Shop " + s.ShopId))</h3>
+        <p class="meta">@s.RequestKind</p>
         <pre style="white-space:pre-wrap">@s.ProposedJson</pre>
         <form method="post" action="/SADMIN/queue/edits/@s.ShopEditRequestId">
             @Html.AntiForgeryToken()
             <input name="reason" placeholder="Note" />
-            <button class="btn" name="decision" value="approve">Approve</button>
-            <button class="btn ghost" name="decision" value="reject">Reject</button>
+            <button class="admin-gold" name="decision" value="approve" type="submit" data-testid="edit-approve-@s.ShopEditRequestId">Approve</button>
+            <button class="admin-ghost" name="decision" value="reject" type="submit">Reject</button>
         </form>
     </div>
 }
+</div>
+<h2>Published immediately (FYI)</h2>
+<p class="admin-sub">Logo and photos already went live. Undo restores the previous logo or removes the uploaded photo.</p>
+@if (!Model.Fyi.Any())
+{
+    <p class="admin-empty">No recent FYI media notes.</p>
+}
+<div data-testid="edits-fyi">
+@foreach (var s in Model.Fyi)
+{
+    <div class="card" style="margin-bottom:12px" data-testid="fyi-row-@s.ShopEditRequestId">
+        <h3>@(s.Shop?.Name ?? ("Shop " + s.ShopId))</h3>
+        <pre style="white-space:pre-wrap">@s.ProposedJson</pre>
+        <form method="post" action="/SADMIN/queue/edits/@s.ShopEditRequestId">
+            @Html.AntiForgeryToken()
+            <button class="admin-ghost" name="decision" value="undo" type="submit" data-testid="fyi-undo-@s.ShopEditRequestId">Undo</button>
+        </form>
+    </div>
+}
+</div>

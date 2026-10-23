@@ -16,7 +16,7 @@
     <header class="mfr-head">
         @if (logo is not null)
         {
-            <img class="mfr-logo mfr-logo-lg" src="@logo" alt="@Model.Name logo" width="180" height="52" />
+            <img class="mfr-logo mfr-logo-lg" src="@logo" alt="@Model.Name logo" width="180" height="52" data-testid="mfr-logo" />
         }
         <div>
             <p class="kicker">Manufacturer</p>
@@ -38,7 +38,7 @@
     }
     @if (ManufacturerCopy.HasDescription(Model))
     {
-        <div class="mfr-prose">@Html.Raw(Model.DescriptionHtml)</div>
+        <div class="mfr-prose" data-testid="mfr-description">@Html.Raw(Model.DescriptionHtml)</div>
     }
     <p class="cta-row">
         <a class="btn ghost" href="/manufacturers">← All manufacturers</a>

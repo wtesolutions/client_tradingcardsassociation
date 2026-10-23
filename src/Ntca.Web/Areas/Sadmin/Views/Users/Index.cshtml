@@ -1,0 +1,39 @@
+@model List<Ntca.Core.AppUser>
+@{
+    ViewData["Title"] = "Users";
+    var members = (Dictionary<long, List<Ntca.Core.ShopMember>>)ViewBag.Members;
+    var can = ViewBag.CanImpersonate is true;
+}
+<p class="admin-crumbs">Insights / Users</p>
+<h1 class="admin-h1">Users</h1>
+<form class="admin-toolbar" method="get" action="/SADMIN/users" data-testid="users-filters">
+    <label>Name or email
+        <input name="q" value="@ViewBag.Q" data-testid="users-filter-q" />
+    </label>
+    <button class="admin-gold" type="submit">Apply filters</button>
+</form>
+<div class="admin-table-wrap">
+    <table data-testid="users-table">
+        <thead>
+            <tr><th>Name</th><th>Email</th><th>Staff</th><th>Shops</th><th></th></tr>
+        </thead>
+        <tbody>
+        @foreach (var u in Model)
+        {
+            var shops = members.GetValueOrDefault(u.UserId) ?? [];
+            <tr data-testid="user-row-@u.UserId">
+                <td>@u.DisplayName</td>
+                <td>@u.Email</td>
+                <td>@(u.IsStaff ? "Staff" : "Member")</td>
+                <td>@string.Join(", ", shops.Select(s => s.Shop?.Name ?? s.ShopId.ToString()))</td>
+                <td>
+                    @if (can && !u.IsStaff && shops.Count > 0)
+                    {
+                        <a href="/SADMIN/impersonate/@shops[0].ShopId" data-testid="impersonate-user-@u.UserId">Impersonate owner</a>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

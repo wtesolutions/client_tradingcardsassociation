@@ -1,15 +1,30 @@
-@model Ntca.Core.Shop
+@using Ntca.Core
+@using Ntca.Web.Services
+@model Shop
 @{
     ViewData["Title"] = "Edit your shop";
-}
-<h1>Edit @Model.Name</h1>
-@if (TempData["Saved"] is string msg) { <p class="card">@msg</p> }
-@{
-    var s7 = (Ntca.Web.Services.ShopStatTotals)ViewBag.Stats7;
-    var s30 = (Ntca.Web.Services.ShopStatTotals)ViewBag.Stats30;
-    var s90 = (Ntca.Web.Services.ShopStatTotals)ViewBag.Stats90;
-    var daily = (List<Ntca.Web.Services.ShopDayPoint>)ViewBag.Daily;
+    var shops = ViewBag.OwnedShops as List<Ntca.Core.Shop> ?? [];
+    var photos = ViewBag.Photos as List<Ntca.Core.ShopPhoto> ?? [];
+    var logoUrl = ViewBag.LogoUrl as string;
+    var files = ViewBag.Files as IFileStorage;
+    var s7 = (ShopStatTotals)ViewBag.Stats7;
+    var s30 = (ShopStatTotals)ViewBag.Stats30;
+    var s90 = (ShopStatTotals)ViewBag.Stats90;
+    var daily = (List<ShopDayPoint>)ViewBag.Daily;
     var max = daily.Count == 0 ? 1 : Math.Max(1, daily.Max(d => d.Impressions + d.Views));
+    var hours = Model.Hours.ToDictionary(h => h.DayOfWeek);
+}
+<h1 data-testid="owner-h1">Edit @Model.Name</h1>
+@if (TempData["Saved"] is string msg) { <p class="card" data-testid="owner-saved">@msg</p> }
+@if (TempData["MediaError"] is string mediaErr) { <p class="card" role="alert" data-testid="owner-media-error">@mediaErr</p> }
+@if (shops.Count > 1)
+{
+    <nav class="owner-shops" data-testid="owner-shop-picker" aria-label="Your shops">
+        @foreach (var s in shops)
+        {
+            <a class="@(s.ShopId == Model.ShopId ? "on" : null)" href="/owner?shop=@s.ShopId">@s.Name</a>
+        }
+    </nav>
 }
 <section class="card">
     <h2>Listing activity</h2>
@@ -31,23 +46,102 @@
         }
     </div>
 </section>
-<p class="lede">Changes go to the SADMIN owner-edit queue. They are not live until staff approve them.</p>
-<form method="post">
-    @Html.AntiForgeryToken()
-    <p><label>Name<br /><input name="Name" value="@Model.Name" /></label></p>
-    <p><label>Address<br /><input name="AddressLine1" value="@Model.AddressLine1" /></label></p>
-    <p><label>City<br /><input name="City" value="@Model.City" /></label></p>
-    <p><label>State<br /><input name="StateCode" value="@Model.StateCode" maxlength="2" /></label></p>
-    <p><label>Postal<br /><input name="PostalCode" value="@Model.PostalCode" /></label></p>
-    <p><label>Phone<br /><input name="Phone" value="@Model.Phone" /></label></p>
-    <p><label>Website<br /><input name="WebsiteUrl" value="@Model.WebsiteUrl" /></label></p>
-    <p><label>Public email<br /><input name="PublicEmail" value="@Model.PublicEmail" /></label></p>
-    <p><label>Description<br /><textarea name="Description" rows="4">@Model.Description</textarea></label></p>
-    <button class="btn" type="submit">Submit for review</button>
-</form>
+
+<section class="card" data-testid="owner-identity">
+    <h2>Name and address</h2>
+    <p class="lede">These go to the SADMIN edit queue. They are not live until staff approve them.</p>
+    <form method="post" action="/owner/identity">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="shopId" value="@Model.ShopId" />
+        <p><label>Name<br /><input name="Name" value="@Model.Name" data-testid="owner-name" /></label></p>
+        <p><label>Address<br /><input name="AddressLine1" value="@Model.AddressLine1" data-testid="owner-address" /></label></p>
+        <p><label>City<br /><input name="City" value="@Model.City" /></label></p>
+        <p><label>State<br /><input name="StateCode" value="@Model.StateCode" maxlength="2" /></label></p>
+        <p><label>Postal<br /><input name="PostalCode" value="@Model.PostalCode" /></label></p>
+        <button class="btn" type="submit" data-testid="owner-identity-submit">Submit for review</button>
+    </form>
+</section>
+
+<section class="card" data-testid="owner-live">
+    <h2>Listing details</h2>
+    <p class="lede">Phone, website, email, specialty, hours, and description publish immediately. Google Places will skip locked fields.</p>
+    <form method="post" action="/owner/live">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="shopId" value="@Model.ShopId" />
+        <p><label>Phone<br /><input name="Phone" value="@Model.Phone" data-testid="owner-phone" /></label></p>
+        <p><label>Website<br /><input name="WebsiteUrl" value="@Model.WebsiteUrl" data-testid="owner-website" /></label></p>
+        <p><label>Public email<br /><input name="PublicEmail" value="@Model.PublicEmail" /></label></p>
+        <p><label>Specialty<br /><input name="PrimarySpecialty" value="@Model.PrimarySpecialty" /></label></p>
+        <p><label>Description<br /><textarea name="Description" rows="4" data-testid="owner-description">@Model.Description</textarea></label></p>
+        <h3>Hours</h3>
+        @for (byte d = 0; d <= 6; d++)
+        {
+            var row = hours.GetValueOrDefault(d);
+            <p>
+                <label>@ShopCopy.DayName(d)
+                    <input type="checkbox" name="hours[@d].Closed" value="true" checked="@(row?.IsClosed == true ? "checked" : null)" /> Closed
+                    <input name="hours[@d].Opens" value="@(row?.OpensAt?.ToString("HH:mm"))" placeholder="09:00" />
+                    <input name="hours[@d].Closes" value="@(row?.ClosesAt?.ToString("HH:mm"))" placeholder="18:00" />
+                </label>
+            </p>
+        }
+        <button class="btn" type="submit" data-testid="owner-live-submit">Publish details</button>
+    </form>
+</section>
+
+<section class="card" data-testid="owner-media">
+    <h2>Logo and photos</h2>
+    <p class="meta">JPG, PNG, or WebP · 10 MB max · GPS EXIF is stripped. Logo is square. Up to 12 photos. These publish immediately and appear in the Edit queue as FYI.</p>
+    @if (!string.IsNullOrEmpty(logoUrl))
+    {
+        <p><img src="@logoUrl" alt="@Model.Name logo" width="96" height="96" data-testid="owner-logo-preview" /></p>
+    }
+    <form method="post" action="/owner/logo" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="shopId" value="@Model.ShopId" />
+        <p><label>Shop logo<br /><input type="file" name="file" accept="image/jpeg,image/png,image/webp" data-testid="owner-logo-input" /></label></p>
+        <button class="btn" type="submit" data-testid="owner-logo-upload">Upload logo</button>
+    </form>
+    <form method="post" action="/owner/photos" enctype="multipart/form-data" style="margin-top:16px">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="shopId" value="@Model.ShopId" />
+        <p><label>Add a photo<br /><input type="file" name="file" accept="image/jpeg,image/png,image/webp" data-testid="owner-photo-input" /></label></p>
+        <p><label>Alt text<br /><input name="alt" data-testid="owner-photo-alt" /></label></p>
+        <p><label>Caption<br /><input name="caption" /></label></p>
+        <button class="btn" type="submit" data-testid="owner-photo-upload">Upload photo</button>
+    </form>
+    <div class="owner-photos" data-testid="owner-photo-list">
+        @foreach (var photo in photos)
+        {
+            <figure data-testid="owner-photo-@photo.PhotoId">
+                <img src="@ShopMediaService.ThumbUrl(files!, photo)" alt="@(photo.AltText ?? photo.Caption)" width="160" height="160" />
+                <figcaption>
+                    @(photo.IsCover ? "Cover" : "Photo")
+                    <form method="post" action="/owner/photos/@photo.PhotoId/cover" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="shopId" value="@Model.ShopId" />
+                        <button class="btn ghost" type="submit" data-testid="owner-photo-cover-@photo.PhotoId">Set cover</button>
+                    </form>
+                    <form method="post" action="/owner/photos/@photo.PhotoId/move" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="shopId" value="@Model.ShopId" />
+                        <button class="btn ghost" name="delta" value="-1" type="submit">Up</button>
+                        <button class="btn ghost" name="delta" value="1" type="submit">Down</button>
+                    </form>
+                    <form method="post" action="/owner/photos/@photo.PhotoId/delete" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="shopId" value="@Model.ShopId" />
+                        <button class="btn ghost" type="submit">Delete</button>
+                    </form>
+                </figcaption>
+            </figure>
+        }
+    </div>
+</section>
+
 <section class="card">
     <h2>Social links</h2>
-    <p class="meta">These go live immediately — they are not queued. Accept an @Html.Raw("@handle") or a full URL. Whatnot has no Font Awesome icon; the public site shows a small W badge.</p>
+    <p class="meta">These go live immediately — they are not queued. Accept an @Html.Raw("@handle") or a full URL.</p>
     @if (TempData["SocialError"] is string socialErr)
     {
         <p class="card" role="alert">@socialErr</p>
@@ -62,7 +156,7 @@
     }
     else
     {
-        <ul class="social-edit">
+        <ul class="social-edit" data-testid="owner-socials">
         @foreach (var row in socials)
         {
             <li>
@@ -70,11 +164,13 @@
                 <span class="meta">@row.Url</span>
                 <form method="post" action="/owner/social/@row.ShopSocialId/move" style="display:inline">
                     @Html.AntiForgeryToken()
+                    <input type="hidden" name="shopId" value="@Model.ShopId" />
                     <button class="btn ghost" name="delta" value="-1" type="submit">Up</button>
                     <button class="btn ghost" name="delta" value="1" type="submit">Down</button>
                 </form>
                 <form method="post" action="/owner/social/@row.ShopSocialId/remove" style="display:inline">
                     @Html.AntiForgeryToken()
+                    <input type="hidden" name="shopId" value="@Model.ShopId" />
                     <button class="btn ghost" type="submit">Remove</button>
                 </form>
             </li>
@@ -83,6 +179,7 @@
     }
     <form method="post" action="/owner/social">
         @Html.AntiForgeryToken()
+        <input type="hidden" name="shopId" value="@Model.ShopId" />
         <p>
             <label>Platform<br />
                 <select name="platformCode">
@@ -97,4 +194,6 @@
         <button class="btn" type="submit">Add or update link</button>
     </form>
 </section>
-<form method="post" action="/owner/logout">@Html.AntiForgeryToken()<button class="btn ghost" type="submit">Sign out</button></form>
+<p class="meta">Owners cannot set Featured or Destination designations. Those stay with staff.</p>
+<p><a href="@ShopCopy.Loc(Model)" data-testid="owner-public-link">View public listing</a></p>
+<form method="post" action="/owner/logout">@Html.AntiForgeryToken()<button class="btn ghost" type="submit" data-testid="owner-sign-out">Sign out</button></form>

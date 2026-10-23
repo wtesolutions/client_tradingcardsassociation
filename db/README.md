@@ -19,7 +19,9 @@ DEV login hardcoded in `03_app_login.sql`: `ntca_app` / `NtcaAppDev2026x` (chang
 | 2 | `04_onboarding_funnel.sql` | Two-stage Preview funnel columns on `crm.SignupFunnel` |
 | 3 | `05_google_places.sql` | Google Places match / 30-day cache / photo / call-log tables |
 | 4 | `06_shop_social.sql` | Social platform catalog + `dir.ShopSocial`; migrates Website / Facebook / Instagram |
-| 5 | `02_seed.sql` | Lookup data: roles (incl. SUPERADMIN), shop tiers, features, entitlements, rotation, karma, badges, perks, `Site:Mode=Preview` |
+| 5 | `07_manufacturer_detail.sql` | `dir.Manufacturer.DescriptionHtml` + `LogoUrl` |
+| 6 | `08_owner_workspace.sql` | Editorial Featured, owner field locks, logo key, photo sort/cover/alt, edit-request kind + FYI status |
+| 7 | `02_seed.sql` | Lookup data: roles (incl. SUPERADMIN), shop tiers, features, entitlements, rotation, karma, badges, perks, `Site:Mode=Preview` |
 | 6 | `seed/SEED_00_static_pages.sql` | Marketing URLs from `legacy-site/*.html` |
 | 7 | `seed/SEED_10_shops.sql` | Hobby shops from CSV + `shops.html` (Free / unclaimed) |
 | 8 | `seed/SEED_15_ctca_members.sql` | Directory snapshot 2026-10-22: shops / orgs / manufacturer merges |
@@ -32,11 +34,13 @@ DEV login hardcoded in `03_app_login.sql`: `ntca_app` / `NtcaAppDev2026x` (chang
 | 15 | `seed/SEED_18_legacy_content_fix.sql` | Correct concatenated About bios + boys/hall gallery rows |
 | 15b | `seed/SEED_19_bio_fix.sql` | Force-set each PersonBio to their own legacy founder-body (slug or FullName) |
 | 16 | `seed/SEED_60_manufacturers.sql` | Wikipedia Trading card manufacturers (factual fields only) |
+| 16b | `seed/SEED_61_skybox_logo.sql` | SkyBox `LogoUrl` = `/media/manufacturers/skybox.jpg` |
 | 17 | `seed/SEED_65_glossary_conditions.sql` | Glossary + condition grades from New to Trading Cards |
 | 18 | `seed/SEED_70_industry_figures.sql` | Gary Vaynerchuk figure + DRAFT post (not public) |
+| 18b | `seed/SEED_21_hobby_tyme_featured.sql` | Editorial Featured on Hobby Tyme (Mebane NC). Optional `@OwnerEmail` |
 | 19 | `03_app_login.sql` | Login `ntca_app` (least privilege). Optional `ntca_migrator` via `@MigratorPassword` |
 
-**Existing QA database (already has shops):** run `04`, `05`, `06`, `SEED_17`, `SEED_18`, then `SEED_19` if bios still leak. All are idempotent. Then run `99_verify.sql` (read-only PASS/FAIL/WARN grid; identical copy `db/ssms/99_verify_SSMS.sql`). Active manufacturers expected **68** (66 Wikipedia + Fanatics + Onit Athlete from SEED_15).
+**Existing QA database (already has shops):** run `04`, `05`, `06`, `07`, `08`, `SEED_17`, `SEED_18`, then `SEED_19` if bios still leak, `SEED_61`, `SEED_21`. All are idempotent. Then run `99_verify.sql` (read-only PASS/FAIL/WARN grid; identical copy `db/ssms/99_verify_SSMS.sql`). Active manufacturers expected **68** (66 Wikipedia + Fanatics + Onit Athlete from SEED_15).
 
 Regenerate 01 + `seed/SEED_*.sql` (except hand-written 17/18):
 

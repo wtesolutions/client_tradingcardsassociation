@@ -4,6 +4,8 @@ Draft branch only. **Do not merge or push to `main`** (GitHub Pages on `main` st
 
 This file describes what is **actually on the branch**. Update it at the end of each later run.
 
+**2026-10-23 (this run):** `/SADMIN` navy/gold shell (`docs/design/sadmin/SPEC.md`), Hobby Tyme editorial Featured + owner workspace (logo + 12 photos, claim, identity queue vs immediate details), staff Impersonate (60 min, audited banner), Google Places skips owner-locked hours/photos, `TESTING.md` + generated `tests/fixtures/` + optional `tests/e2e` Playwright smoke (not CI).
+
 ---
 
 ## 1) What was created
@@ -28,7 +30,10 @@ This file describes what is **actually on the branch**. Update it at the end of 
 | `db/05_google_places.sql` | Idempotent Google Places match / 30-day cache / photo / call-log tables |
 | `db/06_shop_social.sql` | Social platform catalog + `dir.ShopSocial`; migrates Website/Facebook/Instagram |
 | `db/07_manufacturer_detail.sql` | `dir.Manufacturer.DescriptionHtml` + `LogoUrl` |
+| `db/08_owner_workspace.sql` | Editorial Featured, owner locks/logo, photo columns, FYI/UNDONE edit status |
+| `db/seed/SEED_21_hobby_tyme_featured.sql` | Hobby Tyme editorial Featured (`Featured by Eric 2026-10-23 (editorial)`). Optional `@OwnerEmail` |
 | `db/seed/SEED_61_skybox_logo.sql` | SkyBox `LogoUrl` = `/media/manufacturers/skybox.jpg` |
+| `TESTING.md` | Playwright-followable cases + `data-testid` catalog. Fixtures in `tests/fixtures/`. Smoke spec in `tests/e2e/` (not CI) |
 | `db/seed/SEED_17_shop_enrichment_manual.sql` | Verified 2026-10-23 first-10 enrichment (socials, Beckett-only sites, coords, hours) + SADMIN review notes |
 | `db/seed/SEED_18_legacy_content_fix.sql` | Corrected About bios + boys/hall gallery rows |
 | `db/99_verify.sql` | Read-only SSMS cross-check (one PASS/FAIL/WARN grid). Copy: `db/ssms/99_verify_SSMS.sql` |

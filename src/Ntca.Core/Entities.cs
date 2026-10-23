@@ -91,6 +91,11 @@ public sealed class Shop
     public string? SourceRef { get; set; }
     public string? SourceSystem { get; set; }
     public string? ImportNotes { get; set; }
+    public bool IsEditorialFeatured { get; set; }
+    public string? EditorialFeaturedNote { get; set; }
+    public DateTime? EditorialFeaturedAt { get; set; }
+    public string? OwnerFieldLocks { get; set; }
+    public string? LogoObjectKey { get; set; }
     public bool IsDestinationShop =>
         string.Equals(SourceSystem, "TOP100-2026-10-22", StringComparison.OrdinalIgnoreCase)
         || (!string.IsNullOrEmpty(ImportNotes)
@@ -189,10 +194,51 @@ public sealed class ShopMember
     public long ShopId { get; set; }
     public long UserId { get; set; }
     public string MemberRole { get; set; } = "OWNER";
+    public long? ClaimRequestId { get; set; }
+    public long? GrantedByUserId { get; set; }
     public DateTime GrantedAt { get; set; }
     public DateTime? RevokedAt { get; set; }
     public Shop? Shop { get; set; }
     public AppUser? User { get; set; }
+}
+
+public sealed class ShopClaimRequest
+{
+    public long ClaimRequestId { get; set; }
+    public long ShopId { get; set; }
+    public long RequestedByUserId { get; set; }
+    public string ClaimType { get; set; } = "OWNER";
+    public string Status { get; set; } = "PENDING";
+    public string? VerificationMethod { get; set; }
+    public DateTime? VerifiedAt { get; set; }
+    public string? ContactEmail { get; set; }
+    public string? Notes { get; set; }
+    public DateTime SubmittedAt { get; set; }
+    public long? ReviewedByUserId { get; set; }
+    public DateTime? ReviewedAt { get; set; }
+    public string? DecisionReason { get; set; }
+    public Shop? Shop { get; set; }
+    public AppUser? RequestedBy { get; set; }
+}
+
+public sealed class ShopPhoto
+{
+    public long PhotoId { get; set; }
+    public Guid PublicId { get; set; }
+    public long ShopId { get; set; }
+    public long UploadedByUserId { get; set; }
+    public string StorageUrl { get; set; } = "";
+    public string? ThumbnailUrl { get; set; }
+    public string? Caption { get; set; }
+    public string? AltText { get; set; }
+    public string? ObjectKey { get; set; }
+    public int SortOrder { get; set; }
+    public bool IsCover { get; set; }
+    public string PhotoKind { get; set; } = "INTERIOR";
+    public byte[] ContentHash { get; set; } = [];
+    public string ModerationStatus { get; set; } = "APPROVED";
+    public DateTime CreatedAt { get; set; }
+    public Shop? Shop { get; set; }
 }
 
 public sealed class ShopEditRequest
@@ -202,6 +248,7 @@ public sealed class ShopEditRequest
     public long ShopId { get; set; }
     public long RequestedByUserId { get; set; }
     public string ProposedJson { get; set; } = "{}";
+    public string RequestKind { get; set; } = "REVIEW";
     public string Status { get; set; } = "PENDING_REVIEW";
     public long? ReviewedByUserId { get; set; }
     public DateTime? ReviewedAt { get; set; }

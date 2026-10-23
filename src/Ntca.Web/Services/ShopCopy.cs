@@ -26,6 +26,8 @@ public static class ShopCopy
     public static string StateName(string? code)
         => string.IsNullOrWhiteSpace(code) ? "" : (StateNames.TryGetValue(code.Trim(), out var n) ? n : code.Trim().ToUpperInvariant());
 
+    public static bool IsFeatured(Shop shop) => shop.IsEditorialFeatured;
+
     public static bool ShowListingBadge(string? tierName)
     {
         if (string.IsNullOrWhiteSpace(tierName))
