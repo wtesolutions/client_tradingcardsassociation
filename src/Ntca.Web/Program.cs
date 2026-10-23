@@ -12,7 +12,8 @@ using Ntca.Web.Services;
 
 if (args.Length > 0 && (
     string.Equals(args[0], "google-places", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(args[0], "storage", StringComparison.OrdinalIgnoreCase)))
+    || string.Equals(args[0], "storage", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(args[0], "email", StringComparison.OrdinalIgnoreCase)))
 {
     var cli = WebApplication.CreateBuilder(new WebApplicationOptions
     {
@@ -21,9 +22,12 @@ if (args.Length > 0 && (
     });
     AddNtcaServices(cli);
     var cliApp = cli.Build();
-    Environment.ExitCode = string.Equals(args[0], "storage", StringComparison.OrdinalIgnoreCase)
-        ? await Ntca.Web.Services.StorageCli.RunAsync(cliApp.Services, args)
-        : await Ntca.Web.Services.GooglePlacesCli.RunAsync(cliApp.Services, args);
+    Environment.ExitCode = args[0].ToLowerInvariant() switch
+    {
+        "storage" => await Ntca.Web.Services.StorageCli.RunAsync(cliApp.Services, args),
+        "email" => await Ntca.Web.Services.EmailCli.RunAsync(cliApp.Services, args),
+        _ => await Ntca.Web.Services.GooglePlacesCli.RunAsync(cliApp.Services, args)
+    };
     return;
 }
 
@@ -42,7 +46,6 @@ builder.Services.AddSingleton<AgentVisitBuffer>();
 builder.Services.AddScoped<AgentAnswerBuilder>();
 builder.Services.AddScoped<IAgentAnswerEnricher, NoOpAgentAnswerEnricher>();
 builder.Services.AddHostedService<AgentVisitFlushService>();
-builder.Services.AddScoped<IAppEmailSender, CompositeEmailSender>();
 builder.Services.AddScoped<LoginCodeService>();
 builder.Services.AddScoped<SiteModeService>();
 builder.Services.AddRateLimiter(options =>
@@ -163,6 +166,8 @@ static void AddNtcaServices(WebApplicationBuilder builder)
     builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("Storage"));
     builder.Services.Configure<GooglePlacesOptions>(builder.Configuration.GetSection("GooglePlaces"));
     builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection("Auth"));
+    builder.Services.AddSingleton<ISmtpTransport, MailKitSmtpTransport>();
+    builder.Services.AddScoped<IAppEmailSender, CompositeEmailSender>();
     var conn = builder.Configuration.GetConnectionString("DefaultConnection")
         ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is required. Set it with dotnet user-secrets.");
     builder.Services.AddDbContext<NtcaDbContext>(opt =>

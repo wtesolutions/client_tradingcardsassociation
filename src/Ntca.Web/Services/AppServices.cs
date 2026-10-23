@@ -15,83 +15,101 @@ public sealed class CompositeEmailSender : IAppEmailSender
     private readonly EmailOptions _email;
     private readonly IWebHostEnvironment _env;
     private readonly ILogger<CompositeEmailSender> _log;
+    private readonly ISmtpTransport _smtp;
 
     public CompositeEmailSender(
         IOptions<SocketLabsOptions> socket,
         IOptions<EmailOptions> email,
         IWebHostEnvironment env,
-        ILogger<CompositeEmailSender> log)
+        ILogger<CompositeEmailSender> log,
+        ISmtpTransport smtp)
     {
         _socket = socket.Value;
         _email = email.Value;
         _env = env;
         _log = log;
+        _smtp = smtp;
     }
 
-    public bool IsConfigured =>
+    public bool InjectionConfigured =>
         _socket.ServerId > 0 && !string.IsNullOrWhiteSpace(_socket.ApiKey);
+
+    public bool IsConfigured => _email.IsSmtpConfigured || InjectionConfigured;
 
     public async Task<EmailSendResult> SendAsync(string toEmail, string subject, string textBody, string? htmlBody = null, CancellationToken ct = default)
     {
-        if (IsConfigured)
-        {
-            try
-            {
-                var client = new SocketLabsClient(_socket.ServerId, _socket.ApiKey);
-                var message = new BasicMessage
-                {
-                    Subject = subject,
-                    PlainTextBody = textBody,
-                    HtmlBody = htmlBody ?? $"<pre>{System.Net.WebUtility.HtmlEncode(textBody)}</pre>"
-                };
-                message.From.Email = _email.FromAddress;
-                message.From.FriendlyName = _email.FromName;
-                message.To.Add(toEmail);
-                var response = await Task.Run(() => client.Send(message), ct);
-                _log.LogInformation(
-                    "SocketLabs send {Result} to {To} subject {Subject} (from {From}, serverId set={HasServer})",
-                    response.Result, toEmail, subject, _email.FromAddress, _socket.ServerId > 0);
-                if (response.Result == SendResult.Success)
-                    return new EmailSendResult(true, "socketlabs", "Sign-in code emailed.");
-
-                var err = response.Result + (string.IsNullOrWhiteSpace(response.ResponseMessage) ? "" : ": " + response.ResponseMessage);
-                _log.LogWarning("SocketLabs send did not succeed: {Result} {Error}", response.Result, response.ResponseMessage);
-                if (_env.IsDevelopment())
-                {
-                    var failedPickup = await WriteDevMailAsync(toEmail, subject, textBody, ct);
-                    return new EmailSendResult(false, "socketlabs-failed",
-                        "SocketLabs did not send the email (" + err + "). A copy is in " + failedPickup + " and the console.",
-                        failedPickup);
-                }
-                throw new InvalidOperationException("SocketLabs send failed: " + err);
-            }
-            catch (InvalidOperationException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _log.LogError(ex, "SocketLabs send failed to {To} subject {Subject}", toEmail, subject);
-                if (_env.IsDevelopment())
-                {
-                    var failedPickup = await WriteDevMailAsync(toEmail, subject, textBody, ct);
-                    return new EmailSendResult(false, "socketlabs-error",
-                        "SocketLabs threw: " + ex.Message + ". A copy is in " + failedPickup + " and the console.",
-                        failedPickup);
-                }
-                throw;
-            }
-        }
+        if (_email.IsSmtpConfigured)
+            return await SendSmtpAsync(toEmail, subject, textBody, htmlBody, ct);
+        if (InjectionConfigured)
+            return await SendInjectionAsync(toEmail, subject, textBody, htmlBody, ct);
 
         var pickup = await WriteDevMailAsync(toEmail, subject, textBody, ct);
         _log.LogWarning(
-            "SocketLabs ServerId/ApiKey are empty — no email was sent. Wrote {File} to {To} subject {Subject}.",
+            "Email is not configured (no SMTP host, no SocketLabs Injection API keys) — no email was sent. Wrote {File} to {To} subject {Subject}.",
             pickup, toEmail, subject);
         if (_env.IsDevelopment())
             _log.LogWarning("DEV email body to {To}:\n{Body}", toEmail, textBody);
         return new EmailSendResult(false, "dev-file",
-            "SocketLabs is not configured, so no email was sent. The message (including the code) is in the console and in " + pickup + ".",
+            "Email is not configured (no SMTP host and no SocketLabs Injection API keys), so no email was sent. The message (including the code) is in the console and in " + pickup + ".",
             pickup);
+    }
+
+    private async Task<EmailSendResult> SendSmtpAsync(string toEmail, string subject, string textBody, string? htmlBody, CancellationToken ct)
+    {
+        try
+        {
+            await _smtp.SendAsync(_email, toEmail, subject, textBody, htmlBody, ct);
+            _log.LogInformation(
+                "SMTP send Success to {To} subject {Subject} via {Host}:{Port} from {From}",
+                toEmail, subject, _email.SmtpHost, _email.SmtpPort > 0 ? _email.SmtpPort : 587, _email.FromAddress);
+            return new EmailSendResult(true, "smtp", "Sign-in code emailed.");
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "SMTP send failed to {To} via {Host}", toEmail, _email.SmtpHost);
+            var failedPickup = await WriteDevMailAsync(toEmail, subject, textBody, ct);
+            return new EmailSendResult(false, "smtp-error",
+                "SMTP did not send the email (" + ex.Message + "). A copy is in " + failedPickup + " and the console.",
+                failedPickup);
+        }
+    }
+
+    private async Task<EmailSendResult> SendInjectionAsync(string toEmail, string subject, string textBody, string? htmlBody, CancellationToken ct)
+    {
+        try
+        {
+            var client = new SocketLabsClient(_socket.ServerId, _socket.ApiKey);
+            var message = new BasicMessage
+            {
+                Subject = subject,
+                PlainTextBody = textBody,
+                HtmlBody = htmlBody ?? $"<pre>{System.Net.WebUtility.HtmlEncode(textBody)}</pre>"
+            };
+            message.From.Email = _email.FromAddress;
+            message.From.FriendlyName = _email.FromName;
+            message.To.Add(toEmail);
+            var response = await Task.Run(() => client.Send(message), ct);
+            _log.LogInformation(
+                "SocketLabs Injection send {Result} to {To} subject {Subject} (from {From}, serverId set={HasServer})",
+                response.Result, toEmail, subject, _email.FromAddress, _socket.ServerId > 0);
+            if (response.Result == SendResult.Success)
+                return new EmailSendResult(true, "socketlabs", "Sign-in code emailed.");
+
+            var err = response.Result + (string.IsNullOrWhiteSpace(response.ResponseMessage) ? "" : ": " + response.ResponseMessage);
+            _log.LogWarning("SocketLabs Injection send did not succeed: {Result} {Error}", response.Result, response.ResponseMessage);
+            var failedPickup = await WriteDevMailAsync(toEmail, subject, textBody, ct);
+            return new EmailSendResult(false, "socketlabs-failed",
+                "SocketLabs Injection API did not send the email (" + err + "). A copy is in " + failedPickup + " and the console.",
+                failedPickup);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "SocketLabs Injection send failed to {To} subject {Subject}", toEmail, subject);
+            var failedPickup = await WriteDevMailAsync(toEmail, subject, textBody, ct);
+            return new EmailSendResult(false, "socketlabs-error",
+                "SocketLabs Injection API threw: " + ex.Message + ". A copy is in " + failedPickup + " and the console.",
+                failedPickup);
+        }
     }
 
     public static string DevMailFolder(string contentRoot)

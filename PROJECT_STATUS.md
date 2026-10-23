@@ -66,7 +66,9 @@ Solution `src/Ntca.sln` (**net9.0**):
 
 **Auth:** signed cookies `ntca.owner` and `ntca.sadmin` (passwordless emailed 6-digit codes). QA user `egarrison@wte.net` is SUPERADMIN and owns Burbank Sportscards.
 
-**Email:** official `SocketLabs.EmailDelivery` **2.0.1**, from `reports@wte.net` / National Trading Card Association. Empty ServerId/ApiKey → console log + `App_Data/dev-mail/` pickup, and the login UI says the email was not sent. Dev prints the login code in the console. Development-only staff/owner bypass: `888888` when `Auth:DevBypassCode` is true (logged to `core.AuditLog`).
+**Email:** SocketLabs **SMTP** (MailKit, STARTTLS 587) is the normal path whenever `Email:SmtpHost` is set. From `reports@wte.net` / National Trading Card Association. Injection API (`SocketLabs.EmailDelivery` 2.0.1) is the alternate if ServerId/ApiKey are set. No host and no keys → console + `App_Data/dev-mail/` and the login UI says the email was **not** sent. Development-only staff/owner bypass: `888888` when `Auth:DevBypassCode` is true (logged to `core.AuditLog`) — **not** Staging, **not** Production.
+
+> **Dev/test SMTP password committed by Eric's approval 2026-10-23; rotate in SocketLabs and move to IIS env vars/user-secrets before production.** Staging servers: `ASPNETCORE_ENVIRONMENT=Staging`. Smoke: `dotnet run --project src/Ntca.Web -- email test --to you@example.com`.
 
 **Uploads:** `wwwroot/uploads` via `IFileStorage` (no S3 on this branch).
 
@@ -308,11 +310,19 @@ dotnet user-secrets set ConnectionStrings:DefaultConnection \
   "Server=localhost,1433;Database=wte_NtcaDatabase;User ID=ntca_app;Password=NtcaAppDev2026x;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Application Name=Ntca.Web"
 ```
 
-Optional SocketLabs (otherwise console + `App_Data/dev-mail/`, and the login UI says the email was not sent):
+Development and Staging already have SocketLabs SMTP (`Email:SmtpHost` / `SmtpUser` / `SmtpPassword`). Production `appsettings.json` does **not** include the password — set IIS env vars after rotation.
+
+Optional Injection API alternate:
 
 ```bash
 dotnet user-secrets set SocketLabs:ServerId "12345"
 dotnet user-secrets set SocketLabs:ApiKey "YOUR-KEY"
+```
+
+SMTP smoke:
+
+```bash
+dotnet run --project src/Ntca.Web -- email test --to you@example.com
 ```
 
 ### 3.7 Run
@@ -325,7 +335,7 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 
 Open http://localhost:5290
 
-**Login codes:** `/owner/login` and `/SADMIN/login` with `egarrison@wte.net`. With SocketLabs empty, the six-digit code is printed in the **terminal**, written under `src/Ntca.Web/App_Data/dev-mail/`, and the UI says no email was sent. Development also accepts `888888` for an existing staff/owner account.
+**Login codes:** `/owner/login` and `/SADMIN/login` with `egarrison@wte.net`. Development/Staging send via SocketLabs SMTP from `reports@wte.net`. If SMTP fails, the UI says so, the code is printed in the **terminal**, and a copy is written under `src/Ntca.Web/App_Data/dev-mail/`. Development also accepts `888888` for an existing staff/owner account (not Staging).
 
 ### 3.8 QA checklist
 

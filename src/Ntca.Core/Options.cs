@@ -10,6 +10,12 @@ public sealed class EmailOptions
 {
     public string FromAddress { get; set; } = "reports@wte.net";
     public string FromName { get; set; } = "National Trading Card Association";
+    public string SmtpHost { get; set; } = "";
+    public int SmtpPort { get; set; } = 587;
+    public string SmtpUser { get; set; } = "";
+    public string SmtpPassword { get; set; } = "";
+
+    public bool IsSmtpConfigured => !string.IsNullOrWhiteSpace(SmtpHost);
 }
 
 public sealed class AuthOptions

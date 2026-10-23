@@ -61,15 +61,13 @@ dotnet user-secrets set ConnectionStrings:DefaultConnection \
   "Server=localhost,1433;Database=wte_NtcaDatabase;User ID=ntca_app;Password=NtcaAppDev2026x;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Application Name=Ntca.Web"
 ```
 
-Optional SocketLabs (login codes + signup confirmations from `reports@wte.net`):
+Development and Staging send login codes and signup confirmations over **SocketLabs SMTP** (STARTTLS 587, from `reports@wte.net`). The Injection API keys are optional. If SMTP fails, the SADMIN/owner UI says so, writes `src/Ntca.Web/App_Data/dev-mail/`, and prints the code in the console. In Development only, staff/owner login also accepts **888888** (`Auth:DevBypassCode` — never Staging or Production).
 
 ```bash
-cd src/Ntca.Web
-dotnet user-secrets set SocketLabs:ServerId "YOUR-SERVER-ID"
-dotnet user-secrets set SocketLabs:ApiKey "YOUR-API-KEY"
+dotnet run --project src/Ntca.Web -- email test --to you@example.com
 ```
 
-Leave those empty on a laptop. The app does **not** pretend the email was sent: the SADMIN/owner UI says SocketLabs is missing, writes `src/Ntca.Web/App_Data/dev-mail/`, and prints the code in the console. In Development, staff/owner login also accepts **888888** (`Auth:DevBypassCode`, default on in `appsettings.Development.json` only — never in Production).
+> Dev/test SMTP password committed by Eric's approval 2026-10-23; rotate in SocketLabs and move to IIS env vars/user-secrets before production.
 
 Optional Google Places (batch only — visitor pages never call Google):
 
@@ -219,4 +217,4 @@ Captured from this branch against the local Docker DB:
 
 ## Email
 
-From-address is `reports@wte.net` / National Trading Card Association. Config keys: `SocketLabs:ServerId`, `SocketLabs:ApiKey`, `Email:FromAddress`, `Email:FromName`. Official `SocketLabs.EmailDelivery` 2.0.1 client. Success/failure is logged without the API key.
+From-address is `reports@wte.net` / National Trading Card Association. Normal path: `Email:SmtpHost` / `SmtpPort` / `SmtpUser` / `SmtpPassword` (MailKit STARTTLS). Alternate: `SocketLabs:ServerId` + `SocketLabs:ApiKey` (Injection API 2.0.1). Fallback: console + `App_Data/dev-mail/`. Success/failure is logged without the SMTP password or API key. Production `appsettings.json` does not contain the SMTP password.

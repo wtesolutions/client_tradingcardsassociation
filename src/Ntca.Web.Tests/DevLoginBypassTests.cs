@@ -100,7 +100,8 @@ public sealed class DevLoginBypassTests
                 Options.Create(new SocketLabsOptions { ServerId = 0, ApiKey = "" }),
                 Options.Create(new EmailOptions { FromAddress = "reports@wte.net", FromName = "NTCA" }),
                 env,
-                NullLogger<CompositeEmailSender>.Instance);
+                NullLogger<CompositeEmailSender>.Instance,
+                new ThrowingSmtp());
 
             Assert.False(sender.IsConfigured);
             var result = await sender.SendAsync(
@@ -110,7 +111,7 @@ public sealed class DevLoginBypassTests
 
             Assert.False(result.Delivered);
             Assert.Equal("dev-file", result.Channel);
-            Assert.Contains("SocketLabs is not configured", result.UserMessage);
+            Assert.Contains("Email is not configured", result.UserMessage);
             Assert.Contains("dev-mail", result.UserMessage);
             Assert.False(string.IsNullOrWhiteSpace(result.PickupPath));
             Assert.True(File.Exists(result.PickupPath!));
@@ -159,5 +160,11 @@ public sealed class DevLoginBypassTests
         public string EnvironmentName { get; set; } = "Development";
         public string WebRootPath { get; set; } = "";
         public IFileProvider WebRootFileProvider { get; set; } = new NullFileProvider();
+    }
+
+    private sealed class ThrowingSmtp : ISmtpTransport
+    {
+        public Task SendAsync(EmailOptions email, string toEmail, string subject, string textBody, string? htmlBody, CancellationToken ct = default)
+            => throw new InvalidOperationException("SMTP should not be called when Email:SmtpHost is empty.");
     }
 }
