@@ -1511,6 +1511,9 @@ body.dir-ref #dir-grid .dir-link a:hover {
   gap: var(--space-3) var(--leading); padding: var(--space-4) 0;
   border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
   scroll-margin-top: 88px; }
+.glossary-item[hidden],
+.glossary-letter[hidden],
+.glossary dl[hidden] { display: none; }
 .glossary-item dt { font-weight: 600; font-size: 16px; line-height: 24px;
   margin: 0; overflow-wrap: anywhere; }
 .glossary-item dd { margin: 0; font-size: 15.5px; line-height: var(--leading);
