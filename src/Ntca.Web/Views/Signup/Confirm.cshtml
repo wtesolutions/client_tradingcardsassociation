@@ -14,14 +14,14 @@
     @if (!done)
     {
         <p>
-            <a class="btn" href="/onboarding@qs">Get to know you</a>
-            <form method="post" action="/onboarding/skip@qs" style="display:inline">
+            <a class="btn" href="/onboarding@(qs)">Get to know you</a>
+            <form method="post" action="/onboarding/skip@(qs)" style="display:inline">
                 @Html.AntiForgeryToken()
                 <button class="btn ghost" type="submit">Skip for now</button>
             </form>
         </p>
     }
-    <p><a href="/account@qs">My account</a> · <a href="/">Home</a></p>
+    <p><a href="/account@(qs)">My account</a> · <a href="/">Home</a></p>
 }
 else
 {
