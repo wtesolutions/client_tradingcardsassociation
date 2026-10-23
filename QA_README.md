@@ -5,7 +5,7 @@ Draft branch only. **Do not merge to `main`.** Runtime is **.NET 9** (SDK 9.0.x)
 ## Prerequisites
 
 - .NET 9 SDK (`dotnet --list-sdks`)
-- SQL Server 2019+ reachable (HAMMER, localhost, or Docker 2022)
+- SQL Server 2019+ reachable. **Development default** is Eric’s box `10.100.1.87,1433` / `wte_NtcaDatabase` / `ntca_app` (VPN). Docker/localhost still works via user-secrets.
 - `sqlcmd` **or** SSMS with SQLCMD Mode
 
 ### Windows
@@ -45,7 +45,11 @@ SSMS with SQLCMD Mode: open `db/NTCA_FULL_INSTALL.sql` (defaults already set) or
 
 `$(NtcaAppPassword)` is required. Avoid `#` in passwords (sqlcmd `-v` can truncate). A second full `run_all` is safe: `01_schema.sql` uses `IF NOT EXISTS` / `CREATE OR ALTER`, and `run_all` passes `NtcaMigratorPassword=__SKIP__` unless you set a real migrator password.
 
-## Connection string (never commit)
+## Connection string
+
+`src/Ntca.Web/appsettings.Development.json` is committed (**DEV ONLY**): `Server=10.100.1.87,1433;Database=wte_NtcaDatabase;User ID=ntca_app;Password=NtcaAppDev2026x;…`. Production `appsettings.json` has no password. `dotnet user-secrets` still overrides Development. If SQL is unreachable, Development shows a friendly page (server, database, VPN / user-secrets hint) instead of a raw exception.
+
+To use local Docker instead:
 
 ```bash
 cd src/Ntca.Web
@@ -62,7 +66,7 @@ dotnet user-secrets set SocketLabs:ApiKey "YOUR-KEY"
 
 Leave those empty on a laptop. The app logs the message and writes `App_Data/mail/`. In Development the **login code is printed in the console**.
 
-Copy `appsettings.Development.json.example` only if you want a local file — it is gitignored.
+`appsettings.Development.json` is committed. Use user-secrets or `appsettings.Development.local.json` (gitignored) for a laptop override.
 
 ## Run
 

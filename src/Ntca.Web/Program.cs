@@ -102,6 +102,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(o =>
 var app = builder.Build();
 
 app.UseForwardedHeaders();
+if (app.Environment.IsDevelopment())
+    app.UseMiddleware<DatabaseUnreachableMiddleware>();
 app.UseMiddleware<AgentConciergeMiddleware>();
 if (!app.Environment.IsDevelopment())
 {

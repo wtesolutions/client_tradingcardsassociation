@@ -12,9 +12,10 @@ obj/
 # Email pickup fallback
 src/Ntca.Web/App_Data/
 
-# Local / secret config — never commit real passwords or keys
+# Local / secret config — never commit production passwords or keys.
+# appsettings.Development.json is committed (DEV ONLY SQL defaults). Use
+# appsettings.Development.local.json or user-secrets to override.
 appsettings.*.local.json
-appsettings.Development.json
 appsettings.Production.json
 *.pfx
 secrets.json

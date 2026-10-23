@@ -156,6 +156,7 @@ Static HTML/CSV snapshot used as seed input (`hobby-shop-directory.csv`, `shows.
 | `4133ffa` / `4a572a5` | Directory cards matched to Eric’s list layout (static-map thumbs, Call/View) |
 | `76e81b1` | Multi-step Preview signup funnel + SADMIN funnel report |
 | `49464f2` / `e7e944f` / `0d639c9` | Funnel polish: ZIP early, icon cards, travel radius, live result cards, shared ask intent |
+| (this commit) | Development default SQL `10.100.1.87` / `wte_NtcaDatabase`; friendly DB-down page |
 
 ---
 
@@ -277,7 +278,11 @@ SSMS / Azure Data Studio: enable SQLCMD Mode, open `db/NTCA_FULL_INSTALL.sql`:
 :setvar NtcaAppPassword NtcaAppDev2026x
 ```
 
-### 3.6 App connection (user-secrets)
+### 3.6 App connection
+
+Development default is committed in `src/Ntca.Web/appsettings.Development.json` (**DEV ONLY**): Eric’s SQL Server `10.100.1.87,1433`, database `wte_NtcaDatabase`, login `ntca_app` / `NtcaAppDev2026x`. Needs VPN/LAN. `dotnet user-secrets` still overrides. Production `appsettings.json` has a placeholder with **no password**. If the DB is down, Development shows a friendly page (server, database, VPN / user-secrets) instead of a raw exception.
+
+Local Docker override:
 
 ```bash
 cd src/Ntca.Web
@@ -337,6 +342,6 @@ Use a real browser (or `curl -A "Mozilla/5.0 …"`). Bare `curl`/`wget` count as
 | Apple Silicon image errors | Enable Docker Rosetta; keep `--platform linux/amd64` |
 | `NtcaAppPassword` missing | `run_all.sh` exits until you pass `-v NtcaAppPassword=...` |
 | Re-run `run_all` | Safe. Schema is guarded; seeds MERGE; migrator skipped unless you set a real migrator password |
-| Site starts but queries fail | Confirm user-secrets `DefaultConnection` matches the `ntca_app` password you passed to `run_all` |
+| Site starts but queries fail | Development shows a friendly DB-down page. Check VPN to `10.100.1.87`, or `dotnet user-secrets list` if a local connection string is overriding |
 | No login code | Watch the `dotnet run` terminal, not the browser |
 )
