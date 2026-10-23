@@ -765,3 +765,119 @@ GO
 ALTER TABLE cms.Post ADD
     IndustryFigureId BIGINT NULL CONSTRAINT FK_CmsPost_Figure REFERENCES cms.IndustryFigure(IndustryFigureId);
 GO
+
+/* ---------------------------------------------------------------------
+   Shop impression analytics (all tiers, including Free / unclaimed).
+   Raw events live here. feed.FeedImpression stays rotation-feed-only
+   (FK to NewShopFeedEntry). dir.ShopDailyStat is refreshed by the rollup.
+   No seed rows — counts come from live traffic only.
+   --------------------------------------------------------------------- */
+CREATE SCHEMA analytics;
+GO
+
+CREATE TABLE analytics.SessionSalt
+(
+    SaltDate  DATE          NOT NULL CONSTRAINT PK_SessionSalt PRIMARY KEY,
+    Salt      VARBINARY(32) NOT NULL,
+    CreatedAt DATETIME2(3)  NOT NULL CONSTRAINT DF_SessionSalt_Created DEFAULT SYSUTCDATETIME()
+);
+GO
+
+CREATE TABLE analytics.ShopImpression
+(
+    ImpressionId  BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ShopImpression PRIMARY KEY,
+    ShopId        BIGINT         NOT NULL CONSTRAINT FK_ShopImpression_Shop REFERENCES dir.Shop(ShopId),
+    Surface       VARCHAR(40)    NOT NULL,
+    Position      SMALLINT       NULL,
+    PageUrl       NVARCHAR(400)  NULL,
+    SessionHash   BINARY(32)     NULL,
+    IsBot         BIT            NOT NULL CONSTRAINT DF_ShopImpression_Bot DEFAULT 0,
+    CreatedAt     DATETIME2(3)   NOT NULL CONSTRAINT DF_ShopImpression_Created DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT CK_ShopImpression_Surface CHECK (Surface IN (
+        'DIRECTORY_LIST','DIRECTORY_SEARCH','DIRECTORY_STATE',
+        'HOME_ROTATION','FEATURED','SHOW_EXHIBITOR','MAP_PIN',
+        'API_APP','DETAIL',
+        'CLICK_WEBSITE','CLICK_PHONE','CLICK_DIRECTIONS','CLICK_SOCIAL'))
+);
+GO
+CREATE INDEX IX_ShopImpression_ShopTime ON analytics.ShopImpression (ShopId, CreatedAt) INCLUDE (Surface, IsBot, Position);
+CREATE INDEX IX_ShopImpression_Time ON analytics.ShopImpression (CreatedAt) INCLUDE (ShopId, Surface, IsBot);
+GO
+
+CREATE TABLE analytics.ShopDailyStats
+(
+    ShopId        BIGINT        NOT NULL CONSTRAINT FK_ShopDailyStats_Shop REFERENCES dir.Shop(ShopId),
+    StatDate      DATE          NOT NULL,
+    Surface       VARCHAR(40)   NOT NULL,
+    Impressions   INT           NOT NULL CONSTRAINT DF_ShopDailyStats_Imp DEFAULT 0,
+    Views         INT           NOT NULL CONSTRAINT DF_ShopDailyStats_Views DEFAULT 0,
+    Clicks        INT           NOT NULL CONSTRAINT DF_ShopDailyStats_Clicks DEFAULT 0,
+    BotEvents     INT           NOT NULL CONSTRAINT DF_ShopDailyStats_Bot DEFAULT 0,
+    RolledUpAt    DATETIME2(3)  NOT NULL CONSTRAINT DF_ShopDailyStats_Roll DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT PK_ShopDailyStats PRIMARY KEY (ShopId, StatDate, Surface)
+);
+GO
+CREATE INDEX IX_ShopDailyStats_Date ON analytics.ShopDailyStats (StatDate, Surface) INCLUDE (Impressions, Views, Clicks);
+GO
+
+CREATE PROCEDURE analytics.usp_RollupShopDailyStats
+    @FromUtc DATETIME2(3) = NULL,
+    @ToUtc   DATETIME2(3) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF @FromUtc IS NULL SET @FromUtc = DATEADD(DAY, -2, SYSUTCDATETIME());
+    IF @ToUtc   IS NULL SET @ToUtc   = DATEADD(DAY, 1, SYSUTCDATETIME());
+
+    DECLARE @FromDate DATE = CAST(@FromUtc AS DATE);
+    DECLARE @ToDate   DATE = CAST(@ToUtc AS DATE);
+
+    ;WITH src AS (
+        SELECT  i.ShopId,
+                CAST(i.CreatedAt AS DATE) AS StatDate,
+                i.Surface,
+                SUM(CASE WHEN i.IsBot = 0 AND i.Surface NOT LIKE 'CLICK_%' AND i.Surface <> 'DETAIL' THEN 1 ELSE 0 END) AS Impressions,
+                SUM(CASE WHEN i.IsBot = 0 AND i.Surface = 'DETAIL' THEN 1 ELSE 0 END) AS Views,
+                SUM(CASE WHEN i.IsBot = 0 AND i.Surface LIKE 'CLICK_%' THEN 1 ELSE 0 END) AS Clicks,
+                SUM(CASE WHEN i.IsBot = 1 THEN 1 ELSE 0 END) AS BotEvents
+        FROM    analytics.ShopImpression AS i
+        WHERE   CAST(i.CreatedAt AS DATE) >= @FromDate
+          AND   CAST(i.CreatedAt AS DATE) <= @ToDate
+        GROUP BY i.ShopId, CAST(i.CreatedAt AS DATE), i.Surface
+    )
+    MERGE analytics.ShopDailyStats AS t
+    USING src AS s
+    ON t.ShopId = s.ShopId AND t.StatDate = s.StatDate AND t.Surface = s.Surface
+    WHEN MATCHED THEN UPDATE SET
+        Impressions = s.Impressions,
+        Views       = s.Views,
+        Clicks      = s.Clicks,
+        BotEvents   = s.BotEvents,
+        RolledUpAt  = SYSUTCDATETIME()
+    WHEN NOT MATCHED THEN INSERT (ShopId, StatDate, Surface, Impressions, Views, Clicks, BotEvents)
+    VALUES (s.ShopId, s.StatDate, s.Surface, s.Impressions, s.Views, s.Clicks, s.BotEvents);
+
+    ;WITH daytot AS (
+        SELECT  i.ShopId,
+                CAST(i.CreatedAt AS DATE) AS StatDate,
+                SUM(CASE WHEN i.IsBot = 0 AND i.Surface = 'DETAIL' THEN 1 ELSE 0 END) AS ListingViews,
+                SUM(CASE WHEN i.IsBot = 0 AND i.Surface = 'CLICK_WEBSITE' THEN 1 ELSE 0 END) AS WebsiteClicks,
+                SUM(CASE WHEN i.IsBot = 0 AND i.Surface = 'CLICK_PHONE' THEN 1 ELSE 0 END) AS PhoneClicks,
+                SUM(CASE WHEN i.IsBot = 0 AND i.Surface = 'CLICK_DIRECTIONS' THEN 1 ELSE 0 END) AS DirectionsClicks
+        FROM    analytics.ShopImpression AS i
+        WHERE   CAST(i.CreatedAt AS DATE) >= @FromDate
+          AND   CAST(i.CreatedAt AS DATE) <= @ToDate
+        GROUP BY i.ShopId, CAST(i.CreatedAt AS DATE)
+    )
+    MERGE dir.ShopDailyStat AS t
+    USING daytot AS s
+    ON t.ShopId = s.ShopId AND t.StatDate = s.StatDate
+    WHEN MATCHED THEN UPDATE SET
+        ListingViews     = s.ListingViews,
+        WebsiteClicks    = s.WebsiteClicks,
+        PhoneClicks      = s.PhoneClicks,
+        DirectionsClicks = s.DirectionsClicks
+    WHEN NOT MATCHED THEN INSERT (ShopId, StatDate, ListingViews, WebsiteClicks, PhoneClicks, DirectionsClicks)
+    VALUES (s.ShopId, s.StatDate, s.ListingViews, s.WebsiteClicks, s.PhoneClicks, s.DirectionsClicks);
+END
+GO

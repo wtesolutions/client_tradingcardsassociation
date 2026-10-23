@@ -86,6 +86,87 @@ public sealed class Shop
     public DateTime? ClaimedAt { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public ShopTier? Tier { get; set; }
+    public ICollection<ShopHours> Hours { get; set; } = new List<ShopHours>();
+}
+
+public sealed class ShopTier
+{
+    public byte TierId { get; set; }
+    public string TierCode { get; set; } = "";
+    public string Name { get; set; } = "";
+}
+
+public sealed class ShopHours
+{
+    public long ShopHoursId { get; set; }
+    public long ShopId { get; set; }
+    public byte DayOfWeek { get; set; }
+    public TimeOnly? OpensAt { get; set; }
+    public TimeOnly? ClosesAt { get; set; }
+    public bool IsClosed { get; set; }
+    public Shop? Shop { get; set; }
+}
+
+public sealed class ShopReview
+{
+    public long ReviewId { get; set; }
+    public long ShopId { get; set; }
+    public byte Rating { get; set; }
+    public string ModerationStatus { get; set; } = "PENDING";
+}
+
+public sealed class ShopDailyStat
+{
+    public long ShopId { get; set; }
+    public DateTime StatDate { get; set; }
+    public int ListingViews { get; set; }
+    public int WebsiteClicks { get; set; }
+    public int PhoneClicks { get; set; }
+    public int DirectionsClicks { get; set; }
+}
+
+public sealed class ShopImpression
+{
+    public long ImpressionId { get; set; }
+    public long ShopId { get; set; }
+    public string Surface { get; set; } = "";
+    public short? Position { get; set; }
+    public string? PageUrl { get; set; }
+    public byte[]? SessionHash { get; set; }
+    public bool IsBot { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
+public sealed class ShopDailyStats
+{
+    public long ShopId { get; set; }
+    public DateTime StatDate { get; set; }
+    public string Surface { get; set; } = "";
+    public int Impressions { get; set; }
+    public int Views { get; set; }
+    public int Clicks { get; set; }
+    public int BotEvents { get; set; }
+    public DateTime RolledUpAt { get; set; }
+}
+
+public sealed class SessionSalt
+{
+    public DateTime SaltDate { get; set; }
+    public byte[] Salt { get; set; } = [];
+    public DateTime CreatedAt { get; set; }
+}
+
+public sealed class EventExhibitor
+{
+    public long ShopEventId { get; set; }
+    public long ShopId { get; set; }
+    public string? TableLabel { get; set; }
+    public string? Specialties { get; set; }
+    public string Status { get; set; } = "CLAIMED";
+    public DateTime CreatedAt { get; set; }
+    public ShopEvent? ShopEvent { get; set; }
+    public Shop? Shop { get; set; }
 }
 
 public sealed class ShopMember

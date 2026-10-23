@@ -1310,4 +1310,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    if "--schema-only" in sys.argv:
+        path = assemble_schema()
+        print(f"Wrote {path.relative_to(ROOT)} (schema only; seeds unchanged)")
+        raise SystemExit(0)
     raise SystemExit(main())

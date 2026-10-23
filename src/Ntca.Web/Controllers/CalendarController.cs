@@ -10,7 +10,12 @@ namespace Ntca.Web.Controllers;
 public sealed class CalendarController : Controller
 {
     private readonly NtcaDbContext _db;
-    public CalendarController(NtcaDbContext db) => _db = db;
+    private readonly IImpressionTracker _track;
+    public CalendarController(NtcaDbContext db, IImpressionTracker track)
+    {
+        _db = db;
+        _track = track;
+    }
 
     [HttpGet("/calendar")]
     [HttpGet("/shows")]
@@ -83,6 +88,13 @@ public sealed class CalendarController : Controller
             .FirstOrDefaultAsync(e => e.Slug == slug, ct);
         if (ev is null)
             return NotFound();
+        var exhibitors = await _db.EventExhibitors.AsNoTracking()
+            .Include(x => x.Shop)
+            .Where(x => x.ShopEventId == ev.ShopEventId && x.Status != "REMOVED" && x.Shop != null && x.Shop.ListingStatus == "ACTIVE")
+            .ToListAsync(ct);
+        var shops = exhibitors.Select(x => x.Shop!).ToList();
+        _track.RecordMany(shops, ImpressionSurfaces.ShowExhibitor, Loc(ev));
+        ViewBag.Exhibitors = shops;
         return View(ev);
     }
 

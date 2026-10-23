@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ntca.Data", "Ntca.Data\Ntca
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ntca.Web", "Ntca.Web\Ntca.Web.csproj", "{DD34DF0B-0FD4-489E-AC02-7BAD969BA7FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ntca.Web.Tests", "Ntca.Web.Tests\Ntca.Web.Tests.csproj", "{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{DD34DF0B-0FD4-489E-AC02-7BAD969BA7FF}.Release|x64.Build.0 = Release|Any CPU
 		{DD34DF0B-0FD4-489E-AC02-7BAD969BA7FF}.Release|x86.ActiveCfg = Release|Any CPU
 		{DD34DF0B-0FD4-489E-AC02-7BAD969BA7FF}.Release|x86.Build.0 = Release|Any CPU
+		{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}.Debug|x64.Build.0 = Debug|Any CPU
+		{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}.Debug|x86.Build.0 = Debug|Any CPU
+		{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}.Release|x64.ActiveCfg = Release|Any CPU
+		{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}.Release|x64.Build.0 = Release|Any CPU
+		{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}.Release|x86.ActiveCfg = Release|Any CPU
+		{3C8F1A62-7E11-4D4A-9B2C-81F0C4E6A9D1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

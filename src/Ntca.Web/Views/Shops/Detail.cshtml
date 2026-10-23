@@ -1,15 +1,75 @@
-@model Ntca.Core.Shop
+@model Ntca.Web.Controllers.ShopDetailVm
 @{
-    ViewData["Title"] = Model.Name;
+    var s = Model.Shop;
+    ViewData["Title"] = s.Name;
 }
-<p class="kicker">@Model.City, @Model.StateCode @(Model.IsDestinationShop ? "· Destination shop" : "")</p>
-<h1>@Model.Name</h1>
-<p class="lede">@Model.Description</p>
+<nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a> /
+    <a href="/shops">Shops</a> /
+    <a href="/shops/@s.StateCode.ToLowerInvariant()">@Ntca.Web.Services.ShopCopy.StateName(s.StateCode)</a> /
+    <a href="/shops/@s.StateCode.ToLowerInvariant()">@s.City</a> /
+    <span>@s.Name</span>
+</nav>
+<p class="kicker">@s.City, @s.StateCode @(s.IsDestinationShop ? "· Destination shop" : "") @(string.IsNullOrEmpty(Model.TierName) ? "" : "· " + Model.TierName)</p>
+<h1 class="shop-name">@s.Name</h1>
+<p class="shop-ai-summary ai-summary">@Model.AiSummary</p>
+@if (!string.IsNullOrEmpty(s.Description))
+{
+    <p class="lede">@s.Description</p>
+}
 <div class="card">
-    <p>@Model.AddressLine1</p>
-    <p>@Model.City, @Model.StateCode @Model.PostalCode</p>
-    @if (!string.IsNullOrEmpty(Model.Phone)) { <p>@Model.Phone</p> }
-    @if (!string.IsNullOrEmpty(Model.WebsiteUrl)) { <p><a href="@Model.WebsiteUrl" rel="noopener">Website</a></p> }
-    <p class="meta">Claim: @Model.ClaimStatus · Listing: @Model.ListingStatus</p>
+    @if (!string.IsNullOrEmpty(s.AddressLine1)) { <p>@s.AddressLine1</p> }
+    <p>@s.City, @s.StateCode @s.PostalCode</p>
+    @if (!string.IsNullOrEmpty(s.Phone))
+    {
+        <p><a href="/t/phone?shop=@s.ShopId">@s.Phone</a></p>
+    }
+    @if (!string.IsNullOrEmpty(s.WebsiteUrl))
+    {
+        <p><a href="/t/website?shop=@s.ShopId" rel="noopener">Website</a></p>
+    }
+    @if (Ntca.Web.Services.ShopCopy.HasMappableAddress(s))
+    {
+        <p><a href="/t/directions?shop=@s.ShopId" rel="noopener">Directions</a></p>
+    }
+    @if (!string.IsNullOrEmpty(s.FacebookUrl))
+    {
+        <p><a href="/t/social?shop=@s.ShopId&amp;net=facebook" rel="noopener">Facebook</a></p>
+    }
+    @if (!string.IsNullOrEmpty(s.InstagramHandle))
+    {
+        <p><a href="/t/social?shop=@s.ShopId&amp;net=instagram" rel="noopener">Instagram</a></p>
+    }
+    @if (!string.IsNullOrEmpty(s.PublicEmail))
+    {
+        <p><a href="mailto:@s.PublicEmail">@s.PublicEmail</a></p>
+    }
+    <p class="meta">Claim: @s.ClaimStatus · Listing: @s.ListingStatus</p>
 </div>
-<p><a href="/shops">← All shops</a></p>
+@if (Model.Hours.Any(h => !h.IsClosed && h.OpensAt is not null))
+{
+    <h2>Hours</h2>
+    <ul>
+    @foreach (var h in Model.Hours.Where(h => !h.IsClosed && h.OpensAt is not null && h.ClosesAt is not null))
+    {
+        <li>@Ntca.Web.Services.ShopCopy.DayName(h.DayOfWeek) @h.OpensAt?.ToString("HH:mm")–@h.ClosesAt?.ToString("HH:mm")</li>
+    }
+    </ul>
+}
+@if (Model.Events.Count > 0)
+{
+    <h2>Upcoming events</h2>
+    <ul>
+    @foreach (var e in Model.Events)
+    {
+        <li>@e.StartsAt.ToString("MMM d, yyyy") — @e.Title</li>
+    }
+    </ul>
+}
+<p class="meta"><a href="@Model.MarkdownUrl">Plain-text version</a> for AI crawlers</p>
+<p><a href="/shops/@s.StateCode.ToLowerInvariant()">@Ntca.Web.Services.ShopCopy.StateName(s.StateCode) shops</a> · <a href="/shops">All shops</a></p>
+@section Scripts {
+<script type="application/ld+json">
+@Html.Raw(Model.JsonLd)
+</script>
+}

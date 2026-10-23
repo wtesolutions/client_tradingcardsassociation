@@ -9,15 +9,19 @@
     <button class="btn" type="submit">Filter</button>
 </form>
 <table>
-    <tr><th>Name</th><th>City</th><th>Claim</th><th>Listing</th><th>Source</th></tr>
+    <tr><th>Name</th><th>City</th><th>Claim</th><th>Listing</th><th>Source</th><th>Imp 7d</th></tr>
+    @{
+        var imp = (Dictionary<long, int>)ViewBag.Imp7;
+    }
     @foreach (var s in Model)
     {
         <tr>
-            <td>@s.Name</td>
+            <td><a href="/SADMIN/shops/@s.ShopId/stats">@s.Name</a></td>
             <td>@s.City, @s.StateCode</td>
             <td>@s.ClaimStatus</td>
             <td>@s.ListingStatus</td>
             <td>@s.SourceSystem @(s.IsDestinationShop ? "· dest" : "")</td>
+            <td>@(imp.GetValueOrDefault(s.ShopId))</td>
         </tr>
     }
 </table>

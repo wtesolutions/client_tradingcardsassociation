@@ -73,8 +73,13 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | Path | What to check |
 |---|---|
 | `/` | Home with real shop / show / manufacturer counts |
-| `/shops` | Directory, state filter; destination shops show a Destination chip |
-| `/shops/{state}/{city}/{slug}` | Shop detail (try Burbank Sportscards) |
+| `/shops` | Directory, state filter; destination shops show a Destination chip; `?view=map` plots pins with lat/lng |
+| `/shops/{state}` | State hub (e.g. `/shops/ca`) — impressions use `DIRECTORY_STATE` |
+| `/shops/{state}/{city}/{slug}` | Shop detail + AI summary + JSON-LD `@graph` (try Burbank Sportscards or Dave & Adam's) |
+| `/shops/{state}/{city}/{slug}.md` or `?format=md` | Plain-text shop page for LLM crawlers |
+| `/shops.md` | Markdown index of every active shop |
+| `/t/website?shop={id}` `/t/phone` `/t/directions` `/t/social` | Click redirects (website / phone / maps / social) |
+| `/api/v1/shops?source=app` | Shop API; `source=app` records `API_APP` impressions |
 | `/calendar` and `/shows` | Month (default), list, map; Subscribe (.ics) |
 | `/shows/{state}` | State hub |
 | `/shows/{state}/{city}/{slug}` | Show detail + Add to calendar (Google / Outlook / .ics) |
@@ -87,7 +92,8 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | `/signup` | Inserts `crm.Signup` |
 | `/robots.txt` `/llms.txt` `/sitemap.xml` | Discovery; sitemap has dynamic shop/show/mfr URLs |
 | `/owner/login` | `egarrison@wte.net` — code in console; edits Burbank Sportscards |
-| `/SADMIN/login` | Same email; dashboard KPIs are live counts |
+| `/SADMIN/login` | Same email; dashboard KPIs are live counts + 7-day shop impressions |
+| `/SADMIN/shops` | Per-shop 7-day impression column; open a row for 7/30/90 + chart |
 | `/SADMIN/queue/drafts` | Gary Vaynerchuk industry-figure draft (not public) |
 
 ## Known gaps
@@ -97,6 +103,25 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 - Turnstile is off in Development.
 - Upcoming GaryVee card-show rows were **not** seeded: the 2026-10-22 dossier had no confirmed card show with date + location + his role.
 - Top-100 destination shops are in `SEED_16` (`SourceSystem=TOP100-2026-10-22`). Matched rows fill empty fields only. See `docs/TOP100_SHOPS.md`.
+- Shop hours, photos, and reviews are largely unseeded. JSON-LD omits `openingHoursSpecification`, `image`, and `aggregateRating` unless real rows exist. Do not invent ratings.
+- Impression seeds are intentionally empty. Counts appear after you browse public pages.
+
+## Impression tracking + shop JSON-LD
+
+Raw events: `analytics.ShopImpression` (ShopId, Surface, Position, PageUrl, SessionHash, IsBot, CreatedAt). Session hash is `SHA256(sid + yyyy-MM-dd + daily salt)` — no raw IP. Known bots are stored with `IsBot=1` and excluded from dashboards.
+
+Daily rollup (BackgroundService, no SQL Agent): `analytics.usp_RollupShopDailyStats` fills `analytics.ShopDailyStats` and refreshes `dir.ShopDailyStat`. `feed.FeedImpression` stays rotation-feed-only.
+
+Surfaces: `DIRECTORY_LIST`, `DIRECTORY_SEARCH`, `DIRECTORY_STATE`, `HOME_ROTATION`, `FEATURED`, `SHOW_EXHIBITOR`, `MAP_PIN`, `API_APP`, `DETAIL`, `CLICK_WEBSITE`, `CLICK_PHONE`, `CLICK_DIRECTIONS`, `CLICK_SOCIAL`.
+
+Verify:
+
+1. Browse `/shops` then a shop detail. Click Website / Phone / Directions if present.
+2. Open `/owner` as `egarrison@wte.net` (Burbank Sportscards). 7/30/90 cards and the bar chart should show the list + detail traffic.
+3. Open `/SADMIN/dashboard` — impression / view / click KPIs and a top-shops table. `/SADMIN/shops` has an Imp 7d column.
+4. SQL: `SELECT TOP 20 Surface, IsBot, PageUrl, CreatedAt FROM analytics.ShopImpression ORDER BY ImpressionId DESC;`
+5. Shop JSON-LD: view-source on `/shops/ny/williamsville/dave-adam-s-card-world-retail-superstore-williamsville-ny` and find `application/ld+json`. `dotnet test src/Ntca.sln` runs the parse + schema.org rule checks. Paste the graph into https://validator.schema.org/ for a visual spot-check.
+6. `curl -s http://localhost:5290/llms.txt` should list shop `.md` URLs. `curl -s http://localhost:5290/shops/ca/burbank/burbank-sportscards-burbank-ca.md` is the text version.
 
 ## Desktop screenshots (1440×900)
 

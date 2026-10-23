@@ -1,0 +1,27 @@
+@model Ntca.Core.Shop
+@{
+    ViewData["Title"] = "Stats · " + Model.Name;
+    var s7 = (Ntca.Web.Services.ShopStatTotals)ViewBag.Stats7;
+    var s30 = (Ntca.Web.Services.ShopStatTotals)ViewBag.Stats30;
+    var s90 = (Ntca.Web.Services.ShopStatTotals)ViewBag.Stats90;
+    var daily = (List<Ntca.Web.Services.ShopDayPoint>)ViewBag.Daily;
+    var max = daily.Count == 0 ? 1 : Math.Max(1, daily.Max(d => d.Impressions + d.Views));
+}
+<h1>@Model.Name</h1>
+<p class="meta">@Model.City, @Model.StateCode · @Model.ClaimStatus · @Model.ListingStatus</p>
+<div class="kpis">
+    <div class="kpi"><b>@s7.Impressions</b><span>Imp 7d</span></div>
+    <div class="kpi"><b>@s7.Views</b><span>Views 7d</span></div>
+    <div class="kpi"><b>@s7.Clicks</b><span>Clicks 7d</span></div>
+    <div class="kpi"><b>@s30.Impressions</b><span>Imp 30d</span></div>
+    <div class="kpi"><b>@s90.Impressions</b><span>Imp 90d</span></div>
+</div>
+<p class="meta">30d clicks: website @s30.WebsiteClicks · phone @s30.PhoneClicks · directions @s30.DirectionsClicks · social @s30.SocialClicks</p>
+<div class="bars">
+@foreach (var d in daily)
+{
+    var h = (int)Math.Round(100.0 * (d.Impressions + d.Views) / max);
+    <div class="bar" style="height:@(Math.Max(h, 2))%" title="@d.Date.ToString("MMM d"): @d.Impressions / @d.Views / @d.Clicks"></div>
+}
+</div>
+<p><a href="/SADMIN/shops">← All shops</a> · <a href="@Ntca.Web.Services.ShopCopy.Loc(Model)">Public listing</a></p>

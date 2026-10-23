@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Ntca.Core;
 using Ntca.Data;
 using Ntca.Web.Auth;
+using Ntca.Web.Services;
 
 namespace Ntca.Web.Areas.Owner.Controllers;
 
@@ -23,6 +24,10 @@ public sealed class ShopController : Controller
         var shop = await OwnedShop(userId, ct);
         if (shop is null)
             return View("NoShop");
+        ViewBag.Stats7 = await ShopStatQueries.TotalsAsync(_db, shop.ShopId, 7, ct);
+        ViewBag.Stats30 = await ShopStatQueries.TotalsAsync(_db, shop.ShopId, 30, ct);
+        ViewBag.Stats90 = await ShopStatQueries.TotalsAsync(_db, shop.ShopId, 90, ct);
+        ViewBag.Daily = await ShopStatQueries.DailyAsync(_db, shop.ShopId, 30, ct);
         return View(shop);
     }
 

@@ -44,6 +44,21 @@ public sealed class DiscoveryController : Controller
         sb.AppendLine("- [Manufacturers](https://tradingcardsassociation.com/manufacturers)");
         sb.AppendLine("- [News](https://tradingcardsassociation.com/news)");
         sb.AppendLine("- [New to Trading Cards](https://tradingcardsassociation.com/new-to-trading-cards)");
+        sb.AppendLine();
+        sb.AppendLine("## Shop listings (markdown for LLM crawlers)");
+        sb.AppendLine("- [Shop directory (md)](https://tradingcardsassociation.com/shops.md)");
+        var shops = await _db.Shops.AsNoTracking()
+            .Where(s => s.ListingStatus == "ACTIVE")
+            .OrderBy(s => s.StateCode).ThenBy(s => s.Name)
+            .Select(s => new { s.Name, s.StateCode, s.City, s.Slug })
+            .ToListAsync(ct);
+        foreach (var s in shops)
+        {
+            var city = s.City.ToLower().Replace(" ", "-").Replace(".", "");
+            sb.Append("- [").Append(s.Name).Append("](https://tradingcardsassociation.com/shops/")
+                .Append(s.StateCode.ToLower()).Append('/').Append(city).Append('/').Append(s.Slug)
+                .AppendLine(".md)");
+        }
         return Content(sb.ToString(), "text/plain", Encoding.UTF8);
     }
 
@@ -55,9 +70,14 @@ public sealed class DiscoveryController : Controller
         {
             "/", "/shops", "/calendar", "/shows", "/manufacturers", "/news", "/new-to-trading-cards", "/signup"
         };
+        urls.Add("/shops.md");
         urls.AddRange(await _db.Shops.AsNoTracking()
             .Where(s => s.ListingStatus == "ACTIVE")
             .Select(s => "/shops/" + s.StateCode.ToLower() + "/" + s.City.ToLower().Replace(" ", "-").Replace(".", "") + "/" + s.Slug)
+            .ToListAsync(ct));
+        urls.AddRange(await _db.Shops.AsNoTracking()
+            .Where(s => s.ListingStatus == "ACTIVE")
+            .Select(s => "/shops/" + s.StateCode.ToLower() + "/" + s.City.ToLower().Replace(" ", "-").Replace(".", "") + "/" + s.Slug + ".md")
             .ToListAsync(ct));
         urls.AddRange(await _db.ShopEvents.AsNoTracking()
             .Where(e => e.EventType == "CARD_SHOW" && (e.Status == "PUBLISHED" || e.Status == "POSTPONED") && e.StateCode != null && e.City != null)

@@ -12,8 +12,16 @@ public sealed class NtcaDbContext : DbContext
     public DbSet<VerificationCode> VerificationCodes => Set<VerificationCode>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
     public DbSet<Shop> Shops => Set<Shop>();
+    public DbSet<ShopTier> ShopTiers => Set<ShopTier>();
+    public DbSet<ShopHours> ShopHours => Set<ShopHours>();
+    public DbSet<ShopReview> ShopReviews => Set<ShopReview>();
     public DbSet<ShopMember> ShopMembers => Set<ShopMember>();
     public DbSet<ShopEditRequest> ShopEditRequests => Set<ShopEditRequest>();
+    public DbSet<ShopDailyStat> ShopDailyStatsLegacy => Set<ShopDailyStat>();
+    public DbSet<ShopImpression> ShopImpressions => Set<ShopImpression>();
+    public DbSet<ShopDailyStats> ShopDailyStats => Set<ShopDailyStats>();
+    public DbSet<SessionSalt> SessionSalts => Set<SessionSalt>();
+    public DbSet<EventExhibitor> EventExhibitors => Set<EventExhibitor>();
     public DbSet<Manufacturer> Manufacturers => Set<Manufacturer>();
     public DbSet<ManufacturerCategory> ManufacturerCategories => Set<ManufacturerCategory>();
     public DbSet<ManufacturerCategoryMap> ManufacturerCategoryMaps => Set<ManufacturerCategoryMap>();
@@ -85,6 +93,72 @@ public sealed class NtcaDbContext : DbContext
             e.Property(x => x.Longitude).HasPrecision(9, 6);
             e.Property(x => x.ClaimStatus).HasMaxLength(20);
             e.Property(x => x.ListingStatus).HasMaxLength(20);
+            e.HasOne(x => x.Tier).WithMany().HasForeignKey(x => x.CurrentTierId);
+            e.HasMany(x => x.Hours).WithOne(x => x.Shop).HasForeignKey(x => x.ShopId);
+        });
+
+        model.Entity<ShopTier>(e =>
+        {
+            e.ToTable("ShopTier", "dir");
+            e.HasKey(x => x.TierId);
+            e.Property(x => x.TierCode).HasMaxLength(20);
+            e.Property(x => x.Name).HasMaxLength(50);
+        });
+
+        model.Entity<ShopHours>(e =>
+        {
+            e.ToTable("ShopHours", "dir");
+            e.HasKey(x => x.ShopHoursId);
+            e.Property(x => x.OpensAt).HasColumnType("time(0)");
+            e.Property(x => x.ClosesAt).HasColumnType("time(0)");
+        });
+
+        model.Entity<ShopReview>(e =>
+        {
+            e.ToTable("ShopReview", "ugc");
+            e.HasKey(x => x.ReviewId);
+            e.Property(x => x.ModerationStatus).HasMaxLength(20);
+        });
+
+        model.Entity<ShopDailyStat>(e =>
+        {
+            e.ToTable("ShopDailyStat", "dir");
+            e.HasKey(x => new { x.ShopId, x.StatDate });
+            e.Property(x => x.StatDate).HasColumnType("date");
+        });
+
+        model.Entity<ShopImpression>(e =>
+        {
+            e.ToTable("ShopImpression", "analytics");
+            e.HasKey(x => x.ImpressionId);
+            e.Property(x => x.Surface).HasMaxLength(40);
+            e.Property(x => x.PageUrl).HasMaxLength(400);
+            e.Property(x => x.SessionHash).HasMaxLength(32).IsFixedLength();
+        });
+
+        model.Entity<ShopDailyStats>(e =>
+        {
+            e.ToTable("ShopDailyStats", "analytics");
+            e.HasKey(x => new { x.ShopId, x.StatDate, x.Surface });
+            e.Property(x => x.StatDate).HasColumnType("date");
+            e.Property(x => x.Surface).HasMaxLength(40);
+        });
+
+        model.Entity<SessionSalt>(e =>
+        {
+            e.ToTable("SessionSalt", "analytics");
+            e.HasKey(x => x.SaltDate);
+            e.Property(x => x.SaltDate).HasColumnType("date");
+            e.Property(x => x.Salt).HasMaxLength(32).IsRequired();
+        });
+
+        model.Entity<EventExhibitor>(e =>
+        {
+            e.ToTable("EventExhibitor", "mkt");
+            e.HasKey(x => new { x.ShopEventId, x.ShopId });
+            e.Property(x => x.Status).HasMaxLength(20);
+            e.HasOne(x => x.ShopEvent).WithMany().HasForeignKey(x => x.ShopEventId);
+            e.HasOne(x => x.Shop).WithMany().HasForeignKey(x => x.ShopId);
         });
 
         model.Entity<ShopMember>(e =>

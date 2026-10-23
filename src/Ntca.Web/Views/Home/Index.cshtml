@@ -13,6 +13,40 @@
     </div>
     <p><a class="btn" href="/signup">Join the Preview list</a> <a class="btn ghost" href="/calendar">See the calendar</a></p>
 </section>
+@{
+    var featured = (List<Ntca.Core.Shop>)ViewBag.Featured;
+    var rotation = (List<Ntca.Core.Shop>)ViewBag.Rotation;
+}
+@if (featured.Count > 0)
+{
+<section>
+    <h2>Destination shops</h2>
+    <div class="grid">
+    @foreach (var s in featured)
+    {
+        <a class="card" href="@Ntca.Web.Services.ShopCopy.Loc(s)">
+            <h3>@s.Name</h3>
+            <p class="meta">@s.City, @s.StateCode · Destination</p>
+        </a>
+    }
+    </div>
+</section>
+}
+@if (rotation.Count > 0)
+{
+<section>
+    <h2>New in the directory</h2>
+    <div class="grid">
+    @foreach (var s in rotation)
+    {
+        <a class="card" href="@Ntca.Web.Services.ShopCopy.Loc(s)">
+            <h3>@s.Name</h3>
+            <p class="meta">@s.City, @s.StateCode</p>
+        </a>
+    }
+    </div>
+</section>
+}
 <section>
     <h2>Upcoming shows</h2>
     <div class="grid">

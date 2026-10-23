@@ -14,15 +14,44 @@
             <option value="@st" selected="@(st == (string)ViewBag.State)">@st</option>
         }
     </select>
+    <input type="hidden" name="view" value="@ViewBag.View" />
     <button class="btn" type="submit">Filter</button>
 </form>
+<p class="cal-tabs">
+    <a class="@(ViewBag.View != "map" ? "on" : "")" href="/shops?q=@Uri.EscapeDataString((string)ViewBag.Q)&amp;state=@ViewBag.State">List</a>
+    <a class="@(ViewBag.View == "map" ? "on" : "")" href="/shops?view=map&amp;q=@Uri.EscapeDataString((string)ViewBag.Q)&amp;state=@ViewBag.State">Map</a>
+</p>
+@if ((string)ViewBag.View == "map")
+{
+    <div id="shop-map" class="cal-map"></div>
+}
+else
+{
 <div class="grid">
 @foreach (var s in Model)
 {
-    var city = s.City.ToLowerInvariant().Replace(' ', '-').Replace(".", "");
-    <a class="card" href="/shops/@s.StateCode.ToLowerInvariant()/@city/@s.Slug">
+    <a class="card" href="@Ntca.Web.Services.ShopCopy.Loc(s)">
         <h3>@s.Name</h3>
         <p class="meta">@s.City, @s.StateCode @(s.ClaimStatus == "CLAIMED" ? "· Claimed" : "") @(s.IsDestinationShop ? "· Destination" : "")</p>
     </a>
 }
 </div>
+}
+@section Scripts {
+@if ((string)ViewBag.View == "map")
+{
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const points = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.MapPoints));
+        const map = L.map('shop-map').setView([39.8, -98.6], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
+        const bounds = [];
+        for (const p of points) {
+            const m = L.marker([p.lat, p.lng]).addTo(map).bindPopup('<a href="' + p.loc + '">' + p.title + '</a><br>' + p.where);
+            bounds.push([p.lat, p.lng]);
+        }
+        if (bounds.length) map.fitBounds(bounds, { padding: [24, 24] });
+    </script>
+}
+}

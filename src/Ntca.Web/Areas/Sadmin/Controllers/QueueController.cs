@@ -204,8 +204,15 @@ public sealed class QueueController : Controller
             query = query.Where(s => s.Name.Contains(term) || s.City.Contains(term));
         }
         var rows = await query.OrderBy(s => s.StateCode).ThenBy(s => s.Name).Take(400).ToListAsync(ct);
+        var from = DateTime.UtcNow.Date.AddDays(-6);
+        var counts = await _db.ShopImpressions.AsNoTracking()
+            .Where(i => !i.IsBot && i.CreatedAt >= from && !i.Surface.StartsWith("CLICK_"))
+            .GroupBy(i => i.ShopId)
+            .Select(g => new { g.Key, N = g.Count() })
+            .ToDictionaryAsync(x => x.Key, x => x.N, ct);
         ViewBag.Q = q ?? "";
         ViewBag.State = state ?? "";
+        ViewBag.Imp7 = counts;
         return View(rows);
     }
 

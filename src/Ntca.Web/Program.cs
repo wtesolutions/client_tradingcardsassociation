@@ -19,6 +19,12 @@ var conn = builder.Configuration.GetConnectionString("DefaultConnection")
 builder.Services.AddDbContext<NtcaDbContext>(opt =>
     opt.UseSqlServer(conn, sql => sql.EnableRetryOnFailure()));
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<ImpressionBuffer>();
+builder.Services.AddSingleton<SessionSaltCache>();
+builder.Services.AddScoped<IImpressionTracker, ImpressionTracker>();
+builder.Services.AddHostedService<ImpressionFlushService>();
+builder.Services.AddHostedService<ImpressionRollupService>();
 builder.Services.AddScoped<IAppEmailSender, CompositeEmailSender>();
 builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
 builder.Services.AddScoped<LoginCodeService>();
@@ -108,3 +114,5 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+public partial class Program { }

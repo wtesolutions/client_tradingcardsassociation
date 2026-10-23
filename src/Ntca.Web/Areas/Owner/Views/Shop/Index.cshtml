@@ -4,6 +4,33 @@
 }
 <h1>Edit @Model.Name</h1>
 @if (TempData["Saved"] is string msg) { <p class="card">@msg</p> }
+@{
+    var s7 = (Ntca.Web.Services.ShopStatTotals)ViewBag.Stats7;
+    var s30 = (Ntca.Web.Services.ShopStatTotals)ViewBag.Stats30;
+    var s90 = (Ntca.Web.Services.ShopStatTotals)ViewBag.Stats90;
+    var daily = (List<Ntca.Web.Services.ShopDayPoint>)ViewBag.Daily;
+    var max = daily.Count == 0 ? 1 : Math.Max(1, daily.Max(d => d.Impressions + d.Views));
+}
+<section class="card">
+    <h2>Listing activity</h2>
+    <p class="meta">Every public appearance counts — Free and unclaimed listings included. Bots are filtered.</p>
+    <div class="hero-stats">
+        <div><strong>@s7.Impressions</strong><span class="meta">impressions · 7d</span></div>
+        <div><strong>@s7.Views</strong><span class="meta">detail views · 7d</span></div>
+        <div><strong>@s7.Clicks</strong><span class="meta">clicks · 7d</span></div>
+        <div><strong>@s30.Impressions</strong><span class="meta">impressions · 30d</span></div>
+        <div><strong>@s30.Views</strong><span class="meta">views · 30d</span></div>
+        <div><strong>@s90.Impressions</strong><span class="meta">impressions · 90d</span></div>
+    </div>
+    <p class="meta">Clicks: website @s30.WebsiteClicks · phone @s30.PhoneClicks · directions @s30.DirectionsClicks · social @s30.SocialClicks (30d)</p>
+    <div class="bars" title="Daily impressions + views, last 30 days">
+        @foreach (var d in daily)
+        {
+            var h = (int)Math.Round(100.0 * (d.Impressions + d.Views) / max);
+            <div class="bar" style="height:@(Math.Max(h, 2))%" title="@d.Date.ToString("MMM d"): @d.Impressions impressions, @d.Views views, @d.Clicks clicks"></div>
+        }
+    </div>
+</section>
 <p class="lede">Changes go to the SADMIN owner-edit queue. They are not live until staff approve them.</p>
 <form method="post">
     @Html.AntiForgeryToken()

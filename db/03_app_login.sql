@@ -73,6 +73,7 @@ GRANT EXECUTE ON SCHEMA::karma TO [$(NtcaAppLogin)];
 GRANT EXECUTE ON SCHEMA::crm   TO [$(NtcaAppLogin)];
 GRANT EXECUTE ON SCHEMA::cms   TO [$(NtcaAppLogin)];
 GRANT EXECUTE ON SCHEMA::seo   TO [$(NtcaAppLogin)];
+GRANT EXECUTE ON SCHEMA::analytics TO [$(NtcaAppLogin)];
 GO
 
 PRINT 'Granted db_datareader, db_datawriter, EXECUTE on app schemas to $(NtcaAppLogin) (not db_owner)';
@@ -120,6 +121,7 @@ BEGIN
     GRANT EXECUTE ON SCHEMA::crm   TO [$(NtcaMigratorLogin)];
     GRANT EXECUTE ON SCHEMA::cms   TO [$(NtcaMigratorLogin)];
     GRANT EXECUTE ON SCHEMA::seo   TO [$(NtcaMigratorLogin)];
+    GRANT EXECUTE ON SCHEMA::analytics TO [$(NtcaMigratorLogin)];
     PRINT 'Granted db_ddladmin + data read/write/exec to $(NtcaMigratorLogin) (not db_owner)';
 END
 ELSE

@@ -17,4 +17,20 @@
         <a href="@Ntca.Web.Services.CalendarIcs.OutlookUrl(Model)" rel="noopener">Outlook</a>
     </p>
 </div>
+@{
+    var exhibitors = ViewBag.Exhibitors as List<Ntca.Core.Shop> ?? [];
+}
+@if (exhibitors.Count > 0)
+{
+    <h2>Shops at this show</h2>
+    <div class="grid">
+    @foreach (var s in exhibitors)
+    {
+        <a class="card" href="@Ntca.Web.Services.ShopCopy.Loc(s)">
+            <h3>@s.Name</h3>
+            <p class="meta">@s.City, @s.StateCode</p>
+        </a>
+    }
+    </div>
+}
 <p><a href="/shows/@((Model.StateCode ?? "").ToLowerInvariant())">@Model.StateCode hub</a> · <a href="/calendar">Calendar</a> · <a href="/shows/@((Model.StateCode ?? "").ToLowerInvariant()).ics">@Model.StateCode .ics</a></p>
