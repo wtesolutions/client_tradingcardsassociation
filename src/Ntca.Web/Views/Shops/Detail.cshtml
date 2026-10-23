@@ -74,15 +74,19 @@
             {
                 <a class="ntca-primary-action" href="/t/directions?shop=@s.ShopId" rel="noopener">Get directions</a>
             }
-            @if (!string.IsNullOrEmpty(s.WebsiteUrl))
+            @if (Model.Socials.Any(l => l.PlatformCode == "WEBSITE"))
             {
-                <a class="btn ghost" href="/t/website?shop=@s.ShopId" rel="noopener">Visit website</a>
+                <a class="btn ghost" href="/t/website?shop=@s.ShopId" rel="noopener nofollow ugc" target="_blank">Visit website</a>
             }
             @if (!string.IsNullOrEmpty(s.Phone))
             {
                 <a class="btn ghost" href="/t/phone?shop=@s.ShopId">Call shop</a>
             }
         </div>
+        @if (Model.Socials.Count > 0)
+        {
+            @await Html.PartialAsync("~/Views/Shared/_SocialIcons.cshtml", Model.Socials)
+        }
         <p>
             @if (address.Length > 0) { @address <br /> }
             @s.City, @stateName @s.PostalCode
@@ -214,19 +218,15 @@
         {
             <p><a href="/t/phone?shop=@s.ShopId">@s.Phone</a></p>
         }
-        @if (!string.IsNullOrEmpty(s.WebsiteUrl))
+        @if (Model.Socials.Count > 0)
         {
-            <p><a href="/t/website?shop=@s.ShopId" rel="noopener">Website</a></p>
+            @await Html.PartialAsync("~/Views/Shared/_SocialIcons.cshtml", Model.Socials)
+            foreach (var link in Model.Socials)
+            {
+                <p><a href="@link.TrackHref" rel="noopener nofollow ugc" target="_blank">@link.Label</a></p>
+            }
         }
-        @if (!string.IsNullOrEmpty(s.FacebookUrl))
-        {
-            <p><a href="/t/social?shop=@s.ShopId&amp;net=facebook" rel="noopener">Facebook</a></p>
-        }
-        @if (!string.IsNullOrEmpty(s.InstagramHandle))
-        {
-            <p><a href="/t/social?shop=@s.ShopId&amp;net=instagram" rel="noopener">Instagram</a></p>
-        }
-        @if (!string.IsNullOrEmpty(s.PublicEmail))
+        @if (!string.IsNullOrEmpty(s.PublicEmail) && !Model.Socials.Any(l => l.PlatformCode == "EMAIL"))
         {
             <p><a href="mailto:@s.PublicEmail">@s.PublicEmail</a></p>
         }
@@ -235,7 +235,7 @@
 <p class="meta"><a href="@Model.MarkdownUrl">Plain-text version</a> for AI crawlers</p>
 <p><a href="/shops/@s.StateCode.ToLowerInvariant()">@stateName shops</a> · <a href="/shops">All shops</a></p>
 </div>
-@if (hasDirections || !string.IsNullOrEmpty(s.Phone))
+@if (hasDirections || !string.IsNullOrEmpty(s.Phone) || Model.Socials.Count > 0)
 {
     <div class="visit-dock" role="navigation" aria-label="Visit actions">
         @if (hasDirections)
@@ -245,6 +245,11 @@
         @if (!string.IsNullOrEmpty(s.Phone))
         {
             <a class="btn ghost" href="/t/phone?shop=@s.ShopId" style="color:#fff;border-color:rgba(255,255,255,.3)">Call</a>
+        }
+        @if (Model.Socials.Count > 0)
+        {
+            ViewBag.SocialTake = 4;
+            @await Html.PartialAsync("~/Views/Shared/_SocialIcons.cshtml", Model.Socials)
         }
     </div>
 }

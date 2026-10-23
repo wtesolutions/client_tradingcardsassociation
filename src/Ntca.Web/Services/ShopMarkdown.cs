@@ -5,7 +5,7 @@ namespace Ntca.Web.Services;
 
 public static class ShopMarkdown
 {
-    public static string Render(Shop shop, string summary, IReadOnlyList<ShopHours>? hours = null, IReadOnlyList<ShopEvent>? events = null, string? tierName = null)
+    public static string Render(Shop shop, string summary, IReadOnlyList<ShopHours>? hours = null, IReadOnlyList<ShopEvent>? events = null, string? tierName = null, IReadOnlyList<ShopSocialLink>? socials = null)
     {
         var sb = new StringBuilder();
         sb.Append("# ").Append(shop.Name).AppendLine();
@@ -21,8 +21,9 @@ public static class ShopMarkdown
             sb.Append("- Phone: ").Append(shop.Phone).AppendLine();
         if (!string.IsNullOrWhiteSpace(shop.PublicEmail))
             sb.Append("- Email: ").Append(shop.PublicEmail).AppendLine();
-        if (!string.IsNullOrWhiteSpace(shop.WebsiteUrl))
-            sb.Append("- Website: ").Append(shop.WebsiteUrl).AppendLine();
+        var links = socials ?? ShopSocialLinks.Resolve(shop);
+        foreach (var link in links)
+            sb.Append("- ").Append(link.Label).Append(": ").Append(link.Url).AppendLine();
         var spec = ShopCopy.SpecialtySentence(shop.PrimarySpecialty);
         if (spec != null)
             sb.Append("- Specialty: ").Append(spec.TrimEnd('.')).AppendLine();

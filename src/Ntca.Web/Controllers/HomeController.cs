@@ -37,11 +37,13 @@ public sealed class HomeController : Controller
             .Take(3)
             .ToListAsync(ct);
         var featured = await _db.Shops.AsNoTracking()
+            .Include(s => s.Socials).ThenInclude(x => x.Platform)
             .Where(s => s.ListingStatus == "ACTIVE" && (s.SourceSystem == "TOP100-2026-10-22" || (s.ImportNotes != null && s.ImportNotes.Contains("Destination shop"))))
             .OrderBy(s => s.Name)
             .Take(6)
             .ToListAsync(ct);
         var rotation = await _db.Shops.AsNoTracking()
+            .Include(s => s.Socials).ThenInclude(x => x.Platform)
             .Where(s => s.ListingStatus == "ACTIVE")
             .OrderByDescending(s => s.PublishedAt ?? s.CreatedAt)
             .Take(6)

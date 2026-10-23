@@ -11,7 +11,7 @@
 else
 {
     <table>
-        <tr><th>When</th><th>Kind</th><th>Mode</th><th>Name</th><th>Where</th><th>Email</th><th></th></tr>
+        <tr><th>When</th><th>Kind</th><th>Mode</th><th>Name</th><th>Where</th><th>Email</th><th>Extra</th><th></th></tr>
         @foreach (var r in Model)
         {
             <tr>
@@ -21,6 +21,7 @@ else
                 <td>@r.Name @(r.TargetId is long id ? $"(#{id})" : "")</td>
                 <td>@(string.Join(" ", new[] { r.City, r.StateCode, r.PostalCode }.Where(s => !string.IsNullOrWhiteSpace(s))))</td>
                 <td>@r.SubmitterEmail</td>
+                <td class="meta">@r.ExtraJson</td>
                 <td>
                     <form method="post" action="/SADMIN/queue/onboarding/@r.OnboardingSubmissionId" style="display:flex;gap:8px;align-items:center">
                         @Html.AntiForgeryToken()

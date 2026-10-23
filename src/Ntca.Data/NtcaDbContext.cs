@@ -49,6 +49,8 @@ public sealed class NtcaDbContext : DbContext
     public DbSet<GooglePlaceCache> GooglePlaceCaches => Set<GooglePlaceCache>();
     public DbSet<GooglePlacePhoto> GooglePlacePhotos => Set<GooglePlacePhoto>();
     public DbSet<GoogleApiCallLog> GoogleApiCallLogs => Set<GoogleApiCallLog>();
+    public DbSet<SocialPlatform> SocialPlatforms => Set<SocialPlatform>();
+    public DbSet<ShopSocial> ShopSocials => Set<ShopSocial>();
 
     protected override void OnModelCreating(ModelBuilder model)
     {
@@ -105,6 +107,7 @@ public sealed class NtcaDbContext : DbContext
             e.Property(x => x.ListingStatus).HasMaxLength(20);
             e.HasOne(x => x.Tier).WithMany().HasForeignKey(x => x.CurrentTierId);
             e.HasMany(x => x.Hours).WithOne(x => x.Shop).HasForeignKey(x => x.ShopId);
+            e.HasMany(x => x.Socials).WithOne(x => x.Shop).HasForeignKey(x => x.ShopId);
         });
 
         model.Entity<ShopTier>(e =>
@@ -453,6 +456,30 @@ public sealed class NtcaDbContext : DbContext
             e.HasKey(x => new { x.CallDate, x.Sku });
             e.Property(x => x.CallDate).HasColumnType("date");
             e.Property(x => x.Sku).HasMaxLength(40);
+        });
+
+        model.Entity<SocialPlatform>(e =>
+        {
+            e.ToTable("SocialPlatform", "dir");
+            e.HasKey(x => x.Code);
+            e.Property(x => x.Code).HasMaxLength(20);
+            e.Property(x => x.Label).HasMaxLength(40);
+            e.Property(x => x.IconClass).HasMaxLength(80);
+            e.Property(x => x.UrlPattern).HasMaxLength(200);
+            e.Property(x => x.HostAllowlist).HasMaxLength(400);
+            e.Property(x => x.HandlePrefix).HasMaxLength(20);
+            e.Property(x => x.Kind).HasMaxLength(20);
+        });
+
+        model.Entity<ShopSocial>(e =>
+        {
+            e.ToTable("ShopSocial", "dir");
+            e.HasKey(x => x.ShopSocialId);
+            e.Property(x => x.PlatformCode).HasMaxLength(20);
+            e.Property(x => x.Url).HasMaxLength(500);
+            e.Property(x => x.Handle).HasMaxLength(120);
+            e.Property(x => x.Source).HasMaxLength(20);
+            e.HasOne(x => x.Platform).WithMany().HasForeignKey(x => x.PlatformCode);
         });
     }
 }

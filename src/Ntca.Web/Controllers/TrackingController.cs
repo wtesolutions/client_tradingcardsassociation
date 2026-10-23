@@ -19,17 +19,19 @@ public sealed class TrackingController : Controller
     [HttpGet("/t/{kind}")]
     public async Task<IActionResult> Click(string kind, long shop, string? net, CancellationToken ct)
     {
-        var row = await _db.Shops.AsNoTracking().FirstOrDefaultAsync(s => s.ShopId == shop && s.ListingStatus == "ACTIVE", ct);
+        var row = await _db.Shops.AsNoTracking()
+            .Include(s => s.Socials)
+            .FirstOrDefaultAsync(s => s.ShopId == shop && s.ListingStatus == "ACTIVE", ct);
         if (row is null)
             return NotFound();
 
         string? dest = kind.ToLowerInvariant() switch
         {
-            "website" when !string.IsNullOrWhiteSpace(row.WebsiteUrl) => row.WebsiteUrl,
+            "website" => ShopSocialLinks.Destination(row, "website", null),
             "phone" when !string.IsNullOrWhiteSpace(row.Phone) => ShopCopy.TelHref(row.Phone),
             "directions" when ShopCopy.HasMappableAddress(row) => ShopCopy.MapsUrl(row),
             "view" => ShopCopy.Loc(row),
-            "social" => SocialUrl(row, net),
+            "social" => ShopSocialLinks.Destination(row, "social", net),
             _ => null
         };
         if (dest is null)
@@ -45,16 +47,5 @@ public sealed class TrackingController : Controller
         };
         _track.Record(row.ShopId, surface, pageUrl: ShopCopy.Loc(row));
         return Redirect(dest);
-    }
-
-    private static string? SocialUrl(Ntca.Core.Shop row, string? net)
-    {
-        if (string.Equals(net, "instagram", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(row.InstagramHandle))
-            return ShopCopy.InstagramUrl(row.InstagramHandle);
-        if (!string.IsNullOrWhiteSpace(row.FacebookUrl))
-            return row.FacebookUrl;
-        if (!string.IsNullOrWhiteSpace(row.InstagramHandle))
-            return ShopCopy.InstagramUrl(row.InstagramHandle);
-        return null;
     }
 }

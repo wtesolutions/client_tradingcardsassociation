@@ -24,4 +24,4 @@
     <div class="bar" style="height:@(Math.Max(h, 2))%" title="@d.Date.ToString("MMM d"): @d.Impressions / @d.Views / @d.Clicks"></div>
 }
 </div>
-<p><a href="/SADMIN/shops">← All shops</a> · <a href="@Ntca.Web.Services.ShopCopy.Loc(Model)">Public listing</a></p>
+<p><a href="/SADMIN/shops">← All shops</a> · <a href="/SADMIN/shops/@Model.ShopId/social">Social links</a> · <a href="@Ntca.Web.Services.ShopCopy.Loc(Model)">Public listing</a></p>

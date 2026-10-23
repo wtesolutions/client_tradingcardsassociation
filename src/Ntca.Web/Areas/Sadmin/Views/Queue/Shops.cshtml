@@ -9,7 +9,7 @@
     <button class="btn" type="submit">Filter</button>
 </form>
 <table>
-    <tr><th>Name</th><th>City</th><th>Claim</th><th>Listing</th><th>Source</th><th>Imp 7d</th></tr>
+    <tr><th>Name</th><th>City</th><th>Claim</th><th>Listing</th><th>Source</th><th>Imp 7d</th><th></th></tr>
     @{
         var imp = (Dictionary<long, int>)ViewBag.Imp7;
     }
@@ -22,6 +22,7 @@
             <td>@s.ListingStatus</td>
             <td>@s.SourceSystem @(s.IsDestinationShop ? "· dest" : "")</td>
             <td>@(imp.GetValueOrDefault(s.ShopId))</td>
+            <td><a href="/SADMIN/shops/@s.ShopId/social">Links</a></td>
         </tr>
     }
 </table>

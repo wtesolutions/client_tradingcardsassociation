@@ -27,6 +27,8 @@ This file describes what is **actually on the branch**. Update it at the end of 
 | `db/tools/generate_combined.py` | Writes `run_all.sql` + `NTCA_FULL_INSTALL.sql` |
 | `db/05_google_places.sql` | Idempotent Google Places match / 30-day cache / photo / call-log tables |
 | `db/ssms/05_google_places_SSMS.sql` | Same, plain T-SQL for Eric’s SSMS session |
+| `db/06_shop_social.sql` | Social platform catalog + `dir.ShopSocial`; migrates Website/Facebook/Instagram |
+| `db/ssms/06_shop_social_SSMS.sql` | Same, plain T-SQL for Eric’s SSMS session |
 
 **Seed files and live counts** (Docker SQL after a full `run_all` into `wte_NtcaDatabase`; second apply is idempotent):
 
@@ -74,7 +76,7 @@ Solution `src/Ntca.sln` (**net9.0**):
 | `/shops/{state}/{city}/{slug}` | Shop detail, AI summary, JSON-LD `@graph`, click links via `/t` |
 | `/shops/{state}/{city}/{slug}.md` or `?format=md` | Plain-text shop page |
 | `/shops.md` | Markdown index of every active shop |
-| `/t/{website\|phone\|directions\|social}?shop={id}` | Click redirect (known URL only) |
+| `/t/{website\|phone\|directions\|social}?shop={id}` | Click redirect (known URL only; social `net=` is a platform code) |
 | `/api/v1/shops` | JSON shops; `?source=app` records API impressions |
 | `/calendar`, `/shows` | Month (default) / list / map |
 | `/shows/submit` | Promoter show submission → staff queue |
@@ -93,9 +95,9 @@ Solution `src/Ntca.sln` (**net9.0**):
 | `/.well-known/ai-concierge` | Assistant manifest JSON |
 | `POST /api/v1/agent/ask` | Rate-limited (30/min) deterministic answers from real rows |
 
-**`/owner`:** `/owner/login`, edit-own-shop (queued `dir.ShopEditRequest`), 7/30/90 impression/view/click cards + 30-day bar chart.
+**`/owner`:** `/owner/login`, edit-own-shop (queued `dir.ShopEditRequest`), live social add/edit/reorder/remove, 7/30/90 impression/view/click cards + 30-day bar chart.
 
-**`/SADMIN`:** login; dashboard KPIs; Preview/Live mode; event / owner-edit / draft / onboarding-submission queues; shop table with Imp 7d; `/SADMIN/agents`; `/SADMIN/funnel` (registration vs onboarding, per-role).
+**`/SADMIN`:** login; dashboard KPIs; Preview/Live mode; event / owner-edit / draft / onboarding-submission queues; shop table with Imp 7d; `/SADMIN/shops/{id}/social`; `/SADMIN/social` platform catalog; `/SADMIN/agents`; `/SADMIN/funnel` (registration vs onboarding, per-role).
 
 ### Calendar
 
@@ -179,7 +181,8 @@ Update the **Status** column when a later run lands the item.
 | Simple Preview signup + post-signup multi-select onboarding | **In this change** | `/signup` = name/email/ZIP; `/onboarding` after confirm; typeahead + pending add/claim; `/SADMIN/funnel` two-stage; SQL `db/ssms/04_onboarding_funnel_SSMS.sql` |
 | Directory QA: no Free Listing badge, name links, full state name, no `/shops` map | **Done** | cards + state hubs + `/shops` |
 | Public restyle (navy/gold homepage, directory, shop detail) | **Done** (`ffd1616`) | specs in `docs/design/` |
-| Google Places batch sync | **In this change** | Text Search match + nightly Details/photos; no Google calls on visitor paths; `/SADMIN/google`; SQL `05` |
+| Google Places batch sync | **Done** | Text Search match + nightly Details/photos; no Google calls on visitor paths; `/SADMIN/google`; SQL `05` |
+| Robust shop social links | **In this change** | `dir.SocialPlatform` + `dir.ShopSocial`; FA6 icons + Whatnot badge; `/t` click tracking; owner + SADMIN editors; SQL `06` |
 
 ### Remaining platform
 

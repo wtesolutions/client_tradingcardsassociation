@@ -35,7 +35,7 @@ cd db
 
 SSMS **without** SQLCMD Mode: open `db/ssms/NTCA_FULL_INSTALL_SSMS.sql` and Execute (database `wte_NtcaDatabase`, login `ntca_app` / `NtcaAppDev2026x` — DEV ONLY).
 
-**Existing QA database (Eric already has 186 shops):** run **`db/ssms/04_onboarding_funnel_SSMS.sql`** then **`db/ssms/05_google_places_SSMS.sql`** in SSMS (plain T-SQL, no SQLCMD Mode). `04` adds two-stage funnel columns. `05` adds Google Places match/cache/photo/call-log tables. Both are safe to run twice. SQLCMD copies: `db/04_onboarding_funnel.sql`, `db/05_google_places.sql`.
+**Existing QA database (Eric already has 186 shops):** run **`db/ssms/04_onboarding_funnel_SSMS.sql`**, then **`db/ssms/05_google_places_SSMS.sql`**, then **`db/ssms/06_shop_social_SSMS.sql`** in SSMS (plain T-SQL, no SQLCMD Mode). `04` adds two-stage funnel columns. `05` adds Google Places match/cache/photo/call-log tables. `06` adds the social platform catalog + `dir.ShopSocial` and migrates existing Website / Facebook / Instagram fields. All three are safe to run twice. SQLCMD copies: `db/04_onboarding_funnel.sql`, `db/05_google_places.sql`, `db/06_shop_social.sql`.
 
 SSMS with SQLCMD Mode: open `db/NTCA_FULL_INSTALL.sql` (defaults already set) or:
 

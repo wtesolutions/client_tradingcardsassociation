@@ -515,6 +515,33 @@ input, select, textarea {
   overflow: hidden;
 }
 .shop-card-actions { margin-top: auto; padding-top: 10px; }
+.social-row { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 10px 0 0; padding: 0; }
+.social-row li { margin: 0; }
+.social-row a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--ntca-border);
+  color: var(--ntca-navy);
+  background: #fff;
+  text-decoration: none;
+}
+.social-row a:hover { border-color: var(--ntca-gold); color: var(--ntca-navy); }
+.social-row.compact a { width: 28px; height: 28px; font-size: 13px; }
+.social-whatnot { display: inline-flex; width: 1em; height: 1em; line-height: 0; }
+.shop-card-social { margin: 8px 0 0; }
+.visit-card .social-row { margin: 12px 0 4px; }
+.visit-dock .social-row { margin: 0; flex: 0 0 auto; }
+.visit-dock .social-row a {
+  width: 36px;
+  flex: 0 0 36px;
+  color: #fff;
+  border-color: rgba(255,255,255,.3);
+  background: transparent;
+}
 .filters-toggle { display: inline-flex; }
 @media (min-width: 768px) {
   .dir-search { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto; align-items: end; }
@@ -712,6 +739,8 @@ body.is-shop-detail .visit-dock { display: flex; }
 .sadmin table { width: 100%; border-collapse: collapse; }
 .sadmin th, .sadmin td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #2a323c; }
 .sadmin input, .sadmin select, .sadmin textarea { background: #0b0d10; color: #e8eef4; border-color: #2a323c; }
+.social-edit { list-style: none; padding: 0; margin: 0 0 16px; }
+.social-edit li { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--ntca-border); }
 
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; }

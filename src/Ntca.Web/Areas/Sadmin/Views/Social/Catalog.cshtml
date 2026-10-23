@@ -1,0 +1,46 @@
+@model List<Ntca.Core.SocialPlatform>
+@{
+    ViewData["Title"] = "Social catalog";
+}
+<h1>Social platform catalog</h1>
+<p class="meta">Display order, Font Awesome class, URL pattern, and host allow-list. Whatnot has no FA brand icon — leave IconClass empty and the public site uses a small W badge.</p>
+@if (TempData["Saved"] is string msg) { <p class="card">@msg</p> }
+<table>
+    <tr>
+        <th>Code</th><th>Label</th><th>Icon</th><th>Pattern</th><th>Hosts</th><th>Order</th><th>Kind</th><th>Active</th><th></th>
+    </tr>
+@foreach (var p in Model)
+{
+    <tr>
+        <td>
+            @if (string.IsNullOrEmpty(p.IconClass))
+            {
+                <span class="social-whatnot" title="Custom Whatnot badge"><i>W</i></span>
+            }
+            else
+            {
+                <i class="@p.IconClass" aria-hidden="true"></i>
+            }
+            @p.Code
+        </td>
+        <td colspan="8">
+            <form method="post" action="/SADMIN/social" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="code" value="@p.Code" />
+                <input name="label" value="@p.Label" style="width:8rem" />
+                <input name="iconClass" value="@p.IconClass" placeholder="fa-brands …" style="width:12rem" />
+                <input name="urlPattern" value="@p.UrlPattern" style="width:16rem" />
+                <input name="hostAllowlist" value="@p.HostAllowlist" style="width:12rem" />
+                <input name="displayOrder" type="number" value="@p.DisplayOrder" style="width:5rem" />
+                <select name="kind">
+                    <option value="URL" selected="@(p.Kind=="URL")">URL</option>
+                    <option value="EMAIL" selected="@(p.Kind=="EMAIL")">EMAIL</option>
+                    <option value="PHONE" selected="@(p.Kind=="PHONE")">PHONE</option>
+                </select>
+                <label><input type="checkbox" name="isActive" value="true" @(p.IsActive ? "checked" : null) /> on</label>
+                <button class="btn" type="submit">Save</button>
+            </form>
+        </td>
+    </tr>
+}
+</table>

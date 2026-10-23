@@ -15,7 +15,12 @@ namespace Ntca.Web.Areas.Owner.Controllers;
 public sealed class ShopController : Controller
 {
     private readonly NtcaDbContext _db;
-    public ShopController(NtcaDbContext db) => _db = db;
+    private readonly ShopSocialEditor _social;
+    public ShopController(NtcaDbContext db, ShopSocialEditor social)
+    {
+        _db = db;
+        _social = social;
+    }
 
     [HttpGet("/owner")]
     public async Task<IActionResult> Index(CancellationToken ct)
@@ -28,6 +33,8 @@ public sealed class ShopController : Controller
         ViewBag.Stats30 = await ShopStatQueries.TotalsAsync(_db, shop.ShopId, 30, ct);
         ViewBag.Stats90 = await ShopStatQueries.TotalsAsync(_db, shop.ShopId, 90, ct);
         ViewBag.Daily = await ShopStatQueries.DailyAsync(_db, shop.ShopId, 30, ct);
+        ViewBag.Socials = await _social.LoadAsync(shop.ShopId, ct);
+        ViewBag.Platforms = await _social.ActivePlatformsAsync(ct);
         return View(shop);
     }
 
@@ -64,6 +71,44 @@ public sealed class ShopController : Controller
         });
         await _db.SaveChangesAsync(ct);
         TempData["Saved"] = "Edit submitted for staff review.";
+        return Redirect("/owner");
+    }
+
+    [HttpPost("/owner/social")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddSocial(string platformCode, string raw, CancellationToken ct)
+    {
+        var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var shop = await OwnedShop(userId, ct);
+        if (shop is null)
+            return View("NoShop");
+        var error = await _social.UpsertAsync(shop.ShopId, platformCode, raw, "owner", verified: false, ct);
+        TempData[error is null ? "Saved" : "SocialError"] = error ?? "Social link saved. It is live now.";
+        return Redirect("/owner");
+    }
+
+    [HttpPost("/owner/social/{id:long}/remove")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemoveSocial(long id, CancellationToken ct)
+    {
+        var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var shop = await OwnedShop(userId, ct);
+        if (shop is null)
+            return View("NoShop");
+        var error = await _social.RemoveAsync(shop.ShopId, id, ct);
+        TempData[error is null ? "Saved" : "SocialError"] = error ?? "Social link removed.";
+        return Redirect("/owner");
+    }
+
+    [HttpPost("/owner/social/{id:long}/move")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> MoveSocial(long id, int delta, CancellationToken ct)
+    {
+        var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var shop = await OwnedShop(userId, ct);
+        if (shop is null)
+            return View("NoShop");
+        await _social.MoveAsync(shop.ShopId, id, delta, ct);
         return Redirect("/owner");
     }
 

@@ -36,7 +36,7 @@ public sealed class ShopsController : Controller
         CancellationToken ct)
     {
         var dir = ShopDirectory.Parse(q, location, zip, specialty, sort, openNow, radiusMiles, lat, lng, page);
-        IQueryable<Shop> query = Active().Include(s => s.Tier).Include(s => s.Hours);
+        IQueryable<Shop> query = Active().Include(s => s.Tier).Include(s => s.Hours).Include(s => s.Socials).ThenInclude(x => x.Platform);
         if (!string.IsNullOrWhiteSpace(state))
             query = query.Where(s => s.StateCode == state.Trim().ToUpperInvariant());
         var candidates = await query
@@ -90,7 +90,8 @@ public sealed class ShopsController : Controller
         var code = state.Trim().ToUpperInvariant();
         if (code.Length != 2)
             return NotFound();
-        var shops = await Active().Include(s => s.Tier).Include(s => s.Hours).Where(s => s.StateCode == code)
+        var shops = await Active().Include(s => s.Tier).Include(s => s.Hours).Include(s => s.Socials).ThenInclude(x => x.Platform)
+            .Where(s => s.StateCode == code)
             .OrderBy(s => s.City).ThenBy(s => s.Name).ToListAsync(ct);
         _track.RecordMany(shops, ImpressionSurfaces.DirectoryState, "/shops/" + code.ToLowerInvariant());
         ViewBag.State = code;
@@ -108,7 +109,8 @@ public sealed class ShopsController : Controller
         if (code.Length != 2)
             return NotFound();
         var slug = city.Trim().ToLowerInvariant();
-        var shops = await Active().Include(s => s.Tier).Include(s => s.Hours).Where(s => s.StateCode == code).ToListAsync(ct);
+        var shops = await Active().Include(s => s.Tier).Include(s => s.Hours).Include(s => s.Socials).ThenInclude(x => x.Platform)
+            .Where(s => s.StateCode == code).ToListAsync(ct);
         shops = shops.Where(s => ShopCopy.CitySlug(s.City) == slug).OrderBy(s => s.Name).ToList();
         if (shops.Count == 0)
             return NotFound();
@@ -140,7 +142,8 @@ public sealed class ShopsController : Controller
             var term = q.Trim();
             query = query.Where(s => s.Name.Contains(term) || s.City.Contains(term));
         }
-        var shops = await query.OrderBy(s => s.Name).Take(200).ToListAsync(ct);
+        var shops = await query.Include(s => s.Socials).ThenInclude(x => x.Platform)
+            .OrderBy(s => s.Name).Take(200).ToListAsync(ct);
         if (string.Equals(source, "app", StringComparison.OrdinalIgnoreCase)
             || string.Equals(source, "maui", StringComparison.OrdinalIgnoreCase))
             _track.RecordMany(shops, ImpressionSurfaces.ApiApp, "/api/v1/shops");
@@ -156,7 +159,14 @@ public sealed class ShopsController : Controller
             loc = ShopCopy.Loc(s),
             lat = s.Latitude,
             lng = s.Longitude,
-            destination = s.IsDestinationShop
+            destination = s.IsDestinationShop,
+            socials = ShopSocialLinks.Resolve(s).Select(l => new
+            {
+                platform = l.PlatformCode,
+                label = l.Label,
+                url = l.Url,
+                handle = l.Handle
+            })
         }));
     }
 
@@ -165,11 +175,13 @@ public sealed class ShopsController : Controller
         var shop = await _db.Shops.AsNoTracking()
             .Include(s => s.Tier)
             .Include(s => s.Hours)
+            .Include(s => s.Socials).ThenInclude(x => x.Platform)
             .FirstOrDefaultAsync(s => s.Slug == slug && s.ListingStatus == "ACTIVE", ct);
         if (shop is null)
             return NotFound();
 
         var hours = shop.Hours.OrderBy(h => h.DayOfWeek).ToList();
+        var socials = ShopSocialLinks.Resolve(shop);
         var events = await _db.ShopEvents.AsNoTracking()
             .Where(e => e.ShopId == shop.ShopId && e.Status == "PUBLISHED" && e.StartsAt >= DateTime.UtcNow)
             .OrderBy(e => e.StartsAt)
@@ -197,11 +209,12 @@ public sealed class ShopsController : Controller
             ApprovedReviewCount = reviews.Count,
             AverageRating = reviews.Count == 0 ? null : (decimal)reviews.Average(),
             Offers = offers,
-            ImageUrl = leadPhoto is null ? null : origin + "/media/gplace/" + shop.ShopId + "/" + leadPhoto.Slot
+            ImageUrl = leadPhoto is null ? null : origin + "/media/gplace/" + shop.ShopId + "/" + leadPhoto.Slot,
+            SameAs = socials.Where(l => l.IsSameAs).Select(l => l.Url).ToList()
         });
 
         if (markdown)
-            return Content(ShopMarkdown.Render(shop, summary, hours, events, shop.Tier?.Name), "text/markdown; charset=utf-8");
+            return Content(ShopMarkdown.Render(shop, summary, hours, events, shop.Tier?.Name, socials), "text/markdown; charset=utf-8");
 
         _track.Record(shop.ShopId, ImpressionSurfaces.Detail, pageUrl: ShopCopy.Loc(shop));
         ViewData["Title"] = shop.Name;
@@ -219,7 +232,8 @@ public sealed class ShopsController : Controller
             Events = events,
             TierName = shop.Tier?.Name,
             Services = ShopCopy.ServiceLabels(shop, events),
-            Google = google
+            Google = google,
+            Socials = socials
         });
     }
 
@@ -248,4 +262,5 @@ public sealed class ShopDetailVm
     public IReadOnlyList<string> Services { get; init; } = [];
     public string? TierName { get; init; }
     public GooglePlaceView? Google { get; init; }
+    public IReadOnlyList<ShopSocialLink> Socials { get; init; } = [];
 }

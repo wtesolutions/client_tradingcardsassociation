@@ -1,0 +1,57 @@
+@{
+    var shop = (Ntca.Core.Shop)ViewBag.Shop;
+    var socials = ViewBag.Socials as IReadOnlyList<Ntca.Core.ShopSocial> ?? [];
+    var platforms = ViewBag.Platforms as IReadOnlyList<Ntca.Core.SocialPlatform> ?? [];
+    ViewData["Title"] = "Links · " + shop.Name;
+}
+<h1>@shop.Name — social links</h1>
+<p class="meta">@shop.City, @shop.StateCode · live edits, Source=sadmin. Accept @Html.Raw("@handle") or a full URL. Wrong-domain links are rejected.</p>
+@if (TempData["Saved"] is string msg) { <p class="card">@msg</p> }
+@if (TempData["Error"] is string err) { <p class="card" role="alert">@err</p> }
+@if (socials.Count == 0)
+{
+    <p>No links yet. Existing website / Facebook / Instagram columns migrate when you run <code>db/ssms/06_shop_social_SSMS.sql</code>.</p>
+}
+else
+{
+    <table>
+        <tr><th>Platform</th><th>URL</th><th>Handle</th><th>Src</th><th></th></tr>
+        @foreach (var row in socials)
+        {
+            <tr>
+                <td>@(row.Platform?.Label ?? row.PlatformCode)</td>
+                <td><a href="@row.Url" rel="noopener nofollow ugc" target="_blank">@row.Url</a></td>
+                <td>@row.Handle</td>
+                <td>@row.Source @(row.Verified ? "· verified" : "")</td>
+                <td>
+                    <form method="post" action="/SADMIN/shops/@shop.ShopId/social/@row.ShopSocialId/move" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <button class="btn ghost" name="delta" value="-1">Up</button>
+                        <button class="btn ghost" name="delta" value="1">Down</button>
+                    </form>
+                    <form method="post" action="/SADMIN/shops/@shop.ShopId/social/@row.ShopSocialId/remove" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <button class="btn ghost" type="submit">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+}
+<form method="post" action="/SADMIN/shops/@shop.ShopId/social" class="card">
+    @Html.AntiForgeryToken()
+    <p>
+        <label>Platform
+            <select name="platformCode">
+            @foreach (var p in platforms)
+            {
+                <option value="@p.Code">@p.Label</option>
+            }
+            </select>
+        </label>
+    </p>
+    <p><label>Handle or URL<br /><input name="raw" style="width:28rem" /></label></p>
+    <p><label><input type="checkbox" name="verified" value="true" /> Verified</label></p>
+    <button class="btn" type="submit">Add or update</button>
+</form>
+<p><a href="/SADMIN/shops/@shop.ShopId/stats">Stats</a> · <a href="/SADMIN/shops">All shops</a> · <a href="/SADMIN/social">Catalog</a></p>

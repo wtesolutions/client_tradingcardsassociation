@@ -165,6 +165,7 @@ static void AddNtcaServices(WebApplicationBuilder builder)
         client.Timeout = TimeSpan.FromSeconds(30);
     });
     builder.Services.AddScoped<GooglePlacesSync>();
+    builder.Services.AddScoped<ShopSocialEditor>();
     builder.Services.AddHostedService<GooglePlacesHostedService>();
 }
 

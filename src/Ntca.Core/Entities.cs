@@ -88,6 +88,7 @@ public sealed class Shop
     public DateTime UpdatedAt { get; set; }
     public ShopTier? Tier { get; set; }
     public ICollection<ShopHours> Hours { get; set; } = new List<ShopHours>();
+    public ICollection<ShopSocial> Socials { get; set; } = new List<ShopSocial>();
 }
 
 public sealed class ShopTier
@@ -625,4 +626,35 @@ public sealed class GoogleApiCallLog
     public string Sku { get; set; } = "";
     public int CallCount { get; set; }
     public DateTime UpdatedAt { get; set; }
+}
+
+public sealed class SocialPlatform
+{
+    public string Code { get; set; } = "";
+    public string Label { get; set; } = "";
+    public string? IconClass { get; set; }
+    public string? UrlPattern { get; set; }
+    public string? HostAllowlist { get; set; }
+    public string? HandlePrefix { get; set; }
+    public int DisplayOrder { get; set; }
+    public bool IsActive { get; set; } = true;
+    public string Kind { get; set; } = "URL";
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}
+
+public sealed class ShopSocial
+{
+    public long ShopSocialId { get; set; }
+    public long ShopId { get; set; }
+    public string PlatformCode { get; set; } = "";
+    public string Url { get; set; } = "";
+    public string? Handle { get; set; }
+    public int SortOrder { get; set; }
+    public bool Verified { get; set; }
+    public string Source { get; set; } = "seed";
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public Shop? Shop { get; set; }
+    public SocialPlatform? Platform { get; set; }
 }

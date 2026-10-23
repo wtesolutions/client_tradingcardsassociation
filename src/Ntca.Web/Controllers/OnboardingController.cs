@@ -230,7 +230,7 @@ public sealed class OnboardingController : Controller
         {
             "shop_find" => ("SHOP", answers.GetValueOrDefault("shopName"), answers.GetValueOrDefault("shopCity"),
                 answers.GetValueOrDefault("shopState"), answers.GetValueOrDefault("shopZip") ?? answers.GetValueOrDefault("zip"),
-                (Dictionary<string, string>?)null),
+                ShopSocialExtra(answers)),
             "show_find" => ("SHOW", answers.GetValueOrDefault("showTitle"), answers.GetValueOrDefault("showCity"),
                 answers.GetValueOrDefault("showState"), answers.GetValueOrDefault("showZip"),
                 new Dictionary<string, string> { ["starts"] = answers.GetValueOrDefault("showStarts") ?? "" }),
@@ -354,6 +354,12 @@ public sealed class OnboardingController : Controller
                 Set("shopCity", "shopCity");
                 Set("shopState", "shopState");
                 Set("shopZip", "shopZip");
+                Set("shopWebsite", "shopWebsite");
+                Set("shopFacebook", "shopFacebook");
+                Set("shopInstagram", "shopInstagram");
+                Set("shopTiktok", "shopTiktok");
+                Set("shopYoutube", "shopYoutube");
+                Set("shopWhatnot", "shopWhatnot");
                 break;
             case "shop_tier":
                 Set("tier", "tier");
@@ -435,6 +441,31 @@ public sealed class OnboardingController : Controller
         => token is Guid t && t != Guid.Empty
             ? $"/onboarding/{step}?token={t}"
             : "/onboarding/" + step;
+
+    private static Dictionary<string, string>? ShopSocialExtra(Dictionary<string, string> answers)
+    {
+        var extra = new Dictionary<string, string>();
+        void Take(string key, string platform)
+        {
+            if (!answers.TryGetValue(key, out var raw) || string.IsNullOrWhiteSpace(raw))
+                return;
+            if (ShopSocialNormalizer.TryNormalize(platform, raw, out var url, out var handle, out _))
+            {
+                extra[platform] = url;
+                if (!string.IsNullOrWhiteSpace(handle))
+                    extra[platform + "_handle"] = handle!;
+            }
+            else
+                extra[platform] = raw.Trim();
+        }
+        Take("shopWebsite", ShopSocialCatalog.Website);
+        Take("shopFacebook", ShopSocialCatalog.Facebook);
+        Take("shopInstagram", ShopSocialCatalog.Instagram);
+        Take("shopTiktok", ShopSocialCatalog.TikTok);
+        Take("shopYoutube", ShopSocialCatalog.YouTube);
+        Take("shopWhatnot", ShopSocialCatalog.Whatnot);
+        return extra.Count == 0 ? null : extra;
+    }
 
     private static string? Clip(string? value, int max)
     {

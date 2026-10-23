@@ -73,6 +73,17 @@
             <span class="owner-badge">Owner claimed</span>
         }
         <p class="shop-card-blurb">@blurb</p>
+        @{
+            var cardSocials = Ntca.Web.Services.ShopSocialLinks.Resolve(Model, 4);
+            ViewBag.SocialCompact = true;
+            ViewBag.SocialTake = 4;
+        }
+        @if (cardSocials.Count > 0)
+        {
+            <div class="shop-card-social">
+                @await Html.PartialAsync("~/Views/Shared/_SocialIcons.cshtml", cardSocials)
+            </div>
+        }
         <p class="shop-card-actions"><a class="btn ghost" href="/t/view?shop=@Model.ShopId">View shop</a></p>
     </div>
 </article>

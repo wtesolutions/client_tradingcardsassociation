@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@(ViewData["Title"] ?? "SADMIN") · NTCA staff</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body class="sadmin">
@@ -19,6 +20,7 @@
             <a href="/SADMIN/agents">AI Visitors</a> ·
             <a href="/SADMIN/funnel">Funnel</a> ·
             <a href="/SADMIN/google">Google</a> ·
+            <a href="/SADMIN/social">Social catalog</a> ·
             <a href="/">Public site</a>
         </nav>
         <form method="post" action="/SADMIN/logout" style="margin:0">@Html.AntiForgeryToken()<button class="btn ghost" type="submit">Sign out</button></form>

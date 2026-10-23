@@ -45,4 +45,56 @@
     <p><label>Description<br /><textarea name="Description" rows="4">@Model.Description</textarea></label></p>
     <button class="btn" type="submit">Submit for review</button>
 </form>
+<section class="card">
+    <h2>Social links</h2>
+    <p class="meta">These go live immediately — they are not queued. Accept an @Html.Raw("@handle") or a full URL. Whatnot has no Font Awesome icon; the public site shows a small W badge.</p>
+    @if (TempData["SocialError"] is string socialErr)
+    {
+        <p class="card" role="alert">@socialErr</p>
+    }
+    @{
+        var socials = ViewBag.Socials as IReadOnlyList<Ntca.Core.ShopSocial> ?? [];
+        var platforms = ViewBag.Platforms as IReadOnlyList<Ntca.Core.SocialPlatform> ?? [];
+    }
+    @if (socials.Count == 0)
+    {
+        <p class="meta">No social links yet.</p>
+    }
+    else
+    {
+        <ul class="social-edit">
+        @foreach (var row in socials)
+        {
+            <li>
+                <strong>@(row.Platform?.Label ?? row.PlatformCode)</strong>
+                <span class="meta">@row.Url</span>
+                <form method="post" action="/owner/social/@row.ShopSocialId/move" style="display:inline">
+                    @Html.AntiForgeryToken()
+                    <button class="btn ghost" name="delta" value="-1" type="submit">Up</button>
+                    <button class="btn ghost" name="delta" value="1" type="submit">Down</button>
+                </form>
+                <form method="post" action="/owner/social/@row.ShopSocialId/remove" style="display:inline">
+                    @Html.AntiForgeryToken()
+                    <button class="btn ghost" type="submit">Remove</button>
+                </form>
+            </li>
+        }
+        </ul>
+    }
+    <form method="post" action="/owner/social">
+        @Html.AntiForgeryToken()
+        <p>
+            <label>Platform<br />
+                <select name="platformCode">
+                @foreach (var p in platforms)
+                {
+                    <option value="@p.Code">@p.Label</option>
+                }
+                </select>
+            </label>
+        </p>
+        <p><label>Handle or URL<br /><input name="raw" placeholder="@Html.Raw("@shopname or https://…")" /></label></p>
+        <button class="btn" type="submit">Add or update link</button>
+    </form>
+</section>
 <form method="post" action="/owner/logout">@Html.AntiForgeryToken()<button class="btn ghost" type="submit">Sign out</button></form>

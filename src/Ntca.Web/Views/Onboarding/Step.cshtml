@@ -161,6 +161,13 @@ else if (step == "shop_find")
         <p><label for="shopCity">City<br /><input id="shopCity" name="shopCity" value="@Val("shopCity")" /></label></p>
         <p><label for="shopState">State<br /><input id="shopState" name="shopState" value="@Val("shopState")" maxlength="2" /></label></p>
         <p><label for="shopZip">ZIP<br /><input id="shopZip" name="shopZip" value="@Val("shopZip")" /></label></p>
+        <p class="meta">Optional socials (handle or full URL). Staff review these — they are not live.</p>
+        <p><label for="shopWebsite">Website<br /><input id="shopWebsite" name="shopWebsite" value="@Val("shopWebsite")" placeholder="https://" /></label></p>
+        <p><label for="shopFacebook">Facebook<br /><input id="shopFacebook" name="shopFacebook" value="@Val("shopFacebook")" /></label></p>
+        <p><label for="shopInstagram">Instagram<br /><input id="shopInstagram" name="shopInstagram" value="@Val("shopInstagram")" placeholder="@Html.Raw("@handle")" /></label></p>
+        <p><label for="shopTiktok">TikTok<br /><input id="shopTiktok" name="shopTiktok" value="@Val("shopTiktok")" /></label></p>
+        <p><label for="shopYoutube">YouTube<br /><input id="shopYoutube" name="shopYoutube" value="@Val("shopYoutube")" /></label></p>
+        <p><label for="shopWhatnot">Whatnot<br /><input id="shopWhatnot" name="shopWhatnot" value="@Val("shopWhatnot")" /></label></p>
         <button class="btn ghost" type="submit" name="add" value="1">Add my shop</button>
         <button class="btn ghost" type="submit">Continue without claiming</button>
     </form>

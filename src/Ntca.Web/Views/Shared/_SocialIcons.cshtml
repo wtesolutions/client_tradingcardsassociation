@@ -1,0 +1,36 @@
+@model IReadOnlyList<Ntca.Web.Services.ShopSocialLink>
+@{
+    var compact = ViewBag.SocialCompact as bool? == true;
+    var take = ViewBag.SocialTake as int? ?? 0;
+    var links = take > 0 ? Model.Take(take).ToList() : Model.ToList();
+}
+@if (links.Count > 0)
+{
+    <ul class="social-row@(compact ? " compact" : "")" aria-label="Shop links">
+    @foreach (var link in links)
+    {
+        <li>
+            <a href="@link.TrackHref" rel="noopener nofollow ugc" target="_blank" title="@link.Label">
+                <span class="visually-hidden">@link.Label</span>
+                @if (link.CustomIcon)
+                {
+                    <span class="social-whatnot" aria-hidden="true" title="Whatnot (no Font Awesome brand icon)">
+                        <svg viewBox="0 0 24 24" width="1em" height="1em" focusable="false">
+                            <rect x="2" y="2" width="20" height="20" rx="5" fill="currentColor" opacity=".14"/>
+                            <path fill="currentColor" d="M6.1 7h2.3l1.7 6.4L12 7h2.1l1.8 6.4L17.6 7H20l-3.1 10h-2.4L12.6 11 10.7 17H8.3L6.1 7z"/>
+                        </svg>
+                    </span>
+                }
+                else if (!string.IsNullOrEmpty(link.IconClass))
+                {
+                    <i class="@link.IconClass" aria-hidden="true"></i>
+                }
+                else
+                {
+                    <span aria-hidden="true">@link.Label</span>
+                }
+            </a>
+        </li>
+    }
+    </ul>
+}

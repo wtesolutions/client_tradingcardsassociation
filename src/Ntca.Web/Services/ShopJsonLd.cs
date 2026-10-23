@@ -16,6 +16,7 @@ public sealed class ShopSchemaInput
     public int ApprovedReviewCount { get; init; }
     public decimal? AverageRating { get; init; }
     public IReadOnlyList<ShopServiceOffer> Offers { get; init; } = [];
+    public IReadOnlyList<string> SameAs { get; init; } = [];
     public string? ImageUrl { get; init; }
     public string? LogoUrl { get; init; }
     public string? PriceRange { get; init; }
@@ -195,7 +196,7 @@ public static class ShopJsonLd
             ["url"] = input.CanonicalUrl
         };
         Set(store, "description", input.AiSummary);
-        var sameAs = SameAs(shop);
+        var sameAs = SameAs(input);
         if (sameAs.Count > 0)
             store["sameAs"] = sameAs;
         Set(store, "telephone", shop.Phone);
@@ -381,13 +382,17 @@ public static class ShopJsonLd
         return $"/shows/{st}/{city}/{e.Slug}";
     }
 
-    private static JsonArray SameAs(Shop shop)
+    private static JsonArray SameAs(ShopSchemaInput input)
     {
         var urls = new JsonArray();
-        AddUrl(urls, shop.WebsiteUrl);
-        AddUrl(urls, shop.FacebookUrl);
-        if (!string.IsNullOrWhiteSpace(shop.InstagramHandle))
-            urls.Add(ShopCopy.InstagramUrl(shop.InstagramHandle));
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var url in input.SameAs)
+            AddUrl(urls, url, seen);
+        if (urls.Count == 0)
+        {
+            foreach (var url in ShopSocialLinks.SameAs(input.Shop))
+                AddUrl(urls, url, seen);
+        }
         return urls;
     }
 
@@ -549,11 +554,14 @@ public static class ShopJsonLd
             obj[name] = value.Trim();
     }
 
-    private static void AddUrl(JsonArray arr, string? url)
+    private static void AddUrl(JsonArray arr, string? url, HashSet<string>? seen = null)
     {
-        if (!string.IsNullOrWhiteSpace(url) && Uri.TryCreate(url, UriKind.Absolute, out var u)
-            && (u.Scheme == Uri.UriSchemeHttp || u.Scheme == Uri.UriSchemeHttps))
-            arr.Add(url);
+        if (string.IsNullOrWhiteSpace(url) || !Uri.TryCreate(url, UriKind.Absolute, out var u)
+            || (u.Scheme != Uri.UriSchemeHttp && u.Scheme != Uri.UriSchemeHttps))
+            return;
+        if (seen is not null && !seen.Add(url))
+            return;
+        arr.Add(url);
     }
 
     private static string? JoinStreet(string? a, string? b)
