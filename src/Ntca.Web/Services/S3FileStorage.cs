@@ -37,6 +37,7 @@ public sealed class S3FileStorage : IFileStorage
             ContentType = string.IsNullOrWhiteSpace(contentType) ? MediaPaths.ContentType(key) : contentType,
             AutoCloseStream = false
         };
+        req.Headers.CacheControl = StorageSync.CacheControlFor(key);
         await _s3.PutObjectAsync(req, ct);
         return PublicUrl(relativePath);
     }

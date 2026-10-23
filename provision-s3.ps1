@@ -151,13 +151,14 @@ if ($DryRun) {
     Invoke-Aws (@("--profile", $Profile, "--region", $Region, "s3api", "put-bucket-policy", "--bucket", $Bucket, "--policy", "file://$policy"))
 }
 
+# S3FileStorage keys live at the bucket root (manufacturers/, gplace/, google-cache/, legacy/assets/), not uploads/.
 $appPolicy = Join-Path $Work "app-policy.json"
 @"
 {
   "Version": "2012-10-17",
   "Statement": [
     { "Sid": "ListBucket", "Effect": "Allow", "Action": ["s3:ListBucket", "s3:GetBucketLocation"], "Resource": "arn:aws:s3:::${Bucket}" },
-    { "Sid": "ObjectRW", "Effect": "Allow", "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"], "Resource": ["arn:aws:s3:::${Bucket}/*", "arn:aws:s3:::${Bucket}/legacy/*", "arn:aws:s3:::${Bucket}/google-cache/*"] }
+    { "Sid": "ObjectRW", "Effect": "Allow", "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"], "Resource": "arn:aws:s3:::${Bucket}/*" }
   ]
 }
 "@ | Set-Content -Path $appPolicy -Encoding utf8
@@ -198,6 +199,9 @@ Write-Host "dotnet user-secrets set `"Storage:Provider`" `"S3`""
 Write-Host "dotnet user-secrets set `"Storage:Bucket`" `"$Bucket`""
 Write-Host "dotnet user-secrets set `"Storage:Region`" `"$Region`""
 Write-Host "dotnet user-secrets set `"Storage:PublicBaseUrl`" `"$public`""
+Write-Host ""
+Write-Host "Widen existing $PolicyName (no new user):"
+Write-Host "  aws iam put-user-policy --user-name $UserName --policy-name $PolicyName-object-rw --policy-document '{`"Version`":`"2012-10-17`",`"Statement`":[{`"Sid`":`"ListBucket`",`"Effect`":`"Allow`",`"Action`":[`"s3:ListBucket`",`"s3:GetBucketLocation`"],`"Resource`":`"arn:aws:s3:::$Bucket`"},{`"Sid`":`"ObjectRW`",`"Effect`":`"Allow`",`"Action`":[`"s3:GetObject`",`"s3:PutObject`",`"s3:DeleteObject`"],`"Resource`":`"arn:aws:s3:::$Bucket/*`"}]}'"
 Write-Host "================================================================"
 
 Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue

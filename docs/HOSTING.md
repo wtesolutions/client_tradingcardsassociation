@@ -86,7 +86,7 @@ DbUp / schema apply (deploy job or a one-off SSMS session) uses **`ntca_migrator
 | Provider | Behavior |
 |---|---|
 | `Local` (Development default) | Writes `wwwroot/uploads`. Reads uploads first, then `legacy-site/` for `legacy/assets/…`. Public URLs are `/media/{key}`. |
-| `S3` | `AWSSDK.S3` against `Storage:Bucket` in `Storage:Region`. Public URLs use `Storage:PublicBaseUrl` (CloudFront). Credentials come from the default AWS chain (instance role, env vars, or shared profile) — **never from git**. |
+| `S3` | `AWSSDK.S3` against `Storage:Bucket` in `Storage:Region`. Public URLs use `Storage:PublicBaseUrl` (CloudFront). Credentials come from the default AWS chain (instance role, env vars, or `AWS_PROFILE`). Optional non-secret `Storage:Profile` selects a named shared profile. **Never from git.** |
 
 ### Provision the bucket (Eric)
 
@@ -123,4 +123,53 @@ dotnet user-secrets set "Storage:Region" "us-east-1"
 dotnet user-secrets set "Storage:PublicBaseUrl" "https://XXXXXXXX.cloudfront.net"
 ```
 
-Do not put access keys in `appsettings.json`.
+Do not put access keys — or the CloudFront URL / bucket IDs — in `appsettings.json`. User-secrets, IIS env, or docs only.
+
+### Object keys (must match IAM)
+
+`S3FileStorage` / `MediaPaths.ObjectKey` write at the **bucket root**, not under `uploads/`:
+
+| Local | S3 key |
+|---|---|
+| `wwwroot/uploads/manufacturers/skybox.jpg` | `manufacturers/skybox.jpg` |
+| `wwwroot/uploads/gplace/{shopId}/{slot}.jpg` | `gplace/{shopId}/{slot}.jpg` |
+| `legacy-site/assets/…` | `legacy/assets/…` |
+| Google cache (if used) | `google-cache/…` |
+
+A policy of only `arn:aws:s3:::BUCKET/uploads/*` 403s those keys. Object RW must be `arn:aws:s3:::BUCKET/*`.
+
+### Dev bucket (provisioned)
+
+These are not secrets; keep them out of `appsettings.json`.
+
+| Item | Value |
+|---|---|
+| Bucket | `ntca-tradingcardsassociation-media` |
+| Region | `us-east-1` |
+| CloudFront | `E3B0BMPLKILPJ3` · `https://dgo8ht4qmva4e.cloudfront.net` |
+| IAM user / policy | `ntca-media-dev` |
+
+### Mac: profile + sync
+
+```bash
+aws configure --profile ntca-media-dev
+# paste the ntca-media-dev access key (once; not committed)
+
+cd src/Ntca.Web
+dotnet user-secrets set "Storage:Provider" "S3"
+dotnet user-secrets set "Storage:Bucket" "ntca-tradingcardsassociation-media"
+dotnet user-secrets set "Storage:Region" "us-east-1"
+dotnet user-secrets set "Storage:PublicBaseUrl" "https://dgo8ht4qmva4e.cloudfront.net"
+# optional, instead of AWS_PROFILE:
+# dotnet user-secrets set "Storage:Profile" "ntca-media-dev"
+cd ../..
+
+# Widen the existing user policy if it was scoped to uploads/* (no new user):
+aws iam put-user-policy --user-name ntca-media-dev --policy-name ntca-media-dev-object-rw --policy-document '{"Version":"2012-10-17","Statement":[{"Sid":"ListBucket","Effect":"Allow","Action":["s3:ListBucket","s3:GetBucketLocation"],"Resource":"arn:aws:s3:::ntca-tradingcardsassociation-media"},{"Sid":"ObjectRW","Effect":"Allow","Action":["s3:GetObject","s3:PutObject","s3:DeleteObject"],"Resource":"arn:aws:s3:::ntca-tradingcardsassociation-media/*"}]}'
+
+AWS_PROFILE=ntca-media-dev dotnet run --project src/Ntca.Web -- storage sync --dry-run
+AWS_PROFILE=ntca-media-dev dotnet run --project src/Ntca.Web -- storage sync
+AWS_PROFILE=ntca-media-dev dotnet run --project src/Ntca.Web -- storage check
+```
+
+`storage sync` uploads every file under `wwwroot/uploads` and the legacy assets `LocalFileStorage` serves, using the same keys as `S3FileStorage`, with `Content-Type` and `Cache-Control`. Existing objects with the same size and ETag are skipped. `storage check` HEADs `manufacturers/skybox.jpg`, `legacy/assets/graded-slabs.jpeg`, and `legacy/assets/craig-lloyd.jpeg` via the S3 API and `PublicBaseUrl`.

@@ -237,6 +237,12 @@ JSON
 fi
 
 # --- IAM ---
+# S3FileStorage / MediaPaths write keys at the bucket root (not under uploads/):
+#   manufacturers/   logos (e.g. skybox.jpg)
+#   gplace/          Google Place photos
+#   google-cache/    expired by lifecycle
+#   legacy/assets/   legacy-site + gallery
+# A policy of only uploads/* 403s every live object. ObjectRW is BUCKET/*.
 cat > "$WORKDIR/app-policy.json" <<JSON
 {
   "Version": "2012-10-17",
@@ -251,12 +257,7 @@ cat > "$WORKDIR/app-policy.json" <<JSON
       "Sid": "ObjectRW",
       "Effect": "Allow",
       "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
-      "Resource": [
-        "arn:aws:s3:::${BUCKET}/*",
-        "arn:aws:s3:::${BUCKET}/legacy/*",
-        "arn:aws:s3:::${BUCKET}/google-cache/*",
-        "arn:aws:s3:::${BUCKET}/uploads/*"
-      ]
+      "Resource": "arn:aws:s3:::${BUCKET}/*"
     }
   ]
 }
@@ -322,5 +323,19 @@ dotnet user-secrets (from src/Ntca.Web):
 
 IAM: user ${USER_NAME}  policy ${POLICY_NAME}
 CloudFront: ${DIST_ID:-<id>}  ${PUBLIC_BASE}
+
+Widen an already-created ${POLICY_NAME} policy (no new user). Idempotent inline user policy:
+
+  aws iam put-user-policy --user-name ${USER_NAME} --policy-name ${POLICY_NAME}-object-rw --policy-document '{"Version":"2012-10-17","Statement":[{"Sid":"ListBucket","Effect":"Allow","Action":["s3:ListBucket","s3:GetBucketLocation"],"Resource":"arn:aws:s3:::${BUCKET}"},{"Sid":"ObjectRW","Effect":"Allow","Action":["s3:GetObject","s3:PutObject","s3:DeleteObject"],"Resource":"arn:aws:s3:::${BUCKET}/*"}]}'
+
+  ACCOUNT=\$(aws sts get-caller-identity --query Account --output text)
+  aws iam create-policy-version --policy-arn "arn:aws:iam::\${ACCOUNT}:policy/${POLICY_NAME}" --policy-document '{"Version":"2012-10-17","Statement":[{"Sid":"ListBucket","Effect":"Allow","Action":["s3:ListBucket","s3:GetBucketLocation"],"Resource":"arn:aws:s3:::${BUCKET}"},{"Sid":"ObjectRW","Effect":"Allow","Action":["s3:GetObject","s3:PutObject","s3:DeleteObject"],"Resource":"arn:aws:s3:::${BUCKET}/*"}]}' --set-as-default
+
+Then sync local media (from the repo root, Mac):
+
+  aws configure --profile ${USER_NAME}
+  AWS_PROFILE=${USER_NAME} dotnet run --project src/Ntca.Web -- storage sync --dry-run
+  AWS_PROFILE=${USER_NAME} dotnet run --project src/Ntca.Web -- storage sync
+  AWS_PROFILE=${USER_NAME} dotnet run --project src/Ntca.Web -- storage check
 ================================================================
 EOF

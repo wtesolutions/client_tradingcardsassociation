@@ -19,6 +19,7 @@ public sealed class StorageOptions
     public string? Bucket { get; set; }
     public string Region { get; set; } = "us-east-1";
     public string? PublicBaseUrl { get; set; }
+    public string? Profile { get; set; }
     public string LocalRoot { get; set; } = "wwwroot/uploads";
     public string? LegacyRoot { get; set; }
 

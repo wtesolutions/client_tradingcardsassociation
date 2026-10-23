@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Amazon;
 using Amazon.S3;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -11,7 +10,9 @@ using Ntca.Data;
 using Ntca.Web.Auth;
 using Ntca.Web.Services;
 
-if (args.Length > 0 && string.Equals(args[0], "google-places", StringComparison.OrdinalIgnoreCase))
+if (args.Length > 0 && (
+    string.Equals(args[0], "google-places", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(args[0], "storage", StringComparison.OrdinalIgnoreCase)))
 {
     var cli = WebApplication.CreateBuilder(new WebApplicationOptions
     {
@@ -20,7 +21,9 @@ if (args.Length > 0 && string.Equals(args[0], "google-places", StringComparison.
     });
     AddNtcaServices(cli);
     var cliApp = cli.Build();
-    Environment.ExitCode = await Ntca.Web.Services.GooglePlacesCli.RunAsync(cliApp.Services, args);
+    Environment.ExitCode = string.Equals(args[0], "storage", StringComparison.OrdinalIgnoreCase)
+        ? await Ntca.Web.Services.StorageCli.RunAsync(cliApp.Services, args)
+        : await Ntca.Web.Services.GooglePlacesCli.RunAsync(cliApp.Services, args);
     return;
 }
 
@@ -161,17 +164,10 @@ static void AddNtcaServices(WebApplicationBuilder builder)
     builder.Services.AddDbContext<NtcaDbContext>(opt =>
         opt.UseSqlServer(conn, sql => sql.EnableRetryOnFailure()));
     var storage = builder.Configuration.GetSection("Storage").Get<StorageOptions>() ?? new StorageOptions();
+    if (storage.UseS3 || !string.IsNullOrWhiteSpace(storage.ResolvedBucket))
+        builder.Services.AddSingleton<IAmazonS3>(_ => S3ClientFactory.Create(storage));
     if (storage.UseS3)
     {
-        builder.Services.AddSingleton<IAmazonS3>(_ =>
-        {
-            var cfg = new AmazonS3Config
-            {
-                RegionEndpoint = RegionEndpoint.GetBySystemName(
-                    string.IsNullOrWhiteSpace(storage.Region) ? "us-east-1" : storage.Region)
-            };
-            return new AmazonS3Client(cfg);
-        });
         builder.Services.AddSingleton<IFileStorage, S3FileStorage>();
     }
     else
