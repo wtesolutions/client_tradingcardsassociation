@@ -14,7 +14,8 @@
     <div class="shop-card-thumb @(Ntca.Web.Services.ShopCopy.MapThumbUrl(s) is null ? "ph" : "")">
         @if (Ntca.Web.Services.ShopCopy.MapThumbUrl(s) is string thumb)
         {
-            <img src="@thumb" alt="" width="120" height="120" />
+            <img src="@thumb" alt="" width="140" height="140" data-fallback="@Ntca.Web.Services.ShopCopy.MapTileUrl(s)"
+                 onerror="if(this.dataset.fallback&amp;&amp;this.src!==this.dataset.fallback)this.src=this.dataset.fallback;" />
             <span class="shop-card-pin" aria-hidden="true"></span>
         }
         else
@@ -25,12 +26,17 @@
         }
     </div>
     <div>
-        <p class="kicker">@s.City, @s.StateCode @(s.IsDestinationShop ? "· Destination shop" : "") @(string.IsNullOrEmpty(Model.TierName) ? "" : "· " + Model.TierName)</p>
+        <p class="shop-card-where">
+            <svg class="pin" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>
+            @s.City, @s.StateCode
+            @if (s.IsDestinationShop) { <span class="pill dest">Destination</span> }
+            @if (!string.IsNullOrEmpty(Model.TierName)) { <span class="pill">@Model.TierName</span> }
+        </p>
         <h1 class="shop-name">@s.Name</h1>
         <p class="shop-hero-actions">
             @if (!string.IsNullOrEmpty(s.Phone))
             {
-                <a class="btn" href="/t/phone?shop=@s.ShopId">Call</a>
+                <a class="btn ghost call" href="/t/phone?shop=@s.ShopId">Call</a>
             }
             @if (Ntca.Web.Services.ShopCopy.HasMappableAddress(s))
             {
@@ -38,7 +44,7 @@
             }
             @if (!string.IsNullOrEmpty(s.WebsiteUrl))
             {
-                <a class="btn ghost" href="/t/website?shop=@s.ShopId" rel="noopener">Website</a>
+                <a class="btn" href="/t/website?shop=@s.ShopId" rel="noopener">Website</a>
             }
         </p>
     </div>

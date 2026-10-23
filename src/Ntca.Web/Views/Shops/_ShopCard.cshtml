@@ -1,9 +1,9 @@
 @model Ntca.Core.Shop
 @{
-    var loc = Ntca.Web.Services.ShopCopy.Loc(Model);
     var miles = Ntca.Web.Services.ShopCopy.MilesFrom(Model, ViewBag.OriginLat as double?, ViewBag.OriginLng as double?);
     var milesLabel = Ntca.Web.Services.ShopCopy.FormatMiles(miles);
     var thumb = Ntca.Web.Services.ShopCopy.MapThumbUrl(Model);
+    var tile = Ntca.Web.Services.ShopCopy.MapTileUrl(Model);
     var spec = Ntca.Web.Services.ShopCopy.SpecialtyLabel(Model.PrimarySpecialty);
     var blurb = Ntca.Web.Services.ShopCopy.OneLine(Model);
     var tier = Model.Tier?.Name;
@@ -12,13 +12,14 @@
     <div class="shop-card-thumb @(thumb is null ? "ph" : "")">
         @if (thumb is not null)
         {
-            <img src="@thumb" alt="" width="96" height="96" loading="lazy" decoding="async" />
-            <span class="shop-card-pin" aria-hidden="true"></span>
+            <img src="@thumb" alt="" width="140" height="140" loading="lazy" decoding="async"
+                 data-fallback="@tile"
+                 onerror="if(this.dataset.fallback&amp;&amp;this.src!==this.dataset.fallback)this.src=this.dataset.fallback; else { this.remove(); this.parentElement.classList.add('ph'); }" />
         }
         else
         {
             <span class="shop-card-icon" aria-hidden="true">
-                <svg viewBox="0 0 48 48" width="40" height="40" fill="none"><rect x="10" y="8" width="28" height="32" rx="4" stroke="currentColor" stroke-width="2"/><path d="M16 18h16M16 24h12M16 30h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg viewBox="0 0 48 48" width="44" height="44" fill="none"><rect x="10" y="8" width="28" height="32" rx="4" stroke="currentColor" stroke-width="2"/><path d="M16 18h16M16 24h12M16 30h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             </span>
         }
         @if (milesLabel.Length > 0)
@@ -31,22 +32,28 @@
             <h3>@Model.Name</h3>
             @if (milesLabel.Length > 0)
             {
-                <span class="shop-card-chip">@milesLabel</span>
+                <span class="shop-card-miles">@milesLabel</span>
             }
         </div>
-        <p class="shop-card-where"><span aria-hidden="true">📍</span> @Model.City, @Model.StateCode</p>
+        <p class="shop-card-where">
+            <svg class="pin" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>
+            @Model.City, @Model.StateCode
+        </p>
         <p class="shop-card-pills">
-            @if (spec.Length > 0) { <span class="chip">@spec</span> }
-            @if (!string.IsNullOrEmpty(tier)) { <span class="chip">@tier</span> }
-            @if (Model.IsDestinationShop) { <span class="chip ok">Destination</span> }
+            @if (spec.Length > 0) { <span class="pill">@spec</span> }
+            @if (!string.IsNullOrEmpty(tier)) { <span class="pill">@tier</span> }
+            @if (Model.IsDestinationShop) { <span class="pill dest">Destination</span> }
         </p>
         <p class="shop-card-blurb">@blurb</p>
         <p class="shop-card-actions">
             @if (!string.IsNullOrWhiteSpace(Model.Phone))
             {
-                <a class="btn ghost" href="/t/phone?shop=@Model.ShopId">Call</a>
+                <a class="btn ghost call" href="/t/phone?shop=@Model.ShopId">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.5.6 3.6.1.4 0 .8-.3 1L6.6 10.8z"/></svg>
+                    Call
+                </a>
             }
-            <a class="btn" href="/t/view?shop=@Model.ShopId">View shop →</a>
+            <a class="btn view" href="/t/view?shop=@Model.ShopId">View shop →</a>
         </p>
     </div>
 </article>

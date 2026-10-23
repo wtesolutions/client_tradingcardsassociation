@@ -14,12 +14,14 @@ public sealed class ShopDirectoryTests
     }
 
     [Fact]
-    public void Map_thumb_uses_openstreetmap_tile_when_coords_exist()
+    public void Map_thumb_uses_openstreetmap_static_when_coords_exist()
     {
         var shop = new Shop { Latitude = 34.1808m, Longitude = -118.3090m };
         var url = ShopCopy.MapThumbUrl(shop);
-        Assert.StartsWith("https://tile.openstreetmap.org/14/", url);
-        Assert.EndsWith(".png", url);
+        Assert.Contains("staticmap.openstreetmap.de", url);
+        Assert.Contains("34.1808", url);
+        Assert.NotNull(ShopCopy.MapTileUrl(shop));
+        Assert.StartsWith("https://tile.openstreetmap.org/", ShopCopy.MapTileUrl(shop));
         Assert.Null(ShopCopy.MapThumbUrl(new Shop()));
     }
 

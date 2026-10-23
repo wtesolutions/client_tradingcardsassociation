@@ -171,7 +171,17 @@ public static class ShopCopy
         return Summary(shop);
     }
 
-    public static string? MapThumbUrl(Shop shop, int zoom = 14)
+    public static string? MapThumbUrl(Shop shop, int zoom = 15)
+    {
+        if (shop.Latitude is not { } lat || shop.Longitude is not { } lng)
+            return null;
+        var la = lat.ToString(CultureInfo.InvariantCulture);
+        var ln = lng.ToString(CultureInfo.InvariantCulture);
+        return "https://staticmap.openstreetmap.de/staticmap.php?center=" + la + "," + ln
+               + "&zoom=" + zoom + "&size=280x280&maptype=mapnik&markers=" + la + "," + ln + ",ol-marker";
+    }
+
+    public static string? MapTileUrl(Shop shop, int zoom = 15)
     {
         if (shop.Latitude is not { } lat || shop.Longitude is not { } lng)
             return null;

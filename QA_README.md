@@ -133,7 +133,7 @@ Verify:
 
 ## Mobile directory cards
 
-`/shops`, `/shops/{state}`, and `/shops/{state}/{city}` use the same card: OSM tile thumb + pin when lat/lng exist (35 seeded shops), otherwise a card-icon placeholder; specialty / tier / Destination pills; one-line blurb; **Call** (`/t/phone`) only if a phone exists; **View shop →** (`/t/view` → `CLICK_VIEW`). Sticky bar: search, ZIP, Near me (opt-in geolocation), state, distance sort. Desktop (≥960px): 2-column cards beside a Leaflet map. Shop detail has a compact header (map thumb, Call, Directions, Website). Check 390px (no horizontal scroll) and 1440px.
+`/shops`, `/shops/{state}`, and `/shops/{state}/{city}` use the same card (SoberNation-style layout, NTCA colors): OSM static-map thumb + pin when lat/lng exist (35 seeded shops; tile fallback), otherwise a card-icon placeholder; distance badge on the map and top-right when ZIP/Near me is set; outlined specialty / tier / Destination pills; one-line blurb; **Call** (`/t/phone`, icon, only if a phone exists); **View shop →** (`/t/view` → `CLICK_VIEW`). Sticky bar: search + ZIP, then Near me / state / distance sort. Desktop (≥960px): 2-column cards beside a Leaflet map. Shop detail has a compact header (map, Call, Directions, Website). Check 390px (no horizontal scroll) and 1440px. Try `/shops?zip=91502&sort=distance` for Burbank-area miles.
 
 ## AI concierge / VIP AI visitors
 
