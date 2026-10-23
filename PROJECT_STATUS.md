@@ -154,7 +154,7 @@ Static HTML/CSV snapshot used as seed input (`hobby-shop-directory.csv`, `shows.
 | `eba4172` | Mobile-first shop directory cards + Near me / ZIP distance |
 | `4133ffa` / `4a572a5` | Directory cards matched to Eric’s list layout (static-map thumbs, Call/View) |
 | `76e81b1` | Multi-step Preview signup funnel + SADMIN funnel report |
-| `49464f2` / `e7e944f` | Funnel polish: ZIP early, icon cards, travel radius, live result cards |
+| `49464f2` / `e7e944f` / `0d639c9` | Funnel polish: ZIP early, icon cards, travel radius, live result cards, shared ask intent |
 
 ---
 
