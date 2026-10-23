@@ -1,13 +1,14 @@
-/* Plain T-SQL for SSMS — SQLCMD Mode is NOT required.
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
    Database: wte_NtcaDatabase (hardcoded).
-   Requires db/ssms/06_shop_social_SSMS.sql first.
+   Requires db/06_shop_social.sql first.
    Idempotent. Verified 2026-10-23 from official public pages + published maps
    coordinates. Does not invent handles. Does not change name, phone, or address.
    Does not store Google ratings. Leave Boxseat hours empty.
    See docs/DATA_REVIEW.md.
 */
-
 USE [wte_NtcaDatabase];
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
 GO
 
 IF OBJECT_ID(N'dir.ShopSocial', N'U') IS NULL

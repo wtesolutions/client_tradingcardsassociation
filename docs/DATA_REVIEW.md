@@ -4,7 +4,7 @@ Staff flags from the first-10-shop pass. **Do not change names, phones, or addre
 
 The original research spreadsheet did not land on the agent VM. `SEED_17` applies only cells verified from official public pages and published maps listings on **2026-10-23**. Re-run is safe.
 
-Run `db/ssms/SEED_17_shop_enrichment_manual_SSMS.sql` after `06_shop_social_SSMS.sql`.
+Run `db/seed/SEED_17_shop_enrichment_manual.sql` (or the identical `db/ssms/SEED_17_shop_enrichment_manual_SSMS.sql`) after `06_shop_social.sql`.
 
 SADMIN flags live in `dir.Shop.ImportNotes` (`DATA_REVIEW 2026-10-23:`, `HOURS 2026-10-23:`, `GEO 2026-10-23:`). There is no separate review table.
 

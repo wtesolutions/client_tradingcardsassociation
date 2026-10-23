@@ -1,12 +1,11 @@
-/* SSMS: enable Query > SQLCMD Mode before running.
-   ':' directives and $(vars) fail if SQLCMD Mode is off.
-   Plain T-SQL (no SQLCMD Mode): db/ssms/04_onboarding_funnel_SSMS.sql
-   Idempotent: safe to run twice on an existing wte_NtcaDatabase.
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
+   Database: wte_NtcaDatabase (hardcoded).
+   Idempotent: safe to run twice on an existing database.
+   Adds two-stage Preview funnel columns to crm.SignupFunnel.
 */
-:setvar NtcaDatabase wte_NtcaDatabase
-:on error exit
-
-USE [$(NtcaDatabase)];
+USE [wte_NtcaDatabase];
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
 GO
 
 /* Two-stage Preview funnel: simple register, then skippable multi-role onboarding. */

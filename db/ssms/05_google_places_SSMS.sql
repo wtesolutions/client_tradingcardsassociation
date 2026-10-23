@@ -1,11 +1,11 @@
-/* Plain T-SQL for SSMS — SQLCMD Mode is NOT required.
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
    Database: wte_NtcaDatabase (hardcoded).
-   Idempotent: safe to run twice. No ':' directives, no $(vars).
-   Eric: open this file in SSMS connected to 10.100.1.87, select wte_NtcaDatabase, Execute.
+   Idempotent: safe to run twice on an existing database.
    Google Places cache is batch-only. Do not call Google from visitor requests.
 */
-
 USE [wte_NtcaDatabase];
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
 GO
 
 IF OBJECT_ID(N'dir.GooglePlaceMatch', N'U') IS NULL

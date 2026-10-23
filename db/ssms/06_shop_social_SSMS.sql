@@ -1,12 +1,11 @@
-/* Plain T-SQL for SSMS — SQLCMD Mode is NOT required.
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
    Database: wte_NtcaDatabase (hardcoded).
-   Idempotent: safe to run twice. No ':' directives, no $(vars).
-   Eric: open this file in SSMS connected to 10.100.1.87, select wte_NtcaDatabase, Execute.
+   Idempotent: safe to run twice on an existing database.
    Seeds the social platform catalog and migrates WebsiteUrl / FacebookUrl / InstagramHandle.
-   Real data only — does not invent handles.
 */
-
 USE [wte_NtcaDatabase];
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
 GO
 
 IF OBJECT_ID(N'dir.SocialPlatform', N'U') IS NULL

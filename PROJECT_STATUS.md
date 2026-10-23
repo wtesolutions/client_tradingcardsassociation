@@ -15,22 +15,20 @@ This file describes what is **actually on the branch**. Update it at the end of 
 | `db/00_create_database.sql` | Creates `wte_NtcaDatabase` if missing |
 | `db/01_schema.sql` | Assembled, **re-runnable** schema (`IF NOT EXISTS` / `CREATE OR ALTER`) |
 | `db/02_seed.sql` | Lookup MERGE (roles, shop tiers, features, site settings, QA SUPERADMIN) |
-| `db/03_app_login.sql` | Least-privilege `ntca_app` login; `EXECUTE` on app schemas including `analytics` |
-| `db/run_all.sql` | sqlcmd `:r` chain |
-| `db/run_all.sh` / `db/run_all.cmd` | Apply 00 → 01 → 02 → `SEED_*` → 03; default `NtcaMigratorPassword=__SKIP__` |
-| `db/NTCA_FULL_INSTALL.sql` | Same chain inlined for SSMS SQLCMD Mode (`wte_NtcaDatabase` / `NtcaAppDev2026x` defaults) |
-| `db/ssms/NTCA_FULL_INSTALL_SSMS.sql` | Plain T-SQL (no SQLCMD Mode); same defaults |
+| `db/03_app_login.sql` | Least-privilege `ntca_app` / `NtcaAppDev2026x`; optional `@MigratorPassword = N'__SKIP__'` |
+| `db/run_all.sh` / `db/run_all.cmd` | Apply 00 → 01 → 04 → 05 → 06 → 02 → `SEED_*` → 03 via sqlcmd on plain T-SQL files |
+| `db/NTCA_FULL_INSTALL.sql` | Same chain concatenated (plain T-SQL; SQLCMD Mode not required) |
+| `db/ssms/*_SSMS.sql` | Identical copies of the canonical `db/` scripts (Eric’s existing filenames) |
 | `db/source/ntca_schema.original.sql` | v1 tables |
 | `db/source/01_schema_additions.sql` | crm/cms/seo, owner hours/stats, industry figures, analytics impressions + **AI concierge** (`AgentUaRule` / `AgentVisit` / `AgentInquiry`) |
 | `db/source/01_schema_directory_calendar.sql` | Manufacturers, orgs, promoters, venues, exhibitors |
 | `db/tools/generate_seed.py` | `--schema-only` rebuilds `01_schema.sql` without rewriting seed docs |
-| `db/tools/generate_combined.py` | Writes `run_all.sql` + `NTCA_FULL_INSTALL.sql` |
+| `db/tools/generate_combined.py` | Writes `NTCA_FULL_INSTALL.sql` (plain T-SQL concat) |
+| `db/tools/generate_ssms.py` | Copies canonical `db/` scripts to identical `db/ssms/*_SSMS.sql` files |
 | `db/05_google_places.sql` | Idempotent Google Places match / 30-day cache / photo / call-log tables |
-| `db/ssms/05_google_places_SSMS.sql` | Same, plain T-SQL for Eric’s SSMS session |
 | `db/06_shop_social.sql` | Social platform catalog + `dir.ShopSocial`; migrates Website/Facebook/Instagram |
-| `db/ssms/06_shop_social_SSMS.sql` | Same, plain T-SQL for Eric’s SSMS session |
 | `db/seed/SEED_17_shop_enrichment_manual.sql` | Verified 2026-10-23 first-10 enrichment (socials, Beckett-only sites, coords, hours) + SADMIN review notes |
-| `db/ssms/SEED_17_shop_enrichment_manual_SSMS.sql` | Same, plain T-SQL |
+| `db/seed/SEED_18_legacy_content_fix.sql` | Corrected About bios + boys/hall gallery rows |
 | `docs/DATA_REVIEW.md` | First-10-shop flags (Birmingham / Cards And Stuff / ChicagoCards / Mojo / Simicards / Bakersfield) |
 
 **Seed files and live counts** (Docker SQL after a full `run_all` into `wte_NtcaDatabase`; second apply is idempotent):
@@ -190,7 +188,8 @@ Update the **Status** column when a later run lands the item.
 | Public restyle (navy/gold homepage, directory, shop detail) | **Done** (`ffd1616`) | specs in `docs/design/` |
 | Google Places batch sync | **Done** | Text Search match + nightly Details/photos; no Google calls on visitor paths; `/SADMIN/google`; SQL `05` |
 | Robust shop social links | **Done** (`9ad319b`) | `dir.SocialPlatform` + `dir.ShopSocial`; FA6 icons + Whatnot badge; `/t` click tracking; owner + SADMIN editors; SQL `06` |
-| SEED_17 manual shop enrichment | **In this change** | Official-page socials for Boxseat / Burbank / GAC; Beckett WEBSITE for Bakersfield + Wonder Water; lat/lng `manual-maps-2026-10-23`; Burbank + Bakersfield hours (owner-confirm). Review flags in `docs/DATA_REVIEW.md`. No Google ratings. No name/phone/address changes. |
+| SEED_17 manual shop enrichment | **Done** | Official-page socials for Boxseat / Burbank / GAC; Beckett WEBSITE for Bakersfield + Wonder Water; lat/lng `manual-maps-2026-10-23`; Burbank + Bakersfield hours (owner-confirm). Review flags in `docs/DATA_REVIEW.md`. |
+| Every `.sql` is plain T-SQL | **In this change** | No `:setvar` / `:on error` / `:r` / sqlcmd variables. SSMS works with SQLCMD Mode off. `db/ssms/*_SSMS.sql` are identical copies. `SqlCmdFreeTests` fails CI if a line starts with `:` or contains a dollar-paren token. |
 
 ### Remaining platform
 
@@ -259,7 +258,7 @@ brew install mssql-tools18
 sqlcmd -?
 ```
 
-Alternatives to SSMS: **Azure Data Studio** or the **SQL Server (mssql)** VS Code extension. For `NTCA_FULL_INSTALL.sql` you still need SQLCMD variable mode (`:setvar`).
+Alternatives to SSMS: **Azure Data Studio** or the **SQL Server (mssql)** VS Code extension. Every `.sql` file is plain T-SQL — SQLCMD Mode is not required.
 
 ### 3.4 Clone / fetch this branch
 
@@ -276,25 +275,20 @@ Already cloned: `git pull origin app/ntca-platform`.
 
 ```bash
 cd db
-./run_all.sh -S localhost,1433 -U sa -P 'NtcaSqlDev2026x' -C \
-  -v NtcaAppPassword='NtcaAppDev2026x'
+./run_all.sh -S localhost,1433 -U sa -P 'NtcaSqlDev2026x' -C
 ```
 
 HAMMER example:
 
 ```bash
-./run_all.sh -S HAMMER -E -v NtcaAppPassword='YourAppPasswordHere'
+./run_all.sh -S HAMMER -E
 ```
 
-A second `run_all` is safe. `$(NtcaAppPassword)` is required. `NtcaMigratorPassword` defaults to `__SKIP__`.
+A second `run_all` is safe. App login is hardcoded `ntca_app` / `NtcaAppDev2026x` (DEV ONLY). Optional migrator: edit `DECLARE @MigratorPassword` at the top of `03_app_login.sql` (default `N'__SKIP__'`).
 
-SSMS / Azure Data Studio: enable SQLCMD Mode, open `db/NTCA_FULL_INSTALL.sql`:
+SSMS / Azure Data Studio: open `db/NTCA_FULL_INSTALL.sql` (or the identical `db/ssms/NTCA_FULL_INSTALL_SSMS.sql`) and Execute. SQLCMD Mode is not required.
 
-```
-:setvar NtcaDatabase wte_NtcaDatabase
-:setvar NtcaAppLogin ntca_app
-:setvar NtcaAppPassword NtcaAppDev2026x
-```
+**Existing QA database:** run `04_onboarding_funnel.sql`, `05_google_places.sql`, `06_shop_social.sql`, `SEED_17_shop_enrichment_manual.sql`, `SEED_18_legacy_content_fix.sql` in that order.
 
 ### 3.6 App connection
 
@@ -358,10 +352,9 @@ Use a real browser (or `curl -A "Mozilla/5.0 …"`). Bare `curl`/`wget` count as
 |---|---|
 | Port 1433 in use | `docker ps`; stop the other SQL container or publish `-p 14333:1433` and use `localhost,14333` |
 | Certificate / encrypt errors | `TrustServerCertificate=True` in the connection string; sqlcmd `-C` |
-| sqlcmd truncates the password | Do not use `#` in `-v` passwords |
+| `Incorrect syntax near ':'` | You opened an old SQLCMD copy. Pull this branch — every `.sql` is now plain T-SQL |
 | Apple Silicon image errors | Enable Docker Rosetta; keep `--platform linux/amd64` |
-| `NtcaAppPassword` missing | `run_all.sh` exits until you pass `-v NtcaAppPassword=...` |
-| Re-run `run_all` | Safe. Schema is guarded; seeds MERGE; migrator skipped unless you set a real migrator password |
+| Re-run `run_all` | Safe. Schema is guarded; seeds MERGE; migrator skipped unless you edit `@MigratorPassword` |
 | Site starts but queries fail | Development shows a friendly DB-down page. Check VPN to `10.100.1.87`, or `dotnet user-secrets list` if a local connection string is overriding |
 | No login code | Watch the `dotnet run` terminal, not the browser |
 )

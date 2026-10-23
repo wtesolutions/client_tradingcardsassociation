@@ -1,6 +1,5 @@
-/* SSMS: enable Query > SQLCMD Mode before running.
-   ':' directives (:on error, :setvar, :r) and $(vars) fail if SQLCMD Mode is off.
-   Plain T-SQL (no SQLCMD Mode): db/ssms/NTCA_FULL_INSTALL_SSMS.sql
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
+   Database: wte_NtcaDatabase (hardcoded).
 */
 /* Staff-authored from the Oct 22, 2026 Gary Vaynerchuk dossier (WTE / NTCA).
    Facts only. Short quotes are attributed. No invented dates or appearances.
@@ -8,8 +7,7 @@
    card-show appearance with date + location for Oct 2026–early 2027.
    Idempotent MERGE. Safe to re-run.
 */
-:on error exit
-USE [$(NtcaDatabase)];
+USE [wte_NtcaDatabase];
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO

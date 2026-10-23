@@ -1,13 +1,11 @@
-/* SSMS: enable Query > SQLCMD Mode before running.
-   ':' directives (:on error, :setvar, :r) and $(vars) fail if SQLCMD Mode is off.
-   Plain T-SQL (no SQLCMD Mode): db/ssms/SEED_18_legacy_content_fix_SSMS.sql
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
+   Database: wte_NtcaDatabase (hardcoded).
 */
 /* Correct concatenated SEED_40 bios from legacy-site/about.html
    and add gallery rows for the About boys photo and Network hall photo.
    Real content only. Idempotent MERGE.
 */
-:on error exit
-USE [$(NtcaDatabase)];
+USE [wte_NtcaDatabase];
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO

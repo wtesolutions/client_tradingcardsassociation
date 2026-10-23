@@ -1,11 +1,13 @@
-/* Plain T-SQL for SSMS — SQLCMD Mode is NOT required.
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
    Database: wte_NtcaDatabase (hardcoded).
-   Corrects concatenated SEED_40 bios from legacy-site/about.html
-   and adds gallery rows for the About boys photo and Network hall photo.
-   Idempotent. Real content only.
 */
-
+/* Correct concatenated SEED_40 bios from legacy-site/about.html
+   and add gallery rows for the About boys photo and Network hall photo.
+   Real content only. Idempotent MERGE.
+*/
 USE [wte_NtcaDatabase];
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
 GO
 DECLARE @Now DATETIME2(3) = SYSUTCDATETIME();
 

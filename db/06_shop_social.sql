@@ -1,14 +1,11 @@
-/* SSMS: enable Query > SQLCMD Mode before running.
-   ':' directives and $(vars) fail if SQLCMD Mode is off.
-   Plain T-SQL (no SQLCMD Mode): db/ssms/06_shop_social_SSMS.sql
-   Idempotent: safe to run twice on an existing wte_NtcaDatabase.
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
+   Database: wte_NtcaDatabase (hardcoded).
+   Idempotent: safe to run twice on an existing database.
    Seeds the social platform catalog and migrates WebsiteUrl / FacebookUrl / InstagramHandle.
-   Real data only — does not invent handles.
 */
-:setvar NtcaDatabase wte_NtcaDatabase
-:on error exit
-
-USE [$(NtcaDatabase)];
+USE [wte_NtcaDatabase];
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
 GO
 
 IF OBJECT_ID(N'dir.SocialPlatform', N'U') IS NULL

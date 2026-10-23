@@ -1,133 +1,86 @@
-/* SSMS: enable Query > SQLCMD Mode before running.
-   ':' directives (:on error, :setvar, :r) and $(vars) fail if SQLCMD Mode is off.
-   Plain T-SQL (no SQLCMD Mode): db/ssms/NTCA_FULL_INSTALL_SSMS.sql
-*/
-/* Least-privilege SQL Server logins for the NTCA app (IIS / ASP.NET Core).
-   Required:  -v NtcaAppPassword=...   -v NtcaDatabase=wte_NtcaDatabase
-   Optional:  -v NtcaMigratorPassword=...  (creates ntca_migrator with DDL)
-              -v NtcaAppLogin=ntca_app
-              -v NtcaMigratorLogin=ntca_migrator
-
-   Passwords MUST NOT be committed. This script fails if NtcaAppPassword is empty.
-
-   HAMMER (Windows auth DBA session):
-     sqlcmd -S HAMMER -E -i 03_app_login.sql -v NtcaDatabase=wte_NtcaDatabase -v NtcaAppPassword="***"
-
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
+   Least-privilege login ntca_app for the NTCA app (IIS / ASP.NET Core).
+   DEV ONLY password NtcaAppDev2026x — change for production.
+   Optional migrator: edit @MigratorPassword below (same batch). Default skips it.
    CHECK_POLICY = ON. Login is db_datareader + db_datawriter + EXECUTE on app
    schemas. Not db_owner, no CREATE TABLE.
 */
-:on error exit
+SET XACT_ABORT ON;
 
-IF LEN(N'$(NtcaDatabase)') = 0 OR N'$(NtcaDatabase)' = N'$' + N'(NtcaDatabase)'
-BEGIN
-    RAISERROR('NtcaDatabase was not supplied. Pass -v NtcaDatabase=wte_NtcaDatabase.', 16, 1);
-    RETURN;
-END
-IF LEN(N'$(NtcaAppPassword)') = 0 OR N'$(NtcaAppPassword)' = N'$' + N'(NtcaAppPassword)'
-BEGIN
-    RAISERROR('NtcaAppPassword was not supplied. Pass -v NtcaAppPassword=*** (do not commit it).', 16, 1);
-    RETURN;
-END
-GO
-
-IF LEN(N'$(NtcaAppLogin)') = 0 OR N'$(NtcaAppLogin)' = N'$' + N'(NtcaAppLogin)'
-    RAISERROR('NtcaAppLogin missing — run_all.cmd/.sh sets ntca_app.', 16, 1);
-GO
+DECLARE @MigratorPassword NVARCHAR(128) = N'__SKIP__';
 
 USE [master];
-GO
 
-IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'$(NtcaAppLogin)')
-BEGIN
-    DECLARE @create_app nvarchar(max) = N'CREATE LOGIN [' + REPLACE(N'$(NtcaAppLogin)', N']', N']]')
-        + N'] WITH PASSWORD = N''' + REPLACE(N'$(NtcaAppPassword)', N'''', N'''''')
-        + N''', CHECK_POLICY = ON, CHECK_EXPIRATION = OFF, DEFAULT_DATABASE = ['
-        + REPLACE(N'$(NtcaDatabase)', N']', N']]') + N']';
-    EXEC (@create_app);
-    PRINT 'Created login $(NtcaAppLogin)';
-END
+IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'ntca_app')
+    CREATE LOGIN [ntca_app] WITH PASSWORD = N'NtcaAppDev2026x', CHECK_POLICY = ON, CHECK_EXPIRATION = OFF, DEFAULT_DATABASE = [wte_NtcaDatabase];
 ELSE
-BEGIN
-    DECLARE @alter_app nvarchar(max) = N'ALTER LOGIN [' + REPLACE(N'$(NtcaAppLogin)', N']', N']]')
-        + N'] WITH PASSWORD = N''' + REPLACE(N'$(NtcaAppPassword)', N'''', N'''''')
-        + N''' UNLOCK, CHECK_POLICY = ON';
-    EXEC (@alter_app);
-    PRINT 'Updated password for existing login $(NtcaAppLogin)';
-END
-GO
+    ALTER LOGIN [ntca_app] WITH PASSWORD = N'NtcaAppDev2026x' UNLOCK, CHECK_POLICY = ON;
+PRINT 'Login ntca_app ready (DEV ONLY password NtcaAppDev2026x — change for production)';
 
-USE [$(NtcaDatabase)];
-GO
+USE [wte_NtcaDatabase];
 
-IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'$(NtcaAppLogin)')
-    CREATE USER [$(NtcaAppLogin)] FOR LOGIN [$(NtcaAppLogin)];
-GO
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'ntca_app')
+    CREATE USER [ntca_app] FOR LOGIN [ntca_app];
 
-ALTER ROLE db_datareader ADD MEMBER [$(NtcaAppLogin)];
-ALTER ROLE db_datawriter ADD MEMBER [$(NtcaAppLogin)];
-GO
+ALTER ROLE db_datareader ADD MEMBER [ntca_app];
+ALTER ROLE db_datawriter ADD MEMBER [ntca_app];
 
-GRANT EXECUTE ON SCHEMA::core  TO [$(NtcaAppLogin)];
-GRANT EXECUTE ON SCHEMA::dir   TO [$(NtcaAppLogin)];
-GRANT EXECUTE ON SCHEMA::bill  TO [$(NtcaAppLogin)];
-GRANT EXECUTE ON SCHEMA::mkt   TO [$(NtcaAppLogin)];
-GRANT EXECUTE ON SCHEMA::feed  TO [$(NtcaAppLogin)];
-GRANT EXECUTE ON SCHEMA::ugc   TO [$(NtcaAppLogin)];
-GRANT EXECUTE ON SCHEMA::karma TO [$(NtcaAppLogin)];
-GRANT EXECUTE ON SCHEMA::crm   TO [$(NtcaAppLogin)];
-GRANT EXECUTE ON SCHEMA::cms   TO [$(NtcaAppLogin)];
-GRANT EXECUTE ON SCHEMA::seo   TO [$(NtcaAppLogin)];
-GRANT EXECUTE ON SCHEMA::analytics TO [$(NtcaAppLogin)];
-GO
+GRANT EXECUTE ON SCHEMA::core  TO [ntca_app];
+GRANT EXECUTE ON SCHEMA::dir   TO [ntca_app];
+GRANT EXECUTE ON SCHEMA::bill  TO [ntca_app];
+GRANT EXECUTE ON SCHEMA::mkt   TO [ntca_app];
+GRANT EXECUTE ON SCHEMA::feed  TO [ntca_app];
+GRANT EXECUTE ON SCHEMA::ugc   TO [ntca_app];
+GRANT EXECUTE ON SCHEMA::karma TO [ntca_app];
+GRANT EXECUTE ON SCHEMA::crm   TO [ntca_app];
+GRANT EXECUTE ON SCHEMA::cms   TO [ntca_app];
+GRANT EXECUTE ON SCHEMA::seo   TO [ntca_app];
+GRANT EXECUTE ON SCHEMA::analytics TO [ntca_app];
 
-PRINT 'Granted db_datareader, db_datawriter, EXECUTE on app schemas to $(NtcaAppLogin) (not db_owner)';
-GO
+PRINT 'Granted db_datareader, db_datawriter, EXECUTE on app schemas to ntca_app (not db_owner)';
 
-IF LEN(N'$(NtcaMigratorPassword)') > 0
-   AND N'$(NtcaMigratorPassword)' <> N'$' + N'(NtcaMigratorPassword)'
-   AND N'$(NtcaMigratorPassword)' <> N'__SKIP__'
-   AND LEN(N'$(NtcaMigratorLogin)') > 0
-   AND N'$(NtcaMigratorLogin)' <> N'$' + N'(NtcaMigratorLogin)'
+IF @MigratorPassword IS NOT NULL
+   AND LEN(@MigratorPassword) > 0
+   AND @MigratorPassword <> N'__SKIP__'
 BEGIN
     USE [master];
-    IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'$(NtcaMigratorLogin)')
+    IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'ntca_migrator')
     BEGIN
-        DECLARE @create_mig nvarchar(max) = N'CREATE LOGIN [' + REPLACE(N'$(NtcaMigratorLogin)', N']', N']]')
-            + N'] WITH PASSWORD = N''' + REPLACE(N'$(NtcaMigratorPassword)', N'''', N'''''')
-            + N''', CHECK_POLICY = ON, CHECK_EXPIRATION = OFF, DEFAULT_DATABASE = ['
-            + REPLACE(N'$(NtcaDatabase)', N']', N']]') + N']';
+        DECLARE @create_mig nvarchar(max) = N'CREATE LOGIN [ntca_migrator] WITH PASSWORD = N'''
+            + REPLACE(@MigratorPassword, N'''', N'''''')
+            + N''', CHECK_POLICY = ON, CHECK_EXPIRATION = OFF, DEFAULT_DATABASE = [wte_NtcaDatabase]';
         EXEC (@create_mig);
-        PRINT 'Created login $(NtcaMigratorLogin)';
+        PRINT 'Created login ntca_migrator';
     END
     ELSE
     BEGIN
-        DECLARE @alter_mig nvarchar(max) = N'ALTER LOGIN [' + REPLACE(N'$(NtcaMigratorLogin)', N']', N']]')
-            + N'] WITH PASSWORD = N''' + REPLACE(N'$(NtcaMigratorPassword)', N'''', N'''''')
+        DECLARE @alter_mig nvarchar(max) = N'ALTER LOGIN [ntca_migrator] WITH PASSWORD = N'''
+            + REPLACE(@MigratorPassword, N'''', N'''''')
             + N''' UNLOCK, CHECK_POLICY = ON';
         EXEC (@alter_mig);
-        PRINT 'Updated password for existing login $(NtcaMigratorLogin)';
+        PRINT 'Updated password for existing login ntca_migrator';
     END
 
-    USE [$(NtcaDatabase)];
-    IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'$(NtcaMigratorLogin)')
-        CREATE USER [$(NtcaMigratorLogin)] FOR LOGIN [$(NtcaMigratorLogin)];
+    USE [wte_NtcaDatabase];
+    IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N'ntca_migrator')
+        CREATE USER [ntca_migrator] FOR LOGIN [ntca_migrator];
 
-    ALTER ROLE db_ddladmin ADD MEMBER [$(NtcaMigratorLogin)];
-    ALTER ROLE db_datareader ADD MEMBER [$(NtcaMigratorLogin)];
-    ALTER ROLE db_datawriter ADD MEMBER [$(NtcaMigratorLogin)];
-    GRANT EXECUTE ON SCHEMA::core  TO [$(NtcaMigratorLogin)];
-    GRANT EXECUTE ON SCHEMA::dir   TO [$(NtcaMigratorLogin)];
-    GRANT EXECUTE ON SCHEMA::bill  TO [$(NtcaMigratorLogin)];
-    GRANT EXECUTE ON SCHEMA::mkt   TO [$(NtcaMigratorLogin)];
-    GRANT EXECUTE ON SCHEMA::feed  TO [$(NtcaMigratorLogin)];
-    GRANT EXECUTE ON SCHEMA::ugc   TO [$(NtcaMigratorLogin)];
-    GRANT EXECUTE ON SCHEMA::karma TO [$(NtcaMigratorLogin)];
-    GRANT EXECUTE ON SCHEMA::crm   TO [$(NtcaMigratorLogin)];
-    GRANT EXECUTE ON SCHEMA::cms   TO [$(NtcaMigratorLogin)];
-    GRANT EXECUTE ON SCHEMA::seo   TO [$(NtcaMigratorLogin)];
-    GRANT EXECUTE ON SCHEMA::analytics TO [$(NtcaMigratorLogin)];
-    PRINT 'Granted db_ddladmin + data read/write/exec to $(NtcaMigratorLogin) (not db_owner)';
+    ALTER ROLE db_ddladmin ADD MEMBER [ntca_migrator];
+    ALTER ROLE db_datareader ADD MEMBER [ntca_migrator];
+    ALTER ROLE db_datawriter ADD MEMBER [ntca_migrator];
+    GRANT EXECUTE ON SCHEMA::core  TO [ntca_migrator];
+    GRANT EXECUTE ON SCHEMA::dir   TO [ntca_migrator];
+    GRANT EXECUTE ON SCHEMA::bill  TO [ntca_migrator];
+    GRANT EXECUTE ON SCHEMA::mkt   TO [ntca_migrator];
+    GRANT EXECUTE ON SCHEMA::feed  TO [ntca_migrator];
+    GRANT EXECUTE ON SCHEMA::ugc   TO [ntca_migrator];
+    GRANT EXECUTE ON SCHEMA::karma TO [ntca_migrator];
+    GRANT EXECUTE ON SCHEMA::crm   TO [ntca_migrator];
+    GRANT EXECUTE ON SCHEMA::cms   TO [ntca_migrator];
+    GRANT EXECUTE ON SCHEMA::seo   TO [ntca_migrator];
+    GRANT EXECUTE ON SCHEMA::analytics TO [ntca_migrator];
+    PRINT 'Granted db_ddladmin + data read/write/exec to ntca_migrator (not db_owner)';
 END
 ELSE
-    PRINT 'NtcaMigratorPassword not supplied — skipped migrator login';
+    PRINT 'Migrator password is __SKIP__ — skipped migrator login';
 GO

@@ -1,10 +1,11 @@
-/* Plain T-SQL for SSMS — SQLCMD Mode is NOT required.
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
    Database: wte_NtcaDatabase (hardcoded).
-   Idempotent: safe to run twice. No ':' directives, no $(vars).
-   Eric: open this file in SSMS connected to 10.100.1.87, select wte_NtcaDatabase, Execute.
+   Idempotent: safe to run twice on an existing database.
+   Adds two-stage Preview funnel columns to crm.SignupFunnel.
 */
-
 USE [wte_NtcaDatabase];
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
 GO
 
 /* Two-stage Preview funnel: simple register, then skippable multi-role onboarding. */

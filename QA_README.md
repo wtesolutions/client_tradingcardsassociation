@@ -6,21 +6,21 @@ Draft branch only. **Do not merge to `main`.** Runtime is **.NET 9** (SDK 9.0.x)
 
 - .NET 9 SDK (`dotnet --list-sdks`)
 - SQL Server 2019+ reachable. **Development default** is Eric’s box `10.100.1.87,1433` / `wte_NtcaDatabase` / `ntca_app` (VPN). Docker/localhost still works via user-secrets.
-- `sqlcmd` **or** SSMS with SQLCMD Mode
+- `sqlcmd` **or** SSMS (plain T-SQL — SQLCMD Mode is not required)
 
 ### Windows
 
 ```bat
 winget install Microsoft.DotNet.SDK.9
 cd db
-run_all.cmd -S HAMMER -E -v NtcaAppPassword="YourAppPasswordHere"
+run_all.cmd -S HAMMER -E
 ```
 
 Docker alternative:
 
 ```bat
 docker run -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD="NtcaSqlDev2026x" -p 1433:1433 --name ntca-sql -d mcr.microsoft.com/mssql/server:2022-latest
-run_all.cmd -S localhost,1433 -U sa -P "NtcaSqlDev2026x" -C -v NtcaAppPassword="NtcaAppDev2026x"
+run_all.cmd -S localhost,1433 -U sa -P "NtcaSqlDev2026x" -C
 ```
 
 ### macOS
@@ -29,23 +29,20 @@ run_all.cmd -S localhost,1433 -U sa -P "NtcaSqlDev2026x" -C -v NtcaAppPassword="
 brew install --cask dotnet-sdk
 # sqlcmd: brew tap microsoft/mssql-release && brew install mssql-tools18
 cd db
-./run_all.sh -S localhost,1433 -U sa -P 'NtcaSqlDev2026x' -C \
-  -v NtcaAppPassword='NtcaAppDev2026x'
+./run_all.sh -S localhost,1433 -U sa -P 'NtcaSqlDev2026x' -C
 ```
 
-SSMS **without** SQLCMD Mode: open `db/ssms/NTCA_FULL_INSTALL_SSMS.sql` and Execute (database `wte_NtcaDatabase`, login `ntca_app` / `NtcaAppDev2026x` — DEV ONLY).
+SSMS: open `db/NTCA_FULL_INSTALL.sql` (or the identical `db/ssms/NTCA_FULL_INSTALL_SSMS.sql`) and Execute. Database `wte_NtcaDatabase`, login `ntca_app` / `NtcaAppDev2026x` — DEV ONLY. SQLCMD Mode is not required.
 
-**Existing QA database (Eric already has 186 shops):** run **`db/ssms/04_onboarding_funnel_SSMS.sql`**, then **`db/ssms/05_google_places_SSMS.sql`**, then **`db/ssms/06_shop_social_SSMS.sql`**, then **`db/ssms/SEED_17_shop_enrichment_manual_SSMS.sql`** in SSMS (plain T-SQL, no SQLCMD Mode). `04` adds two-stage funnel columns. `05` adds Google Places match/cache/photo/call-log tables. `06` adds the social platform catalog + `dir.ShopSocial` and migrates existing Website / Facebook / Instagram fields. `SEED_17` applies the 2026-10-23 verified first-10 enrichment (Boxseat / Burbank / GamesandCards socials, Beckett-only websites for Bakersfield and Wonder Water, descriptions, lat/lng, Burbank + Bakersfield hours) plus SADMIN review notes (`docs/DATA_REVIEW.md`). All four are safe to run twice. SQLCMD copies: `db/04_onboarding_funnel.sql`, `db/05_google_places.sql`, `db/06_shop_social.sql`, `db/seed/SEED_17_shop_enrichment_manual.sql`.
+**Existing QA database (Eric already has 186 shops):** run these five scripts in order (open either `db/` or the identical `db/ssms/*_SSMS.sql` copy):
 
-SSMS with SQLCMD Mode: open `db/NTCA_FULL_INSTALL.sql` (defaults already set) or:
+1. `04_onboarding_funnel.sql` — two-stage funnel columns
+2. `05_google_places.sql` — Google Places match/cache/photo/call-log tables
+3. `06_shop_social.sql` — social platform catalog + `dir.ShopSocial` (migrates Website / Facebook / Instagram)
+4. `SEED_17_shop_enrichment_manual.sql` — 2026-10-23 verified first-10 enrichment (Boxseat / Burbank / GamesandCards socials, Beckett-only websites for Bakersfield and Wonder Water, descriptions, lat/lng, Burbank + Bakersfield hours) plus SADMIN review notes (`docs/DATA_REVIEW.md`)
+5. `SEED_18_legacy_content_fix.sql` — corrected About bios + boys/hall gallery rows
 
-```
-:setvar NtcaDatabase wte_NtcaDatabase
-:setvar NtcaAppLogin ntca_app
-:setvar NtcaAppPassword YourAppPasswordHere
-```
-
-`$(NtcaAppPassword)` is required. Avoid `#` in passwords (sqlcmd `-v` can truncate). A second full `run_all` is safe: `01_schema.sql` uses `IF NOT EXISTS` / `CREATE OR ALTER`, and `run_all` passes `NtcaMigratorPassword=__SKIP__` unless you set a real migrator password.
+All five are safe to run twice. A second full `run_all` is also safe: `01_schema.sql` uses `IF NOT EXISTS` / `CREATE OR ALTER`. Optional migrator: edit `DECLARE @MigratorPassword` at the top of `03_app_login.sql` (default `N'__SKIP__'`).
 
 ## Connection string
 

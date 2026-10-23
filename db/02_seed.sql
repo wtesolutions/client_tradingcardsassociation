@@ -1,13 +1,11 @@
-/* SSMS: enable Query > SQLCMD Mode before running.
-   ':' directives (:on error, :setvar, :r) and $(vars) fail if SQLCMD Mode is off.
-   Plain T-SQL (no SQLCMD Mode): db/ssms/NTCA_FULL_INSTALL_SSMS.sql
+/* Plain T-SQL for SSMS. SQLCMD Mode is not required.
+   Database: wte_NtcaDatabase (hardcoded).
 */
 /* Reference / lookup seed. Idempotent (MERGE). Safe to re-run.
    Lookup data lives here (not in db/seed/SEED_00_*) so generate_seed can
    regenerate content files without touching tiers, karma, or site settings.
 */
-:on error exit
-USE [$(NtcaDatabase)];
+USE [wte_NtcaDatabase];
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO
