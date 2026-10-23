@@ -75,6 +75,7 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | `/` | Home with real shop / show / manufacturer counts |
 | `/shops` | Directory, state filter; destination shops show a Destination chip; `?view=map` plots pins with lat/lng |
 | `/shops/{state}` | State hub (e.g. `/shops/ca`) — impressions use `DIRECTORY_STATE` |
+| `/shops/{state}/{city}` | City hub (breadcrumb target) |
 | `/shops/{state}/{city}/{slug}` | Shop detail + AI summary + JSON-LD `@graph` (try Burbank Sportscards or Dave & Adam's) |
 | `/shops/{state}/{city}/{slug}.md` or `?format=md` | Plain-text shop page for LLM crawlers |
 | `/shops.md` | Markdown index of every active shop |
@@ -116,7 +117,7 @@ Surfaces: `DIRECTORY_LIST`, `DIRECTORY_SEARCH`, `DIRECTORY_STATE`, `HOME_ROTATIO
 
 Verify:
 
-1. Browse `/shops` then a shop detail. Click Website / Phone / Directions if present.
+1. Browse `/shops` then a shop detail in a real browser (or `curl -A "Mozilla/5.0 ..."`). `curl`/`wget` user-agents are stored as `IsBot=1` and excluded from dashboards. Click Website / Phone / Directions if present.
 2. Open `/owner` as `egarrison@wte.net` (Burbank Sportscards). 7/30/90 cards and the bar chart should show the list + detail traffic.
 3. Open `/SADMIN/dashboard` — impression / view / click KPIs and a top-shops table. `/SADMIN/shops` has an Imp 7d column.
 4. SQL: `SELECT TOP 20 Surface, IsBot, PageUrl, CreatedAt FROM analytics.ShopImpression ORDER BY ImpressionId DESC;`

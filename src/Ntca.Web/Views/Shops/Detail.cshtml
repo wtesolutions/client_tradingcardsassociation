@@ -7,7 +7,7 @@
     <a href="/">Home</a> /
     <a href="/shops">Shops</a> /
     <a href="/shops/@s.StateCode.ToLowerInvariant()">@Ntca.Web.Services.ShopCopy.StateName(s.StateCode)</a> /
-    <a href="/shops/@s.StateCode.ToLowerInvariant()">@s.City</a> /
+    <a href="/shops/@s.StateCode.ToLowerInvariant()/@Ntca.Web.Services.ShopCopy.CitySlug(s.City)">@s.City</a> /
     <span>@s.Name</span>
 </nav>
 <p class="kicker">@s.City, @s.StateCode @(s.IsDestinationShop ? "· Destination shop" : "") @(string.IsNullOrEmpty(Model.TierName) ? "" : "· " + Model.TierName)</p>
@@ -69,7 +69,7 @@
 <p class="meta"><a href="@Model.MarkdownUrl">Plain-text version</a> for AI crawlers</p>
 <p><a href="/shops/@s.StateCode.ToLowerInvariant()">@Ntca.Web.Services.ShopCopy.StateName(s.StateCode) shops</a> · <a href="/shops">All shops</a></p>
 @section Scripts {
-<script type="application/ld+json">
+@Html.Raw("<script type=\"application/ld+json\">\n")
 @Html.Raw(Model.JsonLd)
-</script>
+@Html.Raw("\n</script>")
 }

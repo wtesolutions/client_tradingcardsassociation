@@ -83,6 +83,24 @@ public sealed class ShopsController : Controller
         return View(shops);
     }
 
+    [HttpGet("/shops/{state}/{city}")]
+    public async Task<IActionResult> City(string state, string city, CancellationToken ct)
+    {
+        var code = state.Trim().ToUpperInvariant();
+        if (code.Length != 2)
+            return NotFound();
+        var slug = city.Trim().ToLowerInvariant();
+        var shops = await Active().Where(s => s.StateCode == code).ToListAsync(ct);
+        shops = shops.Where(s => ShopCopy.CitySlug(s.City) == slug).OrderBy(s => s.Name).ToList();
+        if (shops.Count == 0)
+            return NotFound();
+        _track.RecordMany(shops, ImpressionSurfaces.DirectoryState, $"/shops/{code.ToLowerInvariant()}/{slug}");
+        ViewBag.State = code;
+        ViewBag.StateName = ShopCopy.StateName(code);
+        ViewBag.City = shops[0].City;
+        return View(shops);
+    }
+
     [HttpGet("/shops/{state}/{city}/{slug}.md")]
     public Task<IActionResult> DetailMarkdown(string state, string city, string slug, CancellationToken ct)
         => DetailCore(slug, markdown: true, ct);
