@@ -64,4 +64,12 @@ public sealed class SignupFunnelTests
         foreach (var key in new[] { "collector", "parent", "shop_owner", "promoter", "dealer", "media", "sports", "pokemon", "vintage", "graded" })
             Assert.False(string.IsNullOrWhiteSpace(FunnelFlow.Icon(key)));
     }
+
+    [Fact]
+    public void Hit_reads_anonymous_name_and_url()
+    {
+        var row = new { Name = "Triangle Area Trading Cards", url = "/shops/nc/raleigh/x" };
+        Assert.Equal("Triangle Area Trading Cards", FunnelFlow.Hit(row, "Name"));
+        Assert.Equal("/shops/nc/raleigh/x", FunnelFlow.Hit(row, "url"));
+    }
 }

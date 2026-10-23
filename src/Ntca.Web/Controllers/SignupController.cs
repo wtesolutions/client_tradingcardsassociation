@@ -51,6 +51,7 @@ public sealed class SignupController : Controller
                 return await Page(funnel, "who", answers, ct);
             }
             funnel.HumanRole = role;
+            answers.Clear();
         }
         if (step == "email")
         {
@@ -146,10 +147,14 @@ public sealed class SignupController : Controller
             var q = answers.GetValueOrDefault("shopQ") ?? "";
             var zip = answers.GetValueOrDefault("zip") ?? "";
             IQueryable<Shop> shops = _db.Shops.AsNoTracking().Include(s => s.Tier).Where(s => s.ListingStatus == "ACTIVE");
-            if (!string.IsNullOrWhiteSpace(zip))
-                shops = shops.Where(s => s.PostalCode != null && s.PostalCode.StartsWith(zip.Trim()));
-            if (!string.IsNullOrWhiteSpace(q))
-                shops = shops.Where(s => s.Name.Contains(q) || s.City.Contains(q));
+            if (!string.IsNullOrWhiteSpace(zip) || !string.IsNullOrWhiteSpace(q))
+            {
+                var z = zip.Trim();
+                var name = q.Trim();
+                shops = shops.Where(s =>
+                    (z.Length > 0 && s.PostalCode != null && s.PostalCode.StartsWith(z))
+                    || (name.Length > 0 && (s.Name.Contains(name) || s.City.Contains(name))));
+            }
             ViewBag.Shops = await shops.OrderBy(s => s.Name).Take(12).ToListAsync(ct);
         }
         if (step == "results")

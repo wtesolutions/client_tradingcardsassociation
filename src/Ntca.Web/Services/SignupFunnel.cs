@@ -109,6 +109,20 @@ public static class FunnelFlow
         };
     }
 
+    public static string Hit(object row, string property)
+    {
+        var el = JsonSerializer.SerializeToElement(row);
+        if (el.TryGetProperty(property, out var p))
+            return p.ValueKind == JsonValueKind.String ? p.GetString() ?? "" : p.ToString();
+        if (property.Length > 0)
+        {
+            var camel = char.ToLowerInvariant(property[0]) + property[1..];
+            if (el.TryGetProperty(camel, out var p2))
+                return p2.ValueKind == JsonValueKind.String ? p2.GetString() ?? "" : p2.ToString();
+        }
+        return "";
+    }
+
     public static string Icon(string key) => key switch
     {
         "collector" => "M7 6h10v14H7z M10 10h4 M10 14h3",

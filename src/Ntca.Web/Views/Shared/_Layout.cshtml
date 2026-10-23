@@ -3,6 +3,9 @@
 @{
     var preview = await Mode.IsPreviewAsync();
     var ai = Ntca.Web.Services.AgentConciergeMiddleware.Current(Http.HttpContext);
+    var path = Http.HttpContext?.Request.Path.Value ?? "";
+    var isFunnel = path.StartsWith("/signup", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWith("/join", StringComparison.OrdinalIgnoreCase);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -18,12 +21,12 @@
         <link rel="agent-concierge" href="/.well-known/ai-concierge" />
     }
 </head>
-<body>
+<body class="@(isFunnel ? "is-funnel" : null)">
 @if (preview)
 {
     <div class="preview-bar">Preview mode — pages are live for QA, but robots are told not to index. Staff can flip this in /SADMIN.</div>
 }
-<nav class="nav">
+<nav class="nav @(isFunnel ? "nav-funnel" : null)">
     <a class="brand" href="/"><img src="~/ntca-logo.png" alt="NTCA" width="40" height="40" /><span>NTCA<em>National Trading Card Association</em></span></a>
     <a href="/">Home</a>
     <a href="/shops">Shops</a>
@@ -31,7 +34,10 @@
     <a href="/manufacturers">Manufacturers</a>
     <a href="/news">News</a>
     <a href="/new-to-trading-cards">New to cards</a>
-    <a class="btn" href="/signup">Join Preview</a>
+    @if (!isFunnel)
+    {
+        <a class="btn" href="/signup">Join Preview</a>
+    }
 </nav>
 <main class="wrap">
 @if (ai?.IsAgent == true && Http.HttpContext?.Request.Path.StartsWithSegments("/SADMIN") != true && Http.HttpContext?.Request.Path.StartsWithSegments("/owner") != true)

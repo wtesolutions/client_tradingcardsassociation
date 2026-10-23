@@ -234,9 +234,6 @@ else if (step == "email")
 else if (step == "results")
 {
     var answer = (AgentAnswer)ViewBag.Answer;
-    var md = answer.Markdown ?? "";
-    var cut = md.IndexOf("## ", StringComparison.Ordinal);
-    if (cut >= 0) { md = md[cut..]; }
     <p class="lede">Confirm the email we just sent (Development: watch the console / App_Data/mail). Matches below are live directory rows — same facts the AI concierge uses.</p>
     @if (role == "parent")
     {
@@ -246,7 +243,58 @@ else if (step == "results")
     {
         <p class="card">We emailed a claim code for that shop. Sign in at <a href="/owner/login">/owner/login</a>.</p>
     }
-    <pre class="prose">@md</pre>
+    <div class="funnel-results">
+        @if (answer.Shops.Count > 0)
+        {
+            <h2>Nearby shops</h2>
+            @foreach (var raw in answer.Shops)
+            {
+                <a class="funnel-card funnel-hit" href="@FunnelFlow.Hit(raw, "url")">
+                    <svg class="funnel-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="@FunnelFlow.Icon("shop_owner")" /></svg>
+                    <span class="funnel-card-copy">
+                        <strong>@FunnelFlow.Hit(raw, "Name")</strong>
+                        <span>@FunnelFlow.Hit(raw, "City"), @FunnelFlow.Hit(raw, "StateCode")</span>
+                    </span>
+                </a>
+            }
+        }
+        @if (answer.Shows.Count > 0)
+        {
+            <h2>Upcoming shows</h2>
+            @foreach (var raw in answer.Shows)
+            {
+                <a class="funnel-card funnel-hit" href="@FunnelFlow.Hit(raw, "url")">
+                    <svg class="funnel-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="@FunnelFlow.Icon("promoter")" /></svg>
+                    <span class="funnel-card-copy">
+                        <strong>@FunnelFlow.Hit(raw, "Title")</strong>
+                        <span>@FunnelFlow.Hit(raw, "city"), @FunnelFlow.Hit(raw, "StateCode")</span>
+                    </span>
+                </a>
+            }
+        }
+        @if (answer.Manufacturers.Count > 0)
+        {
+            <h2>Matching manufacturers</h2>
+            @foreach (var raw in answer.Manufacturers)
+            {
+                <a class="funnel-card funnel-hit" href="@FunnelFlow.Hit(raw, "url")">
+                    <svg class="funnel-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="@FunnelFlow.Icon("sports")" /></svg>
+                    <span class="funnel-card-copy"><strong>@FunnelFlow.Hit(raw, "Name")</strong></span>
+                </a>
+            }
+        }
+        @if (role is "parent" or "collector" && answer.Guides.Count > 0)
+        {
+            <h2>Guides</h2>
+            @foreach (var raw in answer.Guides)
+            {
+                <a class="funnel-card funnel-hit" href="@FunnelFlow.Hit(raw, "url")">
+                    <svg class="funnel-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="@FunnelFlow.Icon("new")" /></svg>
+                    <span class="funnel-card-copy"><strong>@FunnelFlow.Hit(raw, "title")</strong></span>
+                </a>
+            }
+        }
+    </div>
     <p><a class="btn" href="/shops">Browse shops</a> <a class="btn ghost" href="/calendar">Calendar</a></p>
 }
 </div>

@@ -139,6 +139,14 @@ input, select, textarea {
 .funnel-card:has(input:checked) { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .funnel-card:focus-within { outline: 2px solid var(--accent-2); outline-offset: 2px; }
 .funnel-options .btn, .funnel-form .btn { margin-top: 8px; align-self: stretch; text-align: center; }
+.funnel-results { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+.funnel-results h2 { font-size: 18px; margin: 12px 0 0; }
+.funnel-hit { display: grid; grid-template-columns: 44px minmax(0, 1fr); text-decoration: none; color: inherit; }
+.funnel-hit:hover { text-decoration: none; border-color: var(--accent); }
+@media (max-width: 720px) {
+  .nav-funnel a:not(.brand) { display: none; }
+  .nav-funnel { justify-content: space-between; }
+}
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 @media (max-width: 420px) {
   .nav { gap: 10px; padding: 12px 14px; }
