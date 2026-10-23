@@ -954,6 +954,9 @@ image-slot[shape="circle"] { border-radius: 50%; }
 .article h2 { font-family: var(--font-heading); font-weight: var(--font-heading-weight);
   font-size: 24px; line-height: calc(1.25 * var(--leading)); letter-spacing: -0.012em;
   margin: calc(2 * var(--leading)) 0 0; color: var(--color-text); }
+.article h3 { font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 20px; line-height: calc(1.2 * var(--leading)); letter-spacing: -0.01em;
+  margin: calc(1.75 * var(--leading)) 0 0; color: var(--color-text); }
 .article ul { margin: var(--leading) 0 0; padding-left: 1.2em;
   font-size: 16.5px; line-height: var(--leading);
   color: color-mix(in srgb, var(--color-text) 82%, transparent); }
