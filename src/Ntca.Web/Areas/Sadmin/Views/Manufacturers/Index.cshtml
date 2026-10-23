@@ -1,0 +1,103 @@
+@using Ntca.Web.Services
+@model Ntca.Web.Areas.Sadmin.Controllers.SadminManufacturerListVm
+@{
+    ViewData["Title"] = "Manufacturers";
+    var start = Model.Total == 0 ? 0 : ((Model.Page - 1) * Model.PageSize) + 1;
+    var end = Math.Min(Model.Page * Model.PageSize, Model.Total);
+    var pages = Math.Max(1, (int)Math.Ceiling(Model.Total / (double)Model.PageSize));
+    string Keep(int? page = null, long? inspect = null)
+    {
+        var qs = new List<string>();
+        if (Model.Q.Length > 0) qs.Add("q=" + Uri.EscapeDataString(Model.Q));
+        if (Model.Missing.Length > 0) qs.Add("missing=" + Uri.EscapeDataString(Model.Missing));
+        if (Model.PageSize != 25) qs.Add("pageSize=" + Model.PageSize);
+        qs.Add("page=" + (page ?? Model.Page));
+        if (inspect is long id) qs.Add("inspect=" + id);
+        return "/SADMIN/manufacturers?" + string.Join("&", qs);
+    }
+    string Excerpt(string? html)
+    {
+        if (string.IsNullOrWhiteSpace(html)) return "";
+        var text = System.Text.RegularExpressions.Regex.Replace(html, "<.*?>", " ");
+        text = System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " ").Trim();
+        return text.Length <= 80 ? text : text[..80] + "…";
+    }
+}
+<p class="admin-crumbs">Directory / Manufacturers</p>
+<h1 class="admin-h1">Manufacturers</h1>
+<p class="admin-sub">Maintain the brands and historical makers in the catalog.</p>
+<form class="admin-toolbar" method="get" action="/SADMIN/manufacturers" data-testid="mfr-filters">
+    <label>Name or slug
+        <input name="q" value="@Model.Q" data-testid="mfr-filter-q" />
+    </label>
+    <label>Missing
+        <select name="missing" data-testid="mfr-filter-missing">
+            <option value="">Any</option>
+            <option value="logo" selected="@(Model.Missing == "logo" ? "selected" : null)">Missing logo</option>
+            <option value="description" selected="@(Model.Missing == "description" ? "selected" : null)">Missing description</option>
+        </select>
+    </label>
+    <button class="admin-gold" type="submit" data-testid="mfr-apply">Apply filters</button>
+    <a class="admin-ghost" href="/SADMIN/manufacturers">Clear filters</a>
+</form>
+<div class="admin-page">
+    <div class="admin-page-main">
+        <p class="admin-sub" data-testid="mfr-count">@start–@end of @Model.Total</p>
+        <div class="admin-table-wrap">
+            <table data-testid="mfr-table">
+                <thead>
+                    <tr><th>Name</th><th>Slug</th><th>Logo</th><th>Description</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                @foreach (var m in Model.Rows)
+                {
+                    var selected = Model.Inspect?.ManufacturerId == m.ManufacturerId;
+                    <tr data-testid="mfr-row-@m.ManufacturerId" data-inspect="@m.ManufacturerId" class="@(selected ? "is-selected" : null)">
+                        <td><a href="@Keep(Model.Page, m.ManufacturerId)">@m.Name</a></td>
+                        <td>@m.Slug</td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(m.LogoUrl))
+                            {
+                                <img class="admin-thumb" src="@ManufacturerCopy.LogoSrc(m)" alt="" />
+                            }
+                            else
+                            {
+                                <span>Missing logo</span>
+                            }
+                        </td>
+                        <td>@(string.IsNullOrWhiteSpace(Excerpt(m.DescriptionHtml)) ? "No description" : Excerpt(m.DescriptionHtml))</td>
+                        <td>
+                            <a href="/SADMIN/manufacturers/@m.ManufacturerId">Edit</a>
+                            · <a href="/manufacturers/@m.Slug">Public</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <nav class="admin-pager" aria-label="Manufacturer pages">
+            @if (Model.Page > 1) { <a href="@Keep(Model.Page - 1, Model.Inspect?.ManufacturerId)">Previous</a> }
+            <span>Page @Model.Page of @pages</span>
+            @if (Model.Page < pages) { <a href="@Keep(Model.Page + 1, Model.Inspect?.ManufacturerId)">Next</a> }
+        </nav>
+    </div>
+    <aside class="admin-inspector" data-testid="mfr-inspector" hidden="@(Model.Inspect is null ? "hidden" : null)">
+        @if (Model.Inspect is { } mfr)
+        {
+            <button type="button" class="admin-ghost" data-admin-inspect-close>Close</button>
+            <h2>@mfr.Name</h2>
+            <p>@mfr.Slug</p>
+            @if (!string.IsNullOrWhiteSpace(mfr.LogoUrl))
+            {
+                <img class="admin-thumb" src="@ManufacturerCopy.LogoSrc(mfr)" alt="" style="width:120px;height:auto" />
+            }
+            else
+            {
+                <div class="admin-ph">Missing logo</div>
+            }
+            <p>@(string.IsNullOrWhiteSpace(Excerpt(mfr.DescriptionHtml)) ? "No description" : Excerpt(mfr.DescriptionHtml))</p>
+            <p><a href="/manufacturers/@mfr.Slug" target="_blank" rel="noopener">Preview public listing ↗</a></p>
+            <p><a class="admin-gold" href="/SADMIN/manufacturers/@mfr.ManufacturerId">Open editor →</a></p>
+        }
+    </aside>
+</div>

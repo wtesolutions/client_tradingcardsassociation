@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "Saved shops";
+}
+<p class="kicker">Your list</p>
+<h1>Saved shops</h1>
+<p class="lede">Shops you save on this device stay here. Sign in later if you want the same list on another browser — guest saves are local only.</p>
+<ul class="typeahead-list" id="saved-list"></ul>
+<p class="meta" id="saved-empty">No saved shops yet. Open a listing and tap Save.</p>
+@section Scripts {
+<script>
+(function () {
+  var KEY = "ntca.savedShops";
+  var raw = [];
+  try { raw = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) { raw = []; }
+  var list = document.getElementById("saved-list");
+  var empty = document.getElementById("saved-empty");
+  if (!raw.length) return;
+  empty.hidden = true;
+  raw.forEach(function (s) {
+    var a = document.createElement("a");
+    a.className = "card funnel-hit";
+    a.href = s.loc || "/shops";
+    a.innerHTML = "<div></div><div><strong></strong><span class=\"meta\"></span></div>";
+    a.querySelector("strong").textContent = s.name || "Shop";
+    a.querySelector(".meta").textContent = s.where || "";
+    list.appendChild(a);
+  });
+})();
+</script>
+}

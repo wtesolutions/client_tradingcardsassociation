@@ -1,0 +1,51 @@
+@using Ntca.Core
+@model List<(GalleryItem Item, string Url, string Category)>
+@if (ViewBag.JsonLd is string json)
+{
+    <script type="application/ld+json">@Html.Raw(json)</script>
+}
+@{
+    var categories = (List<string>)ViewBag.Categories;
+    var current = (string)ViewBag.Category;
+}
+<div class="ntca-container page-prose">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>Gallery</span>
+    </nav>
+    <p class="kicker">Gallery</p>
+    <h1>The hobby, in pictures.</h1>
+    <p class="lede">Photos from the community as the NTCA grows — collections, shops and gatherings. Captions and credits come from the original gallery files.</p>
+    <nav class="gallery-cats" aria-label="Gallery categories">
+        <a class="@(string.IsNullOrEmpty(current) ? "on" : null)" href="/gallery">All</a>
+        @foreach (var c in categories)
+        {
+            <a class="@(string.Equals(c, current, StringComparison.OrdinalIgnoreCase) ? "on" : null)" href="/gallery?category=@Uri.EscapeDataString(c)">@c</a>
+        }
+    </nav>
+    <div class="gallery-grid" id="gallery-grid" data-testid="gallery-grid">
+    @foreach (var (item, url, category) in Model)
+    {
+        <figure class="gallery-item" id="@item.Slug" data-full="@url" data-caption="@item.Caption" tabindex="0" data-testid="gallery-item">
+            <button type="button" class="gallery-open" data-lightbox>
+                <img src="@url" alt="@(item.AltText ?? item.Caption)" width="640" height="480" />
+            </button>
+            <figcaption>
+                <span class="chip">@category</span>
+                @item.Caption
+            </figcaption>
+        </figure>
+    }
+    </div>
+    <p class="meta">Community photo submissions from the legacy gallery remain a Preview item — send photos to <a href="mailto:info@tradingcardsassociation.com">info@tradingcardsassociation.com</a>.</p>
+    <p class="cta-row">
+        <a class="btn ghost" href="/about">About NTCA</a>
+        <a class="btn" href="/signup">Join the association</a>
+    </p>
+</div>
+<dialog class="lightbox" id="lightbox" aria-label="Photo" data-testid="lightbox">
+    <button type="button" class="lightbox-close" data-lightbox-close>Close</button>
+    <img alt="" />
+    <p class="lightbox-caption"></p>
+</dialog>

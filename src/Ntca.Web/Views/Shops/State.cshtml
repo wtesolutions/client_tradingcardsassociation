@@ -1,0 +1,28 @@
+@model List<Ntca.Core.Shop>
+@{
+    var stateName = (string)ViewBag.StateName;
+    var code = ((string)ViewBag.State).ToLowerInvariant();
+    ViewData["Title"] = stateName + " shops";
+}
+<div class="ntca-container shop-page">
+<nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a> <span aria-hidden="true">›</span>
+    <a href="/shops">Shops</a> <span aria-hidden="true">›</span>
+    <span>@stateName</span>
+</nav>
+<p class="kicker">Directory</p>
+<h1>Hobby shops in @stateName</h1>
+<p class="lede">@Model.Count active listings in @stateName.</p>
+<div class="shop-card-list">
+@foreach (var s in Model)
+{
+    @await Html.PartialAsync("_ShopCard", s)
+}
+</div>
+<p><a href="/shops">← All shops</a></p>
+</div>
+@section Scripts {
+@Html.Raw("<script type=\"application/ld+json\">\n")
+@Html.Raw((string)ViewBag.JsonLd)
+@Html.Raw("\n</script>")
+}

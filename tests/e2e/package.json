@@ -1,0 +1,11 @@
+{
+  "name": "ntca-e2e",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test smoke.spec.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
+  }
+}

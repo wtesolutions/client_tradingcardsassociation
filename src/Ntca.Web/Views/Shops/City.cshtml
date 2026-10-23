@@ -1,0 +1,22 @@
+@model List<Ntca.Core.Shop>
+@{
+    ViewData["Title"] = $"{ViewBag.City}, {ViewBag.StateName} shops";
+}
+<div class="ntca-container shop-page">
+<nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a> <span aria-hidden="true">›</span>
+    <a href="/shops">Shops</a> <span aria-hidden="true">›</span>
+    <a href="/shops/@(((string)ViewBag.State).ToLowerInvariant())">@ViewBag.StateName</a> <span aria-hidden="true">›</span>
+    <span>@ViewBag.City</span>
+</nav>
+<p class="kicker">Directory</p>
+<h1>Hobby shops in @ViewBag.City, @ViewBag.StateName</h1>
+<p class="lede">@Model.Count active listing@(Model.Count == 1 ? "" : "s").</p>
+<div class="shop-card-list">
+@foreach (var s in Model)
+{
+    @await Html.PartialAsync("_ShopCard", s)
+}
+</div>
+<p><a href="/shops/@(((string)ViewBag.State).ToLowerInvariant())">← @ViewBag.StateName shops</a></p>
+</div>

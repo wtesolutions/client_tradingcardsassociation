@@ -1,0 +1,20 @@
+@model Ntca.Core.Shop
+@{
+    ViewData["Title"] = "Owner-proxy · " + Model.Name;
+}
+<p class="admin-crumbs"><a href="/SADMIN/shops">Shops</a> / Owner-proxy</p>
+<h1 class="admin-h1">Owner-proxy edit</h1>
+<p class="admin-sub">Staff edit without an owner login. Phone, website, and description publish immediately and lock Google overwrite.</p>
+@if (TempData["Saved"] is string msg)
+{
+    <p class="admin-ok">@msg</p>
+}
+<form method="post" data-testid="proxy-form">
+    @Html.AntiForgeryToken()
+    <p><label>Phone<br /><input name="Phone" value="@Model.Phone" data-testid="proxy-phone" /></label></p>
+    <p><label>Website<br /><input name="WebsiteUrl" value="@Model.WebsiteUrl" /></label></p>
+    <p><label>Public email<br /><input name="PublicEmail" value="@Model.PublicEmail" /></label></p>
+    <p><label>Description<br /><textarea name="Description" rows="4">@Model.Description</textarea></label></p>
+    <p><label>Specialty<br /><input name="PrimarySpecialty" value="@Model.PrimarySpecialty" /></label></p>
+    <button class="admin-gold" type="submit" data-testid="proxy-save">Publish</button>
+</form>

@@ -1,0 +1,80 @@
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor Http
+@{
+    var path = Http.HttpContext?.Request.Path.Value ?? "";
+    var imp = Http.HttpContext?.Items["Impersonation"] as Ntca.Web.Services.ImpersonationState;
+    bool On(string href) => path.Equals(href, StringComparison.OrdinalIgnoreCase)
+        || (href != "/SADMIN/dashboard" && path.StartsWith(href, StringComparison.OrdinalIgnoreCase));
+    void Nav(string href, string label)
+    {
+        var cur = On(href);
+        <a href="@href" data-testid="sadmin-nav-@label.ToLowerInvariant().Replace(' ', '-')" aria-current="@(cur ? "page" : null)">@label</a>
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@(ViewData["Title"] ?? "SADMIN") · NTCA staff</title>
+    <link rel="icon" href="~/ntca-logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/sadmin.css" asp-append-version="true" />
+</head>
+<body class="ntca-admin" data-testid="sadmin-shell">
+@if (imp?.Active == true)
+{
+    <div class="impersonate-banner" data-testid="impersonate-banner" role="status">
+        Viewing as @imp.OwnerName — 
+        <form method="post" action="/SADMIN/impersonate/stop" style="display:inline">
+            @Html.AntiForgeryToken()
+            <button class="admin-gold" type="submit" data-testid="impersonate-stop">Stop impersonating</button>
+        </form>
+    </div>
+}
+<header class="admin-masthead" data-testid="sadmin-masthead">
+    <a class="admin-brand" href="/SADMIN/dashboard" data-testid="sadmin-brand">
+        <img src="~/ntca-logo.png" alt="" width="80" height="80" />
+        <span class="admin-brand-name">National Trading Card<br />Association</span>
+    </a>
+    <div class="admin-mast-right">
+        <span class="admin-kicker">Staff workspace</span>
+        <a class="admin-public" href="/" data-testid="sadmin-public-site" target="_blank" rel="noopener">Public site ↗</a>
+        <form class="admin-signout" method="post" action="/SADMIN/logout">
+            @Html.AntiForgeryToken()
+            <button class="admin-ghost" type="submit" style="color:#fff;border-color:#fff" data-testid="sadmin-sign-out">Sign out</button>
+        </form>
+        <button type="button" class="admin-ghost admin-nav-toggle" data-testid="sadmin-nav-toggle" data-admin-nav-open aria-controls="admin-nav">Menu</button>
+    </div>
+</header>
+<div class="admin-shell">
+    <div class="admin-nav-backdrop" hidden data-admin-nav-close></div>
+    <nav class="admin-nav" id="admin-nav" data-testid="sadmin-nav" aria-label="Staff">
+        <span class="admin-nav-label">Workspace</span>
+        @{ Nav("/SADMIN/dashboard", "Dashboard"); }
+        @{ Nav("/SADMIN/queue/events", "Event queue"); }
+        @{ Nav("/SADMIN/queue/edits", "Edit queue"); }
+        @{ Nav("/SADMIN/queue/drafts", "Drafts"); }
+        @{ Nav("/SADMIN/queue/claims", "Claim queue"); }
+        <span class="admin-nav-label">Directory</span>
+        @{ Nav("/SADMIN/shops", "Shops"); }
+        @{ Nav("/SADMIN/manufacturers", "Manufacturers"); }
+        <span class="admin-nav-label">Insights</span>
+        @{ Nav("/SADMIN/queue/onboarding", "Onboarding"); }
+        @{ Nav("/SADMIN/funnel", "Funnel"); }
+        @{ Nav("/SADMIN/agents", "AI Visitors"); }
+        @{ Nav("/SADMIN/google", "Google"); }
+        @{ Nav("/SADMIN/social", "Social catalog"); }
+        @{ Nav("/SADMIN/users", "Users"); }
+    </nav>
+    <main class="admin-main" data-testid="sadmin-main">
+        @RenderBody()
+    </main>
+</div>
+<footer class="admin-footer" data-testid="sadmin-footer">National Trading Card Association · staff workspace</footer>
+<script src="~/js/sadmin.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

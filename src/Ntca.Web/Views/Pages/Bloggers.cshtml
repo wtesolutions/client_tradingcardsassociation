@@ -1,0 +1,29 @@
+@model List<Ntca.Core.Blogger>
+@using Ntca.Core
+@{
+    var files = (IFileStorage)ViewBag.Files;
+}
+<div class="ntca-container page-prose">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>Bloggers</span>
+    </nav>
+    <p class="kicker">Blogs</p>
+    <h1>Top trading card blogs</h1>
+    <p class="lede">Publishers and hobby voices from the legacy NTCA blogger directory. Logos are the original files.</p>
+    <div class="blogger-grid">
+    @foreach (var b in Model)
+    {
+        var logo = string.IsNullOrWhiteSpace(b.LogoLegacyPath) ? null : files.PublicUrl(b.LogoLegacyPath);
+        <a class="card blogger-card" href="/bloggers/@b.Slug">
+            @if (logo is not null)
+            {
+                <img src="@logo" alt="" width="120" height="60" />
+            }
+            <h2>@b.Name</h2>
+            <p>@b.Description</p>
+        </a>
+    }
+    </div>
+</div>

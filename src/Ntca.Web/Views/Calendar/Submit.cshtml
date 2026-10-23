@@ -1,0 +1,23 @@
+@model Ntca.Core.EventSubmission
+@{
+    ViewData["Title"] = "Submit a card show";
+}
+<p class="kicker">Promoters</p>
+<h1>Submit a card show</h1>
+<p class="lede">NTCA staff review every submission. It is not live until approved. Do not invent dates or venues.</p>
+@if (TempData["Submitted"] is string ok) { <p class="card">@ok</p> }
+@if (ViewBag.Error is string err) { <p class="card">@err</p> }
+<form method="post">
+    @Html.AntiForgeryToken()
+    <p><label>Show title<br /><input name="Title" value="@Model?.Title" required /></label></p>
+    <p><label>Starts (UTC date/time)<br /><input name="StartsAt" type="datetime-local" required /></label></p>
+    <p><label>City<br /><input name="City" value="@Model?.City" /></label></p>
+    <p><label>State<br /><input name="StateCode" maxlength="2" value="@Model?.StateCode" /></label></p>
+    <p><label>Venue<br /><input name="VenueName" value="@Model?.VenueName" /></label></p>
+    <p><label>Your name<br /><input name="SubmitterName" value="@Model?.SubmitterName" required /></label></p>
+    <p><label>Email<br /><input name="SubmitterEmail" type="email" value="@Model?.SubmitterEmail" required /></label></p>
+    <p><label>Promoter / organizer<br /><input name="PromoterName" value="@Model?.PromoterName" /></label></p>
+    <p><label>Notes<br /><textarea name="Description" rows="4">@Model?.Description</textarea></label></p>
+    <button class="btn" type="submit">Submit for review</button>
+</form>
+<p><a href="/calendar">← Calendar</a></p>

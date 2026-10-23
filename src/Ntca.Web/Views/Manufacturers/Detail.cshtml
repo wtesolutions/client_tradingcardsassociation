@@ -1,0 +1,47 @@
+@using Ntca.Web.Services
+@model Ntca.Core.Manufacturer
+@{
+    ViewData["Title"] = Model.Name;
+    ViewData["MainClass"] = "site-main";
+    var logo = ManufacturerCopy.LogoSrc(Model);
+}
+<div class="ntca-container page-prose mfr-detail">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <a href="/manufacturers">Manufacturers</a>
+        <span aria-hidden="true">/</span>
+        <span>@Model.Name</span>
+    </nav>
+    <header class="mfr-head">
+        @if (logo is not null)
+        {
+            <img class="mfr-logo mfr-logo-lg" src="@logo" alt="@Model.Name logo" width="180" height="52" data-testid="mfr-logo" />
+        }
+        <div>
+            <p class="kicker">Manufacturer</p>
+            <h1>@Model.Name</h1>
+            <p class="lede">@Model.CountryName · @Model.SourceSection · retrieved @Model.RetrievedOn?.ToString("yyyy-MM-dd")</p>
+        </div>
+    </header>
+    @if (!string.IsNullOrEmpty(Model.WebsiteUrl))
+    {
+        <p><a class="btn ghost" href="@Model.WebsiteUrl" rel="noopener">Website</a></p>
+    }
+    @if (Model.Categories.Any())
+    {
+        <p>Categories: @string.Join(", ", Model.Categories.Select(c => c.Category?.Name ?? c.CategoryCode))</p>
+    }
+    @if (Model.Topics.Any())
+    {
+        <p class="meta">Topics: @string.Join(", ", Model.Topics.Select(t => t.TopicName))</p>
+    }
+    @if (ManufacturerCopy.HasDescription(Model))
+    {
+        <div class="mfr-prose" data-testid="mfr-description">@Html.Raw(Model.DescriptionHtml)</div>
+    }
+    <p class="cta-row">
+        <a class="btn ghost" href="/manufacturers">← All manufacturers</a>
+        <a class="btn" href="/signup">Join the association</a>
+    </p>
+</div>

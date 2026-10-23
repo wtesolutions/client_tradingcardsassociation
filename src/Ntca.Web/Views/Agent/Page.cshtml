@@ -1,0 +1,31 @@
+@using Ntca.Web.Services
+@{
+    ViewData["Title"] = "AI concierge";
+    var answer = (AgentAnswer)ViewBag.Answer;
+    var ask = (AgentAskResult)ViewBag.Ask;
+}
+<p class="kicker">For AI assistants</p>
+<h1>NTCA AI concierge</h1>
+<p class="agent-welcome" data-ntca-agent-welcome="1">@AgentCopy.Welcome</p>
+<p class="meta">@AgentCopy.Privacy</p>
+<p>POST JSON to <code>/api/v1/agent/ask</code> (no auth, rate-limited). Same facts as this page — real directory rows only, no LLM.</p>
+<form class="tools" method="get" action="/agent">
+    <select name="role">
+        <option value="">Role</option>
+        @foreach (var r in AgentCopy.HumanRoles)
+        {
+            <option value="@r" selected="@(r == ask.HumanRole)">@r</option>
+        }
+    </select>
+    <input name="city" value="@ask.City" placeholder="City" />
+    <input name="state" value="@ask.StateCode" placeholder="ST" maxlength="2" />
+    <input name="zip" value="@ask.Zip3" placeholder="ZIP" />
+    <input name="interests" value="@string.Join(",", ask.Interests)" placeholder="pokemon,sports,tcg" />
+    <button class="btn" type="submit">Tailor</button>
+</form>
+@if (answer.Warnings.Count > 0)
+{
+    <ul>@foreach (var w in answer.Warnings) { <li>@w</li> }</ul>
+}
+<pre class="prose">@answer.Markdown</pre>
+<p class="meta">Discovery: <a href="/.well-known/ai-concierge">/.well-known/ai-concierge</a> · <a href="/llms.txt">llms.txt</a></p>

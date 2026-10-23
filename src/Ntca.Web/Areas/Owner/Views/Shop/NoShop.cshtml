@@ -1,0 +1,53 @@
+@{
+    ViewData["Title"] = "Claim a shop";
+}
+<h1 data-testid="owner-no-shop">No shop is linked to this account</h1>
+<p class="lede">Search the directory and file a claim. If your email domain matches the shop website, the claim is approved immediately. Otherwise staff review it.</p>
+<form method="get" class="tools" data-typeahead="shops" data-id-field="shopId" data-testid="owner-claim-search">
+    <p><label for="shopQ">Find your shop<br />
+        <input id="shopQ" name="shopQ" class="typeahead-q" placeholder="Shop name, city, or ZIP" autocomplete="off" data-testid="owner-claim-q" /></label></p>
+</form>
+<form method="post" action="/owner/claim" data-testid="owner-claim-form">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="shopId" id="shopId" data-testid="owner-claim-shop-id" />
+    <ul class="typeahead-list" id="shop-hits" data-testid="owner-claim-hits"></ul>
+    <button class="btn" type="submit" data-testid="owner-claim-submit">Submit claim</button>
+</form>
+@if (TempData["Saved"] is string msg)
+{
+    <p class="card" data-testid="owner-saved">@msg</p>
+}
+@section Scripts {
+<script>
+(function () {
+  var input = document.getElementById("shopQ");
+  var list = document.getElementById("shop-hits");
+  var hidden = document.getElementById("shopId");
+  if (!input || !list) return;
+  var timer = null;
+  input.addEventListener("input", function () {
+    clearTimeout(timer);
+    var q = input.value.trim();
+    if (q.length < 2) { list.innerHTML = ""; return; }
+    timer = setTimeout(function () {
+      fetch("/api/v1/search/shops?q=" + encodeURIComponent(q) + "&page=1")
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var items = (data && data.items) || [];
+          list.innerHTML = items.map(function (it) {
+            return '<li><label class="funnel-card"><input type="radio" name="shopPick" value="' + it.id + '" /><span class="funnel-card-copy"><strong>' + escapeHtml(it.name) + '</strong><span>' + escapeHtml(it.detail || "") + '</span></span></label></li>';
+          }).join("");
+          list.querySelectorAll("input").forEach(function (r) {
+            r.addEventListener("change", function () { hidden.value = r.value; });
+          });
+        }).catch(function () {});
+    }, 300);
+  });
+  function escapeHtml(s) {
+    return String(s || "").replace(/[&<>"']/g, function (c) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+    });
+  }
+})();
+</script>
+}

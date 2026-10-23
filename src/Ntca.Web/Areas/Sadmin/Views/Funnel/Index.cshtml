@@ -1,0 +1,87 @@
+@using Ntca.Web.Services
+@{
+    ViewData["Title"] = "Signup funnel";
+}
+<p class="admin-crumbs">Insights / Funnel</p>
+<h1 class="admin-h1">Signup &amp; onboarding</h1>
+<p class="admin-sub">Last 30 days. Onboarding is skippable. No raw IPs. Drop-off rates: definition pending.</p>
+<div class="admin-strip" data-testid="funnel-register">
+    <div class="admin-stat"><b class="num">@ShopAdminCopy.DashIfZero((int)ViewBag.Started)</b><span>Started</span></div>
+    <div class="admin-stat"><b class="num">@ShopAdminCopy.DashIfZero((int)ViewBag.Registered)</b><span>Registered</span></div>
+    <div class="admin-stat"><b class="num">@ShopAdminCopy.DashIfZero((int)ViewBag.Confirmed)</b><span>Confirmed</span></div>
+</div>
+<div class="admin-strip" style="margin-top:12px" data-testid="funnel-onboarding">
+    <div class="admin-stat"><b class="num">@ShopAdminCopy.DashIfZero((int)ViewBag.OnboardingStarted)</b><span>Onboarding started</span></div>
+    <div class="admin-stat"><b class="num">@ShopAdminCopy.DashIfZero((int)ViewBag.OnboardingDone)</b><span>Onboarding completed</span></div>
+    <div class="admin-stat"><b class="num">@ShopAdminCopy.DashIfZero((int)ViewBag.OnboardingSkipped)</b><span>Skipped</span></div>
+</div>
+
+<h2>Registration</h2>
+<div class="admin-table-wrap">
+    <table data-testid="funnel-register-steps">
+        <tr><th>Step</th><th class="num">Entered</th><th class="num">Completed</th></tr>
+        @foreach (var s in (IEnumerable<FunnelReport.StepRow>)ViewBag.RegisterSteps)
+        {
+            <tr>
+                <td>@ShopAdminCopy.FunnelStepLabel(s.Name)</td>
+                <td class="num">@ShopAdminCopy.DashIfZero(s.Enter)</td>
+                <td class="num">@ShopAdminCopy.DashIfZero(s.Complete)</td>
+            </tr>
+        }
+    </table>
+</div>
+
+<h2>Onboarding</h2>
+<div class="admin-table-wrap">
+    <table data-testid="funnel-onboard-steps">
+        <tr><th>Step</th><th class="num">Entered</th><th class="num">Completed</th></tr>
+        @foreach (var s in (IEnumerable<FunnelReport.StepRow>)ViewBag.OnboardSteps)
+        {
+            <tr>
+                <td>@ShopAdminCopy.FunnelStepLabel(s.Name)</td>
+                <td class="num">@ShopAdminCopy.DashIfZero(s.Enter)</td>
+                <td class="num">@ShopAdminCopy.DashIfZero(s.Complete)</td>
+            </tr>
+        }
+    </table>
+</div>
+<p class="admin-sub">Definition pending — this table is counts only, not a conversion rate.</p>
+
+<h2>By role (multi-select)</h2>
+<div class="admin-table-wrap">
+    <table>
+        <tr><th>Role</th><th class="num">Selected</th><th class="num">Onboarding completed</th></tr>
+        @foreach (var r in (IEnumerable<FunnelReport.RoleRow>)ViewBag.ByRole)
+        {
+            <tr><td>@r.Name</td><td class="num">@ShopAdminCopy.DashIfZero(r.Selected)</td><td class="num">@ShopAdminCopy.DashIfZero(r.Onboarded)</td></tr>
+        }
+    </table>
+</div>
+
+<h2>UTM source</h2>
+<div class="admin-table-wrap">
+    <table>
+        @foreach (var r in (IEnumerable<FunnelReport.NameCount>)ViewBag.ByUtm)
+        {
+            <tr><td>@r.Name</td><td class="num">@ShopAdminCopy.DashIfZero(r.N)</td></tr>
+        }
+    </table>
+</div>
+
+<h2>Recent sessions</h2>
+<div class="admin-table-wrap">
+    <table>
+        <tr><th>When</th><th>Roles</th><th>Step</th><th>Status</th><th>Onboarding</th><th>Email</th></tr>
+        @foreach (var f in (List<Ntca.Core.SignupFunnel>)ViewBag.Recent)
+        {
+            <tr>
+                <td>@f.UpdatedAt.ToString("MMM d HH:mm")</td>
+                <td>@string.Join(", ", FunnelFlow.ReadRoles(f))</td>
+                <td>@ShopAdminCopy.FunnelStepLabel(f.CurrentStep)</td>
+                <td>@ShopAdminCopy.TitleCaseStatus(f.Status)</td>
+                <td>@ShopAdminCopy.TitleCaseStatus(f.OnboardingStatus)</td>
+                <td>@(string.IsNullOrEmpty(f.Email) ? "—" : "yes")</td>
+            </tr>
+        }
+    </table>
+</div>

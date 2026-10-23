@@ -1,0 +1,290 @@
+@model Ntca.Web.Controllers.ShopDetailVm
+@{
+    var s = Model.Shop;
+    ViewData["Title"] = s.Name;
+    var claimed = Ntca.Web.Services.ShopCopy.IsClaimed(s);
+    var spec = Ntca.Web.Services.ShopCopy.SpecialtyLabel(s.PrimarySpecialty);
+    var open = Ntca.Web.Services.ShopCopy.OpeningStatus(Model.Hours, s.StateCode);
+    var hasHours = Ntca.Web.Services.ShopCopy.HasUsableHours(Model.Hours);
+    var address = Ntca.Web.Services.ShopCopy.PublicAddress(s);
+    var hasMap = s.Latitude is not null && s.Longitude is not null;
+    var hasDirections = Ntca.Web.Services.ShopCopy.HasPreciseDestination(s);
+    var stateName = Ntca.Web.Services.ShopCopy.StateName(s.StateCode);
+    var today = (byte)Ntca.Web.Services.ShopCopy.LocalNow(s.StateCode).DayOfWeek;
+    var mail = "mailto:reports@wte.net?subject=" + Uri.EscapeDataString("Listing edit: " + s.Name);
+}
+<div class="ntca-container shop-page">
+<nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/shops">Find shops</a> <span aria-hidden="true">›</span>
+    <a href="/shops/@s.StateCode.ToLowerInvariant()">@stateName</a> <span aria-hidden="true">›</span>
+    <a href="/shops/@s.StateCode.ToLowerInvariant()/@Ntca.Web.Services.ShopCopy.CitySlug(s.City)">@s.City</a> <span aria-hidden="true">›</span>
+    <span>@s.Name</span>
+</nav>
+<p><a href="/shops">Back to results</a></p>
+<header class="shop-id" data-testid="shop-detail">
+    <h1 data-testid="shop-detail-name">@s.Name</h1>
+    @if (claimed)
+    {
+        <span class="owner-badge" title="This listing is managed by the business owner.">Owner claimed</span>
+    }
+    <p class="shop-id-meta">
+        @if (spec.Length > 0) { <span>@spec</span> }
+        <span>@s.City, @s.StateCode</span>
+        @if (open is not null) { <span>@open.Label</span> }
+        else if (Model.Google?.Cache.OpenNow is true) { <span>Open now</span> }
+        @if (Model.Google?.Cache.Rating is { } rating)
+        {
+            <span class="gplace-rating">
+                <span aria-hidden="true">★</span> @rating.ToString("0.0")
+                @if (Model.Google.Cache.UserRatingCount is { } n)
+                {
+                    if (!string.IsNullOrEmpty(Model.Google.Cache.GoogleMapsUri))
+                    {
+                        <a href="@Model.Google.Cache.GoogleMapsUri" rel="noopener nofollow" target="_blank">(@n Google reviews)</a>
+                    }
+                    else
+                    {
+                        <span>(@n Google reviews)</span>
+                    }
+                }
+            </span>
+        }
+        @if (s.IsEditorialFeatured) { <span class="ribbon feat" style="position:static" data-testid="shop-featured-ribbon">Featured</span> }
+        else if (s.IsDestinationShop) { <span class="ribbon dest" style="position:static">Destination</span> }
+        @if (s.IsEditorialFeatured && s.IsDestinationShop)
+        {
+            <span data-testid="shop-destination-note">Destination — imported, review needed</span>
+        }
+    </p>
+    <p class="shop-id-actions">
+        <button type="button" class="btn ghost" data-save-shop data-shop="@s.ShopId" data-name="@s.Name" data-loc="@Ntca.Web.Services.ShopCopy.Loc(s)" data-where="@s.City, @s.StateCode" aria-pressed="false">Save</button>
+        <button type="button" class="btn ghost" data-share-shop data-url="@Ntca.Web.Services.ShopCopy.Loc(s)" data-title="@s.Name">Share</button>
+    </p>
+</header>
+<div class="shop-stage">
+    <div class="shop-gallery" aria-label="Shop photos" data-testid="shop-gallery">
+        @if (!string.IsNullOrEmpty(Model.LogoUrl))
+        {
+            <img class="shop-detail-logo" src="@Model.LogoUrl" alt="@s.Name logo" width="120" height="120" data-testid="shop-detail-logo" />
+        }
+        @if (!string.IsNullOrEmpty(Model.CoverUrl))
+        {
+            <img src="@Model.CoverUrl" alt="Photo of @s.Name" width="1200" height="675" data-testid="shop-detail-cover" />
+        }
+        else if (Model.Google?.Photos.Count > 0)
+        {
+            <img src="/media/gplace/@s.ShopId/@Model.Google.Photos[0].Slot" alt="Photo of @s.Name" width="1200" height="675" />
+        }
+        else
+        {
+            <div class="shop-card-ph" role="img" aria-label="No photos yet for @s.Name" data-testid="shop-detail-placeholder">NTCA<small>Photo coming soon</small></div>
+        }
+    </div>
+    <aside class="visit-card sticky">
+        <h2>Plan your visit</h2>
+        <div class="stack">
+            @if (hasDirections)
+            {
+                <a class="ntca-primary-action" href="/t/directions?shop=@s.ShopId" rel="noopener">Get directions</a>
+            }
+            @if (Model.Socials.Any(l => l.PlatformCode == "WEBSITE"))
+            {
+                <a class="btn ghost" href="/t/website?shop=@s.ShopId" rel="noopener nofollow ugc" target="_blank">Visit website</a>
+            }
+            @if (!string.IsNullOrEmpty(s.Phone))
+            {
+                <a class="btn ghost" href="/t/phone?shop=@s.ShopId">Call shop</a>
+            }
+        </div>
+        @if (Model.Socials.Count > 0)
+        {
+            <div data-testid="shop-socials">
+            @await Html.PartialAsync("~/Views/Shared/_SocialIcons.cshtml", Model.Socials)
+            </div>
+        }
+        <p>
+            @if (address.Length > 0) { @address <br /> }
+            @s.City, @stateName @s.PostalCode
+        </p>
+        @if (hasHours)
+        {
+            <h3>Hours</h3>
+            <ul class="hours-list">
+            @foreach (var h in Model.Hours.OrderBy(h => h.DayOfWeek == 0 ? 7 : h.DayOfWeek))
+            {
+                <li class="@(h.DayOfWeek == today ? "today" : null)">
+                    <span>@Ntca.Web.Services.ShopCopy.DayName(h.DayOfWeek)@(h.DayOfWeek == today ? " (today)" : "")</span>
+                    <span>@Ntca.Web.Services.ShopCopy.HoursLine(h)</span>
+                </li>
+            }
+            </ul>
+        }
+        else if (Ntca.Web.Services.GooglePlacesHours.WeekdayLines(Model.Google?.Cache.HoursJson).Count > 0)
+        {
+            <h3>Hours</h3>
+            <ul class="hours-list">
+            @foreach (var line in Ntca.Web.Services.GooglePlacesHours.WeekdayLines(Model.Google!.Cache.HoursJson))
+            {
+                <li>@line</li>
+            }
+            </ul>
+            <p class="meta">Hours from Google. Confirm with the shop before you visit.</p>
+        }
+        else
+        {
+            <p class="meta">Hours not provided.</p>
+        }
+        @if (hasMap)
+        {
+            <div class="shop-map">
+                <iframe title="Map of @s.Name" src="@Ntca.Web.Services.ShopCopy.OsmEmbedUrl(s)" loading="lazy"></iframe>
+            </div>
+        }
+        <p class="meta" style="margin-top:16px">
+            @if (claimed)
+            {
+                <a href="/owner/login">Manage listing</a>
+            }
+            else
+            {
+                <a href="/signup">Own this shop?</a>
+            }
+            · <a href="@mail">Suggest an edit</a>
+        </p>
+    </aside>
+</div>
+<nav class="shop-tabs" aria-label="Shop sections">
+    <a href="#overview">Overview</a>
+    <a href="#photos">Photos</a>
+    <a href="#events">Events</a>
+    <a href="#details">Details</a>
+</nav>
+<p class="shop-ai-summary ai-summary">@Model.AiSummary</p>
+<section id="overview">
+    <h2>A local home for collectors.</h2>
+    @if (!string.IsNullOrEmpty(s.Description))
+    {
+        <p class="lede">@s.Description</p>
+    }
+    else
+    {
+        <p class="lede">@Model.AiSummary</p>
+    }
+    @if (Model.Services.Count > 0)
+    {
+        <h3>Services</h3>
+        <p class="service-chips">
+        @foreach (var svc in Model.Services)
+        {
+            <span>@svc</span>
+        }
+        </p>
+    }
+</section>
+<section id="photos">
+    <h2>Photos</h2>
+    @if (Model.Photos.Count > 0)
+    {
+        <div class="shop-card-list" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))" data-testid="shop-owner-photos">
+        @foreach (var photo in Model.Photos)
+        {
+            <figure data-testid="shop-photo-@photo.PhotoId">
+                <img src="@photo.CardUrl" alt="@(photo.Alt ?? ("Photo of " + s.Name))" width="640" height="360" loading="lazy" />
+                @if (!string.IsNullOrEmpty(photo.Caption))
+                {
+                    <figcaption class="meta">@photo.Caption</figcaption>
+                }
+            </figure>
+        }
+        </div>
+    }
+    else if (Model.Google?.Photos.Count > 0)
+    {
+        <div class="shop-card-list" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
+        @foreach (var photo in Model.Google.Photos)
+        {
+            <figure>
+                <img src="/media/gplace/@s.ShopId/@photo.Slot" alt="Photo of @s.Name" width="640" height="360" loading="lazy" />
+                @if (!string.IsNullOrEmpty(photo.AuthorName))
+                {
+                    <figcaption class="meta">Photo: @photo.AuthorName</figcaption>
+                }
+            </figure>
+        }
+        </div>
+        <p class="meta">Photos from Google. <a href="https://www.google.com/" rel="noopener">Google</a></p>
+    }
+    else
+    {
+        <p class="meta">No photos have been uploaded for this listing yet.</p>
+    }
+</section>
+<section id="events">
+    <h2>Upcoming events</h2>
+    @if (Model.Events.Count == 0)
+    {
+        <p class="meta">No upcoming events listed.</p>
+    }
+    else
+    {
+        <div class="event-list">
+        @foreach (var e in Model.Events.Take(3))
+        {
+            @await Html.PartialAsync("_EventCard", e)
+        }
+        </div>
+        @if (Model.Events.Count > 3)
+        {
+            <p><a href="/calendar">View all events</a></p>
+        }
+    }
+</section>
+<section id="details">
+    <h2>Details</h2>
+    <div class="card">
+        @if (address.Length > 0) { <p>@address</p> }
+        <p>@s.City, @s.StateCode @s.PostalCode</p>
+        @if (!string.IsNullOrEmpty(s.Phone))
+        {
+            <p><a href="/t/phone?shop=@s.ShopId">@s.Phone</a></p>
+        }
+        @if (Model.Socials.Count > 0)
+        {
+            @await Html.PartialAsync("~/Views/Shared/_SocialIcons.cshtml", Model.Socials)
+            foreach (var link in Model.Socials)
+            {
+                <p><a href="@link.TrackHref" rel="noopener nofollow ugc" target="_blank">@link.Label</a></p>
+            }
+        }
+        @if (!string.IsNullOrEmpty(s.PublicEmail) && !Model.Socials.Any(l => l.PlatformCode == "EMAIL"))
+        {
+            <p><a href="mailto:@s.PublicEmail">@s.PublicEmail</a></p>
+        }
+    </div>
+</section>
+<p class="meta"><a href="@Model.MarkdownUrl">Plain-text version</a> for AI crawlers</p>
+<p><a href="/shops/@s.StateCode.ToLowerInvariant()">@stateName shops</a> · <a href="/shops">All shops</a></p>
+</div>
+@if (hasDirections || !string.IsNullOrEmpty(s.Phone) || Model.Socials.Count > 0)
+{
+    <div class="visit-dock" role="navigation" aria-label="Visit actions">
+        @if (hasDirections)
+        {
+            <a class="ntca-primary-action" href="/t/directions?shop=@s.ShopId" rel="noopener">Directions</a>
+        }
+        @if (!string.IsNullOrEmpty(s.Phone))
+        {
+            <a class="btn ghost" href="/t/phone?shop=@s.ShopId" style="color:#fff;border-color:rgba(255,255,255,.3)">Call</a>
+        }
+        @if (Model.Socials.Count > 0)
+        {
+            ViewBag.SocialTake = 4;
+            @await Html.PartialAsync("~/Views/Shared/_SocialIcons.cshtml", Model.Socials)
+        }
+    </div>
+}
+@section Scripts {
+@Html.Raw("<script type=\"application/ld+json\">\n")
+@Html.Raw(Model.JsonLd)
+@Html.Raw("\n</script>")
+}

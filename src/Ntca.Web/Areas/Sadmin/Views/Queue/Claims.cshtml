@@ -1,0 +1,25 @@
+@model List<Ntca.Core.ShopClaimRequest>
+@{
+    ViewData["Title"] = "Claim queue";
+}
+<p class="admin-crumbs">Workspace / Claim queue</p>
+<h1 class="admin-h1">Claim queue</h1>
+@if (!Model.Any())
+{
+    <p class="admin-empty" data-testid="claims-empty">No pending claims.</p>
+}
+<div data-testid="claims-list">
+@foreach (var c in Model)
+{
+    <div class="card" style="margin-bottom:12px" data-testid="claim-row-@c.ClaimRequestId">
+        <h3>@(c.Shop?.Name ?? ("Shop " + c.ShopId))</h3>
+        <p>@c.RequestedBy?.DisplayName · @c.ContactEmail · @c.VerificationMethod</p>
+        <form method="post" action="/SADMIN/queue/claims/@c.ClaimRequestId">
+            @Html.AntiForgeryToken()
+            <input name="reason" placeholder="Note" />
+            <button class="admin-gold" name="decision" value="approve" type="submit">Approve</button>
+            <button class="admin-ghost" name="decision" value="reject" type="submit">Reject</button>
+        </form>
+    </div>
+}
+</div>

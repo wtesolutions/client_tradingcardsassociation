@@ -1,0 +1,44 @@
+@model Ntca.Core.PersonBio
+@using Ntca.Web.Services
+@{
+    var image = ViewBag.ImageUrl as string;
+    var paras = Model.BioText.Replace("\r\n", "\n").Split("\n\n", StringSplitOptions.RemoveEmptyEntries);
+}
+@if (ViewBag.JsonLd is string json)
+{
+    <script type="application/ld+json">@Html.Raw(json)</script>
+}
+<div class="ntca-container page-prose person-detail">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <a href="/about">About</a>
+        <span aria-hidden="true">/</span>
+        <a href="/people">People</a>
+        <span aria-hidden="true">/</span>
+        <span>@Model.FullName</span>
+    </nav>
+    <header class="person-head">
+        @if (image is not null)
+        {
+            <img class="person-photo" src="@image" alt="@Model.FullName, @Model.RoleTitle" width="240" height="240" />
+        }
+        <div>
+            <p class="kicker">@Model.RoleTitle</p>
+            <h1>@Model.FullName</h1>
+        </div>
+    </header>
+    @foreach (var para in paras)
+    {
+        <p>@para</p>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.Quote))
+    {
+        <blockquote class="person-quote">@Model.Quote</blockquote>
+    }
+    <p class="cta-row">
+        <a class="btn ghost" href="/people">All people</a>
+        <a class="btn ghost" href="/about">About NTCA</a>
+        <a class="btn" href="/signup">Join the association</a>
+    </p>
+</div>

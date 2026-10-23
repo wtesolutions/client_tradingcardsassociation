@@ -1,0 +1,49 @@
+@model List<Ntca.Core.PersonBio>
+@using Ntca.Core
+@using Ntca.Web.Services
+@{
+    var figures = (List<IndustryFigure>)ViewBag.Figures;
+    var files = (IFileStorage)ViewBag.Files;
+}
+<div class="ntca-container page-prose" data-testid="page-people">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <a href="/about">About</a>
+        <span aria-hidden="true">/</span>
+        <span>People</span>
+    </nav>
+    <p class="kicker">People</p>
+    <h1>The people of the NTCA</h1>
+    <p class="lede">Officers, founding members, and industry figures. Each bio is stored in SQL and uses the original legacy photographs.</p>
+    <div class="people-grid">
+    @foreach (var p in Model)
+    {
+        var photo = string.IsNullOrWhiteSpace(p.PhotoLegacyPath) ? null : files.PublicUrl(p.PhotoLegacyPath);
+        <a class="person-card" href="/about/@p.Slug">
+            @if (photo is not null)
+            {
+                <img src="@photo" alt="@p.FullName, @p.RoleTitle" width="220" height="220" />
+            }
+            <h3>@p.FullName</h3>
+            <p class="meta">@p.RoleTitle</p>
+            <p>@PersonJsonLd.FirstParagraph(p.BioText)</p>
+        </a>
+    }
+    </div>
+    @if (figures.Count > 0)
+    {
+        <h2>Industry figures</h2>
+        <div class="people-grid">
+        @foreach (var f in figures)
+        {
+            <a class="person-card" href="/people/@f.Slug">
+                <h3>@f.FullName</h3>
+                <p class="meta">@f.RoleTitle</p>
+                <p>@f.Summary</p>
+            </a>
+        }
+        </div>
+    }
+    <p><a href="/bloggers">Trading card blogs</a> · <a href="/about">About NTCA</a></p>
+</div>

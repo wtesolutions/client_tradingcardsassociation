@@ -1,0 +1,32 @@
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.Extensions.Configuration
+@using Microsoft.Extensions.Hosting
+@inject IWebHostEnvironment Env
+@inject IConfiguration Config
+@{
+    ViewData["Title"] = "Join NTCA Preview";
+}
+<div class="funnel">
+<p class="kicker">Preview signup</p>
+<h1>Join the Preview list</h1>
+<p class="lede">Same short form as the live site. We’ll email a confirmation link. The “who are you” questions come after — optional, and you can skip them.</p>
+@if (ViewBag.Error is string err)
+{
+    <p class="card" role="alert">@err</p>
+}
+<form method="post" action="/signup" class="funnel-form signup-simple" data-testid="signup-form">
+    @Html.AntiForgeryToken()
+    <p><label for="name">Name<br /><input id="name" name="name" type="text" value="@(ViewBag.Name as string)" autocomplete="name" required data-testid="signup-name" /></label></p>
+    <p><label for="email">Email<br /><input id="email" name="email" type="email" value="@(ViewBag.Email as string)" autocomplete="email" required data-testid="signup-email" /></label></p>
+    <p><label for="zip">ZIP <span class="meta">(optional)</span><br /><input id="zip" name="zip" value="@(ViewBag.Zip as string)" inputmode="numeric" autocomplete="postal-code" maxlength="10" /></label></p>
+    <p><label for="phone">Contact number <span class="meta">(optional)</span><br /><input id="phone" name="phone" type="tel" value="@(ViewBag.Phone as string)" autocomplete="tel" /></label></p>
+    <p><label for="social">Social media <span class="meta">(optional)</span><br /><input id="social" name="social" value="@(ViewBag.Social as string)" placeholder="@@handle" autocomplete="nickname" /></label></p>
+    @if (!Env.IsDevelopment() && !string.IsNullOrWhiteSpace(Config["Turnstile:SiteKey"]))
+    {
+        <div class="cf-turnstile" data-sitekey="@Config["Turnstile:SiteKey"]"></div>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    }
+    <button class="btn" type="submit" data-testid="signup-submit">Submit</button>
+</form>
+<p class="fine meta" style="margin-top:1rem">Never submit passwords through this form. Confirmation comes from reports@wte.net (Development: console / App_Data/dev-mail).</p>
+</div>

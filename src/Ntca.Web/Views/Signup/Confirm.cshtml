@@ -1,0 +1,31 @@
+@{
+    ViewData["Title"] = "Email confirmed";
+    var ok = ViewBag.Confirmed as bool? == true;
+    var done = ViewBag.OnboardingDone as bool? == true;
+    var token = ViewBag.Token as Guid?;
+    var qs = token is Guid t ? "?token=" + t : "";
+}
+<div class="funnel">
+<p class="kicker">Preview signup</p>
+<h1>@(ok ? "Email confirmed" : "Link not found")</h1>
+@if (ok)
+{
+    <p class="lede">You’re confirmed on the NTCA Preview list. A short “get to know you” is optional — skip it anytime and come back from your account.</p>
+    @if (!done)
+    {
+        <p>
+            <a class="btn" href="/onboarding@(qs)">Get to know you</a>
+            <form method="post" action="/onboarding/skip@(qs)" style="display:inline">
+                @Html.AntiForgeryToken()
+                <button class="btn ghost" type="submit">Skip for now</button>
+            </form>
+        </p>
+    }
+    <p><a href="/account@(qs)">My account</a> · <a href="/">Home</a></p>
+}
+else
+{
+    <p class="lede">That confirmation link is invalid or expired.</p>
+    <p><a class="btn" href="/signup">Join Preview</a></p>
+}
+</div>

@@ -1,0 +1,22 @@
+name: ntca-app
+on:
+  push:
+    paths:
+      - "src/**"
+      - "db/source/**"
+      - ".github/workflows/ntca-app.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "db/source/**"
+      - ".github/workflows/ntca-app.yml"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+      - name: Build and test
+        run: dotnet test src/Ntca.sln --configuration Release

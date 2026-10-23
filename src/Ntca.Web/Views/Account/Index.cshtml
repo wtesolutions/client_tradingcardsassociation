@@ -1,0 +1,44 @@
+@using Ntca.Web.Services
+@{
+    ViewData["Title"] = "My account";
+    var funnel = (Ntca.Core.SignupFunnel)ViewBag.Funnel;
+    var signup = ViewBag.Signup as Ntca.Core.Signup;
+    var roles = (IReadOnlyList<string>)ViewBag.Roles;
+    var token = ViewBag.Token as Guid?;
+    var qs = token is Guid t ? "?token=" + t : "";
+    var pending = signup?.Status == "PENDING_CONFIRM";
+    var onboarded = funnel.OnboardingStatus is FunnelFlow.OnboardCompleted or FunnelFlow.OnboardSkipped;
+}
+<div class="funnel">
+<p class="kicker">Preview member</p>
+<h1>My account</h1>
+<p class="lede">@(signup?.FirstName ?? funnel.FirstName ?? "Friend"), you’re on the Preview list as @(signup?.Email ?? funnel.Email).</p>
+<p class="meta">Signup: @(signup?.Status ?? "—") · Onboarding: @funnel.OnboardingStatus</p>
+@if (roles.Count > 0)
+{
+    <p class="meta">Roles: @string.Join(", ", roles)</p>
+}
+@if (pending)
+{
+    <p class="card">Confirm the email we sent, then you can finish “get to know you.”</p>
+}
+else if (!onboarded)
+{
+    <p>
+        <a class="btn" href="/onboarding@(qs)">@(funnel.OnboardingStatus == FunnelFlow.OnboardInProgress ? "Resume get to know you" : "Get to know you")</a>
+        <form method="post" action="/onboarding/skip@(qs)" style="display:inline">
+            @Html.AntiForgeryToken()
+            <button class="btn ghost" type="submit">Skip</button>
+        </form>
+    </p>
+}
+else
+{
+    <p class="card">You’re all set. You can still browse shops and the calendar.</p>
+    @if (funnel.OnboardingStatus == FunnelFlow.OnboardSkipped)
+    {
+        <p><a class="btn ghost" href="/onboarding@(qs)">Start get to know you</a></p>
+    }
+}
+<p><a href="/">Home</a></p>
+</div>

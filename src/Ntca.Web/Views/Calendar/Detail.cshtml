@@ -1,0 +1,36 @@
+@model Ntca.Core.ShopEvent
+@{
+    ViewData["Title"] = Model.Title;
+}
+<p class="kicker">@Model.Scope · @Model.Status</p>
+<h1>@Model.Title</h1>
+<p class="lede">@Model.StartsAt.ToString("dddd, MMMM d, yyyy")@if (Model.EndsAt is DateTime end) { <text> – @end.ToString("MMMM d, yyyy")</text> }</p>
+<div class="card">
+    <p><strong>Venue:</strong> @(Model.Venue?.Name ?? "TBA") — @(Model.City ?? Model.Venue?.City), @Model.StateCode</p>
+    <p><strong>Promoter:</strong> @(Model.Promoter?.Name ?? "—")</p>
+    @if (!string.IsNullOrEmpty(Model.AdmissionText)) { <p><strong>Admission:</strong> @Model.AdmissionText</p> }
+    @if (Model.TableCount is int n) { <p><strong>Tables:</strong> @n</p> }
+    @if (!string.IsNullOrEmpty(Model.Description)) { <p>@Model.Description</p> }
+    <p class="meta">Add to calendar:
+        <a href="@Ntca.Web.Services.CalendarIcs.IcsPath(Model)">Download .ics</a> ·
+        <a href="@Ntca.Web.Services.CalendarIcs.GoogleUrl(Model, $"{Context.Request.Scheme}://{Context.Request.Host}")" rel="noopener">Google</a> ·
+        <a href="@Ntca.Web.Services.CalendarIcs.OutlookUrl(Model)" rel="noopener">Outlook</a>
+    </p>
+</div>
+@{
+    var exhibitors = ViewBag.Exhibitors as List<Ntca.Core.Shop> ?? [];
+}
+@if (exhibitors.Count > 0)
+{
+    <h2>Shops at this show</h2>
+    <div class="grid">
+    @foreach (var s in exhibitors)
+    {
+        <a class="card" href="@Ntca.Web.Services.ShopCopy.Loc(s)">
+            <h3>@s.Name</h3>
+            <p class="meta">@s.City, @s.StateCode</p>
+        </a>
+    }
+    </div>
+}
+<p><a href="/shows/@((Model.StateCode ?? "").ToLowerInvariant())">@Model.StateCode hub</a> · <a href="/calendar">Calendar</a> · <a href="/shows/@((Model.StateCode ?? "").ToLowerInvariant()).ics">@Model.StateCode .ics</a></p>

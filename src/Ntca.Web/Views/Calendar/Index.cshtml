@@ -1,0 +1,134 @@
+@using System.Text.Json
+@model List<Ntca.Core.ShopEvent>
+@{
+    ViewData["Title"] = "Card show calendar";
+    var view = (string)ViewBag.View;
+    var state = (string)ViewBag.State;
+    var q = (string)ViewBag.Q;
+    var scope = (string)ViewBag.Scope;
+    string Hub(string v, int? y = null, int? m = null)
+    {
+        var qs = new List<string> { "view=" + v };
+        if (!string.IsNullOrEmpty(state)) qs.Add("state=" + state);
+        if (!string.IsNullOrEmpty(scope)) qs.Add("scope=" + scope);
+        if (!string.IsNullOrEmpty(q)) qs.Add("q=" + Uri.EscapeDataString(q));
+        if (y is int yy && m is int mm) { qs.Add("year=" + yy); qs.Add("month=" + mm); }
+        return "/calendar?" + string.Join("&", qs);
+    }
+    var icsQs = new List<string>();
+    if (!string.IsNullOrEmpty(state)) icsQs.Add("state=" + state);
+    if (!string.IsNullOrEmpty(scope)) icsQs.Add("scope=" + scope);
+    if (!string.IsNullOrEmpty(q)) icsQs.Add("q=" + Uri.EscapeDataString(q));
+    var icsHref = "/calendar.ics" + (icsQs.Count == 0 ? "" : "?" + string.Join("&", icsQs));
+}
+<p class="kicker">National calendar</p>
+<h1>Upcoming card shows</h1>
+<p class="lede">Month, list, and map of published and postponed editions from <code>mkt.ShopEvent</code>. Promoters can <a href="/shows/submit">submit a show</a> for staff review.</p>
+<nav class="cal-tabs">
+    <a class="@(view=="month" ? "on" : "")" href="@Hub("month", ViewBag.Year as int?, ViewBag.Month as int?)">Month</a>
+    <a class="@(view=="list" ? "on" : "")" href="@Hub("list")">List</a>
+    <a class="@(view=="map" ? "on" : "")" href="@Hub("map")">Map</a>
+    <a href="@icsHref">Subscribe (.ics)</a>
+    <a href="/shows/submit">Submit a show</a>
+</nav>
+<form class="tools" method="get" action="/calendar">
+    <input type="hidden" name="view" value="@view" />
+    <input name="q" value="@q" placeholder="Search title or city" />
+    <select name="state">
+        <option value="">All states</option>
+        @foreach (var st in (List<string>)ViewBag.States)
+        {
+            <option value="@st" selected="@(st == state)">@st</option>
+        }
+    </select>
+    <select name="scope">
+        <option value="">All scopes</option>
+        @foreach (var sc in new[] { "LOCAL", "REGIONAL", "NATIONAL" })
+        {
+            <option value="@sc" selected="@(sc == scope)">@sc</option>
+        }
+    </select>
+    <button class="btn" type="submit">Filter</button>
+</form>
+
+@if (view == "month")
+{
+    var start = (DateTime)ViewBag.MonthStart;
+    var prev = start.AddMonths(-1);
+    var next = start.AddMonths(1);
+    var firstDow = ((int)start.DayOfWeek + 6) % 7; // Monday-first
+    var days = DateTime.DaysInMonth(start.Year, start.Month);
+    var cells = firstDow + days;
+    var weeks = (int)Math.Ceiling(cells / 7.0);
+    <div class="cal-nav">
+        <a class="btn ghost" href="@Hub("month", prev.Year, prev.Month)">← @prev.ToString("MMM yyyy")</a>
+        <h2>@start.ToString("MMMM yyyy")</h2>
+        <a class="btn ghost" href="@Hub("month", next.Year, next.Month)">@next.ToString("MMM yyyy") →</a>
+    </div>
+    <div class="cal-month">
+        @foreach (var dow in new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" })
+        {
+            <div class="cal-dow">@dow</div>
+        }
+        @for (var i = 0; i < weeks * 7; i++)
+        {
+            var dayNum = i - firstDow + 1;
+            if (dayNum < 1 || dayNum > days)
+            {
+                <div class="cal-day empty"></div>
+                continue;
+            }
+            var day = new DateTime(start.Year, start.Month, dayNum);
+            var hits = Model.Where(e => e.StartsAt.Date <= day && (e.EndsAt ?? e.StartsAt).Date >= day).ToList();
+            <div class="cal-day">
+                <span class="d">@dayNum</span>
+                @foreach (var e in hits)
+                {
+                    <a href="@Ntca.Web.Controllers.CalendarController.Loc(e)">@e.Title</a>
+                }
+            </div>
+        }
+    </div>
+}
+else if (view == "map")
+{
+    <p class="meta">Markers are shown only for venues that already have latitude and longitude. Nothing is geocoded here.</p>
+    <div id="cal-map" class="cal-map"></div>
+    @if (!((IEnumerable<object>)ViewBag.MapPoints).Any())
+    {
+        <p class="lede">No mapped venues in this filter. Use the list or month view, or add coordinates on <code>mkt.Venue</code>.</p>
+    }
+}
+else
+{
+    @foreach (var e in Model)
+    {
+        <a class="card" href="@Ntca.Web.Controllers.CalendarController.Loc(e)" style="display:block;margin-bottom:12px">
+            <h3>@e.Title</h3>
+            <p class="meta">@e.StartsAt.ToString("ddd MMM d, yyyy") · @(e.City ?? e.Venue?.City), @e.StateCode · @e.Scope @(e.IsFeatured ? "· Featured" : "")</p>
+            <p>@(e.Venue?.Name ?? e.Promoter?.Name)</p>
+        </a>
+    }
+}
+
+@section Scripts {
+@if (view == "map")
+{
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const points = @Html.Raw(JsonSerializer.Serialize(ViewBag.MapPoints));
+        const map = L.map('cal-map').setView([39.8, -98.5], 4);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+        const bounds = [];
+        for (const p of points) {
+            const m = L.marker([p.lat, p.lng]).addTo(map);
+            m.bindPopup('<a href="' + p.loc + '">' + p.title + '</a><br>' + (p.when || ''));
+            bounds.push([p.lat, p.lng]);
+        }
+        if (bounds.length) map.fitBounds(bounds, { padding: [24, 24] });
+    </script>
+}
+}

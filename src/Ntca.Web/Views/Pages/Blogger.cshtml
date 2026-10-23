@@ -1,0 +1,17 @@
+@model Ntca.Core.Blogger
+<div class="ntca-container page-prose">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <a href="/bloggers">Bloggers</a>
+        <span aria-hidden="true">/</span>
+        <span>@Model.Name</span>
+    </nav>
+    @if (ViewBag.LogoUrl is string logo)
+    {
+        <img class="blogger-logo" src="@logo" alt="@Model.Name logo" width="200" height="80" />
+    }
+    <h1>@Model.Name</h1>
+    <p class="lede">@Model.Description</p>
+    <p><a class="btn" href="@Model.WebsiteUrl" rel="noopener noreferrer">Visit website</a> <a class="btn ghost" href="/bloggers">All blogs</a></p>
+</div>

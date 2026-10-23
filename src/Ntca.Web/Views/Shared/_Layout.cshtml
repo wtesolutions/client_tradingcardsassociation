@@ -1,0 +1,160 @@
+﻿@inject IHttpContextAccessor Http
+@{
+    var ai = Ntca.Web.Services.AgentConciergeMiddleware.Current(Http.HttpContext);
+    var path = Http.HttpContext?.Request.Path.Value ?? "";
+    var isFunnel = path.StartsWith("/signup", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWith("/join", StringComparison.OrdinalIgnoreCase)
+        || path.StartsWith("/onboarding", StringComparison.OrdinalIgnoreCase);
+    var hideDock = isFunnel || ViewData["HideDock"] as bool? == true;
+    var mainClass = (string?)ViewData["MainClass"] ?? "wrap";
+    var bodyClass = "site"
+        + (isFunnel ? " is-funnel" : "")
+        + (hideDock ? "" : " has-dock")
+        + (string.IsNullOrEmpty(ViewData["BodyClass"] as string) ? "" : " " + ViewData["BodyClass"]);
+    var nav = new (string Href, string Label)[]
+    {
+        ("/shops", "Find shops"),
+        ("/calendar", "Shows & events"),
+        ("/new-to-trading-cards", "Card history"),
+        ("/about", "About NTCA")
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@(ViewData["Title"] ?? "NTCA") · National Trading Card Association</title>
+    <meta name="description" content="@(ViewData["Description"] ?? "National Trading Card Association — shops, shows, manufacturers, and a beginner guide.")" />
+    <link rel="icon" href="~/ntca-logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @if (ai?.IsAgent == true)
+    {
+        <link rel="agent-concierge" href="/.well-known/ai-concierge" />
+    }
+</head>
+@{
+    var imp = Http.HttpContext?.Items["Impersonation"] as Ntca.Web.Services.ImpersonationState;
+}
+<body class="@bodyClass.Trim()" data-testid="public-body">
+@if (imp?.Active == true)
+{
+    <div class="impersonate-banner" data-testid="impersonate-banner" role="status">
+        Viewing as @imp.OwnerName —
+        <form method="post" action="/SADMIN/impersonate/stop" style="display:inline">
+            @Html.AntiForgeryToken()
+            <button type="submit" data-testid="impersonate-stop">Stop impersonating</button>
+        </form>
+    </div>
+}
+<header class="ntca-header" data-testid="site-header">
+    <div class="ntca-header-inner">
+        <a class="brand" href="/" aria-label="National Trading Card Association home" data-testid="nav-home">
+            <img class="brand-mark" src="~/ntca-logo.png" alt="" width="96" height="96" />
+            <span class="brand-name">National<br />Trading Card<br />Association</span>
+        </a>
+        @if (!isFunnel)
+        {
+            <nav class="ntca-nav" aria-label="Primary" data-testid="nav-primary">
+                @foreach (var item in nav)
+                {
+                    <a href="@item.Href" data-testid="nav-@item.Label.ToLowerInvariant().Replace(" ", "-").Replace("&", "and")">@item.Label</a>
+                }
+            </nav>
+            <a class="ntca-primary-action header-cta" href="/signup" data-testid="header-join">Join the association →</a>
+            <button type="button" class="menu-toggle" data-menu-open aria-controls="mobile-menu" aria-expanded="false" data-testid="nav-menu">Menu</button>
+        }
+    </div>
+    @if (!isFunnel)
+    {
+        <div class="mobile-menu" id="mobile-menu" hidden>
+            <div class="mobile-menu-panel" role="dialog" aria-modal="true" aria-label="Site menu">
+                <button type="button" class="menu-close" data-menu-close>Close</button>
+                <nav aria-label="Mobile">
+                    @foreach (var item in nav)
+                    {
+                        <a href="@item.Href">@item.Label</a>
+                    }
+                    <a href="/gallery">Gallery</a>
+                    <a href="/people">People</a>
+                    <a href="/network">The Network</a>
+                    <a href="/events">Events</a>
+                    <a href="/manufacturers">Manufacturers</a>
+                    <a href="/grading">Grading</a>
+                    <a href="/news">News</a>
+                    <a href="/contact">Contact</a>
+                    <a class="ntca-primary-action" href="/signup">Join the association →</a>
+                </nav>
+            </div>
+        </div>
+    }
+</header>
+<main class="@mainClass">
+@if (ai?.IsAgent == true && Http.HttpContext?.Request.Path.StartsWithSegments("/SADMIN") != true && Http.HttpContext?.Request.Path.StartsWithSegments("/owner") != true)
+{
+    <aside class="agent-welcome ntca-container" data-ntca-agent-welcome="1" data-assistant="@ai.AssistantName" data-role="@ai.Role">
+        <strong>Welcome, @(string.IsNullOrEmpty(ai.AssistantName) ? "AI assistant" : ai.AssistantName).</strong>
+        NTCA is happy to help your human. Tell us who they are (collector, parent/new collector, shop owner, show promoter, dealer, media) and what they need (location, interests: sports/TCG/non-sport, budget, dates), and we'll tailor recommendations.
+        <span class="meta">Do not send the human's name, email, or phone. Use <a href="/api/v1/agent/ask">POST /api/v1/agent/ask</a> or <a href="/agent">/agent</a>.</span>
+    </aside>
+}
+    @RenderBody()
+</main>
+<footer class="ntca-footer" data-testid="site-footer">
+    <div class="ntca-footer-inner">
+        <a class="brand" href="/" aria-label="National Trading Card Association home">
+            <img class="brand-mark brand-mark-sm" src="~/ntca-logo.png" alt="" width="72" height="72" />
+            <span class="brand-name">National<br />Trading Card<br />Association</span>
+        </a>
+        <nav class="ntca-footer-nav" aria-label="Footer" data-testid="footer-nav">
+            <a href="/shops">Find shops</a>
+            <a href="/calendar">Shows &amp; events</a>
+            <a href="/new-to-trading-cards">Card history</a>
+            <a href="/about">About NTCA</a>
+            <a href="/people">People</a>
+            <a href="/gallery">Gallery</a>
+            <a href="/network">The Network</a>
+            <a href="/events">Events</a>
+            <a href="/manufacturers">Manufacturers</a>
+            <a href="/grading">Grading</a>
+            <a href="/news">News</a>
+            <a href="/contact">Contact</a>
+        </nav>
+        <a class="ntca-outline-action" href="/signup">Join the association</a>
+    </div>
+    <div class="ntca-footer-meta">
+        <span>© 2026 National Trading Card Association</span>
+        <span><a href="/account">My account</a> · <a href="/owner">Shop owner</a></span>
+    </div>
+</footer>
+@if (!hideDock)
+{
+    <nav class="ntca-dock" aria-label="Quick links">
+        <a href="/shops" class="@(path.StartsWith("/shops", StringComparison.OrdinalIgnoreCase) ? "on" : null)">
+            <span class="dock-ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </span>
+            Shops
+        </a>
+        <a href="/calendar" class="@(path.StartsWith("/calendar", StringComparison.OrdinalIgnoreCase) || path.StartsWith("/shows", StringComparison.OrdinalIgnoreCase) ? "on" : null)">
+            <span class="dock-ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            Events
+        </a>
+        <a href="/saved" class="@(path.StartsWith("/saved", StringComparison.OrdinalIgnoreCase) ? "on" : null)">
+            <span class="dock-ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.6-7 10-7 10Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </span>
+            Saved
+        </a>
+    </nav>
+}
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

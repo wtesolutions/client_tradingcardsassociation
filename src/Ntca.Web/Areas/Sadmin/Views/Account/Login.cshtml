@@ -1,0 +1,25 @@
+@model Ntca.Web.Areas.Sadmin.Controllers.SadminLoginForm
+@{
+    ViewData["Title"] = "Staff sign-in";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+<h1>Staff sign-in</h1>
+<p class="lede">Emailed code. Seeded SUPERADMIN: egarrison@wte.net.</p>
+<form method="post" action="/SADMIN/login" data-testid="sadmin-login-form">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All"></div>
+    @if (ViewBag.MailHint is string hint)
+    {
+        <p class="card" role="status">@hint</p>
+    }
+    @if (ViewBag.DevBypass as bool? == true)
+    {
+        <p class="meta">Development bypass is on: enter <strong>888888</strong> after requesting a code (staff email required).</p>
+    }
+    <p><label>Email<br /><input asp-for="Email" type="email" required data-testid="sadmin-login-email" /></label></p>
+    @if (ViewBag.Sent as bool? == true)
+    {
+        <p><label>Code<br /><input asp-for="Code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" data-testid="sadmin-login-code" /></label></p>
+    }
+    <button class="btn" type="submit" data-testid="sadmin-login-submit">@(ViewBag.Sent as bool? == true ? "Sign in" : "Send code")</button>
+</form>

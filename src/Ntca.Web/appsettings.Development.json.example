@@ -1,0 +1,8 @@
+{
+  // Optional local override. The committed appsettings.Development.json already
+  // points at Eric's SQL box (10.100.1.87 / wte_NtcaDatabase). user-secrets win.
+  // Copy this to appsettings.Development.local.json only if you need Docker/localhost.
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost,1433;Database=wte_NtcaDatabase;User ID=ntca_app;Password=NtcaAppDev2026x;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Application Name=Ntca.Web"
+  }
+}

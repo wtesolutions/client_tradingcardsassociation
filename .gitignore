@@ -1,1 +1,30 @@
 .DS_Store
+
+# .NET / Visual Studio
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Email pickup fallback
+src/Ntca.Web/App_Data/
+
+# Local / secret config — never commit production passwords or keys.
+# appsettings.Development.json is committed (DEV ONLY SQL defaults). Use
+# appsettings.Development.local.json or user-secrets to override.
+appsettings.*.local.json
+appsettings.Production.json
+*.pfx
+secrets.json
+.env
+.env.*
+!.env.example
+
+# sqlcmd / local scratch
+*.sqlcmd.rsc
+db/_local/
+__pycache__/
+*.pyc

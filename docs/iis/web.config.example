@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Example IIS / ANCM config for Ntca.Web on Windows Server 2025.
+  This is documentation, not a deployed site. The real web.config is produced
+  by `dotnet publish`. Keep robots.txt, llms.txt, and sitemap*.xml as ASP.NET
+  routes — do not drop physical files in wwwroot with those names.
+-->
+<configuration>
+  <location path="." inheritInChildApplications="false">
+    <system.webServer>
+      <handlers>
+        <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Unspecified" />
+      </handlers>
+      <aspNetCore processPath="dotnet"
+                  arguments=".\Ntca.Web.dll"
+                  stdoutLogEnabled="true"
+                  stdoutLogFile=".\logs\stdout"
+                  hostingModel="inprocess">
+        <environmentVariables>
+          <!-- Secrets live on the server / app pool, never in git.
+               ConnectionStrings__DefaultConnection=Server=HAMMER;Database=wte_NtcaDatabase;User ID=ntca_app;Password=***;Encrypt=True;TrustServerCertificate=True -->
+        </environmentVariables>
+      </aspNetCore>
+      <httpProtocol>
+        <customHeaders>
+          <!-- Preview/staging also set X-Robots-Tag in middleware from Site:Mode. -->
+        </customHeaders>
+      </httpProtocol>
+      <security>
+        <requestFiltering>
+          <fileExtensions>
+            <remove fileExtension=".txt" />
+            <remove fileExtension=".xml" />
+          </fileExtensions>
+        </requestFiltering>
+      </security>
+      <!-- Do not add a defaultDocument pointing at leftover GitHub Pages HTML. -->
+      <!-- URL Rewrite is optional. Prefer endpoint routing:
+             /robots.txt  /llms.txt  /llms-full.txt
+             /sitemap.xml  /sitemap/static.xml  /sitemap/shops.xml
+             /sitemap/shops-{state}.xml  /sitemap/events.xml
+             /sitemap/posts.xml  /sitemap/profiles.xml  /sitemap/images.xml
+           If a CDN or ARR sits in front, preserve X-Forwarded-Proto so
+           sitemap loc URLs stay https. -->
+    </system.webServer>
+  </location>
+</configuration>

@@ -1,0 +1,141 @@
+@using Ntca.Web.Services
+@model Ntca.Web.Areas.Sadmin.Controllers.SadminShopListVm
+@{
+    ViewData["Title"] = "Shops";
+    var start = Model.Total == 0 ? 0 : ((Model.Page - 1) * Model.PageSize) + 1;
+    var end = Math.Min(Model.Page * Model.PageSize, Model.Total);
+    var pages = Math.Max(1, (int)Math.Ceiling(Model.Total / (double)Model.PageSize));
+    string Keep(int? page = null, long? inspect = null)
+    {
+        var qs = new List<string>();
+        if (Model.Q.Length > 0) qs.Add("q=" + Uri.EscapeDataString(Model.Q));
+        if (Model.State.Length > 0) qs.Add("state=" + Uri.EscapeDataString(Model.State));
+        if (Model.Claim.Length > 0) qs.Add("claim=" + Uri.EscapeDataString(Model.Claim));
+        if (Model.Listing.Length > 0) qs.Add("listing=" + Uri.EscapeDataString(Model.Listing));
+        if (Model.Designation.Length > 0) qs.Add("designation=" + Uri.EscapeDataString(Model.Designation));
+        if (Model.PageSize != 25) qs.Add("pageSize=" + Model.PageSize);
+        qs.Add("page=" + (page ?? Model.Page));
+        if (inspect is long id) qs.Add("inspect=" + id);
+        return "/SADMIN/shops?" + string.Join("&", qs);
+    }
+}
+<p class="admin-crumbs">Directory / Shops</p>
+<h1 class="admin-h1">Shops</h1>
+<p class="admin-sub">Filter stays in the URL so Back works.</p>
+
+<form class="admin-toolbar" method="get" action="/SADMIN/shops" data-testid="shops-filters">
+    <label>Name or city
+        <input name="q" value="@Model.Q" data-testid="shops-filter-q" />
+    </label>
+    <label>State
+        <input name="state" value="@Model.State" maxlength="2" data-testid="shops-filter-state" />
+    </label>
+    <label>Claim
+        <select name="claim" data-testid="shops-filter-claim">
+            <option value="">Any</option>
+            <option value="UNCLAIMED" selected="@(Model.Claim == "UNCLAIMED" ? "selected" : null)">Unclaimed</option>
+            <option value="PENDING" selected="@(Model.Claim == "PENDING" ? "selected" : null)">Pending</option>
+            <option value="CLAIMED" selected="@(Model.Claim == "CLAIMED" ? "selected" : null)">Claimed</option>
+        </select>
+    </label>
+    <label>Listing
+        <select name="listing" data-testid="shops-filter-listing">
+            <option value="">Any</option>
+            <option value="ACTIVE" selected="@(Model.Listing == "ACTIVE" ? "selected" : null)">Active</option>
+            <option value="PENDING" selected="@(Model.Listing == "PENDING" ? "selected" : null)">Pending</option>
+        </select>
+    </label>
+    <label>Designation
+        <select name="designation" data-testid="shops-filter-designation">
+            <option value="">Any</option>
+            <option value="featured" selected="@(Model.Designation == "featured" ? "selected" : null)">Featured</option>
+            <option value="destination" selected="@(Model.Designation == "destination" ? "selected" : null)">Destination</option>
+            <option value="none" selected="@(Model.Designation == "none" ? "selected" : null)">None</option>
+        </select>
+    </label>
+    <label>Page size
+        <select name="pageSize" data-testid="shops-page-size">
+            <option value="25" selected="@(Model.PageSize == 25 ? "selected" : null)">25</option>
+            <option value="50" selected="@(Model.PageSize == 50 ? "selected" : null)">50</option>
+            <option value="100" selected="@(Model.PageSize == 100 ? "selected" : null)">100</option>
+        </select>
+    </label>
+    <button class="admin-gold" type="submit" data-testid="shops-apply">Apply filters</button>
+    <a class="admin-ghost" href="/SADMIN/shops" data-testid="shops-clear">Clear filters</a>
+</form>
+
+<div class="admin-page">
+    <div class="admin-page-main">
+        <p class="admin-sub" data-testid="shops-count">@start–@end of @Model.Total</p>
+        <div class="admin-table-wrap">
+            <table data-testid="shops-table">
+                <thead>
+                    <tr>
+                        <th>Shop</th>
+                        <th>City/state</th>
+                        <th>Claim</th>
+                        <th>Listing</th>
+                        <th>Designation</th>
+                        <th class="num">Impressions (7 days)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var s in Model.Rows)
+                {
+                    var selected = Model.Inspect?.ShopId == s.ShopId;
+                    <tr data-testid="shop-row-@s.ShopId" data-inspect="@s.ShopId" class="@(selected ? "is-selected" : null)">
+                        <td><a href="@Keep(Model.Page, s.ShopId)" data-testid="shop-name-@s.Slug">@s.Name</a></td>
+                        <td>@s.City, @s.StateCode</td>
+                        <td>@ShopAdminCopy.TitleCaseStatus(s.ClaimStatus)</td>
+                        <td>@ShopAdminCopy.TitleCaseStatus(s.ListingStatus)</td>
+                        <td>@ShopAdminCopy.DesignationLabel(s)</td>
+                        <td class="num">@Model.Imp7.GetValueOrDefault(s.ShopId)</td>
+                        <td><a href="/SADMIN/shops/@s.ShopId/social">Links</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <nav class="admin-pager" data-testid="shops-pager" aria-label="Shop pages">
+            @if (Model.Page > 1) { <a href="@Keep(Model.Page - 1, Model.Inspect?.ShopId)">Previous</a> }
+            <span>Page @Model.Page of @pages</span>
+            @if (Model.Page < pages) { <a href="@Keep(Model.Page + 1, Model.Inspect?.ShopId)">Next</a> }
+        </nav>
+    </div>
+    <aside class="admin-inspector" data-testid="shop-inspector" hidden="@(Model.Inspect is null ? "hidden" : null)">
+        @if (Model.Inspect is { } shop)
+        {
+            <button type="button" class="admin-ghost" data-admin-inspect-close data-testid="inspector-close">Close</button>
+            <div class="admin-ph">No staff photo</div>
+            <h2 data-testid="inspector-name">@shop.Name</h2>
+            <p>@shop.City, @shop.StateCode</p>
+            <p>Claim: @ShopAdminCopy.TitleCaseStatus(shop.ClaimStatus)</p>
+            <p>Listing: @ShopAdminCopy.TitleCaseStatus(shop.ListingStatus)</p>
+            <p data-testid="inspector-source">Source: @(string.IsNullOrWhiteSpace(ShopAdminCopy.RawSource(shop)) ? "Unknown source" : ShopAdminCopy.RawSource(shop))</p>
+            <p data-testid="inspector-designation">@ShopAdminCopy.DesignationReviewState(shop)</p>
+            <p><a href="@ShopCopy.Loc(shop)" target="_blank" rel="noopener" data-testid="inspector-public">Preview public listing ↗</a></p>
+            <p><a class="admin-gold" href="/SADMIN/shops/@shop.ShopId/stats" data-testid="inspector-editor">Open editor →</a></p>
+            @if (Model.CanImpersonate)
+            {
+                if (Model.Owner?.User is { } owner)
+                {
+                    <form method="get" action="/SADMIN/impersonate/@shop.ShopId">
+                        <button class="admin-gold" type="submit" data-testid="impersonate-owner">Impersonate owner</button>
+                    </form>
+                    <p class="admin-sub">Owner: @owner.DisplayName (@owner.Email)</p>
+                }
+                else
+                {
+                    <form method="get" action="/SADMIN/impersonate/@shop.ShopId" data-testid="create-owner-form">
+                        <label>Create owner account &amp; impersonate
+                            <input name="email" type="email" placeholder="owner@example.com" data-testid="create-owner-email" />
+                        </label>
+                        <button class="admin-gold" type="submit" data-testid="create-owner-impersonate">Create owner account &amp; impersonate</button>
+                    </form>
+                    <p><a href="/SADMIN/shops/@shop.ShopId/proxy" data-testid="owner-proxy">Owner-proxy edit</a></p>
+                }
+            }
+        }
+    </aside>
+</div>

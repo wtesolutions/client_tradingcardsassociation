@@ -1,0 +1,18 @@
+@model List<Ntca.Core.ShopEvent>
+@{
+    ViewData["Title"] = $"Shows in {ViewBag.State}";
+}
+<p class="kicker">State hub</p>
+<h1>Shows in @ViewBag.State</h1>
+@if (!Model.Any())
+{
+    <p class="lede">No published shows in this state yet.</p>
+}
+@foreach (var e in Model)
+{
+    <a class="card" href="@Ntca.Web.Controllers.CalendarController.Loc(e)" style="display:block;margin-bottom:12px">
+        <h3>@e.Title</h3>
+        <p class="meta">@e.StartsAt.ToString("MMM d, yyyy") · @(e.City ?? e.Venue?.City)</p>
+    </a>
+}
+<p><a href="/calendar">← National calendar</a> · <a href="/shows/@(((string)ViewBag.State).ToLowerInvariant()).ics">Subscribe to @ViewBag.State (.ics)</a></p>

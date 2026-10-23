@@ -1,0 +1,35 @@
+@model Ntca.Core.IndustryFigure
+@if (ViewBag.JsonLd is string json)
+{
+    <script type="application/ld+json">@Html.Raw(json)</script>
+}
+<div class="ntca-container page-prose person-detail">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <a href="/people">People</a>
+        <span aria-hidden="true">/</span>
+        <span>@Model.FullName</span>
+    </nav>
+    <p class="kicker">@(Model.RoleTitle ?? "Industry figure")</p>
+    <h1>@Model.FullName</h1>
+    @if (!string.IsNullOrWhiteSpace(Model.Summary))
+    {
+        <p class="lede">@Model.Summary</p>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.WebsiteUrl))
+    {
+        <p><a href="@Model.WebsiteUrl" rel="noopener noreferrer">Website</a></p>
+    }
+    @if (Model.Sources.Count > 0)
+    {
+        <h2>Sources</h2>
+        <ul>
+        @foreach (var s in Model.Sources.OrderBy(x => x.SortOrder))
+        {
+            <li><a href="@s.Url" rel="noopener noreferrer">@s.Label</a></li>
+        }
+        </ul>
+    }
+    <p><a href="/people">All people</a></p>
+</div>

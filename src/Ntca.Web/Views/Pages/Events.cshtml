@@ -1,0 +1,43 @@
+@model List<Ntca.Core.AssociationEvent>
+<div class="ntca-container page-prose">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>Events</span>
+    </nav>
+    <p class="kicker">Events</p>
+    <h1>More than a card show.</h1>
+    <p class="lede">The National Trading Card Association Convention will be the association's premier annual gathering, bringing together collectors, businesses, industry leaders, educators, creators and organizations from across the trading card community.</p>
+    <p class="cta-row">
+        <a class="btn" href="/shows/submit">Submit an event</a>
+        <a class="btn ghost" href="/calendar">National show calendar</a>
+        <a class="btn ghost" href="/signup">Get notified</a>
+    </p>
+    <h2 id="upcoming">Upcoming association events</h2>
+    <p>Programming rolls out in phases through the year ahead. Hosting a show, meetup or shop night? <a href="/shows/submit">Submit an event</a>.</p>
+    <div class="assoc-events">
+    @foreach (var e in Model)
+    {
+        <article class="evt-card" id="@e.Slug">
+            <div class="evt-tile">
+                <span class="mo">@e.StartsAt.ToString("MMM")</span>
+                <span class="day">@e.StartsAt.ToString("dd")</span>
+                <span class="yr">@e.StartsAt.ToString("yyyy")</span>
+            </div>
+            <div>
+                <h3>@e.Title</h3>
+                <p class="meta">@e.Description</p>
+                @if (!string.IsNullOrWhiteSpace(e.City))
+                {
+                    <p class="meta">@e.City@(string.IsNullOrWhiteSpace(e.StateCode) ? "" : ", " + e.StateCode)</p>
+                }
+            </div>
+            <a class="btn ghost" href="/signup">Get notified</a>
+        </article>
+    }
+    </div>
+    @if (Model.Count == 0)
+    {
+        <p class="meta">Association events will appear here from <code>cms.Event</code>.</p>
+    }
+</div>

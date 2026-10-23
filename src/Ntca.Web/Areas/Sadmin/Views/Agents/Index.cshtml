@@ -1,0 +1,66 @@
+@model List<Ntca.Core.AgentInquiry>
+@{
+    ViewData["Title"] = "AI Visitors";
+}
+<h1>AI Visitors</h1>
+<p class="meta">Last 30 days. Anonymized intent only — no names, emails, phones, or IPs. 7-day visits: <strong>@ViewBag.Visits7</strong> · inquiries: <strong>@ViewBag.Inquiries7</strong></p>
+<h2>Visits by assistant</h2>
+<table>
+@foreach (var r in (IEnumerable<dynamic>)ViewBag.ByAssistant)
+{
+    <tr><td>@r.Name</td><td>@r.N</td></tr>
+}
+</table>
+<h2>Inquiries by role</h2>
+<table>
+@foreach (var r in (IEnumerable<dynamic>)ViewBag.ByRole)
+{
+    <tr><td>@r.Name</td><td>@r.N</td></tr>
+}
+</table>
+<h2>By state / interest</h2>
+<table>
+    <tr><th>State</th><th>n</th></tr>
+    @foreach (var r in (IEnumerable<dynamic>)ViewBag.ByState) { <tr><td>@r.Name</td><td>@r.N</td></tr> }
+</table>
+<table>
+    <tr><th>Interest</th><th>n</th></tr>
+    @foreach (var r in (IEnumerable<dynamic>)ViewBag.ByInterest) { <tr><td>@r.Name</td><td>@r.N</td></tr> }
+</table>
+<h2>Recent questions</h2>
+<table>
+@foreach (var q in (List<Ntca.Core.AgentInquiry>)ViewBag.Questions)
+{
+    <tr><td>@q.CreatedAt.ToString("MMM d HH:mm")</td><td>@q.AssistantName</td><td>@q.HumanRole</td><td>@q.StateCode @q.Zip3</td><td>@q.QuestionExcerpt</td></tr>
+}
+</table>
+<h2>UA catalog (editable)</h2>
+<p class="meta">More specific tokens should sort first. Disable a row to stop matching.</p>
+<table>
+    <tr><th>Token</th><th>Assistant</th><th>Role</th><th>On</th><th></th></tr>
+    @foreach (var r in (List<Ntca.Core.AgentUaRule>)ViewBag.Rules)
+    {
+        <tr>
+            <td>@r.Token</td><td>@r.AssistantName</td><td>@r.Role</td>
+            <td>@(r.IsEnabled ? "yes" : "no")</td>
+            <td>
+                <form method="post" action="/SADMIN/agents/rules/@r.AgentUaRuleId/toggle" style="margin:0">
+                    @Html.AntiForgeryToken()
+                    <button class="btn ghost" type="submit">Toggle</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>
+<form method="post" action="/SADMIN/agents/rules" class="tools">
+    @Html.AntiForgeryToken()
+    <input name="token" placeholder="UA token" required />
+    <input name="assistant" placeholder="Assistant name" required />
+    <select name="role">
+        <option>USER_ASSISTANT</option>
+        <option>SEARCH</option>
+        <option>TRAINING</option>
+    </select>
+    <input name="sort" type="number" value="200" style="width:5rem" />
+    <button class="btn" type="submit">Add rule</button>
+</form>
