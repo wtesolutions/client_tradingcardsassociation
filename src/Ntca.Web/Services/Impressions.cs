@@ -22,6 +22,7 @@ public static class ImpressionSurfaces
     public const string ClickPhone = "CLICK_PHONE";
     public const string ClickDirections = "CLICK_DIRECTIONS";
     public const string ClickSocial = "CLICK_SOCIAL";
+    public const string ClickView = "CLICK_VIEW";
 }
 
 public readonly record struct ImpressionHit(

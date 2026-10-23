@@ -18,18 +18,26 @@ public sealed class ShopsController : Controller
     }
 
     [HttpGet("/shops")]
-    public async Task<IActionResult> Index(string? q, string? state, string? view, CancellationToken ct)
+    public async Task<IActionResult> Index(string? q, string? state, string? view, string? zip, string? sort, double? lat, double? lng, CancellationToken ct)
     {
-        var query = Active();
+        IQueryable<Shop> query = Active().Include(s => s.Tier);
         var searching = !string.IsNullOrWhiteSpace(q);
         if (!string.IsNullOrWhiteSpace(state))
             query = query.Where(s => s.StateCode == state.Trim().ToUpperInvariant());
         if (searching)
         {
             var term = q!.Trim();
-            query = query.Where(s => s.Name.Contains(term) || s.City.Contains(term));
+            query = query.Where(s => s.Name.Contains(term) || s.City.Contains(term) || (s.PostalCode != null && s.PostalCode.StartsWith(term)));
         }
         var shops = await query.OrderBy(s => s.StateCode).ThenBy(s => s.City).ThenBy(s => s.Name).Take(400).ToListAsync(ct);
+        var (oLat, oLng, originHow) = ResolveOrigin(shops, zip, lat, lng);
+        if (string.Equals(sort, "distance", StringComparison.OrdinalIgnoreCase) && oLat is not null)
+        {
+            shops = shops
+                .OrderBy(s => ShopCopy.MilesFrom(s, oLat, oLng) ?? double.MaxValue)
+                .ThenBy(s => s.Name)
+                .ToList();
+        }
         var surface = searching ? ImpressionSurfaces.DirectorySearch
             : view == "map" ? ImpressionSurfaces.MapPin
             : ImpressionSurfaces.DirectoryList;
@@ -40,7 +48,12 @@ public sealed class ShopsController : Controller
 
         ViewBag.Q = q ?? "";
         ViewBag.State = state ?? "";
+        ViewBag.Zip = zip ?? "";
+        ViewBag.Sort = sort ?? "";
         ViewBag.View = view ?? "list";
+        ViewBag.OriginLat = oLat;
+        ViewBag.OriginLng = oLng;
+        ViewBag.OriginHow = originHow;
         ViewBag.States = await _db.Shops.AsNoTracking()
             .Where(s => s.ListingStatus == "ACTIVE")
             .Select(s => s.StateCode)
@@ -75,7 +88,7 @@ public sealed class ShopsController : Controller
         var code = state.Trim().ToUpperInvariant();
         if (code.Length != 2)
             return NotFound();
-        var shops = await Active().Where(s => s.StateCode == code)
+        var shops = await Active().Include(s => s.Tier).Where(s => s.StateCode == code)
             .OrderBy(s => s.City).ThenBy(s => s.Name).ToListAsync(ct);
         _track.RecordMany(shops, ImpressionSurfaces.DirectoryState, "/shops/" + code.ToLowerInvariant());
         ViewBag.State = code;
@@ -90,7 +103,7 @@ public sealed class ShopsController : Controller
         if (code.Length != 2)
             return NotFound();
         var slug = city.Trim().ToLowerInvariant();
-        var shops = await Active().Where(s => s.StateCode == code).ToListAsync(ct);
+        var shops = await Active().Include(s => s.Tier).Where(s => s.StateCode == code).ToListAsync(ct);
         shops = shops.Where(s => ShopCopy.CitySlug(s.City) == slug).OrderBy(s => s.Name).ToList();
         if (shops.Count == 0)
             return NotFound();
@@ -197,6 +210,16 @@ public sealed class ShopsController : Controller
 
     private IQueryable<Shop> Active()
         => _db.Shops.AsNoTracking().Where(s => s.ListingStatus == "ACTIVE");
+
+    private static (double? Lat, double? Lng, string How) ResolveOrigin(IReadOnlyList<Shop> shops, string? zip, double? lat, double? lng)
+    {
+        if (lat is >= -90 and <= 90 && lng is >= -180 and <= 180)
+            return (lat, lng, "device");
+        var fromZip = ShopCopy.OriginFromZip(shops, zip);
+        if (fromZip is { } z)
+            return (z.Lat, z.Lng, "zip");
+        return (null, null, "");
+    }
 
     private static IReadOnlyList<ShopServiceOffer> ServiceOffers(Shop shop, IReadOnlyList<ShopEvent> events)
     {

@@ -2513,8 +2513,21 @@ CREATE TABLE analytics.ShopImpression (
         'DIRECTORY_LIST','DIRECTORY_SEARCH','DIRECTORY_STATE',
         'HOME_ROTATION','FEATURED','SHOW_EXHIBITOR','MAP_PIN',
         'API_APP','DETAIL',
-        'CLICK_WEBSITE','CLICK_PHONE','CLICK_DIRECTIONS','CLICK_SOCIAL'))
+        'CLICK_WEBSITE','CLICK_PHONE','CLICK_DIRECTIONS','CLICK_SOCIAL','CLICK_VIEW'))
 );
+END
+GO
+IF EXISTS (
+    SELECT 1 FROM sys.check_constraints
+    WHERE name = N'CK_ShopImpression_Surface' AND parent_object_id = OBJECT_ID(N'analytics.ShopImpression')
+      AND definition NOT LIKE N'%CLICK_VIEW%')
+BEGIN
+    ALTER TABLE analytics.ShopImpression DROP CONSTRAINT CK_ShopImpression_Surface;
+    ALTER TABLE analytics.ShopImpression ADD CONSTRAINT CK_ShopImpression_Surface CHECK (Surface IN (
+        'DIRECTORY_LIST','DIRECTORY_SEARCH','DIRECTORY_STATE',
+        'HOME_ROTATION','FEATURED','SHOW_EXHIBITOR','MAP_PIN',
+        'API_APP','DETAIL',
+        'CLICK_WEBSITE','CLICK_PHONE','CLICK_DIRECTIONS','CLICK_SOCIAL','CLICK_VIEW'));
 END
 GO
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ShopImpression_ShopTime' AND object_id = OBJECT_ID(N'analytics.ShopImpression'))

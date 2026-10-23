@@ -150,6 +150,97 @@ public static class ShopCopy
            || !string.IsNullOrWhiteSpace(shop.AddressLine1)
            || !string.IsNullOrWhiteSpace(shop.City);
 
+    public static string SpecialtyLabel(string? specialty) => specialty?.ToUpperInvariant() switch
+    {
+        "SPORTS" => "Sports",
+        "POKEMON" => "Pokémon TCG",
+        "MAGIC" => "Magic",
+        "TCG_MIXED" => "Mixed TCG",
+        "NONSPORT" => "Non-sport",
+        "ALL" => "All cards",
+        _ => ""
+    };
+
+    public static string OneLine(Shop shop)
+    {
+        if (!string.IsNullOrWhiteSpace(shop.Description))
+        {
+            var t = shop.Description.Trim().Replace('\n', ' ');
+            return t.Length <= 140 ? t : t[..137] + "…";
+        }
+        return Summary(shop);
+    }
+
+    public static string? MapThumbUrl(Shop shop, int zoom = 14)
+    {
+        if (shop.Latitude is not { } lat || shop.Longitude is not { } lng)
+            return null;
+        var n = 1 << zoom;
+        var latRad = (double)lat * Math.PI / 180.0;
+        var x = (int)Math.Floor(n * (((double)lng + 180.0) / 360.0));
+        var y = (int)Math.Floor((1.0 - Math.Log(Math.Tan(latRad) + 1.0 / Math.Cos(latRad)) / Math.PI) / 2.0 * n);
+        x = Math.Clamp(x, 0, n - 1);
+        y = Math.Clamp(y, 0, n - 1);
+        return $"https://tile.openstreetmap.org/{zoom}/{x}/{y}.png";
+    }
+
+    public static double MilesBetween(double lat1, double lng1, double lat2, double lng2)
+    {
+        const double r = 3958.8;
+        static double Rad(double d) => d * Math.PI / 180.0;
+        var dLat = Rad(lat2 - lat1);
+        var dLng = Rad(lng2 - lng1);
+        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2)
+                + Math.Cos(Rad(lat1)) * Math.Cos(Rad(lat2)) * Math.Sin(dLng / 2) * Math.Sin(dLng / 2);
+        return r * 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+    }
+
+    public static double? MilesFrom(Shop shop, double? originLat, double? originLng)
+    {
+        if (originLat is null || originLng is null || shop.Latitude is null || shop.Longitude is null)
+            return null;
+        return MilesBetween(originLat.Value, originLng.Value, (double)shop.Latitude.Value, (double)shop.Longitude.Value);
+    }
+
+    public static string FormatMiles(double? miles)
+    {
+        if (miles is null)
+            return "";
+        return miles.Value < 10
+            ? miles.Value.ToString("0.0", CultureInfo.InvariantCulture) + " mi"
+            : Math.Round(miles.Value).ToString("0", CultureInfo.InvariantCulture) + " mi";
+    }
+
+    public static (double Lat, double Lng)? OriginFromZip(IEnumerable<Shop> shops, string? zip)
+    {
+        if (string.IsNullOrWhiteSpace(zip))
+            return null;
+        var digits = new string(zip.Where(char.IsDigit).ToArray());
+        if (digits.Length < 3)
+            return null;
+        foreach (var len in new[] { Math.Min(5, digits.Length), 3 })
+        {
+            var prefix = digits[..len];
+            var hit = shops.FirstOrDefault(s =>
+                s.PostalCode != null && s.PostalCode.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+                && s.Latitude is not null && s.Longitude is not null);
+            if (hit?.Latitude is { } lat && hit.Longitude is { } lng)
+                return ((double)lat, (double)lng);
+        }
+        return null;
+    }
+
+    public static string TelHref(string phone)
+    {
+        var sb = new StringBuilder("tel:");
+        foreach (var c in phone)
+        {
+            if (char.IsDigit(c) || c == '+')
+                sb.Append(c);
+        }
+        return sb.ToString();
+    }
+
     private static bool Contains(string hay, params string[] needles)
     {
         foreach (var n in needles)

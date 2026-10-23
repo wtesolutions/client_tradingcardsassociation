@@ -1,0 +1,52 @@
+@model Ntca.Core.Shop
+@{
+    var loc = Ntca.Web.Services.ShopCopy.Loc(Model);
+    var miles = Ntca.Web.Services.ShopCopy.MilesFrom(Model, ViewBag.OriginLat as double?, ViewBag.OriginLng as double?);
+    var milesLabel = Ntca.Web.Services.ShopCopy.FormatMiles(miles);
+    var thumb = Ntca.Web.Services.ShopCopy.MapThumbUrl(Model);
+    var spec = Ntca.Web.Services.ShopCopy.SpecialtyLabel(Model.PrimarySpecialty);
+    var blurb = Ntca.Web.Services.ShopCopy.OneLine(Model);
+    var tier = Model.Tier?.Name;
+}
+<article class="shop-card" data-shop="@Model.ShopId" data-lat="@Model.Latitude" data-lng="@Model.Longitude">
+    <div class="shop-card-thumb @(thumb is null ? "ph" : "")">
+        @if (thumb is not null)
+        {
+            <img src="@thumb" alt="" width="96" height="96" loading="lazy" decoding="async" />
+            <span class="shop-card-pin" aria-hidden="true"></span>
+        }
+        else
+        {
+            <span class="shop-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" width="40" height="40" fill="none"><rect x="10" y="8" width="28" height="32" rx="4" stroke="currentColor" stroke-width="2"/><path d="M16 18h16M16 24h12M16 30h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+        }
+        @if (milesLabel.Length > 0)
+        {
+            <span class="shop-card-dist">@milesLabel</span>
+        }
+    </div>
+    <div class="shop-card-body">
+        <div class="shop-card-top">
+            <h3>@Model.Name</h3>
+            @if (milesLabel.Length > 0)
+            {
+                <span class="shop-card-chip">@milesLabel</span>
+            }
+        </div>
+        <p class="shop-card-where"><span aria-hidden="true">📍</span> @Model.City, @Model.StateCode</p>
+        <p class="shop-card-pills">
+            @if (spec.Length > 0) { <span class="chip">@spec</span> }
+            @if (!string.IsNullOrEmpty(tier)) { <span class="chip">@tier</span> }
+            @if (Model.IsDestinationShop) { <span class="chip ok">Destination</span> }
+        </p>
+        <p class="shop-card-blurb">@blurb</p>
+        <p class="shop-card-actions">
+            @if (!string.IsNullOrWhiteSpace(Model.Phone))
+            {
+                <a class="btn ghost" href="/t/phone?shop=@Model.ShopId">Call</a>
+            }
+            <a class="btn" href="/t/view?shop=@Model.ShopId">View shop →</a>
+        </p>
+    </div>
+</article>

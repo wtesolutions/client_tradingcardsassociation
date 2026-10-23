@@ -73,7 +73,7 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | Path | What to check |
 |---|---|
 | `/` | Home with real shop / show / manufacturer counts |
-| `/shops` | Directory, state filter; destination shops show a Destination chip; `?view=map` plots pins with lat/lng |
+| `/shops` | Mobile-first cards (thumb + Call / View shop); sticky search/ZIP/Near me; `?zip=` / `?lat=&lng=&sort=distance`; desktop 2-col + side map; `?view=map` |
 | `/shops/{state}` | State hub (e.g. `/shops/ca`) — impressions use `DIRECTORY_STATE` |
 | `/shops/{state}/{city}` | City hub (breadcrumb target) |
 | `/shops/{state}/{city}/{slug}` | Shop detail + AI summary + JSON-LD `@graph` (try Burbank Sportscards or Dave & Adam's) |
@@ -128,6 +128,10 @@ Verify:
 4. SQL: `SELECT TOP 20 Surface, IsBot, PageUrl, CreatedAt FROM analytics.ShopImpression ORDER BY ImpressionId DESC;`
 5. Shop JSON-LD: view-source on `/shops/ny/williamsville/dave-adam-s-card-world-retail-superstore-williamsville-ny` and find `application/ld+json`. `dotnet test src/Ntca.sln` runs the parse + schema.org rule checks. Paste the graph into https://validator.schema.org/ for a visual spot-check.
 6. `curl -s http://localhost:5290/llms.txt` should list shop `.md` URLs. `curl -s http://localhost:5290/shops/ca/burbank/burbank-sportscards-burbank-ca.md` is the text version.
+
+## Mobile directory cards
+
+`/shops`, `/shops/{state}`, and `/shops/{state}/{city}` use the same card: OSM tile thumb + pin when lat/lng exist (35 seeded shops), otherwise a card-icon placeholder; specialty / tier / Destination pills; one-line blurb; **Call** (`/t/phone`) only if a phone exists; **View shop →** (`/t/view` → `CLICK_VIEW`). Sticky bar: search, ZIP, Near me (opt-in geolocation), state, distance sort. Desktop (≥960px): 2-column cards beside a Leaflet map. Shop detail has a compact header (map thumb, Call, Directions, Website). Check 390px (no horizontal scroll) and 1440px.
 
 ## AI concierge / VIP AI visitors
 

@@ -4,54 +4,45 @@
 }
 <p class="kicker">Directory</p>
 <h1>Hobby shops</h1>
-<p class="lede">@Model.Count listings from the seeded NTCA directory. Search by name or city; filter by state.</p>
-<form class="tools" method="get" action="/shops">
-    <input name="q" value="@ViewBag.Q" placeholder="Search shops" />
-    <select name="state">
-        <option value="">All states</option>
-        @foreach (var st in (List<string>)ViewBag.States)
+<p class="lede">@Model.Count listings from the seeded NTCA directory. Search by name, city, or ZIP. Near me uses your browser location (opt-in).</p>
+@await Html.PartialAsync("_DirectoryBar")
+<div class="dir-layout">
+    <div>
+        @if ((string)ViewBag.View == "map")
         {
-            <option value="@st" selected="@(st == (string)ViewBag.State)">@st</option>
+            <div id="shop-map" class="cal-map"></div>
         }
-    </select>
-    <input type="hidden" name="view" value="@ViewBag.View" />
-    <button class="btn" type="submit">Filter</button>
-</form>
-<p class="cal-tabs">
-    <a class="@(ViewBag.View != "map" ? "on" : "")" href="/shops?q=@Uri.EscapeDataString((string)ViewBag.Q)&amp;state=@ViewBag.State">List</a>
-    <a class="@(ViewBag.View == "map" ? "on" : "")" href="/shops?view=map&amp;q=@Uri.EscapeDataString((string)ViewBag.Q)&amp;state=@ViewBag.State">Map</a>
-</p>
-@if ((string)ViewBag.View == "map")
-{
-    <div id="shop-map" class="cal-map"></div>
-}
-else
-{
-<div class="grid">
-@foreach (var s in Model)
-{
-    <a class="card" href="@Ntca.Web.Services.ShopCopy.Loc(s)">
-        <h3>@s.Name</h3>
-        <p class="meta">@s.City, @s.StateCode @(s.ClaimStatus == "CLAIMED" ? "· Claimed" : "") @(s.IsDestinationShop ? "· Destination" : "")</p>
-    </a>
-}
+        <div class="shop-card-list">
+        @foreach (var s in Model)
+        {
+            @await Html.PartialAsync("_ShopCard", s)
+        }
+        </div>
+    </div>
+    @if ((string)ViewBag.View != "map")
+    {
+        <aside class="dir-side-map" aria-label="Map of shops with coordinates">
+            <div id="shop-map" class="cal-map"></div>
+            <p class="meta">Pins only when a listing has lat/lng. Map tiles © OpenStreetMap.</p>
+        </aside>
+    }
 </div>
-}
 @section Scripts {
-@if ((string)ViewBag.View == "map")
-{
+    <script src="~/js/directory.js" asp-append-version="true"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const points = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.MapPoints));
-        const map = L.map('shop-map').setView([39.8, -98.6], 4);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
-        const bounds = [];
-        for (const p of points) {
-            const m = L.marker([p.lat, p.lng]).addTo(map).bindPopup('<a href="' + p.loc + '">' + p.title + '</a><br>' + p.where);
-            bounds.push([p.lat, p.lng]);
+        const el = document.getElementById('shop-map');
+        if (el && window.L) {
+            const map = L.map(el).setView([39.8, -98.6], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
+            const bounds = [];
+            for (const p of points) {
+                L.marker([p.lat, p.lng]).addTo(map).bindPopup('<a href="' + p.loc + '">' + p.title + '</a><br>' + p.where);
+                bounds.push([p.lat, p.lng]);
+            }
+            if (bounds.length) map.fitBounds(bounds, { padding: [24, 24] });
         }
-        if (bounds.length) map.fitBounds(bounds, { padding: [24, 24] });
     </script>
-}
 }

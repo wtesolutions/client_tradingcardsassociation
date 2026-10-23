@@ -11,13 +11,10 @@
 <p class="kicker">Directory</p>
 <h1>Hobby shops in @ViewBag.City, @ViewBag.State</h1>
 <p class="lede">@Model.Count active listing@(Model.Count == 1 ? "" : "s").</p>
-<div class="grid">
+<div class="shop-card-list">
 @foreach (var s in Model)
 {
-    <a class="card" href="@Ntca.Web.Services.ShopCopy.Loc(s)">
-        <h3>@s.Name</h3>
-        <p class="meta">@s.City, @s.StateCode @(s.IsDestinationShop ? "· Destination" : "")</p>
-    </a>
+    @await Html.PartialAsync("_ShopCard", s)
 }
 </div>
 <p><a href="/shops/@(((string)ViewBag.State).ToLowerInvariant())">← @ViewBag.StateName shops</a></p>

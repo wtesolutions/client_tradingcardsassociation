@@ -26,8 +26,9 @@ public sealed class TrackingController : Controller
         string? dest = kind.ToLowerInvariant() switch
         {
             "website" when !string.IsNullOrWhiteSpace(row.WebsiteUrl) => row.WebsiteUrl,
-            "phone" when !string.IsNullOrWhiteSpace(row.Phone) => "tel:" + row.Phone,
+            "phone" when !string.IsNullOrWhiteSpace(row.Phone) => ShopCopy.TelHref(row.Phone),
             "directions" when ShopCopy.HasMappableAddress(row) => ShopCopy.MapsUrl(row),
+            "view" => ShopCopy.Loc(row),
             "social" => SocialUrl(row, net),
             _ => null
         };
@@ -39,6 +40,7 @@ public sealed class TrackingController : Controller
             "website" => ImpressionSurfaces.ClickWebsite,
             "phone" => ImpressionSurfaces.ClickPhone,
             "directions" => ImpressionSurfaces.ClickDirections,
+            "view" => ImpressionSurfaces.ClickView,
             _ => ImpressionSurfaces.ClickSocial
         };
         _track.Record(row.ShopId, surface, pageUrl: ShopCopy.Loc(row));
