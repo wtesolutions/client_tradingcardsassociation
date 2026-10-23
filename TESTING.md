@@ -34,7 +34,7 @@ On an existing QA database (already has shops):
 1. `db/08_owner_workspace.sql` (copy: `db/ssms/08_owner_workspace_SSMS.sql`) — `IsEditorialFeatured`, locks, `LogoObjectKey`, photo columns, `ShopEditRequest.RequestKind`
 2. `db/seed/SEED_21_hobby_tyme_featured.sql` (copy: `db/ssms/SEED_21_hobby_tyme_featured_SSMS.sql`) — Hobby Tyme editorial Featured. Optional `@OwnerEmail` at the top — **do not invent Jay Dudley’s email**. Leave empty to skip owner login; Impersonate can create one.
 
-Also required from earlier QA (if not already applied): `04`, `05`, `06`, `07`, `SEED_17`–`SEED_19`, `SEED_61`.
+Also required from earlier QA (if not already applied): `04`, `05`, `06`, `07`, `08`, `09`, `SEED_17`–`SEED_19`, `SEED_61`. `09` is required before `places enrich` writes reviews / field sources.
 
 Demo shop (do not substitute Cards And Stuff):
 
@@ -71,6 +71,7 @@ Signup confirmation lands in `src/Ntca.Web/App_Data/dev-mail/` (and the console)
 ```bash
 dotnet run --project src/Ntca.Web -- storage check
 dotnet run --project src/Ntca.Web -- email test --to you@example.com
+dotnet run --project src/Ntca.Web -- places enrich --dry-run
 ```
 
 ---
@@ -81,7 +82,7 @@ Public chrome: `public-body`, `site-header`, `nav-home`, `nav-primary`, `nav-fin
 
 Home / directory: `home-search`, `shops-search`, `shops-q`, `shops-location`, `shops-location-clear`, `shops-search-submit`, `shops-categories`, `cat-all`, `cat-sports`, `shops-filters-open`, `shops-filters`, `shops-chips`, `chip-*`, `shops-clear-all`, `shops-result-count`, `shop-card-{slug}`, `shop-featured-{slug}`, `shop-logo-{slug}`, `shop-placeholder-{slug}`
 
-Shop detail: `shop-detail`, `shop-detail-name`, `shop-featured-ribbon`, `shop-detail-logo`, `shop-detail-cover`, `shop-detail-placeholder`, `shop-gallery`, `shop-owner-photos`, `shop-photo-{id}`, `shop-socials`
+Shop detail: `shop-detail`, `shop-detail-name`, `shop-featured-ribbon`, `shop-detail-logo`, `shop-detail-cover`, `shop-detail-placeholder`, `shop-gallery`, `shop-owner-photos`, `shop-photo-{id}`, `shop-socials`, `shop-google-reviews`, `shop-google-review`
 
 Manufacturers: `mfr-logo`, `mfr-description`
 
@@ -89,7 +90,7 @@ Pages: `page-about`, `page-people`, `page-grading`, `gallery-grid`, `gallery-ite
 
 Signup / onboarding: `signup-form`, `signup-name`, `signup-email`, `signup-submit`, `onboarding-step`, `onboarding-roles`, `onboarding-shop-q`
 
-SADMIN: `sadmin-shell`, `sadmin-masthead`, `sadmin-brand`, `sadmin-public-site`, `sadmin-sign-out`, `sadmin-nav`, `sadmin-nav-dashboard`, `sadmin-nav-shops`, `sadmin-login-form`, `sadmin-login-email`, `sadmin-login-code`, `sadmin-login-submit`, `dashboard-h1`, `site-mode`, `site-mode-value`, `manage-mode`, `mode-form`, `mode-confirm`, `mode-save`, `inventory-strip`, `kpi-shops`, `kpi-manufacturers`, `shops-filters`, `shops-filter-q`, `shops-apply`, `shops-table`, `shop-row-{id}`, `shop-inspector`, `impersonate-owner`, `create-owner-email`, `create-owner-impersonate`, `impersonate-form`, `impersonate-confirm`, `impersonate-start`, `edits-pending`, `edit-approve-{id}`, `fyi-undo-{id}`
+SADMIN: `sadmin-shell`, `sadmin-masthead`, `sadmin-brand`, `sadmin-public-site`, `sadmin-sign-out`, `sadmin-nav`, `sadmin-nav-dashboard`, `sadmin-nav-shops`, `sadmin-login-form`, `sadmin-login-email`, `sadmin-login-code`, `sadmin-login-submit`, `dashboard-h1`, `site-mode`, `site-mode-value`, `manage-mode`, `mode-form`, `mode-confirm`, `mode-save`, `inventory-strip`, `kpi-shops`, `kpi-manufacturers`, `shops-filters`, `shops-filter-q`, `shops-apply`, `shops-table`, `shop-row-{id}`, `shop-inspector`, `impersonate-owner`, `create-owner-email`, `create-owner-impersonate`, `impersonate-form`, `impersonate-confirm`, `impersonate-start`, `edits-pending`, `edit-approve-{id}`, `fyi-undo-{id}`, `google-places-page`, `google-kpi-matched`, `google-kpi-pending`, `google-review-table`, `google-review-empty`, `google-review-row-{id}`, `google-review-form-{id}`, `google-review-approve`, `google-review-reject`
 
 Owner: `owner-login-form`, `owner-login-email`, `owner-login-code`, `owner-login-submit`, `owner-h1`, `owner-logo-input`, `owner-photo-input`, `owner-logo-upload`, `owner-photo-upload`, `owner-photo-list`, `owner-public-link`, `owner-claim-q`, `owner-claim-submit`
 
@@ -310,6 +311,13 @@ BASE_URL=http://localhost:5290 npx playwright test
 - **Expected:** Identity fields go live only after Approve. FYI undo restores previous logo or removes the uploaded photo.
 - **Selectors:** `edits-pending`, `edit-approve-{id}`, `edits-fyi`, `fyi-undo-{id}`, `owner-identity-submit`
 
+### A08b — Google Places low-confidence review
+
+- **Route:** `/SADMIN/google`
+- **Steps:** After `places enrich --limit 5` (or the in-page match), open the page. If `google-review-table` has rows, Approve one (`google-review-approve`) or Reject (`google-review-reject`). Confirm Featured is not flipped.
+- **Expected:** H1 `google-places-page`. KPIs `google-kpi-matched` / `google-kpi-pending`. Empty copy uses `google-review-empty`. Approve stores Place ID only; owner-edited fields stay. Visitor pages still do not call Google.
+- **Selectors:** `google-places-page`, `google-kpi-matched`, `google-kpi-pending`, `google-review-table`, `google-review-row-{id}`, `google-review-approve`, `google-review-reject`
+
 ### A09 — Manufacturers staff table
 
 - **Route:** `/SADMIN/manufacturers`
@@ -338,6 +346,18 @@ dotnet run --project src/Ntca.Web -- email test --to you@example.com
 
 - **Expected:** SMTP path in Development/Staging when `Email:SmtpHost` is set; otherwise honest failure / file sink. Do not print the SMTP password.
 
+### C03 — Places enrich (local Mac only)
+
+```bash
+dotnet user-secrets set "GooglePlaces:ApiKey" "<KEY>" --project src/Ntca.Web
+dotnet run --project src/Ntca.Web -- places enrich --dry-run
+dotnet run --project src/Ntca.Web -- places enrich --limit 5
+dotnet run --project src/Ntca.Web -- places status
+```
+
+- **Expected:** Dry-run prints shop counts, need-match / need-details / need-website, estimated calls, SKU names, list price and after-free-cap price. No Google HTTP. `--limit 5` is resume-safe and rate-limited (1.5s). Review leftovers at `/SADMIN/google`. See `docs/PLACES.md`.
+- **Public check after a successful enrich:** shop detail `shop-google-reviews` shows author / stars / text + “Reviews from Google”. JSON-LD still has no third-party `aggregateRating`.
+
 ---
 
 ## Known not-yet-built
@@ -351,6 +371,7 @@ dotnet run --project src/Ntca.Web -- email test --to you@example.com
 - Owner self-service **Featured / Destination / claim** flags (staff only)
 - Jay Dudley email/phone (never seeded; owner email is opt-in via `@OwnerEmail`)
 - Cards And Stuff remains `DATA_REVIEW` — not the demo owner shop
+- `places discover` (new-shop city sweep + `ShopCandidate` staging) — enrich existing shops shipped first
 
 ---
 

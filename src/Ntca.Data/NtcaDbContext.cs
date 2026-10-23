@@ -54,6 +54,9 @@ public sealed class NtcaDbContext : DbContext
     public DbSet<GooglePlaceMatch> GooglePlaceMatches => Set<GooglePlaceMatch>();
     public DbSet<GooglePlaceCache> GooglePlaceCaches => Set<GooglePlaceCache>();
     public DbSet<GooglePlacePhoto> GooglePlacePhotos => Set<GooglePlacePhoto>();
+    public DbSet<GooglePlaceReview> GooglePlaceReviews => Set<GooglePlaceReview>();
+    public DbSet<ShopFieldSource> ShopFieldSources => Set<ShopFieldSource>();
+    public DbSet<ShopPlaceEnrich> ShopPlaceEnrichments => Set<ShopPlaceEnrich>();
     public DbSet<GoogleApiCallLog> GoogleApiCallLogs => Set<GoogleApiCallLog>();
     public DbSet<SocialPlatform> SocialPlatforms => Set<SocialPlatform>();
     public DbSet<ShopSocial> ShopSocials => Set<ShopSocial>();
@@ -519,6 +522,47 @@ public sealed class NtcaDbContext : DbContext
             e.Property(x => x.FormattedAddress).HasMaxLength(400);
             e.Property(x => x.Latitude).HasPrecision(9, 6);
             e.Property(x => x.Longitude).HasPrecision(9, 6);
+            e.Property(x => x.WebsiteUri).HasMaxLength(500);
+            e.Property(x => x.NationalPhone).HasMaxLength(40);
+            e.Property(x => x.InternationalPhone).HasMaxLength(40);
+            e.Property(x => x.BusinessStatus).HasMaxLength(40);
+            e.Property(x => x.EditorialSummary).HasMaxLength(1000);
+            e.Property(x => x.TypesJson).HasMaxLength(1000);
+            e.Property(x => x.PrimaryType).HasMaxLength(80);
+            e.Property(x => x.PriceLevel).HasMaxLength(40);
+            e.Property(x => x.PlusCode).HasMaxLength(40);
+            e.HasOne(x => x.Shop).WithMany().HasForeignKey(x => x.ShopId);
+        });
+
+        model.Entity<GooglePlaceReview>(e =>
+        {
+            e.ToTable("GooglePlaceReview", "dir");
+            e.HasKey(x => x.ReviewId);
+            e.Property(x => x.GooglePlaceId).HasMaxLength(255);
+            e.Property(x => x.AuthorName).HasMaxLength(200);
+            e.Property(x => x.AuthorUri).HasMaxLength(400);
+            e.Property(x => x.Rating).HasPrecision(2, 1);
+            e.Property(x => x.ReviewText).HasMaxLength(2000);
+            e.Property(x => x.RelativeTime).HasMaxLength(80);
+            e.Property(x => x.AttributionUri).HasMaxLength(500);
+            e.HasOne(x => x.Shop).WithMany().HasForeignKey(x => x.ShopId);
+        });
+
+        model.Entity<ShopFieldSource>(e =>
+        {
+            e.ToTable("ShopFieldSource", "dir");
+            e.HasKey(x => new { x.ShopId, x.FieldName });
+            e.Property(x => x.FieldName).HasMaxLength(40);
+            e.Property(x => x.Source).HasMaxLength(20);
+            e.HasOne(x => x.Shop).WithMany().HasForeignKey(x => x.ShopId);
+        });
+
+        model.Entity<ShopPlaceEnrich>(e =>
+        {
+            e.ToTable("ShopPlaceEnrich", "dir");
+            e.HasKey(x => x.ShopId);
+            e.Property(x => x.LastError).HasMaxLength(400);
+            e.Property(x => x.WebsiteEmails).HasMaxLength(500);
             e.HasOne(x => x.Shop).WithMany().HasForeignKey(x => x.ShopId);
         });
 

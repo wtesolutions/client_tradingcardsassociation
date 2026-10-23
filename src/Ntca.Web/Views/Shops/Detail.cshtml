@@ -219,6 +219,56 @@
         <p class="meta">No photos have been uploaded for this listing yet.</p>
     }
 </section>
+@if (Model.Google?.Reviews.Count > 0)
+{
+    <section id="google-reviews" data-testid="shop-google-reviews">
+        <h2>Reviews from Google</h2>
+        <ul class="stack">
+        @foreach (var review in Model.Google.Reviews)
+        {
+            <li data-testid="shop-google-review">
+                <p>
+                    @if (!string.IsNullOrEmpty(review.AuthorName))
+                    {
+                        if (!string.IsNullOrEmpty(review.AuthorUri))
+                        {
+                            <a href="@review.AuthorUri" rel="noopener nofollow" target="_blank">@review.AuthorName</a>
+                        }
+                        else
+                        {
+                            <span>@review.AuthorName</span>
+                        }
+                    }
+                    @if (review.Rating is { } stars)
+                    {
+                        <span aria-label="@stars of 5">★ @stars.ToString("0")</span>
+                    }
+                    @if (!string.IsNullOrEmpty(review.RelativeTime))
+                    {
+                        <span class="meta">@review.RelativeTime</span>
+                    }
+                </p>
+                @if (!string.IsNullOrEmpty(review.ReviewText))
+                {
+                    <p>@review.ReviewText</p>
+                }
+            </li>
+        }
+        </ul>
+        <p class="meta">
+            Reviews from
+            @if (!string.IsNullOrEmpty(Model.Google.Cache.GoogleMapsUri))
+            {
+                <a href="@Model.Google.Cache.GoogleMapsUri" rel="noopener nofollow" target="_blank">Google</a>
+            }
+            else
+            {
+                <a href="https://www.google.com/" rel="noopener">Google</a>
+            }
+            · cached, not first-party NTCA reviews.
+        </p>
+    </section>
+}
 <section id="events">
     <h2>Upcoming events</h2>
     @if (Model.Events.Count == 0)

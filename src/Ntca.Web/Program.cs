@@ -12,6 +12,7 @@ using Ntca.Web.Services;
 
 if (args.Length > 0 && (
     string.Equals(args[0], "google-places", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(args[0], "places", StringComparison.OrdinalIgnoreCase)
     || string.Equals(args[0], "storage", StringComparison.OrdinalIgnoreCase)
     || string.Equals(args[0], "email", StringComparison.OrdinalIgnoreCase)))
 {
@@ -26,6 +27,7 @@ if (args.Length > 0 && (
     {
         "storage" => await Ntca.Web.Services.StorageCli.RunAsync(cliApp.Services, args),
         "email" => await Ntca.Web.Services.EmailCli.RunAsync(cliApp.Services, args),
+        "places" => await Ntca.Web.Services.PlacesCli.RunAsync(cliApp.Services, args),
         _ => await Ntca.Web.Services.GooglePlacesCli.RunAsync(cliApp.Services, args)
     };
     return;
@@ -198,7 +200,13 @@ static void AddNtcaServices(WebApplicationBuilder builder)
         client.BaseAddress = new Uri("https://places.googleapis.com/");
         client.Timeout = TimeSpan.FromSeconds(30);
     });
+    builder.Services.AddHttpClient<WebsiteEnrich>(client =>
+    {
+        client.Timeout = WebsiteEnrich.Timeout;
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(WebsiteEnrich.UserAgent);
+    });
     builder.Services.AddScoped<GooglePlacesSync>();
+    builder.Services.AddScoped<PlacesEnrich>();
     builder.Services.AddScoped<ShopSocialEditor>();
     builder.Services.AddHostedService<GooglePlacesHostedService>();
 }

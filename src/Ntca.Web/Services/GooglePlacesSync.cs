@@ -48,7 +48,53 @@ public static class GooglePlacesMatchScore
     }
 
     public static bool AutoApply(decimal confidence, Shop shop, PlacesSearchHit hit)
-        => confidence >= AutoApplyThreshold && NameScore(shop.Name, hit.DisplayName) >= 0.45m;
+    {
+        if (confidence < AutoApplyThreshold || NameScore(shop.Name, hit.DisplayName) < 0.45m)
+            return false;
+        return PhoneMatch(shop.Phone, hit.NationalPhone)
+            || CloseDistance(shop, hit, 0.5)
+            || StreetNumberMatch(shop, hit)
+            || (CityHit(shop, hit.FormattedAddress) && NameScore(shop.Name, hit.DisplayName) >= 0.70m);
+    }
+
+    public static bool PhoneMatch(string? shopPhone, string? googlePhone)
+    {
+        var a = Digits(shopPhone);
+        var b = Digits(googlePhone);
+        if (a.Length < 7 || b.Length < 7)
+            return false;
+        var left = a.Length > 10 ? a[^10..] : a;
+        var right = b.Length > 10 ? b[^10..] : b;
+        return left == right || a.EndsWith(b, StringComparison.Ordinal) || b.EndsWith(a, StringComparison.Ordinal);
+    }
+
+    public static bool CloseDistance(Shop shop, PlacesSearchHit hit, double miles)
+    {
+        if (shop.Latitude is null || shop.Longitude is null || hit.Lat is null || hit.Lng is null)
+            return false;
+        return ShopCopy.MilesBetween(
+            (double)shop.Latitude.Value, (double)shop.Longitude.Value,
+            (double)hit.Lat.Value, (double)hit.Lng.Value) <= miles;
+    }
+
+    public static bool StreetNumberMatch(Shop shop, PlacesSearchHit hit)
+    {
+        var shopAddr = shop.AddressLine1 ?? "";
+        var hitAddr = hit.FormattedAddress ?? "";
+        var num = System.Text.RegularExpressions.Regex.Match(shopAddr, @"^\s*(\d{1,6})\b");
+        return num.Success && hitAddr.Contains(num.Groups[1].Value, StringComparison.Ordinal);
+    }
+
+    public static bool CityHit(Shop shop, string? address)
+        => !string.IsNullOrWhiteSpace(shop.City)
+           && (address ?? "").Contains(shop.City.Trim(), StringComparison.OrdinalIgnoreCase);
+
+    private static string Digits(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return "";
+        return new string(raw.Where(char.IsDigit).ToArray());
+    }
 
     public static decimal NameScore(string left, string right)
     {
@@ -156,7 +202,12 @@ public sealed class GooglePlacesSync
             IReadOnlyList<PlacesSearchHit> hits;
             try
             {
-                hits = await _client.SearchTextAsync(GooglePlacesMatchScore.SearchQuery(shop), ct);
+                hits = await _client.SearchTextNearAsync(
+                    GooglePlacesMatchScore.SearchQuery(shop),
+                    shop.Latitude,
+                    shop.Longitude,
+                    16093,
+                    ct);
             }
             catch (Exception ex)
             {
@@ -322,11 +373,24 @@ public sealed class GooglePlacesSync
                 .Where(p => ids.Contains(p.ShopId) && p.ExpiresUtc > now)
                 .OrderBy(p => p.Slot)
                 .ToListAsync(ct);
+            List<GooglePlaceReview> reviews = [];
+            try
+            {
+                reviews = await _db.GooglePlaceReviews.AsNoTracking()
+                    .Where(r => ids.Contains(r.ShopId) && r.ExpiresUtc > now)
+                    .OrderBy(r => r.SortOrder)
+                    .ToListAsync(ct);
+            }
+            catch (SqlException ex) when (IsMissingObject(ex))
+            {
+                reviews = [];
+            }
             return caches.ToDictionary(
                 c => c.ShopId,
                 c => new GooglePlaceView(
                     c,
-                    photos.Where(p => p.ShopId == c.ShopId).ToList()));
+                    photos.Where(p => p.ShopId == c.ShopId).ToList(),
+                    reviews.Where(r => r.ShopId == c.ShopId).ToList()));
         }
         catch (SqlException ex) when (IsMissingObject(ex))
         {
@@ -573,6 +637,12 @@ public sealed class GooglePlacesSync
         }
     }
 
+    public Task<bool> TryConsumeCallAsync(string sku, CancellationToken ct)
+        => TryConsumeAsync(sku, ct);
+
+    public Task<int> CachePhotosAsync(Shop shop, PlaceDetailsResult details, int slots, CancellationToken ct)
+        => SavePhotosAsync(shop, details, slots, ct);
+
     private async Task<bool> TryConsumeAsync(string sku, CancellationToken ct)
     {
         var today = DateTime.UtcNow.Date;
@@ -608,8 +678,14 @@ public sealed class GooglePlacesSync
         => string.IsNullOrEmpty(value) ? value : (value.Length <= max ? value : value[..max]);
 }
 
-public sealed record GooglePlaceView(GooglePlaceCache Cache, IReadOnlyList<GooglePlacePhoto> Photos)
+public sealed record GooglePlaceView(
+    GooglePlaceCache Cache,
+    IReadOnlyList<GooglePlacePhoto> Photos,
+    IReadOnlyList<GooglePlaceReview> Reviews)
 {
+    public GooglePlaceView(GooglePlaceCache cache, IReadOnlyList<GooglePlacePhoto> photos)
+        : this(cache, photos, []) { }
+
     public bool IsFresh => Cache.ExpiresUtc is null || Cache.ExpiresUtc > DateTime.UtcNow;
     public string PhotoUrl(byte slot) => "/media/gplace/" + Cache.ShopId + "/" + slot;
 }
