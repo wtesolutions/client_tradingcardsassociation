@@ -156,7 +156,7 @@ Static HTML/CSV snapshot used as seed input (`hobby-shop-directory.csv`, `shows.
 | `4133ffa` / `4a572a5` | Directory cards matched to Eric’s list layout (static-map thumbs, Call/View) |
 | `76e81b1` | Multi-step Preview signup funnel + SADMIN funnel report |
 | `49464f2` / `e7e944f` / `0d639c9` | Funnel polish: ZIP early, icon cards, travel radius, live result cards, shared ask intent |
-| (this commit) | Development default SQL `10.100.1.87` / `wte_NtcaDatabase`; friendly DB-down page |
+| `5859d2d` | Development default SQL `10.100.1.87` / `wte_NtcaDatabase`; friendly DB-down page |
 
 ---
 
