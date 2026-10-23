@@ -22,6 +22,7 @@
         }
     </select>
     <button class="btn" type="submit">Filter</button>
+    <a class="btn ghost" href="/calendar.ics@(string.IsNullOrEmpty((string)ViewBag.State) && string.IsNullOrEmpty((string)ViewBag.Scope) && string.IsNullOrEmpty((string)ViewBag.Q) ? "" : "?state=" + ViewBag.State + "&scope=" + ViewBag.Scope + "&q=" + Uri.EscapeDataString((string)ViewBag.Q))">Subscribe (.ics)</a>
 </form>
 @foreach (var e in Model)
 {

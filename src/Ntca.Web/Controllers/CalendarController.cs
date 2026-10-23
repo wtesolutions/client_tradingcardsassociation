@@ -1,7 +1,9 @@
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Ntca.Core;
 using Ntca.Data;
+using Ntca.Web.Services;
 
 namespace Ntca.Web.Controllers;
 
@@ -47,6 +49,30 @@ public sealed class CalendarController : Controller
         if (ev is null)
             return NotFound();
         return View(ev);
+    }
+
+    [HttpGet("/calendar.ics")]
+    public async Task<IActionResult> IcsFeed(string? state, string? q, string? scope, CancellationToken ct)
+    {
+        var rows = await Filter(state, q, scope).OrderBy(e => e.StartsAt).Take(500).ToListAsync(ct);
+        var name = string.IsNullOrWhiteSpace(state) ? "NTCA card shows" : $"NTCA card shows — {state.Trim().ToUpperInvariant()}";
+        return IcsFile(CalendarIcs.Feed(rows, name, Origin()), "ntca-calendar.ics");
+    }
+
+    [HttpGet("/shows/{state}.ics")]
+    public Task<IActionResult> StateIcs(string state, CancellationToken ct)
+        => IcsFeed(state, null, null, ct);
+
+    [HttpGet("/shows/{state}/{city}/{slug}.ics")]
+    public async Task<IActionResult> ShowIcs(string state, string city, string slug, CancellationToken ct)
+    {
+        var ev = await _db.ShopEvents.AsNoTracking()
+            .Include(e => e.Venue)
+            .Include(e => e.Promoter)
+            .FirstOrDefaultAsync(e => e.Slug == slug, ct);
+        if (ev is null)
+            return NotFound();
+        return IcsFile(CalendarIcs.Feed(new[] { ev }, ev.Title, Origin()), slug + ".ics");
     }
 
     [HttpGet("/api/v1/calendar")]
@@ -95,4 +121,13 @@ public sealed class CalendarController : Controller
         var city = (e.City ?? e.Venue?.City ?? "city").ToLowerInvariant().Replace(' ', '-').Replace(".", "");
         return $"/shows/{st}/{city}/{e.Slug}";
     }
+
+    private string Origin()
+        => $"{Request.Scheme}://{Request.Host}";
+
+    private static FileContentResult IcsFile(string body, string downloadName)
+        => new(Encoding.UTF8.GetBytes(body), "text/calendar; charset=utf-8")
+        {
+            FileDownloadName = downloadName
+        };
 }

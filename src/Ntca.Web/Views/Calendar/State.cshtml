@@ -15,4 +15,4 @@
         <p class="meta">@e.StartsAt.ToString("MMM d, yyyy") · @(e.City ?? e.Venue?.City)</p>
     </a>
 }
-<p><a href="/calendar">← National calendar</a></p>
+<p><a href="/calendar">← National calendar</a> · <a href="/shows/@(((string)ViewBag.State).ToLowerInvariant()).ics">Subscribe to @ViewBag.State (.ics)</a></p>
