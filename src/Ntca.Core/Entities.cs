@@ -514,8 +514,55 @@ public sealed class GalleryItem
     public string Caption { get; set; } = "";
     public string? AltText { get; set; }
     public string LegacyPath { get; set; } = "";
+    public long? MediaAssetId { get; set; }
     public short DisplayOrder { get; set; }
     public bool IsPublished { get; set; } = true;
+}
+
+public sealed class PersonBio
+{
+    public long PersonBioId { get; set; }
+    public string Slug { get; set; } = "";
+    public string FullName { get; set; } = "";
+    public string RoleTitle { get; set; } = "";
+    public string BioText { get; set; } = "";
+    public string? Quote { get; set; }
+    public string? PhotoLegacyPath { get; set; }
+    public long? PhotoMediaId { get; set; }
+    public short DisplayOrder { get; set; }
+    public bool IsPublished { get; set; } = true;
+}
+
+public sealed class Blogger
+{
+    public long BloggerId { get; set; }
+    public string Slug { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string? Description { get; set; }
+    public string WebsiteUrl { get; set; } = "";
+    public string? LogoLegacyPath { get; set; }
+    public long? LogoMediaId { get; set; }
+    public short DisplayOrder { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public sealed class AssociationEvent
+{
+    public long EventId { get; set; }
+    public Guid PublicId { get; set; }
+    public string Slug { get; set; } = "";
+    public string Title { get; set; } = "";
+    public string? Description { get; set; }
+    public string EventType { get; set; } = "";
+    public DateTime StartsAt { get; set; }
+    public DateTime? EndsAt { get; set; }
+    public string? VenueName { get; set; }
+    public string? City { get; set; }
+    public string? StateCode { get; set; }
+    public string CountryCode { get; set; } = "US";
+    public string? TicketUrl { get; set; }
+    public string Status { get; set; } = "PUBLISHED";
+    public string? SourcePage { get; set; }
 }
 
 public sealed class Organization

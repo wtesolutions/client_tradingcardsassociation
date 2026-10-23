@@ -90,26 +90,31 @@ public sealed class LocalFileStorage : IFileStorage
         _env = env;
     }
 
-    public bool UsesObjectStorage => !string.IsNullOrWhiteSpace(_opt.S3Bucket);
+    public bool UsesObjectStorage => false;
+
+    public string PublicUrl(string relativePath)
+    {
+        var key = MediaPaths.ObjectKey(relativePath);
+        if (!string.IsNullOrWhiteSpace(_opt.PublicBaseUrl))
+            return _opt.PublicBaseUrl.TrimEnd('/') + "/" + key.TrimStart('/');
+        return "/media/" + key.TrimStart('/');
+    }
 
     public async Task<string> SaveAsync(string relativePath, Stream content, string contentType, CancellationToken ct = default)
     {
-        var root = Path.IsPathRooted(_opt.LocalRoot)
-            ? _opt.LocalRoot
-            : Path.Combine(_env.ContentRootPath, _opt.LocalRoot);
-        var full = Path.GetFullPath(Path.Combine(root, relativePath.Replace('\\', '/')));
+        var full = ResolveUpload(relativePath);
         Directory.CreateDirectory(Path.GetDirectoryName(full)!);
         await using var fs = File.Create(full);
         await content.CopyToAsync(fs, ct);
-        return "/uploads/" + relativePath.Replace('\\', '/').TrimStart('/');
+        return PublicUrl(relativePath);
     }
 
     public Task<bool> ExistsAsync(string relativePath, CancellationToken ct = default)
-        => Task.FromResult(File.Exists(Resolve(relativePath)));
+        => Task.FromResult(ResolveExisting(relativePath) is not null);
 
     public Task DeleteAsync(string relativePath, CancellationToken ct = default)
     {
-        var full = Resolve(relativePath);
+        var full = ResolveUpload(relativePath);
         if (File.Exists(full))
             File.Delete(full);
         return Task.CompletedTask;
@@ -117,18 +122,47 @@ public sealed class LocalFileStorage : IFileStorage
 
     public Task<Stream?> OpenReadAsync(string relativePath, CancellationToken ct = default)
     {
-        var full = Resolve(relativePath);
-        if (!File.Exists(full))
+        var full = ResolveExisting(relativePath);
+        if (full is null)
             return Task.FromResult<Stream?>(null);
         return Task.FromResult<Stream?>(File.OpenRead(full));
     }
 
-    private string Resolve(string relativePath)
+    private string ResolveUpload(string relativePath)
     {
-        var root = Path.IsPathRooted(_opt.LocalRoot)
+        var key = MediaPaths.ObjectKey(relativePath);
+        return Path.GetFullPath(Path.Combine(UploadRoot(), key.Replace('/', Path.DirectorySeparatorChar)));
+    }
+
+    private string? ResolveExisting(string relativePath)
+    {
+        var key = MediaPaths.ObjectKey(relativePath);
+        var upload = Path.GetFullPath(Path.Combine(UploadRoot(), key.Replace('/', Path.DirectorySeparatorChar)));
+        if (File.Exists(upload))
+            return upload;
+        var legacyRel = MediaPaths.LegacyRelative(key).Replace('/', Path.DirectorySeparatorChar);
+        foreach (var root in LegacyRoots())
+        {
+            var candidate = Path.GetFullPath(Path.Combine(root, legacyRel));
+            if (File.Exists(candidate))
+                return candidate;
+        }
+        return null;
+    }
+
+    private string UploadRoot()
+        => Path.IsPathRooted(_opt.LocalRoot)
             ? _opt.LocalRoot
             : Path.Combine(_env.ContentRootPath, _opt.LocalRoot);
-        return Path.GetFullPath(Path.Combine(root, relativePath.Replace('\\', '/')));
+
+    private IEnumerable<string> LegacyRoots()
+    {
+        if (!string.IsNullOrWhiteSpace(_opt.LegacyRoot))
+            yield return Path.IsPathRooted(_opt.LegacyRoot)
+                ? _opt.LegacyRoot
+                : Path.GetFullPath(Path.Combine(_env.ContentRootPath, _opt.LegacyRoot));
+        yield return Path.GetFullPath(Path.Combine(_env.ContentRootPath, "legacy-site"));
+        yield return Path.GetFullPath(Path.Combine(_env.ContentRootPath, "..", "..", "legacy-site"));
     }
 }
 

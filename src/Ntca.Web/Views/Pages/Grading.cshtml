@@ -1,0 +1,52 @@
+@model List<Ntca.Web.Services.GradingService>
+@{
+    var cats = (List<string>)ViewBag.Categories;
+    var q = (string)ViewBag.Q;
+    var category = (string)ViewBag.Category;
+}
+<div class="ntca-container page-prose">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>Grading Services</span>
+    </nav>
+    <p class="kicker">Grading Services</p>
+    <h1>Grading Services</h1>
+    <p class="lede">Card grading, authentication, autograph certification and submission services; specialized services are clearly identified. Copied from the legacy grading directory.</p>
+    <form class="dir-tools" method="get" action="/grading">
+        <label>
+            Search
+            <input class="input" name="q" type="search" value="@q" placeholder="Search services or cities" />
+        </label>
+        <label>
+            Category
+            <select class="input" name="category">
+                <option value="">All categories</option>
+                @foreach (var c in cats)
+                {
+                    <option value="@c" selected="@(string.Equals(c, category, StringComparison.OrdinalIgnoreCase))">@c</option>
+                }
+            </select>
+        </label>
+        <button class="btn" type="submit">Filter</button>
+    </form>
+    <p class="meta">@Model.Count services</p>
+    <div class="grading-grid">
+    @foreach (var g in Model)
+    {
+        <article class="card">
+            <h2>@g.Name</h2>
+            <p>@g.Description</p>
+            <p class="meta">@g.Location · @g.Category</p>
+            @if (!string.IsNullOrWhiteSpace(g.Submissions))
+            {
+                <p class="meta">@g.Submissions</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(g.WebsiteUrl))
+            {
+                <p><a href="@g.WebsiteUrl" rel="noopener noreferrer">Visit website</a></p>
+            }
+        </article>
+    }
+    </div>
+</div>

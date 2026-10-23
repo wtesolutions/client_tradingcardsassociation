@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Ntca.Core;
 using Ntca.Data;
+using Ntca.Web.Services;
 
 namespace Ntca.Web.Controllers;
 
@@ -40,5 +41,17 @@ public sealed class MediaController : Controller
         if (stream is null)
             return NotFound();
         return File(stream, photo.ContentType);
+    }
+
+    [HttpGet("/media/{**key}")]
+    [ResponseCache(Duration = 86400, Location = ResponseCacheLocation.Any)]
+    public async Task<IActionResult> FileByKey(string key, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(key) || key.Contains("..", StringComparison.Ordinal))
+            return NotFound();
+        var stream = await _files.OpenReadAsync(key, ct);
+        if (stream is null)
+            return NotFound();
+        return File(stream, MediaPaths.ContentType(key));
     }
 }

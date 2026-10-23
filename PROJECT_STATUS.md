@@ -90,6 +90,10 @@ Solution `src/Ntca.sln` (**net9.0**):
 | `/manufacturers`, `/manufacturers/{slug}` | Manufacturer directory |
 | `/news`, `/news/{slug}` | Blog (Pokémon post is public) |
 | `/new-to-trading-cards`, `/new-to-cards`, `/guide` | Glossary + condition scale (`/new-to-cards` → 301) |
+| `/about`, `/people`, `/about/{slug}` | Restyled bios + Person JSON-LD (`cms.PersonBio`) |
+| `/gallery` | Legacy photos + lightbox + ImageObject JSON-LD (`cms.GalleryItem`) |
+| `/network`, `/history`, `/events`, `/contact`, `/bloggers`, `/grading`, `/products` | Ported legacy pages |
+| `*.html` | 301 map in `LegacyUrls` — `docs/LEGACY_CROSSCHECK.md` |
 | `/signup`, `/join` | Simple Preview form (name, email, optional ZIP / phone / social) |
 | `/signup/confirm/{token}` | Double opt-in; CTA to `/onboarding` |
 | `/onboarding`, `/account` | Skippable multi-select “get to know you”; resume from account |

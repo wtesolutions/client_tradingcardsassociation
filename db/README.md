@@ -18,6 +18,7 @@ Target: Microsoft SQL Server 2019+ on WTE **HAMMER**. Validated in this branch a
 | 5 | `seed/SEED_15_ctca_members.sql` | Directory snapshot 2026-10-22: shops / orgs / manufacturer merges (`SourceSystem` marker, no third-party branding) |
 | 6 | `seed/SEED_16_top100_shops.sql` | 100 US destination shops (`SourceSystem=TOP100-2026-10-22`); match SEED_10+15, fill empty only |
 | — | `06_shop_social.sql` then `seed/SEED_17_shop_enrichment_manual.sql` | Incremental: social catalog + verified 2026-10-23 first-10 enrichment (`docs/DATA_REVIEW.md`). Not inlined in `NTCA_FULL_INSTALL`. |
+| — | `seed/SEED_18_legacy_content_fix.sql` | Incremental: correct concatenated About bios + add boys/hall gallery rows. Plain SSMS: `db/ssms/SEED_18_legacy_content_fix_SSMS.sql`. |
 | 7 | `seed/SEED_20_events.sql` | Association `cms.Event` + national calendar (`mkt.ShopEvent` / Venue / Promoter) from `shows.html` |
 | 8 | `seed/SEED_30_blog_bloggers.sql` | Bloggers directory + news + authored posts in `tools/inputs/posts/` |
 | 9 | `seed/SEED_40_about_bios.sql` | About-page officer/member bios |

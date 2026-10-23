@@ -81,4 +81,40 @@
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && menu && !menu.hidden) setMenu(false);
   });
+
+  var box = document.getElementById("lightbox");
+  function openLightbox(src, caption, alt) {
+    if (!box) return;
+    var img = box.querySelector("img");
+    var cap = box.querySelector(".lightbox-caption");
+    if (img) {
+      img.src = src;
+      img.alt = alt || caption || "";
+    }
+    if (cap) cap.textContent = caption || "";
+    if (typeof box.showModal === "function") box.showModal();
+    else box.setAttribute("open", "");
+  }
+  function closeLightbox() {
+    if (!box) return;
+    if (typeof box.close === "function") box.close();
+    else box.removeAttribute("open");
+  }
+  document.addEventListener("click", function (e) {
+    var open = e.target.closest("[data-lightbox]");
+    if (open) {
+      e.preventDefault();
+      var fig = open.closest(".gallery-item");
+      openLightbox(
+        (fig && fig.getAttribute("data-full")) || open.querySelector("img")?.src,
+        fig && fig.getAttribute("data-caption"),
+        open.querySelector("img")?.alt
+      );
+      return;
+    }
+    if (e.target.closest("[data-lightbox-close]") || e.target === box) closeLightbox();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeLightbox();
+  });
 })();

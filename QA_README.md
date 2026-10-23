@@ -130,11 +130,21 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | `/SADMIN/shops` | Per-shop 7-day impression column; open a row for 7/30/90 + chart |
 | `/SADMIN/queue/drafts` | Gary Vaynerchuk industry-figure draft (not public) |
 | `/SADMIN/google` | Places match / refresh / low-confidence review / daily SKU call counts |
+| `/about`, `/people`, `/about/{slug}` | Restyled bios (Craig, Eric, Jay) + Person JSON-LD. Run `SEED_18` if bios still look concatenated. |
+| `/gallery` | Legacy photos, lightbox, categories, ImageObject JSON-LD. `/media/legacy/assets/…` |
+| `/network` | Six-avenue Network page (`directory.html`). `/directory` and `directory.html` 301 here. |
+| `/history` | Full hobby history essay |
+| `/events` | Association calendar (`cms.Event`) including Halloween kickoff |
+| `/bloggers` | 12 blogs + logos |
+| `/contact` | Mailto + signup (legacy mock form dropped) |
+| `/grading` | 50 grading services from `grading-services.html` |
+| `/products` | Hub (no SKU catalog in legacy) |
+| `*.html` | 301 to the new route — see `docs/LEGACY_CROSSCHECK.md` |
 
 ## Known gaps
 
 - Calendar map plots only venues that already have lat/lng. Seeded `shows.html` editions have no coordinates, so the map is empty until staff add them.
-- No S3 / CloudFront — uploads go to `wwwroot/uploads`.
+- S3 is optional. Development default is local disk + `legacy-site/` via `IFileStorage`. Provision with `./provision-s3.sh --profile default --region us-east-1 --env prod` (see `docs/HOSTING.md`). Never commit keys.
 - Turnstile is off in Development.
 - Upcoming GaryVee card-show rows were **not** seeded: the 2026-10-22 dossier had no confirmed card show with date + location + his role.
 - Top-100 destination shops are in `SEED_16` (`SourceSystem=TOP100-2026-10-22`). Matched rows fill empty fields only. See `docs/TOP100_SHOPS.md`.

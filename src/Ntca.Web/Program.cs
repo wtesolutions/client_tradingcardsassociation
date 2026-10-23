@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using Amazon;
+using Amazon.S3;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -158,7 +160,24 @@ static void AddNtcaServices(WebApplicationBuilder builder)
         ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is required. Set it with dotnet user-secrets.");
     builder.Services.AddDbContext<NtcaDbContext>(opt =>
         opt.UseSqlServer(conn, sql => sql.EnableRetryOnFailure()));
-    builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
+    var storage = builder.Configuration.GetSection("Storage").Get<StorageOptions>() ?? new StorageOptions();
+    if (storage.UseS3)
+    {
+        builder.Services.AddSingleton<IAmazonS3>(_ =>
+        {
+            var cfg = new AmazonS3Config
+            {
+                RegionEndpoint = RegionEndpoint.GetBySystemName(
+                    string.IsNullOrWhiteSpace(storage.Region) ? "us-east-1" : storage.Region)
+            };
+            return new AmazonS3Client(cfg);
+        });
+        builder.Services.AddSingleton<IFileStorage, S3FileStorage>();
+    }
+    else
+    {
+        builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
+    }
     builder.Services.AddHttpClient<IGooglePlacesClient, GooglePlacesClient>(client =>
     {
         client.BaseAddress = new Uri("https://places.googleapis.com/");

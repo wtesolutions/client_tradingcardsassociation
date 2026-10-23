@@ -42,6 +42,9 @@ public sealed class NtcaDbContext : DbContext
     public DbSet<ConditionGrade> ConditionGrades => Set<ConditionGrade>();
     public DbSet<StaticPage> StaticPages => Set<StaticPage>();
     public DbSet<GalleryItem> GalleryItems => Set<GalleryItem>();
+    public DbSet<PersonBio> PersonBios => Set<PersonBio>();
+    public DbSet<Blogger> Bloggers => Set<Blogger>();
+    public DbSet<AssociationEvent> AssociationEvents => Set<AssociationEvent>();
     public DbSet<AgentUaRule> AgentUaRules => Set<AgentUaRule>();
     public DbSet<AgentVisit> AgentVisits => Set<AgentVisit>();
     public DbSet<AgentInquiry> AgentInquiries => Set<AgentInquiry>();
@@ -376,6 +379,44 @@ public sealed class NtcaDbContext : DbContext
         {
             e.ToTable("GalleryItem", "cms");
             e.HasKey(x => x.GalleryItemId);
+            e.Property(x => x.Slug).HasMaxLength(160);
+            e.Property(x => x.Caption).HasMaxLength(300);
+            e.Property(x => x.AltText).HasMaxLength(300);
+            e.Property(x => x.LegacyPath).HasMaxLength(300);
+        });
+
+        model.Entity<PersonBio>(e =>
+        {
+            e.ToTable("PersonBio", "cms");
+            e.HasKey(x => x.PersonBioId);
+            e.Property(x => x.Slug).HasMaxLength(160);
+            e.Property(x => x.FullName).HasMaxLength(120);
+            e.Property(x => x.RoleTitle).HasMaxLength(160);
+            e.Property(x => x.Quote).HasMaxLength(1000);
+            e.Property(x => x.PhotoLegacyPath).HasMaxLength(300);
+        });
+
+        model.Entity<Blogger>(e =>
+        {
+            e.ToTable("Blogger", "cms");
+            e.HasKey(x => x.BloggerId);
+            e.Property(x => x.Slug).HasMaxLength(160);
+            e.Property(x => x.Name).HasMaxLength(200);
+            e.Property(x => x.Description).HasMaxLength(1000);
+            e.Property(x => x.WebsiteUrl).HasMaxLength(500);
+            e.Property(x => x.LogoLegacyPath).HasMaxLength(300);
+        });
+
+        model.Entity<AssociationEvent>(e =>
+        {
+            e.ToTable("Event", "cms");
+            e.HasKey(x => x.EventId);
+            e.Property(x => x.Slug).HasMaxLength(160);
+            e.Property(x => x.Title).HasMaxLength(200);
+            e.Property(x => x.EventType).HasMaxLength(20);
+            e.Property(x => x.Status).HasMaxLength(20);
+            e.Property(x => x.StateCode).HasMaxLength(2).IsFixedLength();
+            e.Property(x => x.CountryCode).HasMaxLength(2).IsFixedLength();
         });
 
         model.Entity<AgentUaRule>(e =>

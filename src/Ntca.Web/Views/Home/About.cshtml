@@ -1,9 +1,161 @@
+@using Ntca.Core
+@using Ntca.Web.Services
 @{
-    ViewData["Title"] = "About NTCA";
+    var people = (List<PersonBio>)ViewBag.People;
+    var gallery = (List<GalleryItem>)ViewBag.Gallery;
+    var files = (IFileStorage)ViewBag.Files;
 }
-<p class="kicker">National Trading Card Association</p>
-<h1>About NTCA</h1>
-<p class="lede">The National Trading Card Association is a community of collectors, shops and events uniting the trading card hobby. Our public directory and calendar are built from the live NTCA database — not a static snapshot.</p>
-<p>We exist for a practical purpose: helping people find shops, shows, and the history of the hobby. Membership and listing tools are rolling out through Preview.</p>
-<p><a class="btn" href="/signup">Join the association</a> <a class="btn ghost" href="/shops">Find shops</a></p>
-<p class="meta">Navigation labels on this Preview site are provisional while the public menu is confirmed.</p>
+<div class="ntca-container page-prose">
+    <nav class="crumbs" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>About NTCA</span>
+    </nav>
+    <p class="kicker">About the NTCA</p>
+    <h1>One Association. One Community. A Shared Future.</h1>
+    <div class="about-hero-row">
+        <div>
+            <p class="lede">The National Trading Card Association is a national membership and industry organization created to unite, support and advance the trading card community. We bring together collectors, hobby shops, dealers, manufacturers, grading and authentication services, distributors, auction companies, content creators, event organizers and other industry partners through a shared commitment to the hobby's long-term success.</p>
+            <p>Members take the hobby into schools — donating cards in bulk just for the fun of it, and using trading cards as a real-world example of how a business works.</p>
+        </div>
+        <figure class="about-mascots">
+            <img src="@ViewBag.MascotsUrl" alt="Brody and Skylar, NTCA mascot card sharks" width="360" height="360" />
+            <figcaption>Brody and Skylar are our Mascot Card Sharks. They are our ambassadors for our youth outreach in schools and communities.</figcaption>
+        </figure>
+    </div>
+    <nav class="about-jump" aria-label="On this page">
+        <a href="#mission">Mission &amp; vision</a>
+        <a href="#why">Why we exist</a>
+        <a href="#history">History of the hobby</a>
+        <a href="#values">Our values</a>
+        <a href="#people">People</a>
+        <a href="#gallery">Gallery</a>
+    </nav>
+
+    <section class="section" id="mission">
+        <div class="mv-grid">
+            <div class="mv-panel">
+                <p class="kicker">Our mission</p>
+                <p>The mission of the National Trading Card Association is to support, educate and connect trading card collectors, hobbyists, investors and industry professionals. We promote knowledge, integrity and responsible practices while celebrating the history, excitement and community that make trading card collecting a lifelong passion.</p>
+                <p>Through trusted information, helpful resources and meaningful connections, the National Trading Card Association seeks to strengthen and advance the trading card community. We welcome collectors of every interest and experience level as we work together to preserve the hobby's traditions and encourage its continued growth.</p>
+            </div>
+            <div class="mv-panel">
+                <p class="kicker">Our vision</p>
+                <p>Our vision is to build a trusted, inclusive and connected trading card community in which collectors and industry participants can learn, collaborate and thrive. We seek to preserve the hobby's history while developing the programs, standards and relationships needed to protect and strengthen its future.</p>
+                <ul>
+                    <li>A common voice for the whole hobby</li>
+                    <li>Trusted resources and education</li>
+                    <li>Programs built to last for generations</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="section about-split" id="why">
+        <figure>
+            <img src="@ViewBag.BoysUrl" alt="Three boys in baseball caps look over rubber-banded stacks of trading cards at a table" width="1200" height="800" />
+            <figcaption>Sharing stacks at the table — where the hobby starts.</figcaption>
+        </figure>
+        <div>
+            <p class="kicker">Why we exist</p>
+            <h2>Why the NTCA exists</h2>
+            <p>The trading card hobby has grown into a global community of collectors, businesses, creators and organizations, yet no single national association brings every part of that community together.</p>
+            <p>The NTCA was created to help fill that role—providing a common voice, trusted resources, stronger connections and programs designed to support the hobby for generations to come.</p>
+            <p class="cta-row">
+                <a class="btn" href="/signup">Join the NTCA</a>
+                <a class="btn ghost" href="/network">Explore the NTCA Network</a>
+            </p>
+        </div>
+    </section>
+
+    <section class="section about-split rev" id="history">
+        <div>
+            <p class="kicker">Join us to preserve the history of the hobby</p>
+            <h2>History and future of the hobby</h2>
+            <p>For more than a century, trading cards have captured the imagination of collectors of all ages. What began in the 1800s as colorful advertising cards and simple inserts placed inside tobacco packages soon developed into a worldwide hobby celebrating sports, entertainment, history and popular culture.</p>
+            <p>Over the decades, trading cards have evolved alongside the people who collect them — from early baseball cards and chewing-gum issues to autographed cards, game-used memorabilia, fantasy games and modern digital collectibles. While some cards have become valuable treasures, their greatest appeal often lies in the memories they preserve, the stories they tell and the connections they create among collectors.</p>
+            <p class="cta-row"><a class="btn" href="/history">Read the full history</a></p>
+        </div>
+        <figure>
+            <img src="@ViewBag.VintageUrl" alt="1880s tobacco-era trading cards" width="800" height="900" />
+            <figcaption>1880s tobacco-era cards — where the hobby began.</figcaption>
+        </figure>
+    </section>
+
+    <section class="section" id="values">
+        <p class="kicker">What we stand for</p>
+        <h2>Our values</h2>
+        <p>The principles behind every NTCA program, partnership and decision.</p>
+        <div class="values-grid">
+            <div class="value-tile"><span>01</span><h3>Community</h3><p>Bringing the hobby together.</p></div>
+            <div class="value-tile"><span>02</span><h3>Integrity</h3><p>Promoting transparency and responsible practices.</p></div>
+            <div class="value-tile"><span>03</span><h3>Education</h3><p>Helping collectors make informed decisions — and taking the hobby into classrooms with card donations and real-world business lessons.</p></div>
+            <div class="value-tile"><span>04</span><h3>Preservation</h3><p>Protecting the history and traditions of collecting.</p></div>
+            <div class="value-tile"><span>05</span><h3>Innovation</h3><p>Supporting the continued evolution of the hobby.</p></div>
+            <div class="value-tile"><span>06</span><h3>Outreach</h3><p>Sharing the love of our hobby with youth and new potential collectors.</p></div>
+            <div class="value-tile"><span>07</span><h3>Showcase</h3><p>Spotlighting new products, innovations and leaders within the hobby.</p></div>
+        </div>
+    </section>
+
+    <section class="section about-split" id="together">
+        <figure>
+            <img src="@ViewBag.FounderShowUrl" alt="NTCA founder Craig Lloyd, left, with a dealer holding a graded Mickey Mantle card at a card show" width="800" height="1000" />
+            <figcaption>Founder Craig Lloyd (left) on the floor of a national card show.</figcaption>
+        </figure>
+        <div>
+            <p class="kicker">Building together</p>
+            <h2>Shaped by the people who participate in it</h2>
+            <p>These focus areas will be introduced in phases as the association develops its leadership, membership and programs. Each initiative will have a distinct purpose while remaining connected through the broader mission and values of the National Trading Card Association.</p>
+            <p>From local card shops and first-time collectors to established businesses and international partners, everyone has a role in the future of trading cards. Together, we can preserve the hobby's history, strengthen trust in its marketplace and build a more connected community for generations to come.</p>
+            <p class="cta-row">
+                <a class="btn" href="/signup">Get involved</a>
+                <a class="btn ghost" href="/network">Explore the NTCA Network</a>
+            </p>
+        </div>
+    </section>
+
+    <section class="section" id="people">
+        <p class="kicker">Who is behind this?</p>
+        <h2>People of the NTCA</h2>
+        <div class="people-grid">
+        @foreach (var p in people)
+        {
+            var photo = string.IsNullOrWhiteSpace(p.PhotoLegacyPath) ? null : files.PublicUrl(p.PhotoLegacyPath);
+            <a class="person-card" href="/about/@p.Slug">
+                @if (photo is not null)
+                {
+                    <img src="@photo" alt="@p.FullName, @p.RoleTitle" width="220" height="220" />
+                }
+                <h3>@p.FullName</h3>
+                <p class="meta">@p.RoleTitle</p>
+                <p>@PersonJsonLd.FirstParagraph(p.BioText)</p>
+            </a>
+        }
+        </div>
+        <p><a href="/people">See everyone</a></p>
+    </section>
+
+    @if (gallery.Count > 0)
+    {
+        <section class="section" id="gallery">
+            <p class="kicker">From the gallery</p>
+            <h2>The hobby, in pictures</h2>
+            <div class="gallery-grid gallery-grid-sm">
+            @foreach (var g in gallery)
+            {
+                <a href="/gallery#@g.Slug">
+                    <img src="@files.PublicUrl(g.LegacyPath)" alt="@(g.AltText ?? g.Caption)" width="400" height="300" />
+                    <span>@g.Caption</span>
+                </a>
+            }
+            </div>
+            <p><a class="btn ghost" href="/gallery">Open the gallery</a></p>
+        </section>
+    }
+
+    <p class="cta-row">
+        <a class="btn" href="/signup">Join the association</a>
+        <a class="btn ghost" href="/contact">Contact the NTCA</a>
+        <a class="btn ghost" href="/shops">Find shops</a>
+    </p>
+</div>

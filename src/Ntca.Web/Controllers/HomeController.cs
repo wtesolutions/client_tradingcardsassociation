@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Ntca.Core;
 using Ntca.Data;
 using Ntca.Web.Services;
 
@@ -11,13 +12,15 @@ public sealed class HomeController : Controller
     private readonly SiteModeService _mode;
     private readonly IImpressionTracker _track;
     private readonly GooglePlacesSync _google;
+    private readonly IFileStorage _files;
 
-    public HomeController(NtcaDbContext db, SiteModeService mode, IImpressionTracker track, GooglePlacesSync google)
+    public HomeController(NtcaDbContext db, SiteModeService mode, IImpressionTracker track, GooglePlacesSync google, IFileStorage files)
     {
         _db = db;
         _mode = mode;
         _track = track;
         _google = google;
+        _files = files;
     }
 
     public async Task<IActionResult> Index(CancellationToken ct)
@@ -57,14 +60,42 @@ public sealed class HomeController : Controller
         ViewBag.Featured = featured;
         ViewBag.Rotation = rotation;
         ViewBag.Google = await _google.LoadViewsAsync(featured.Concat(rotation).Select(s => s.ShopId), ct);
+        var gallery = await _db.GalleryItems.AsNoTracking()
+            .Where(g => g.IsPublished)
+            .OrderBy(g => g.DisplayOrder)
+            .Take(6)
+            .ToListAsync(ct);
+        ViewBag.Gallery = gallery;
+        ViewBag.Files = _files;
+        ViewBag.Kickoff = await _db.AssociationEvents.AsNoTracking()
+            .Where(e => e.Status == "PUBLISHED" && e.Slug == "ntca-community-kickoff")
+            .FirstOrDefaultAsync(ct);
         ViewData["MainClass"] = "site-main";
         return View((shows, posts));
     }
 
     [HttpGet("/about")]
-    public IActionResult About()
+    public async Task<IActionResult> About(CancellationToken ct)
     {
+        var people = await _db.PersonBios.AsNoTracking()
+            .Where(p => p.IsPublished)
+            .OrderBy(p => p.DisplayOrder)
+            .ToListAsync(ct);
+        var gallery = await _db.GalleryItems.AsNoTracking()
+            .Where(g => g.IsPublished)
+            .OrderBy(g => g.DisplayOrder)
+            .Take(4)
+            .ToListAsync(ct);
         ViewData["Title"] = "About NTCA";
+        ViewData["Description"] = "The mission, vision, values, history and people of the National Trading Card Association.";
+        ViewData["MainClass"] = "site-main";
+        ViewBag.People = people;
+        ViewBag.Gallery = gallery;
+        ViewBag.Files = _files;
+        ViewBag.BoysUrl = _files.PublicUrl("assets/about-boys-cards.jpg");
+        ViewBag.VintageUrl = _files.PublicUrl("assets/vintage-cards.jpeg");
+        ViewBag.FounderShowUrl = _files.PublicUrl("assets/founder-mantle.jpeg");
+        ViewBag.MascotsUrl = _files.PublicUrl("assets/brody-skylar.png");
         return View();
     }
 

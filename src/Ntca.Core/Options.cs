@@ -14,8 +14,21 @@ public sealed class EmailOptions
 
 public sealed class StorageOptions
 {
+    public string Provider { get; set; } = "Local";
     public string? S3Bucket { get; set; }
+    public string? Bucket { get; set; }
+    public string Region { get; set; } = "us-east-1";
+    public string? PublicBaseUrl { get; set; }
     public string LocalRoot { get; set; } = "wwwroot/uploads";
+    public string? LegacyRoot { get; set; }
+
+    public string ResolvedBucket =>
+        !string.IsNullOrWhiteSpace(Bucket) ? Bucket
+        : (S3Bucket ?? "");
+
+    public bool UseS3 =>
+        string.Equals(Provider, "S3", StringComparison.OrdinalIgnoreCase)
+        && !string.IsNullOrWhiteSpace(ResolvedBucket);
 }
 
 public sealed class GooglePlacesOptions
@@ -40,6 +53,7 @@ public interface IAppEmailSender
 public interface IFileStorage
 {
     bool UsesObjectStorage { get; }
+    string PublicUrl(string relativePath);
     Task<string> SaveAsync(string relativePath, Stream content, string contentType, CancellationToken ct = default);
     Task<bool> ExistsAsync(string relativePath, CancellationToken ct = default);
     Task DeleteAsync(string relativePath, CancellationToken ct = default);

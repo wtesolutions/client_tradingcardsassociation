@@ -89,10 +89,38 @@
         }
         else
         {
-            <p><a href="/calendar">View all events</a></p>
+            <p><a href="/calendar">View all events</a> · <a href="/events">Association events</a></p>
+        }
+        @if (ViewBag.Kickoff is Ntca.Core.AssociationEvent kickoff)
+        {
+            <aside class="home-kickoff">
+                <p class="eyebrow">Halloween kickoff</p>
+                <h3>@kickoff.Title</h3>
+                <p>@kickoff.Description</p>
+                <p><a class="btn ghost" href="/events#@kickoff.Slug">Event details</a></p>
+            </aside>
         }
     </div>
 </section>
+@if (ViewBag.Gallery is List<Ntca.Core.GalleryItem> homeGallery && homeGallery.Count > 0 && ViewBag.Files is IFileStorage homeFiles)
+{
+<section class="home-events">
+    <div class="ntca-container">
+        <h2>The hobby, in pictures</h2>
+        <p class="lede">From the NTCA gallery — shops, show floors, and the people who collect.</p>
+        <div class="gallery-grid gallery-grid-sm">
+        @foreach (var g in homeGallery)
+        {
+            <a href="/gallery#@g.Slug">
+                <img src="@homeFiles.PublicUrl(g.LegacyPath)" alt="@(g.AltText ?? g.Caption)" width="400" height="300" />
+                <span>@g.Caption</span>
+            </a>
+        }
+        </div>
+        <p><a class="btn ghost" href="/gallery">Open the gallery</a> · <a href="/about">Meet the people</a></p>
+    </div>
+</section>
+}
 @if (Model.Posts.Count > 0)
 {
 <section class="home-events">

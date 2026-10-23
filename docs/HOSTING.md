@@ -15,7 +15,7 @@ The public site is moving off a **flat HTML GitHub Pages** site (`main` root) on
 | SQL | New database `NTCA` on WTE server **HAMMER** (name is a sqlcmd variable; Eric can choose `NTCADirectory` instead) |
 | SQL logins | `ntca_app` (runtime, least privilege) and optional `ntca_migrator` (DDL only). See [db/README.md](../db/README.md) |
 | Email | SocketLabs Injection API from `reports@wte.net` (`SocketLabs:ServerId`, `SocketLabs:ApiKey` via user-secrets). Console / pickup-directory fallback when those keys are empty. |
-| Media | Amazon S3 + CloudFront; object keys in `core.MediaAsset` |
+| Media | Amazon S3 + CloudFront (OAC). Local disk is the Development default. Object keys in `core.MediaAsset` (`legacy/assets/…`, `google-cache/…`) |
 
 **`main` stays untouched** so GitHub Pages keeps serving the current static site until cutover. This branch is a draft-only platform branch. **Do not merge** until IIS is ready and Pages is pointed away or retired.
 
@@ -78,3 +78,49 @@ Set the password via IIS app-pool environment variable `ConnectionStrings__Defau
 DbUp / schema apply (deploy job or a one-off SSMS session) uses **`ntca_migrator`** (or a DBA sa session). That login is not used by the running site.
 
 `ntca_app` is `db_datareader` + `db_datawriter` + `EXECUTE` on app schemas. It is not `db_owner` and cannot create tables.
+
+## Media: local disk vs S3
+
+`IFileStorage` is selected by `Storage:Provider` (default `Local`).
+
+| Provider | Behavior |
+|---|---|
+| `Local` (Development default) | Writes `wwwroot/uploads`. Reads uploads first, then `legacy-site/` for `legacy/assets/…`. Public URLs are `/media/{key}`. |
+| `S3` | `AWSSDK.S3` against `Storage:Bucket` in `Storage:Region`. Public URLs use `Storage:PublicBaseUrl` (CloudFront). Credentials come from the default AWS chain (instance role, env vars, or shared profile) — **never from git**. |
+
+### Provision the bucket (Eric)
+
+From the repo root, AWS CLI v2, an admin profile:
+
+```bash
+./provision-s3.sh --profile default --region us-east-1 --env prod
+```
+
+Windows Server:
+
+```powershell
+.\provision-s3.ps1 -Profile default -Region us-east-1 -Env prod
+```
+
+The script is idempotent. It creates the bucket (override `--bucket` if the default `ntca-tradingcardsassociation-media` is taken), turns **Block Public Access ON**, SSE-S3, versioning, `BucketOwnerEnforced`, lifecycle (abort multipart 7 days; expire `google-cache/` 30 days; noncurrent versions 90 days), CORS for `localhost:5290` + `tradingcardsassociation.com` + `www`, a CloudFront distribution with Origin Access Control, a bucket policy that allows only that distribution, and a least-privilege IAM user/policy (`s3:GetObject` / `PutObject` / `DeleteObject` / `ListBucket`).
+
+Pass `--create-access-key` (or `-CreateAccessKey`) only if the app cannot use an instance/role profile. The key is printed once and **must not** be committed. `--dry-run` prints commands.
+
+After it finishes, set (user-secrets locally, IIS env on the server):
+
+```
+Storage:Provider=S3
+Storage:Bucket=<bucket>
+Storage:Region=us-east-1
+Storage:PublicBaseUrl=https://<cloudfront-domain>
+```
+
+```bat
+cd src\Ntca.Web
+dotnet user-secrets set "Storage:Provider" "S3"
+dotnet user-secrets set "Storage:Bucket" "ntca-tradingcardsassociation-media"
+dotnet user-secrets set "Storage:Region" "us-east-1"
+dotnet user-secrets set "Storage:PublicBaseUrl" "https://XXXXXXXX.cloudfront.net"
+```
+
+Do not put access keys in `appsettings.json`.
