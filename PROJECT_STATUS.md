@@ -29,7 +29,7 @@ This file describes what is **actually on the branch**. Update it at the end of 
 | `db/ssms/05_google_places_SSMS.sql` | Same, plain T-SQL for Eric’s SSMS session |
 | `db/06_shop_social.sql` | Social platform catalog + `dir.ShopSocial`; migrates Website/Facebook/Instagram |
 | `db/ssms/06_shop_social_SSMS.sql` | Same, plain T-SQL for Eric’s SSMS session |
-| `db/seed/SEED_17_shop_enrichment_manual.sql` | Verified 2026-10-23 GamesandCards website + SADMIN review notes |
+| `db/seed/SEED_17_shop_enrichment_manual.sql` | Verified 2026-10-23 first-10 enrichment (socials, Beckett-only sites, coords, hours) + SADMIN review notes |
 | `db/ssms/SEED_17_shop_enrichment_manual_SSMS.sql` | Same, plain T-SQL |
 | `docs/DATA_REVIEW.md` | First-10-shop flags (Birmingham / Cards And Stuff / ChicagoCards / Mojo / Simicards / Bakersfield) |
 
@@ -186,7 +186,7 @@ Update the **Status** column when a later run lands the item.
 | Public restyle (navy/gold homepage, directory, shop detail) | **Done** (`ffd1616`) | specs in `docs/design/` |
 | Google Places batch sync | **Done** | Text Search match + nightly Details/photos; no Google calls on visitor paths; `/SADMIN/google`; SQL `05` |
 | Robust shop social links | **Done** (`9ad319b`) | `dir.SocialPlatform` + `dir.ShopSocial`; FA6 icons + Whatnot badge; `/t` click tracking; owner + SADMIN editors; SQL `06` |
-| SEED_17 manual shop enrichment | **In this change** | GamesandCards `gacsuperstore.com` only; review flags in `docs/DATA_REVIEW.md`. Full research attachment was not on the VM — no invented handles/hours/coords |
+| SEED_17 manual shop enrichment | **In this change** | Official-page socials for Boxseat / Burbank / GAC; Beckett WEBSITE for Bakersfield + Wonder Water; lat/lng `manual-maps-2026-10-23`; Burbank + Bakersfield hours (owner-confirm). Review flags in `docs/DATA_REVIEW.md`. No Google ratings. No name/phone/address changes. |
 
 ### Remaining platform
 
