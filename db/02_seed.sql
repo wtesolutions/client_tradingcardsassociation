@@ -274,5 +274,34 @@ INSERT INTO core.UserRole (UserId, RoleCode)
 SELECT UserId, 'SUPERADMIN' FROM core.AppUser WHERE Email = N'egarrison@wte.net';
 GO
 
-PRINT '02_seed: roles, tiers, features, entitlements, rotation, karma, badges, perks, site settings, SUPERADMIN merged';
+/* AI concierge UA catalog — more specific tokens first (SortOrder). */
+MERGE analytics.AgentUaRule AS t
+USING (VALUES
+    (N'ChatGPT-User',        N'ChatGPT',    'USER_ASSISTANT', 10,  N'OpenAI user-assistant fetching pages for a human'),
+    (N'Claude-User',         N'Claude',     'USER_ASSISTANT', 20,  N'Anthropic user-assistant'),
+    (N'Perplexity-User',     N'Perplexity', 'USER_ASSISTANT', 30,  N'Perplexity user-assistant'),
+    (N'Gemini-User',         N'Gemini',     'USER_ASSISTANT', 40,  N'Google Gemini user-assistant'),
+    (N'Grok-User',           N'Grok',       'USER_ASSISTANT', 50,  N'xAI Grok user-assistant'),
+    (N'xAI-User',            N'Grok',       'USER_ASSISTANT', 55,  N'xAI user-assistant alias'),
+    (N'OAI-SearchBot',       N'ChatGPT',    'SEARCH',         60,  N'OpenAI search crawler'),
+    (N'Claude-SearchBot',    N'Claude',     'SEARCH',         70,  N'Anthropic search crawler'),
+    (N'PerplexityBot',       N'Perplexity', 'SEARCH',         80,  N'Perplexity search crawler'),
+    (N'Meta-ExternalAgent',  N'Meta',       'SEARCH',         90,  N'Meta external agent'),
+    (N'Applebot-Extended',   N'Apple',      'SEARCH',        100,  N'Applebot Extended'),
+    (N'GPTBot',              N'ChatGPT',    'TRAINING',      110,  N'OpenAI training crawler'),
+    (N'ClaudeBot',           N'Claude',     'TRAINING',      120,  N'Anthropic training crawler'),
+    (N'anthropic-ai',        N'Claude',     'TRAINING',      130,  N'Anthropic-ai token'),
+    (N'Google-Extended',     N'Gemini',     'TRAINING',      140,  N'Google-Extended / Gemini training'),
+    (N'Google-CloudVertex',  N'Gemini',     'USER_ASSISTANT', 145, N'Vertex AI fetchers'),
+    (N'GrokBot',             N'Grok',       'TRAINING',      150,  N'xAI training crawler'),
+    (N'xAI-Grok',            N'Grok',       'SEARCH',        155,  N'xAI Grok crawler')
+) AS s (Token, AssistantName, Role, SortOrder, Notes)
+ON t.Token = s.Token
+WHEN MATCHED THEN UPDATE SET
+    Notes = COALESCE(t.Notes, s.Notes)
+WHEN NOT MATCHED THEN INSERT (Token, AssistantName, Role, IsEnabled, SortOrder, Notes)
+VALUES (s.Token, s.AssistantName, s.Role, 1, s.SortOrder, s.Notes);
+GO
+
+PRINT '02_seed: roles, tiers, features, entitlements, rotation, karma, badges, perks, site settings, SUPERADMIN, AI UA catalog merged';
 GO

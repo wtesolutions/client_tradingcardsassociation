@@ -39,6 +39,9 @@ public sealed class NtcaDbContext : DbContext
     public DbSet<ConditionGrade> ConditionGrades => Set<ConditionGrade>();
     public DbSet<StaticPage> StaticPages => Set<StaticPage>();
     public DbSet<GalleryItem> GalleryItems => Set<GalleryItem>();
+    public DbSet<AgentUaRule> AgentUaRules => Set<AgentUaRule>();
+    public DbSet<AgentVisit> AgentVisits => Set<AgentVisit>();
+    public DbSet<AgentInquiry> AgentInquiries => Set<AgentInquiry>();
 
     protected override void OnModelCreating(ModelBuilder model)
     {
@@ -318,6 +321,36 @@ public sealed class NtcaDbContext : DbContext
         {
             e.ToTable("GalleryItem", "cms");
             e.HasKey(x => x.GalleryItemId);
+        });
+
+        model.Entity<AgentUaRule>(e =>
+        {
+            e.ToTable("AgentUaRule", "analytics");
+            e.HasKey(x => x.AgentUaRuleId);
+            e.Property(x => x.Token).HasMaxLength(80);
+            e.Property(x => x.AssistantName).HasMaxLength(80);
+            e.Property(x => x.Role).HasMaxLength(20);
+        });
+
+        model.Entity<AgentVisit>(e =>
+        {
+            e.ToTable("AgentVisit", "analytics");
+            e.HasKey(x => x.AgentVisitId);
+            e.Property(x => x.AssistantName).HasMaxLength(80);
+            e.Property(x => x.Role).HasMaxLength(20);
+            e.Property(x => x.PagePath).HasMaxLength(200);
+        });
+
+        model.Entity<AgentInquiry>(e =>
+        {
+            e.ToTable("AgentInquiry", "analytics");
+            e.HasKey(x => x.AgentInquiryId);
+            e.Property(x => x.AssistantName).HasMaxLength(80);
+            e.Property(x => x.HumanRole).HasMaxLength(40);
+            e.Property(x => x.StateCode).HasMaxLength(2).IsFixedLength();
+            e.Property(x => x.Zip3).HasMaxLength(3).IsFixedLength();
+            e.Property(x => x.Interests).HasMaxLength(200);
+            e.Property(x => x.QuestionExcerpt).HasMaxLength(240);
         });
     }
 }

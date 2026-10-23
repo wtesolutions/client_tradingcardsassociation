@@ -81,7 +81,8 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | `/shops.md` | Markdown index of every active shop |
 | `/t/website?shop={id}` `/t/phone` `/t/directions` `/t/social` | Click redirects (website / phone / maps / social) |
 | `/api/v1/shops?source=app` | Shop API; `source=app` records `API_APP` impressions |
-| `/calendar` and `/shows` | Month (default), list, map; Subscribe (.ics) |
+| `/calendar` and `/shows` | Month (default), list, map; Subscribe (.ics); Submit a show |
+| `/shows/submit` | Promoter show submission → `mkt.EventSubmission` PENDING_REVIEW |
 | `/shows/{state}` | State hub |
 | `/shows/{state}/{city}/{slug}` | Show detail + Add to calendar (Google / Outlook / .ics) |
 | `/calendar.ics` | National ICS feed |
@@ -91,9 +92,13 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | `/news` + `/news/pokemon-trading-at-gaming-shows` | Pokémon post |
 | `/new-to-trading-cards` | Glossary + condition guide |
 | `/signup` | Inserts `crm.Signup` |
-| `/robots.txt` `/llms.txt` `/sitemap.xml` | Discovery; sitemap has dynamic shop/show/mfr URLs |
+| `/robots.txt` `/llms.txt` `/sitemap.xml` | Discovery; sitemap has dynamic shop/show/mfr URLs; llms.txt invites assistants |
+| `/agent` | Human-readable concierge; `?role=collector&city=Raleigh&state=NC&interests=pokemon` |
+| `/.well-known/ai-concierge` | JSON manifest for assistants |
+| `POST /api/v1/agent/ask` | Rate-limited JSON ask (no auth). Do not send name/email/phone |
 | `/owner/login` | `egarrison@wte.net` — code in console; edits Burbank Sportscards |
-| `/SADMIN/login` | Same email; dashboard KPIs are live counts + 7-day shop impressions |
+| `/SADMIN/login` | Same email; dashboard KPIs are live counts + 7-day shop impressions + AI visits |
+| `/SADMIN/agents` | AI Visitors: visits/inquiries + editable UA catalog |
 | `/SADMIN/shops` | Per-shop 7-day impression column; open a row for 7/30/90 + chart |
 | `/SADMIN/queue/drafts` | Gary Vaynerchuk industry-figure draft (not public) |
 
@@ -123,6 +128,23 @@ Verify:
 4. SQL: `SELECT TOP 20 Surface, IsBot, PageUrl, CreatedAt FROM analytics.ShopImpression ORDER BY ImpressionId DESC;`
 5. Shop JSON-LD: view-source on `/shops/ny/williamsville/dave-adam-s-card-world-retail-superstore-williamsville-ny` and find `application/ld+json`. `dotnet test src/Ntca.sln` runs the parse + schema.org rule checks. Paste the graph into https://validator.schema.org/ for a visual spot-check.
 6. `curl -s http://localhost:5290/llms.txt` should list shop `.md` URLs. `curl -s http://localhost:5290/shops/ca/burbank/burbank-sportscards-burbank-ca.md` is the text version.
+
+## AI concierge / VIP AI visitors
+
+Same page HTML for every visitor — no cloaking. Assistants get an extra welcome aside, `Link: </.well-known/ai-concierge>; rel="agent-concierge"`, and `X-NTCA-Agent-*` headers. Visits store assistant name, role, verified flag, path, timestamp — never IP, UA string, name, email, or phone.
+
+Verify:
+
+```bash
+curl -sI -A 'ChatGPT-User' http://localhost:5290/ | grep -iE 'link:|x-ntca-agent'
+curl -s -A 'Claude-User' http://localhost:5290/ | grep -i 'Welcome, Claude'
+curl -s http://localhost:5290/.well-known/ai-concierge
+curl -s -A 'ChatGPT-User' -H 'Content-Type: application/json' \
+  -d '{"assistant":"ChatGPT","humanRole":"collector","location":{"city":"Raleigh","state":"NC","zip":"27601"},"interests":["pokemon"],"question":"Where can we buy Pokémon cards?"}' \
+  http://localhost:5290/api/v1/agent/ask
+```
+
+Expect Triangle Area Trading Cards (Raleigh) and an NC card show when one is published. `name` / `email` / `phone` fields are ignored and listed in `warnings`. `/SADMIN/agents` shows the visit + inquiry after a few seconds (flush interval is 3s).
 
 ## Desktop screenshots (1440×900)
 

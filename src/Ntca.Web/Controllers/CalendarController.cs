@@ -122,6 +122,31 @@ public sealed class CalendarController : Controller
         return IcsFile(CalendarIcs.Feed(new[] { ev }, ev.Title, Origin()), slug + ".ics");
     }
 
+    [HttpGet("/shows/submit")]
+    public IActionResult Submit() => View();
+
+    [HttpPost("/shows/submit")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Submit(EventSubmission form, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(form.Title) || string.IsNullOrWhiteSpace(form.SubmitterEmail) || form.StartsAt == default)
+        {
+            ViewBag.Error = "Title, start date, and a contact email are required.";
+            return View(form);
+        }
+        form.PublicId = Guid.NewGuid();
+        form.Status = "PENDING_REVIEW";
+        form.Scope = string.IsNullOrWhiteSpace(form.Scope) ? "LOCAL" : form.Scope.ToUpperInvariant();
+        form.StateCode = string.IsNullOrWhiteSpace(form.StateCode) ? null : form.StateCode.Trim().ToUpperInvariant();
+        form.TimeZoneId = string.IsNullOrWhiteSpace(form.TimeZoneId) ? "America/New_York" : form.TimeZoneId;
+        form.CreatedAt = DateTime.UtcNow;
+        form.UpdatedAt = DateTime.UtcNow;
+        _db.EventSubmissions.Add(form);
+        await _db.SaveChangesAsync(ct);
+        TempData["Submitted"] = "Thanks. Staff will review the show before it appears on the calendar.";
+        return Redirect("/shows/submit");
+    }
+
     [HttpGet("/api/v1/calendar")]
     public async Task<IActionResult> Api(string? state, string? q, string? scope, CancellationToken ct)
     {

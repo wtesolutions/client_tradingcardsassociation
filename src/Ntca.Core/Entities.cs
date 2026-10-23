@@ -457,3 +457,39 @@ public sealed class Organization
     public string OrgType { get; set; } = "";
     public string ListingStatus { get; set; } = "ACTIVE";
 }
+
+public sealed class AgentUaRule
+{
+    public long AgentUaRuleId { get; set; }
+    public string Token { get; set; } = "";
+    public string AssistantName { get; set; } = "";
+    public string Role { get; set; } = "SEARCH";
+    public bool IsEnabled { get; set; } = true;
+    public short SortOrder { get; set; }
+    public string? Notes { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}
+
+public sealed class AgentVisit
+{
+    public long AgentVisitId { get; set; }
+    public string AssistantName { get; set; } = "";
+    public string Role { get; set; } = "";
+    public bool IsVerified { get; set; }
+    public string? PagePath { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
+public sealed class AgentInquiry
+{
+    public long AgentInquiryId { get; set; }
+    public string? AssistantName { get; set; }
+    public string? HumanRole { get; set; }
+    public string? StateCode { get; set; }
+    public string? Zip3 { get; set; }
+    public string? Interests { get; set; }
+    public string? QuestionExcerpt { get; set; }
+    public bool IsVerified { get; set; }
+    public DateTime CreatedAt { get; set; }
+}

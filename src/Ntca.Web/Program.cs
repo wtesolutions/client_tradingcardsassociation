@@ -1,6 +1,8 @@
 using System.Security.Claims;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Ntca.Core;
 using Ntca.Data;
@@ -20,15 +22,32 @@ builder.Services.AddDbContext<NtcaDbContext>(opt =>
     opt.UseSqlServer(conn, sql => sql.EnableRetryOnFailure()));
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ImpressionBuffer>();
 builder.Services.AddSingleton<SessionSaltCache>();
 builder.Services.AddScoped<IImpressionTracker, ImpressionTracker>();
 builder.Services.AddHostedService<ImpressionFlushService>();
 builder.Services.AddHostedService<ImpressionRollupService>();
+builder.Services.AddSingleton<AgentUaRuleCache>();
+builder.Services.AddSingleton<AgentVisitBuffer>();
+builder.Services.AddScoped<AgentAnswerBuilder>();
+builder.Services.AddScoped<IAgentAnswerEnricher, NoOpAgentAnswerEnricher>();
+builder.Services.AddHostedService<AgentVisitFlushService>();
 builder.Services.AddScoped<IAppEmailSender, CompositeEmailSender>();
 builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
 builder.Services.AddScoped<LoginCodeService>();
 builder.Services.AddScoped<SiteModeService>();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddFixedWindowLimiter("agent-ask", opt =>
+    {
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.PermitLimit = 30;
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+});
 
 builder.Services.AddAuthentication(options =>
 {
@@ -83,6 +102,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(o =>
 var app = builder.Build();
 
 app.UseForwardedHeaders();
+app.UseMiddleware<AgentConciergeMiddleware>();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -97,6 +117,7 @@ app.Use(async (ctx, next) =>
 });
 
 app.UseRouting();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();

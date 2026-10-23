@@ -20,7 +20,10 @@
     <div class="kpi"><b>@Model.Impressions7d</b><span>Shop impressions (7d)</span></div>
     <div class="kpi"><b>@Model.Views7d</b><span>Shop views (7d)</span></div>
     <div class="kpi"><b>@Model.Clicks7d</b><span>Shop clicks (7d)</span></div>
+    <div class="kpi"><b>@Model.AgentVisits7d</b><span>AI visits (7d)</span></div>
+    <div class="kpi"><b>@Model.AgentInquiries7d</b><span>AI inquiries (7d)</span></div>
 </div>
+<p class="meta"><a href="/SADMIN/agents">AI Visitors</a> — assistants, roles, UA catalog</p>
 <h2>Top shops (7 days)</h2>
 @if (!Model.TopShops.Any()) { <p class="meta">No impressions yet. Browse <a href="/shops">/shops</a> then refresh.</p> }
 <table>

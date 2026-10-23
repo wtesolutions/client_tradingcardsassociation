@@ -45,7 +45,9 @@ public sealed class DashboardController : Controller
             Impressions7d = totals7.Impressions,
             Views7d = totals7.Views,
             Clicks7d = totals7.Clicks,
-            TopShops = await TopShopsAsync(7, 8, ct)
+            TopShops = await TopShopsAsync(7, 8, ct),
+            AgentVisits7d = await _db.AgentVisits.CountAsync(v => v.CreatedAt >= weekAgo, ct),
+            AgentInquiries7d = await _db.AgentInquiries.CountAsync(i => i.CreatedAt >= weekAgo, ct)
         };
         return View(vm);
     }
@@ -108,6 +110,8 @@ public sealed class SadminDashboardVm
     public int Views7d { get; set; }
     public int Clicks7d { get; set; }
     public List<ShopRankRow> TopShops { get; set; } = [];
+    public int AgentVisits7d { get; set; }
+    public int AgentInquiries7d { get; set; }
 }
 
 public sealed class ShopRankRow

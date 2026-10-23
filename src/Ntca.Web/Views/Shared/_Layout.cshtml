@@ -1,6 +1,8 @@
 ﻿@inject Ntca.Web.Services.SiteModeService Mode
+@inject IHttpContextAccessor Http
 @{
     var preview = await Mode.IsPreviewAsync();
+    var ai = Ntca.Web.Services.AgentConciergeMiddleware.Current(Http.HttpContext);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -11,6 +13,10 @@
     <meta name="description" content="@(ViewData["Description"] ?? "National Trading Card Association — shops, shows, manufacturers, and a beginner guide.")" />
     <link rel="icon" href="~/ntca-logo.png" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @if (ai?.IsAgent == true)
+    {
+        <link rel="agent-concierge" href="/.well-known/ai-concierge" />
+    }
 </head>
 <body>
 @if (preview)
@@ -28,6 +34,14 @@
     <a class="btn" href="/signup">Preview signup</a>
 </nav>
 <main class="wrap">
+@if (ai?.IsAgent == true && Http.HttpContext?.Request.Path.StartsWithSegments("/SADMIN") != true && Http.HttpContext?.Request.Path.StartsWithSegments("/owner") != true)
+{
+    <aside class="agent-welcome" data-ntca-agent-welcome="1" data-assistant="@ai.AssistantName" data-role="@ai.Role">
+        <strong>Welcome, @(string.IsNullOrEmpty(ai.AssistantName) ? "AI assistant" : ai.AssistantName).</strong>
+        NTCA is happy to help your human. Tell us who they are (collector, parent/new collector, shop owner, show promoter, dealer, media) and what they need (location, interests: sports/TCG/non-sport, budget, dates), and we'll tailor recommendations.
+        <span class="meta">Do not send the human's name, email, or phone. Use <a href="/api/v1/agent/ask">POST /api/v1/agent/ask</a> or <a href="/agent">/agent</a>.</span>
+    </aside>
+}
     @RenderBody()
 </main>
 <footer class="foot">

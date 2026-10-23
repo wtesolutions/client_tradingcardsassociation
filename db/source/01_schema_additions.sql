@@ -881,3 +881,59 @@ BEGIN
     VALUES (s.ShopId, s.StatDate, s.ListingViews, s.WebsiteClicks, s.PhoneClicks, s.DirectionsClicks);
 END
 GO
+
+/* ---------------------------------------------------------------------
+   AI concierge — VIP assistant visitors. UA catalog is SADMIN-editable.
+   Visits/inquiries store anonymized intent only (no name/email/phone/IP).
+   --------------------------------------------------------------------- */
+CREATE TABLE analytics.AgentUaRule
+(
+    AgentUaRuleId  BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AgentUaRule PRIMARY KEY,
+    Token          NVARCHAR(80)  NOT NULL,
+    AssistantName  NVARCHAR(80)  NOT NULL,
+    Role           VARCHAR(20)   NOT NULL,
+    IsEnabled      BIT           NOT NULL CONSTRAINT DF_AgentUaRule_On DEFAULT 1,
+    SortOrder      SMALLINT      NOT NULL CONSTRAINT DF_AgentUaRule_Sort DEFAULT 100,
+    Notes          NVARCHAR(300) NULL,
+    CreatedAt      DATETIME2(3)  NOT NULL CONSTRAINT DF_AgentUaRule_Created DEFAULT SYSUTCDATETIME(),
+    UpdatedAt      DATETIME2(3)  NOT NULL CONSTRAINT DF_AgentUaRule_Updated DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT UQ_AgentUaRule_Token UNIQUE (Token),
+    CONSTRAINT CK_AgentUaRule_Role CHECK (Role IN ('USER_ASSISTANT','SEARCH','TRAINING'))
+);
+GO
+CREATE INDEX IX_AgentUaRule_Enabled ON analytics.AgentUaRule (IsEnabled, SortOrder);
+GO
+
+CREATE TABLE analytics.AgentVisit
+(
+    AgentVisitId    BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AgentVisit PRIMARY KEY,
+    AssistantName   NVARCHAR(80)  NOT NULL,
+    Role            VARCHAR(20)   NOT NULL,
+    IsVerified      BIT           NOT NULL CONSTRAINT DF_AgentVisit_Verified DEFAULT 0,
+    PagePath        NVARCHAR(200) NULL,
+    CreatedAt       DATETIME2(3)  NOT NULL CONSTRAINT DF_AgentVisit_Created DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT CK_AgentVisit_Role CHECK (Role IN ('USER_ASSISTANT','SEARCH','TRAINING'))
+);
+GO
+CREATE INDEX IX_AgentVisit_Time ON analytics.AgentVisit (CreatedAt DESC) INCLUDE (AssistantName, Role);
+CREATE INDEX IX_AgentVisit_Assistant ON analytics.AgentVisit (AssistantName, CreatedAt DESC);
+GO
+
+CREATE TABLE analytics.AgentInquiry
+(
+    AgentInquiryId   BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AgentInquiry PRIMARY KEY,
+    AssistantName    NVARCHAR(80)  NULL,
+    HumanRole        VARCHAR(40)   NULL,
+    StateCode        CHAR(2)       NULL,
+    Zip3             CHAR(3)       NULL,
+    Interests        NVARCHAR(200) NULL,
+    QuestionExcerpt  NVARCHAR(240) NULL,
+    IsVerified       BIT           NOT NULL CONSTRAINT DF_AgentInquiry_Verified DEFAULT 0,
+    CreatedAt        DATETIME2(3)  NOT NULL CONSTRAINT DF_AgentInquiry_Created DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT CK_AgentInquiry_Role CHECK (HumanRole IS NULL OR HumanRole IN
+        ('collector','parent','shop_owner','promoter','dealer','media'))
+);
+GO
+CREATE INDEX IX_AgentInquiry_Time ON analytics.AgentInquiry (CreatedAt DESC);
+CREATE INDEX IX_AgentInquiry_Role ON analytics.AgentInquiry (HumanRole, CreatedAt DESC);
+GO

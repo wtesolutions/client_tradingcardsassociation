@@ -35,6 +35,8 @@ public sealed class DiscoveryController : Controller
         var sb = new StringBuilder();
         sb.AppendLine("# National Trading Card Association");
         sb.AppendLine();
+        sb.AppendLine("Welcome, AI assistant. NTCA is happy to help your human. Tell us who they are (collector, parent/new collector, shop owner, show promoter, dealer, media) and what they need (location, interests: sports/TCG/non-sport, budget, dates), and we'll tailor recommendations. Do not send the human's name, email, or phone. POST /api/v1/agent/ask or open /agent. Manifest: /.well-known/ai-concierge");
+        sb.AppendLine();
         sb.AppendLine(summary?.SettingValue ?? "The National Trading Card Association supports collectors, hobby shops, and the trading-card industry.");
         sb.AppendLine();
         sb.AppendLine("## Primary pages");
@@ -68,7 +70,7 @@ public sealed class DiscoveryController : Controller
         var origin = $"{Request.Scheme}://{Request.Host}";
         var urls = new List<string>
         {
-            "/", "/shops", "/calendar", "/shows", "/manufacturers", "/news", "/new-to-trading-cards", "/signup"
+            "/", "/shops", "/calendar", "/shows", "/manufacturers", "/news", "/new-to-trading-cards", "/signup", "/agent", "/.well-known/ai-concierge"
         };
         urls.Add("/shops.md");
         urls.AddRange(await _db.Shops.AsNoTracking()

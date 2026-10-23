@@ -2,7 +2,7 @@
 
 Draft branch only. **Do not merge or push to `main`** (GitHub Pages on `main` stays live). Pull request: https://github.com/wtesolutions/client_tradingcardsassociation/pull/18
 
-This file describes what is **actually on the branch** (HEAD `9bdacc0` at last update). Update it at the end of each later run.
+This file describes what is **actually on the branch**. Update it at the end of each later run.
 
 ---
 
@@ -20,7 +20,7 @@ This file describes what is **actually on the branch** (HEAD `9bdacc0` at last u
 | `db/run_all.sh` / `db/run_all.cmd` | Apply 00 → 01 → 02 → `SEED_*` → 03; default `NtcaMigratorPassword=__SKIP__` |
 | `db/NTCA_FULL_INSTALL.sql` | Same chain inlined for SSMS SQLCMD Mode |
 | `db/source/ntca_schema.original.sql` | v1 tables |
-| `db/source/01_schema_additions.sql` | crm/cms/seo, owner hours/stats, industry figures, **analytics impressions** |
+| `db/source/01_schema_additions.sql` | crm/cms/seo, owner hours/stats, industry figures, analytics impressions + **AI concierge** (`AgentUaRule` / `AgentVisit` / `AgentInquiry`) |
 | `db/source/01_schema_directory_calendar.sql` | Manufacturers, orgs, promoters, venues, exhibitors |
 | `db/tools/generate_seed.py` | `--schema-only` rebuilds `01_schema.sql` without rewriting seed docs |
 | `db/tools/generate_combined.py` | Writes `run_all.sql` + `NTCA_FULL_INSTALL.sql` |
@@ -42,7 +42,7 @@ This file describes what is **actually on the branch** (HEAD `9bdacc0` at last u
 | `SEED_65_glossary_conditions.sql` | New-to-cards copy | **42** glossary terms, **10** condition grades |
 | `SEED_70_industry_figures.sql` | Gary Vaynerchuk | 1 unpublished figure (`gary-vaynerchuk`); 1 **DRAFT** post. No invented calendar rows. See `docs/GARYVEE.md` |
 
-Impression / review / hours seeds are empty by design (live traffic and real owner data only).
+Impression / review / hours / agent-visit seeds are empty by design (live traffic and real owner data only). `02_seed` MERGEs the AI UA catalog insert-only so SADMIN role/enable edits survive a re-seed.
 
 ### Website
 
@@ -74,6 +74,7 @@ Solution `src/Ntca.sln` (**net9.0**):
 | `/t/{website\|phone\|directions\|social}?shop={id}` | Click redirect (known URL only) |
 | `/api/v1/shops` | JSON shops; `?source=app` records API impressions |
 | `/calendar`, `/shows` | Month (default) / list / map |
+| `/shows/submit` | Promoter show submission → staff queue |
 | `/shows/{state}` | Show state hub |
 | `/shows/{state}/{city}/{slug}` | Show detail + Add to calendar |
 | `/calendar.ics`, `/shows/{state}.ics`, `/shows/{state}/{city}/{slug}.ics` | ICS feeds |
@@ -82,11 +83,14 @@ Solution `src/Ntca.sln` (**net9.0**):
 | `/news`, `/news/{slug}` | Blog (Pokémon post is public) |
 | `/new-to-trading-cards`, `/guide` | Glossary + condition scale |
 | `/signup`, `POST /signup`, `/signup/thanks` | Native Preview signup → `crm.Signup` |
-| `/robots.txt`, `/llms.txt`, `/sitemap.xml` | Discovery |
+| `/robots.txt`, `/llms.txt`, `/sitemap.xml` | Discovery (llms.txt invites AI assistants) |
+| `/agent` | AI concierge page (`?role=&city=&state=&zip=&interests=`) |
+| `/.well-known/ai-concierge` | Assistant manifest JSON |
+| `POST /api/v1/agent/ask` | Rate-limited (30/min) deterministic answers from real rows |
 
 **`/owner`:** `/owner/login`, edit-own-shop (queued `dir.ShopEditRequest`), 7/30/90 impression/view/click cards + 30-day bar chart.
 
-**`/SADMIN`:** login; dashboard KPIs (shops, shows, queues, signups, manufacturers, draft posts, 7-day impressions/views/clicks, top shops); Preview/Live mode; event / owner-edit / draft queues (approve/reject, publish industry-figure + draft post); shop table with Imp 7d; `/SADMIN/shops/{id}/stats`.
+**`/SADMIN`:** login; dashboard KPIs (shops, shows, queues, signups, manufacturers, draft posts, 7-day impressions/views/clicks, top shops, AI visits/inquiries); Preview/Live mode; event / owner-edit / draft queues (approve/reject, publish industry-figure + draft post); shop table with Imp 7d; `/SADMIN/shops/{id}/stats`; `/SADMIN/agents` (visits, inquiries, editable UA catalog).
 
 ### Calendar
 
@@ -145,6 +149,7 @@ Static HTML/CSV snapshot used as seed input (`hobby-shop-directory.csv`, `shows.
 | `e406efe` | QA_README + desktop screenshot paths |
 | `d5e57c3` | Shop impressions (all tiers) + shop JSON-LD / AI summary / `.md` |
 | `9bdacc0` | Raw `application/ld+json` script type + city breadcrumb hubs |
+| `7a3508f` | AI concierge / VIP visitors + ask API + SADMIN AI Visitors |
 
 ---
 
@@ -158,7 +163,7 @@ Update the **Status** column when a later run lands the item.
 |---|---|---|
 | Impression tracking for all shops + owner/SADMIN stats | **Done** (`d5e57c3`) | `analytics.ShopImpression` / `ShopDailyStats` + rollup; `/t` clicks; surfaces include directory, state, home, map, API, detail |
 | AI-optimized shop JSON-LD + AI summary + `.md` | **Done** (`d5e57c3`, `9bdacc0`) | Real fields only; `llms.txt` lists shop markdown |
-| AI concierge / VIP AI visitors + `POST /api/v1/agent/ask` + SADMIN AI Visitors | **In progress** | Detect ChatGPT/Claude/Grok/etc., welcome block (no cloaking), anonymized `AgentVisit` / `AgentInquiry`, rate-limited ask API, `/.well-known/ai-concierge`, `/agent`. Not on HEAD yet. |
+| AI concierge / VIP AI visitors + `POST /api/v1/agent/ask` + SADMIN AI Visitors | **Done** (`7a3508f`) | UA catalog (SADMIN-editable), welcome aside (no cloaking), `Link` + `X-NTCA-Agent-*`, `/.well-known/ai-concierge`, `/agent`, rate-limited ask API, anonymized `AgentVisit`/`AgentInquiry`, `/shows/submit` for promoters |
 | Mobile directory cards (SoberNation-style) | **Queued** | Not started |
 | Care.com-style multi-step signup funnel + funnel report | **Queued** | Current `/signup` is a single Preview form |
 

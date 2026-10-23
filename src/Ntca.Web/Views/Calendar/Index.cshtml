@@ -23,12 +23,13 @@
 }
 <p class="kicker">National calendar</p>
 <h1>Upcoming card shows</h1>
-<p class="lede">Month, list, and map of published and postponed editions from <code>mkt.ShopEvent</code>.</p>
+<p class="lede">Month, list, and map of published and postponed editions from <code>mkt.ShopEvent</code>. Promoters can <a href="/shows/submit">submit a show</a> for staff review.</p>
 <nav class="cal-tabs">
     <a class="@(view=="month" ? "on" : "")" href="@Hub("month", ViewBag.Year as int?, ViewBag.Month as int?)">Month</a>
     <a class="@(view=="list" ? "on" : "")" href="@Hub("list")">List</a>
     <a class="@(view=="map" ? "on" : "")" href="@Hub("map")">Map</a>
     <a href="@icsHref">Subscribe (.ics)</a>
+    <a href="/shows/submit">Submit a show</a>
 </nav>
 <form class="tools" method="get" action="/calendar">
     <input type="hidden" name="view" value="@view" />
