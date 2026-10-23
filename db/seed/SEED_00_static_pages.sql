@@ -2,6 +2,8 @@
    Re-run:  python3 db/tools/generate_seed.py
    Idempotent MERGE on slug / natural key. Safe to re-run.
 */
+:on error exit
+USE [$(NtcaDatabase)];
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO
@@ -297,5 +299,18 @@ WHEN MATCHED THEN UPDATE SET
 WHEN NOT MATCHED THEN INSERT (Slug, LocPath, Title, SourceFile, IsIndexed)
 VALUES (N'submit-event', N'/submit-event', N'Add your event · NTCA', N'legacy-site/submit-event.html', 0);
 
-PRINT 'SEED_00_static_pages: 22 pages merged';
+
+MERGE cms.StaticPage AS t
+USING (SELECT N'calendar' AS Slug) AS s
+ON t.Slug = s.Slug
+WHEN MATCHED THEN UPDATE SET
+    LocPath = N'/calendar',
+    Title = N'National Card Show Calendar · NTCA',
+    SourceFile = N'app-route:/calendar',
+    IsIndexed = 1,
+    UpdatedAt = @Now
+WHEN NOT MATCHED THEN INSERT (Slug, LocPath, Title, SourceFile, IsIndexed)
+VALUES (N'calendar', N'/calendar', N'National Card Show Calendar · NTCA', N'app-route:/calendar', 1);
+
+PRINT 'SEED_00_static_pages: 23 pages merged';
 

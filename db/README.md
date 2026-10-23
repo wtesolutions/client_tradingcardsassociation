@@ -13,11 +13,14 @@ Target: Microsoft SQL Server 2019+ on WTE **HAMMER**. Validated in this branch a
 | 2 | `02_seed.sql` | Lookup data: roles (incl. SUPERADMIN), shop tiers, features, entitlements, rotation, karma, badges, perks, `Site:Mode=Preview` |
 | 3 | `seed/SEED_00_static_pages.sql` | Marketing URLs from `legacy-site/*.html` |
 | 4 | `seed/SEED_10_shops.sql` | Hobby shops from CSV + `shops.html` (Free / unclaimed) |
-| 5 | `seed/SEED_20_events.sql` | Events from `events.html` + `shows.html` |
-| 6 | `seed/SEED_30_blog_bloggers.sql` | Bloggers directory + news + authored posts in `tools/inputs/posts/` |
-| 7 | `seed/SEED_40_about_bios.sql` | About-page officer/member bios |
-| 8 | `seed/SEED_50_gallery_media.sql` | Gallery images as `core.MediaAsset` + `cms.GalleryItem` |
-| 9 | `03_app_login.sql` | Login `ntca_app` (least privilege). Optional `ntca_migrator` |
+| 5 | `seed/SEED_15_ctca_members.sql` | Directory snapshot 2026-10-22: shops / orgs / manufacturer merges (`SourceSystem` marker, no third-party branding) |
+| 6 | `seed/SEED_20_events.sql` | Association `cms.Event` + national calendar (`mkt.ShopEvent` / Venue / Promoter) from `shows.html` |
+| 7 | `seed/SEED_30_blog_bloggers.sql` | Bloggers directory + news + authored posts in `tools/inputs/posts/` |
+| 8 | `seed/SEED_40_about_bios.sql` | About-page officer/member bios |
+| 9 | `seed/SEED_50_gallery_media.sql` | Gallery images as `core.MediaAsset` + `cms.GalleryItem` |
+| 10 | `seed/SEED_60_manufacturers.sql` | Wikipedia Trading card manufacturers (factual fields only) |
+| 11 | `seed/SEED_65_glossary_conditions.sql` | Glossary + condition grades when the beginner page lands; TODO until then |
+| 12 | `03_app_login.sql` | Login `ntca_app` (least privilege). Optional `ntca_migrator` |
 
 Regenerate 01 + `seed/SEED_*.sql`:
 
@@ -74,4 +77,9 @@ Run `run_all` a **second** time to confirm seeds are idempotent.
 
 - `source/ntca_schema.original.sql` — attached v1 draft (not executed as-is)
 - `source/01_schema_additions.sql` — plan §8 / §12 + SEO views
+- `source/01_schema_directory_calendar.sql` — manufacturers, organizations, national calendar
 - `tools/inputs/posts/*.md` — authored blog posts kept so regeneration does not drop them
+- `tools/inputs/wikipedia_trading_card.md` + `tools/manufacturers_source.csv`
+- `tools/inputs/ctca_member_directory.csv` — 99-row directory snapshot (skip “Not Displayed”)
+
+Public route docs: [docs/CALENDAR.md](../docs/CALENDAR.md), [docs/MANUFACTURERS.md](../docs/MANUFACTURERS.md), [docs/SEO_DISCOVERY.md](../docs/SEO_DISCOVERY.md).

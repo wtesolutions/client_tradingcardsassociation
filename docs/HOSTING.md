@@ -54,7 +54,13 @@ app.MapGet("/llms.txt", ...);
 app.MapGet("/llms-full.txt", ...);
 app.MapGet("/sitemap.xml", ...);
 app.MapGet("/sitemap/{name}.xml", ...);
+app.MapGet("/calendar", ...);          // alias of /shows
+app.MapGet("/calendar.ics", ...);
+app.MapGet("/shows/{state}.ics", ...);
+app.MapGet("/api/v1/calendar", ...);
 ```
+
+Calendar, show, promoter, and manufacturer routes must also be MVC-owned (not leftover `wwwroot` HTML). See [CALENDAR.md](CALENDAR.md) and [MANUFACTURERS.md](MANUFACTURERS.md).
 
 While `core.SiteSetting` `Site:Mode` = `Preview` (or ASPNETCORE_ENVIRONMENT != Production), robots must `Disallow: /` and every HTML response should send `X-Robots-Tag: noindex`. See [SEO_DISCOVERY.md](SEO_DISCOVERY.md).
 

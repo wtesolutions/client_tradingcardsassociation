@@ -27,6 +27,8 @@ call :run seed\SEED_00_static_pages.sql
 if errorlevel 1 exit /b 1
 call :run seed\SEED_10_shops.sql
 if errorlevel 1 exit /b 1
+call :run seed\SEED_15_ctca_members.sql
+if errorlevel 1 exit /b 1
 call :run seed\SEED_20_events.sql
 if errorlevel 1 exit /b 1
 call :run seed\SEED_30_blog_bloggers.sql
@@ -34,6 +36,10 @@ if errorlevel 1 exit /b 1
 call :run seed\SEED_40_about_bios.sql
 if errorlevel 1 exit /b 1
 call :run seed\SEED_50_gallery_media.sql
+if errorlevel 1 exit /b 1
+call :run seed\SEED_60_manufacturers.sql
+if errorlevel 1 exit /b 1
+call :run seed\SEED_65_glossary_conditions.sql
 if errorlevel 1 exit /b 1
 call :run 03_app_login.sql
 if errorlevel 1 exit /b 1

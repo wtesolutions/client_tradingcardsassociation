@@ -69,11 +69,16 @@ A sitemap index, not a single urlset. Children stay under 50 000 URLs and 50�
 |---|---|---|
 | `/sitemap/static.xml` | `seo.vw_SitemapStatic` | Marketing/content pages (about, join, directory, …) |
 | `/sitemap/shops.xml` | `seo.vw_SitemapShops` | Split by state (`/sitemap/shops-nc.xml`) when a file would exceed limits |
-| `/sitemap/events.xml` | `seo.vw_SitemapEvents` | Association events + published shop events |
+| `/sitemap/events.xml` | `seo.vw_SitemapEvents` | Association events + national calendar shows |
 | `/sitemap/posts.xml` | `seo.vw_SitemapPosts` | Published news/blog only |
 | `/sitemap/bloggers.xml` | `seo.vw_SitemapBloggers` | Public blogger directory |
 | `/sitemap/profiles.xml` | `seo.vw_SitemapProfiles` | **Only** `IsPublicProfile = 1` members |
 | `/sitemap/images.xml` | `seo.vw_SitemapImages` | Image sitemap extension: approved shop photos + published gallery |
+| `/sitemap/shows.xml` | `seo.vw_SitemapShows` | Per-show edition pages |
+| `/sitemap/show-states.xml` | `seo.vw_SitemapShowStates` | `/shows/{state}` hubs |
+| `/sitemap/show-cities.xml` | `seo.vw_SitemapShowCities` | `/shows/{state}/{city}` hubs |
+| `/sitemap/promoters.xml` | `seo.vw_SitemapPromoters` | `/promoters/{slug}` |
+| `/sitemap/manufacturers.xml` | `seo.vw_SitemapManufacturers` | `/manufacturers/{slug}` |
 
 Each `<url>`:
 
@@ -84,7 +89,9 @@ Each `<url>`:
 
 Shop loc pattern (matches the architecture plan): `/shops/{state}/{city-slug}/{slug}`
 
-Event loc: `/events/{slug}` (association) or `/shops/{state}/{city-slug}/{shopSlug}/events/{slug}` (shop calendar)
+Event loc: `/events/{slug}` (association / `cms.Event`) or `/shows/{state}/{city}/{slug}-{yyyy-mm}` (national calendar / `mkt.ShopEvent`). See [CALENDAR.md](CALENDAR.md).
+
+Manufacturer loc: `/manufacturers/{slug}` — see [MANUFACTURERS.md](MANUFACTURERS.md).
 
 Image sitemap: `xmlns:image` with `image:loc` built from CloudFront/`Media:PublicBaseUrl` + `core.MediaAsset.ObjectKey` (or `LegacyPath` until S3 cutover).
 
@@ -114,5 +121,7 @@ After a sitemap rebuild or a batch publish:
 - Slug + unique indexes on shops (already present), events (`mkt.ShopEvent`, `cms.Event`), posts (`cms.Post`), bloggers, bios
 - `UpdatedAt` on those entities and on `core.MediaAsset`
 - `seo.vw_SitemapStatic`, `Shops`, `Events`, `Posts`, `Bloggers`, `Profiles`, `Images`
+- `seo.vw_SitemapShows`, `ShowStates`, `ShowCities`, `Promoters`, `Manufacturers`
+- `mkt.vw_CalendarUpcoming` (calendar hub / ICS / MAUI)
 
 The app should `SELECT LocPath, LastModUtc, StateCode` from those views — no extra filtering in C# except host prefix and file splitting.

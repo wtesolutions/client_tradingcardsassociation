@@ -22,3 +22,5 @@ secrets.json
 # sqlcmd / local scratch
 *.sqlcmd.rsc
 db/_local/
+__pycache__/
+*.pyc

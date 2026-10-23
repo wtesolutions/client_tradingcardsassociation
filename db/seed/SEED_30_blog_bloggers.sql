@@ -2,6 +2,8 @@
    Re-run:  python3 db/tools/generate_seed.py
    Idempotent MERGE on slug / natural key. Safe to re-run.
 */
+:on error exit
+USE [$(NtcaDatabase)];
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO

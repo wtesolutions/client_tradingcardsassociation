@@ -323,7 +323,7 @@ CREATE TABLE crm.Signup
 );
 GO
 CREATE UNIQUE INDEX UX_Signup_EmailForm_Live ON crm.Signup (EmailNormalized, FormKey)
-    WHERE Status NOT IN ('MERGED','DELETED');
+    WHERE Status <> 'MERGED' AND Status <> 'DELETED';
 CREATE UNIQUE INDEX UX_Signup_External ON crm.Signup (ExternalSource, ExternalId)
     WHERE ExternalId IS NOT NULL;
 GO
@@ -544,6 +544,48 @@ CREATE TABLE cms.GalleryItem
     CreatedAt     DATETIME2(3)   NOT NULL CONSTRAINT DF_GalleryItem_CreatedAt DEFAULT SYSUTCDATETIME(),
     UpdatedAt     DATETIME2(3)   NOT NULL CONSTRAINT DF_GalleryItem_UpdatedAt DEFAULT SYSUTCDATETIME(),
     CONSTRAINT UQ_GalleryItem_Slug UNIQUE (Slug)
+);
+GO
+
+/* ---------------------------------------------------------------------
+   Beginner resource: trading-card lingo + raw-card condition scale.
+   Filled from the "New to Trading Cards" page on main once it lands
+   (legacy-site/new-to-trading-cards.html or similar). Lives in cms
+   (same public-content schema as posts/pages), not a separate content
+   schema. Do not invent terms or grades — generate_seed reads the page.
+   --------------------------------------------------------------------- */
+CREATE TABLE cms.GlossaryTerm
+(
+    GlossaryTermId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_GlossaryTerm PRIMARY KEY,
+    Slug           NVARCHAR(160)  NOT NULL,
+    Term           NVARCHAR(120)  NOT NULL,
+    Definition     NVARCHAR(2000) NOT NULL,
+    SortOrder      SMALLINT       NOT NULL CONSTRAINT DF_GlossaryTerm_Sort DEFAULT 100,
+    SourceUrl      NVARCHAR(500)  NULL,
+    SourcePage     NVARCHAR(120)  NULL,
+    IsPublished    BIT            NOT NULL CONSTRAINT DF_GlossaryTerm_Pub DEFAULT 1,
+    CreatedAt      DATETIME2(3)   NOT NULL CONSTRAINT DF_GlossaryTerm_CreatedAt DEFAULT SYSUTCDATETIME(),
+    UpdatedAt      DATETIME2(3)   NOT NULL CONSTRAINT DF_GlossaryTerm_UpdatedAt DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT UQ_GlossaryTerm_Slug UNIQUE (Slug)
+);
+GO
+CREATE INDEX IX_GlossaryTerm_Sort ON cms.GlossaryTerm (SortOrder, Term);
+GO
+
+CREATE TABLE cms.ConditionGrade
+(
+    ConditionGradeId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_ConditionGrade PRIMARY KEY,
+    Slug             NVARCHAR(80)   NOT NULL,
+    Name             NVARCHAR(80)   NOT NULL,
+    Rank             TINYINT        NOT NULL,  -- 1 = best (Pristine), higher = worse (Poor)
+    Description      NVARCHAR(2000) NOT NULL,
+    SourcePage       NVARCHAR(120)  NULL,
+    IsPublished      BIT            NOT NULL CONSTRAINT DF_ConditionGrade_Pub DEFAULT 1,
+    CreatedAt        DATETIME2(3)   NOT NULL CONSTRAINT DF_ConditionGrade_CreatedAt DEFAULT SYSUTCDATETIME(),
+    UpdatedAt        DATETIME2(3)   NOT NULL CONSTRAINT DF_ConditionGrade_UpdatedAt DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT UQ_ConditionGrade_Slug UNIQUE (Slug),
+    CONSTRAINT UQ_ConditionGrade_Rank UNIQUE (Rank),
+    CONSTRAINT UQ_ConditionGrade_Name UNIQUE (Name)
 );
 GO
 

@@ -2,6 +2,8 @@
    Lookup data lives here (not in db/seed/SEED_00_*) so generate_seed can
    regenerate content files without touching tiers, karma, or site settings.
 */
+:on error exit
+USE [$(NtcaDatabase)];
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO
@@ -84,9 +86,12 @@ GO
 
 MERGE feed.RotationSlot AS t
 USING (VALUES
-    ('HOME_NEW_SHOPS',    N'Homepage: New shops',        CAST(6 AS tinyint), CAST(30 AS smallint), CAST(60 AS smallint), CAST(1 AS bit)),
-    ('DIRECTORY_SIDEBAR', N'Directory sidebar',          CAST(4 AS tinyint), CAST(30 AS smallint), CAST(30 AS smallint), CAST(1 AS bit)),
-    ('NEWSLETTER',        N'Newsletter: New this month', CAST(8 AS tinyint), CAST(31 AS smallint), CAST(1440 AS smallint), CAST(1 AS bit))
+    ('HOME_NEW_SHOPS',       N'Homepage: New shops',          CAST(6 AS tinyint), CAST(30 AS smallint), CAST(60 AS smallint), CAST(1 AS bit)),
+    ('DIRECTORY_SIDEBAR',    N'Directory sidebar',            CAST(4 AS tinyint), CAST(30 AS smallint), CAST(30 AS smallint), CAST(1 AS bit)),
+    ('NEWSLETTER',           N'Newsletter: New this month',   CAST(8 AS tinyint), CAST(31 AS smallint), CAST(1440 AS smallint), CAST(1 AS bit)),
+    ('HOME_UPCOMING_SHOWS',  N'Homepage: Upcoming shows',     CAST(6 AS tinyint), CAST(45 AS smallint), CAST(60 AS smallint), CAST(1 AS bit)),
+    ('CALENDAR_FEATURED',    N'Calendar featured placement',  CAST(8 AS tinyint), CAST(45 AS smallint), CAST(60 AS smallint), CAST(1 AS bit)),
+    ('STATE_HUB_FEATURED',   N'State hub featured shows',     CAST(4 AS tinyint), CAST(45 AS smallint), CAST(60 AS smallint), CAST(1 AS bit))
 ) AS s (SlotCode, Name, MaxItems, DefaultWindowDays, RefreshEveryMinutes, IsActive)
 ON t.SlotCode = s.SlotCode
 WHEN MATCHED THEN UPDATE SET
