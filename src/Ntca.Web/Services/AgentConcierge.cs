@@ -309,8 +309,6 @@ public sealed class AgentAnswerBuilder
         var shopsQ = _db.Shops.AsNoTracking().Where(s => s.ListingStatus == "ACTIVE");
         if (ask.StateCode is { Length: 2 } st)
             shopsQ = shopsQ.Where(s => s.StateCode == st);
-        if (ask.Zip3 is { Length: 3 } z3)
-            shopsQ = shopsQ.Where(s => s.PostalCode != null && s.PostalCode.StartsWith(z3));
         var shops = await shopsQ.ToListAsync(ct);
         if (!string.IsNullOrWhiteSpace(ask.City))
         {
@@ -318,6 +316,12 @@ public sealed class AgentAnswerBuilder
             var local = shops.Where(s => s.City.Contains(city, StringComparison.OrdinalIgnoreCase)).ToList();
             if (local.Count > 0)
                 shops = local;
+        }
+        if (ask.Zip3 is { Length: 3 } z3)
+        {
+            var zipped = shops.Where(s => s.PostalCode != null && s.PostalCode.StartsWith(z3, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (zipped.Count > 0)
+                shops = zipped;
         }
         if (specials.Count > 0)
         {
