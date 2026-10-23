@@ -1,0 +1,77 @@
+# NTCA SQL Server scripts
+
+Ordered, idempotent where it matters, runnable with **sqlcmd** (command line or SSMS SQLCMD mode).
+
+Target: Microsoft SQL Server 2019+ on WTE **HAMMER**. Validated in this branch against `mcr.microsoft.com/mssql/server:2022-latest`.
+
+## Order
+
+| # | Script | What it does |
+|---|---|---|
+| 0 | `00_create_database.sql` | `CREATE DATABASE` if missing. `RECOVERY FULL`, `READ_COMMITTED_SNAPSHOT ON`, instance default collation |
+| 1 | `01_schema.sql` | v1 schema (36 tables, views, procs) **plus** auth/media/crm/cms/seo additions. Assembled — do not edit by hand |
+| 2 | `02_seed.sql` | Lookup data: roles (incl. SUPERADMIN), shop tiers, features, entitlements, rotation, karma, badges, perks, `Site:Mode=Preview` |
+| 3 | `seed/SEED_00_static_pages.sql` | Marketing URLs from `legacy-site/*.html` |
+| 4 | `seed/SEED_10_shops.sql` | Hobby shops from CSV + `shops.html` (Free / unclaimed) |
+| 5 | `seed/SEED_20_events.sql` | Events from `events.html` + `shows.html` |
+| 6 | `seed/SEED_30_blog_bloggers.sql` | Bloggers directory + news + authored posts in `tools/inputs/posts/` |
+| 7 | `seed/SEED_40_about_bios.sql` | About-page officer/member bios |
+| 8 | `seed/SEED_50_gallery_media.sql` | Gallery images as `core.MediaAsset` + `cms.GalleryItem` |
+| 9 | `03_app_login.sql` | Login `ntca_app` (least privilege). Optional `ntca_migrator` |
+
+Regenerate 01 + `seed/SEED_*.sql`:
+
+```bash
+python3 db/tools/generate_seed.py
+```
+
+## HAMMER
+
+From a workstation or the IIS box that can reach HAMMER (Windows auth as a DBA):
+
+```bat
+cd db
+run_all.cmd -S HAMMER -E -v NtcaDatabase=NTCA -v NtcaAppPassword="***"
+```
+
+Or each file in SSMS with **Query → SQLCMD Mode**, then:
+
+```
+:setvar NtcaDatabase NTCA
+:setvar NtcaAppPassword ***
+:r 00_create_database.sql
+```
+
+Database name defaults to **`NTCA`**. Architecture plan also mentioned `NTCADirectory` — pass `-v NtcaDatabase=NTCADirectory` if Eric prefers that. Decide once; IIS connection strings must match.
+
+## App connection string (placeholder — password not in git)
+
+Set on the IIS app pool as `ConnectionStrings__DefaultConnection` (or the server secret store). Never commit the password.
+
+```
+Server=HAMMER,1433;Database=NTCA;User ID=ntca_app;Password=***REPLACE***;
+Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Application Name=Ntca.Web
+```
+
+`ntca_app`: `db_datareader`, `db_datawriter`, `EXECUTE` on `core`, `dir`, `bill`, `mkt`, `feed`, `ugc`, `karma`, `crm`, `cms`, `seo`. Not `db_owner`, no DDL.
+
+Optional `ntca_migrator` (pass `-v NtcaMigratorPassword=...`): `db_ddladmin` + data r/w/exec for DbUp / schema apply only. Not used by the running site.
+
+## Local Docker (what this branch was validated against)
+
+```bash
+docker run -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='A_Demo_Password_1' \
+  -p 1433:1433 --name ntca-sql -d mcr.microsoft.com/mssql/server:2022-latest
+
+./run_all.sh -S localhost,1433 -U sa -P 'A_Demo_Password_1' -C \
+  -v NtcaAppPassword='A_Demo_App_Password_1' \
+  -v NtcaMigratorPassword='A_Demo_Mig_Password_1'
+```
+
+Run `run_all` a **second** time to confirm seeds are idempotent.
+
+## Source files
+
+- `source/ntca_schema.original.sql` — attached v1 draft (not executed as-is)
+- `source/01_schema_additions.sql` — plan §8 / §12 + SEO views
+- `tools/inputs/posts/*.md` — authored blog posts kept so regeneration does not drop them
