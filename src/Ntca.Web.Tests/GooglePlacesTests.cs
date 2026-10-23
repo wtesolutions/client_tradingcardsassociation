@@ -128,6 +128,23 @@ public sealed class GooglePlacesTests
     }
 
     [Fact]
+    public void Visitor_controllers_do_not_take_the_google_http_client()
+    {
+        foreach (var type in new[]
+                 {
+                     typeof(Ntca.Web.Controllers.MediaController),
+                     typeof(Ntca.Web.Controllers.ShopsController),
+                     typeof(Ntca.Web.Controllers.HomeController)
+                 })
+        {
+            var used = type.GetConstructors()
+                .SelectMany(c => c.GetParameters())
+                .Select(p => p.ParameterType);
+            Assert.DoesNotContain(typeof(IGooglePlacesClient), used);
+        }
+    }
+
+    [Fact]
     public void Json_ld_still_omits_third_party_google_ratings()
     {
         var shop = new Shop

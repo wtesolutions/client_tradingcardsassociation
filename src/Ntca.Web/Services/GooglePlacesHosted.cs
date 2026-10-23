@@ -22,10 +22,7 @@ public sealed class GooglePlacesHostedService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         if (!_opt.HasKey || !_opt.Enabled)
-        {
-            _log.LogInformation("Google Places nightly batch is idle (no API key or disabled).");
-            return;
-        }
+            _log.LogInformation("Google Places nightly refresh is idle (no API key or disabled). Expired cache still purges.");
         while (!stoppingToken.IsCancellationRequested)
         {
             var delay = DelayUntilThreeUtc();
@@ -41,13 +38,17 @@ public sealed class GooglePlacesHostedService : BackgroundService
             {
                 using var scope = _scopes.CreateScope();
                 var sync = scope.ServiceProvider.GetRequiredService<GooglePlacesSync>();
+                var purged = await sync.PurgeExpiredAsync(stoppingToken);
+                _log.LogInformation("Google Places expired-cache purge removed {Count} rows.", purged);
+                if (!_opt.HasKey || !_opt.Enabled)
+                    continue;
                 var result = await sync.RefreshAsync(dryRun: false, shopIds: null, take: null, stoppingToken);
                 _log.LogInformation("Google Places nightly refresh: {Message} used={Used} limit={Limit}",
                     result.Message, result.CallsUsed, result.HitLimit);
             }
             catch (Exception ex)
             {
-                _log.LogWarning(ex, "Google Places nightly refresh failed.");
+                _log.LogWarning(ex, "Google Places nightly batch failed; expired cache still attempted next cycle.");
             }
         }
     }

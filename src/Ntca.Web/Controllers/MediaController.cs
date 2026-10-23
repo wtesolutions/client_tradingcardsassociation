@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Ntca.Core;
 using Ntca.Data;
 
 namespace Ntca.Web.Controllers;
@@ -8,12 +9,12 @@ namespace Ntca.Web.Controllers;
 public sealed class MediaController : Controller
 {
     private readonly NtcaDbContext _db;
-    private readonly IWebHostEnvironment _env;
+    private readonly IFileStorage _files;
 
-    public MediaController(NtcaDbContext db, IWebHostEnvironment env)
+    public MediaController(NtcaDbContext db, IFileStorage files)
     {
         _db = db;
-        _env = env;
+        _files = files;
     }
 
     [HttpGet("/media/gplace/{shopId:long}/{slot:int}")]
@@ -23,7 +24,7 @@ public sealed class MediaController : Controller
         if (slot is < 1 or > 3)
             return NotFound();
         var now = DateTime.UtcNow;
-        Ntca.Core.GooglePlacePhoto? photo;
+        GooglePlacePhoto? photo;
         try
         {
             photo = await _db.GooglePlacePhotos.AsNoTracking()
@@ -35,10 +36,9 @@ public sealed class MediaController : Controller
         }
         if (photo is null)
             return NotFound();
-        var root = Path.Combine(_env.ContentRootPath, "wwwroot", "uploads");
-        var full = Path.GetFullPath(Path.Combine(root, photo.RelativePath.Replace('\\', '/')));
-        if (!full.StartsWith(Path.GetFullPath(root), StringComparison.OrdinalIgnoreCase) || !System.IO.File.Exists(full))
+        var stream = await _files.OpenReadAsync(photo.RelativePath, ct);
+        if (stream is null)
             return NotFound();
-        return PhysicalFile(full, photo.ContentType);
+        return File(stream, photo.ContentType);
     }
 }

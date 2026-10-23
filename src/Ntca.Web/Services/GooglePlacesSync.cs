@@ -240,7 +240,10 @@ public sealed class GooglePlacesSync
         foreach (var item in shops)
         {
             if (!await TryConsumeAsync(GooglePlacesSkus.PlaceDetails, ct))
-                return Done(false, plan, 0, 0, refreshed, photosSaved, 0, used, true, "Daily or monthly call limit reached.");
+            {
+                var stopped = await PurgeExpiredAsync(ct);
+                return Done(false, plan, 0, 0, refreshed, photosSaved, stopped, used, true, "Daily or monthly call limit reached.");
+            }
             used++;
             PlaceDetailsResult? detailsResult;
             try
