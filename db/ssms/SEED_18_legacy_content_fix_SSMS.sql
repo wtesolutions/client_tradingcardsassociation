@@ -69,6 +69,7 @@ In 1995 they left investor Bennett S. LeBow and sold to Fleer Trading Cards in M
 
 After leaving, he worked with Allen Iverson and Reebok his rookie year, and then Tim Duncan his rookie year. For many years after that he hosted yearly contests for Panini Group.',
      NULL, N'assets/eric-garrison.jpeg', 20, 1);
+GO
 
 MERGE core.MediaAsset AS t
 USING (SELECT N'legacy/assets/about-boys-cards.jpg' AS ObjectKey) AS s

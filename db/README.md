@@ -30,12 +30,13 @@ DEV login hardcoded in `03_app_login.sql`: `ntca_app` / `NtcaAppDev2026x` (chang
 | 13 | `seed/SEED_40_about_bios.sql` | About-page officer/member bios |
 | 14 | `seed/SEED_50_gallery_media.sql` | Gallery images as `core.MediaAsset` + `cms.GalleryItem` |
 | 15 | `seed/SEED_18_legacy_content_fix.sql` | Correct concatenated About bios + boys/hall gallery rows |
+| 15b | `seed/SEED_19_bio_fix.sql` | Force-set each PersonBio to their own legacy founder-body (slug or FullName) |
 | 16 | `seed/SEED_60_manufacturers.sql` | Wikipedia Trading card manufacturers (factual fields only) |
 | 17 | `seed/SEED_65_glossary_conditions.sql` | Glossary + condition grades from New to Trading Cards |
 | 18 | `seed/SEED_70_industry_figures.sql` | Gary Vaynerchuk figure + DRAFT post (not public) |
 | 19 | `03_app_login.sql` | Login `ntca_app` (least privilege). Optional `ntca_migrator` via `@MigratorPassword` |
 
-**Existing QA database (already has shops):** run `04`, `05`, `06`, `SEED_17`, `SEED_18` in that order. All five are idempotent. Then run `99_verify.sql` (read-only PASS/FAIL/WARN grid; identical copy `db/ssms/99_verify_SSMS.sql`).
+**Existing QA database (already has shops):** run `04`, `05`, `06`, `SEED_17`, `SEED_18`, then `SEED_19` if bios still leak. All are idempotent. Then run `99_verify.sql` (read-only PASS/FAIL/WARN grid; identical copy `db/ssms/99_verify_SSMS.sql`). Active manufacturers expected **68** (66 Wikipedia + Fanatics + Onit Athlete from SEED_15).
 
 Regenerate 01 + `seed/SEED_*.sql` (except hand-written 17/18):
 

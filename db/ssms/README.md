@@ -15,7 +15,7 @@ These files are **identical copies** of the canonical scripts in `db/` and `db/s
 | `03_app_login_SSMS.sql` | `ntca_app` / `NtcaAppDev2026x` (DEV ONLY). Optional migrator: edit `@MigratorPassword` at the top |
 | `99_verify_SSMS.sql` | Read-only PASS/FAIL/WARN grid after the incremental scripts |
 
-**Existing QA database (already has shops):** run in this order — `04`, then `05`, then `06`, then `SEED_17`, then `SEED_18`. All five are idempotent. Then run `99_verify_SSMS.sql` to cross-check.
+**Existing QA database (already has shops):** run in this order — `04`, then `05`, then `06`, then `SEED_17`, then `SEED_18`, then `SEED_19_bio_fix` if bios still leak. Then run `99_verify_SSMS.sql` to cross-check.
 
 Regenerate the copies after changing `db/*.sql`:
 

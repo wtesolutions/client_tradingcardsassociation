@@ -41,6 +41,8 @@ call :run seed\SEED_50_gallery_media.sql
 if errorlevel 1 exit /b 1
 call :run seed\SEED_18_legacy_content_fix.sql
 if errorlevel 1 exit /b 1
+call :run seed\SEED_19_bio_fix.sql
+if errorlevel 1 exit /b 1
 call :run seed\SEED_60_manufacturers.sql
 if errorlevel 1 exit /b 1
 call :run seed\SEED_65_glossary_conditions.sql

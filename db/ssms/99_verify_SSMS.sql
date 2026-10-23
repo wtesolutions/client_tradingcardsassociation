@@ -1,5 +1,5 @@
 /* Plain T-SQL for SSMS. SQLCMD Mode is not required.
-   Read-only cross-check after 01–06 + seeds (including SEED_17 / SEED_18).
+   Read-only cross-check after 01–06 + seeds (including SEED_17 / SEED_18 / SEED_19).
    Open in SSMS connected to 10.100.1.87 and Execute. No writes.
    Edit @Expect at the top if a documented count changes.
 */
@@ -22,7 +22,7 @@ INSERT INTO @Expect (K, N) VALUES
     (N'shows_local',            10),
     (N'promoters',              23),
     (N'venues',                 27),
-    (N'manufacturers',          66),
+    (N'manufacturers',          68),
     (N'glossary',               42),
     (N'condition_grades',       10),
     (N'posts_published',         5),
@@ -266,6 +266,76 @@ SELECT @exp = N FROM @Expect WHERE K = N'manufacturers';
 INSERT INTO @Out (Area, [Check], Expected, Actual, Result) VALUES (N'seed', N'dir.Manufacturer active', CONVERT(varchar(20), @exp), CONVERT(varchar(20), @act),
     CASE WHEN @act = @exp THEN N'PASS' ELSE N'FAIL' END);
 
+SET @act = 0;
+SET @txt = N'none';
+IF OBJECT_ID(N'dir.Manufacturer', N'U') IS NOT NULL
+BEGIN
+    SELECT @act = ISNULL((
+        SELECT COUNT(*) FROM (
+            SELECT NormalizedName
+            FROM dir.Manufacturer
+            WHERE IsActive = 1 AND NormalizedName IS NOT NULL
+            GROUP BY NormalizedName
+            HAVING COUNT(*) > 1
+        ) d), 0);
+    SELECT @txt = STRING_AGG(x.NormalizedName, N', ')
+    FROM (
+        SELECT NormalizedName
+        FROM dir.Manufacturer
+        WHERE IsActive = 1 AND NormalizedName IS NOT NULL
+        GROUP BY NormalizedName
+        HAVING COUNT(*) > 1
+    ) x;
+    IF @txt IS NULL SET @txt = N'none';
+END;
+INSERT INTO @Out (Area, [Check], Expected, Actual, Result) VALUES (
+    N'quality',
+    N'duplicate manufacturer NormalizedName',
+    N'0',
+    CONVERT(varchar(20), ISNULL(@act, 0)) + N' — ' + @txt,
+    CASE WHEN ISNULL(@act, 0) = 0 THEN N'PASS' ELSE N'FAIL' END);
+
+SET @act = 0;
+SET @txt = N'none';
+IF OBJECT_ID(N'dir.Manufacturer', N'U') IS NOT NULL
+BEGIN
+    SELECT @act = ISNULL((
+        SELECT COUNT(*) FROM (
+            SELECT LOWER(LTRIM(RTRIM(Name))) AS Nm
+            FROM dir.Manufacturer
+            WHERE IsActive = 1
+            GROUP BY LOWER(LTRIM(RTRIM(Name)))
+            HAVING COUNT(*) > 1
+        ) d), 0);
+    SELECT @txt = STRING_AGG(x.Nm, N', ')
+    FROM (
+        SELECT LOWER(LTRIM(RTRIM(Name))) AS Nm
+        FROM dir.Manufacturer
+        WHERE IsActive = 1
+        GROUP BY LOWER(LTRIM(RTRIM(Name)))
+        HAVING COUNT(*) > 1
+    ) x;
+    IF @txt IS NULL SET @txt = N'none';
+END;
+INSERT INTO @Out (Area, [Check], Expected, Actual, Result) VALUES (
+    N'quality',
+    N'duplicate manufacturer Name',
+    N'0',
+    CONVERT(varchar(20), ISNULL(@act, 0)) + N' — ' + @txt,
+    CASE WHEN ISNULL(@act, 0) = 0 THEN N'PASS' ELSE N'FAIL' END);
+
+IF OBJECT_ID(N'dir.Manufacturer', N'U') IS NOT NULL
+    INSERT INTO @Out (Area, [Check], Expected, Actual, Result)
+    SELECT
+        N'seed',
+        N'CTCA manufacturer ' + v.Slug,
+        N'active',
+        CASE WHEN m.ManufacturerId IS NULL THEN N'missing'
+             WHEN m.IsActive = 1 THEN N'active' ELSE N'inactive' END,
+        CASE WHEN m.IsActive = 1 THEN N'PASS' ELSE N'FAIL' END
+    FROM (VALUES (N'fanatics'), (N'onit-athlete-trading-cards')) v(Slug)
+    LEFT JOIN dir.Manufacturer m ON m.Slug = v.Slug;
+
 IF OBJECT_ID(N'cms.GlossaryTerm', N'U') IS NOT NULL
     SELECT @act = COUNT(*) FROM cms.GlossaryTerm;
 ELSE
@@ -375,8 +445,10 @@ BEGIN
         N'SEED_18',
         N'bio ' + v.Slug + N' has own marker',
         v.OwnMarker,
-        CASE WHEN b.BioText LIKE N'%' + v.OwnMarker + N'%' THEN N'present' ELSE N'missing' END,
-        CASE WHEN b.BioText LIKE N'%' + v.OwnMarker + N'%' THEN N'PASS' ELSE N'FAIL' END
+        CASE WHEN COALESCE(b.BioText, N'') + N' ' + COALESCE(b.Quote, N'') LIKE N'%' + v.OwnMarker + N'%'
+             THEN N'present' ELSE N'missing' END,
+        CASE WHEN COALESCE(b.BioText, N'') + N' ' + COALESCE(b.Quote, N'') LIKE N'%' + v.OwnMarker + N'%'
+             THEN N'PASS' ELSE N'FAIL' END
     FROM (VALUES
         (N'craig-lloyd',   N'Craig Lloyd founded'),
         (N'eric-garrison', N'Eric Garrison started'),
@@ -389,8 +461,10 @@ BEGIN
         N'SEED_18',
         N'bio ' + b.Slug + N' excludes ' + x.ForeignMarker,
         N'absent',
-        CASE WHEN b.BioText LIKE N'%' + x.ForeignMarker + N'%' THEN N'LEAK' ELSE N'absent' END,
-        CASE WHEN b.BioText LIKE N'%' + x.ForeignMarker + N'%' THEN N'FAIL' ELSE N'PASS' END
+        CASE WHEN COALESCE(b.BioText, N'') + N' ' + COALESCE(b.Quote, N'') LIKE N'%' + x.ForeignMarker + N'%'
+             THEN N'LEAK' ELSE N'absent' END,
+        CASE WHEN COALESCE(b.BioText, N'') + N' ' + COALESCE(b.Quote, N'') LIKE N'%' + x.ForeignMarker + N'%'
+             THEN N'FAIL' ELSE N'PASS' END
     FROM cms.PersonBio b
     CROSS APPLY (VALUES
         (N'craig-lloyd',   N'Eric Garrison started'),

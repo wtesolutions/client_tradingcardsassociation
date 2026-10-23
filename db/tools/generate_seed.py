@@ -646,11 +646,14 @@ def bios_from_about() -> list[dict]:
     ), start=1):
         name = unescape(m.group("name"))
         role = unescape(m.group("role"))
-        rest = text[m.end(): m.end() + 4000]
-        paras = [unescape(p) for p in re.findall(r'<p class="sec-sub"[^>]*>(.*?)</p>', rest, re.S)]
-        # stop at next founder-name
-        bio = "\n\n".join(paras[:6])
-        quote_m = re.search(r'<blockquote class="cb-quote">(.*?)</blockquote>', rest, re.S)
+        rest = text[m.end():]
+        nxt = re.search(r'<p class="founder-name">', rest)
+        block = rest[: nxt.start()] if nxt else rest
+        body_m = re.search(r'<div class="founder-body">(.*?)</div>', block, re.S)
+        src = body_m.group(1) if body_m else block
+        paras = [unescape(p) for p in re.findall(r'<p class="sec-sub"[^>]*>(.*?)</p>', src, re.S)]
+        bio = "\n\n".join(paras)
+        quote_m = re.search(r'<blockquote class="cb-quote">(.*?)</blockquote>', block, re.S)
         quote = unescape(quote_m.group(1)) if quote_m else None
         img_m = re.search(r'<img src="([^"]+)"[^>]*alt="[^"]*' + re.escape(name.split()[0]), text)
         # simpler: nearest officer photo before this name

@@ -41,8 +41,9 @@ SSMS: open `db/NTCA_FULL_INSTALL.sql` (or the identical `db/ssms/NTCA_FULL_INSTA
 3. `06_shop_social.sql` — social platform catalog + `dir.ShopSocial` (migrates Website / Facebook / Instagram)
 4. `SEED_17_shop_enrichment_manual.sql` — 2026-10-23 verified first-10 enrichment (Boxseat / Burbank / GamesandCards socials, Beckett-only websites for Bakersfield and Wonder Water, descriptions, lat/lng, Burbank + Bakersfield hours) plus SADMIN review notes (`docs/DATA_REVIEW.md`)
 5. `SEED_18_legacy_content_fix.sql` — corrected About bios + boys/hall gallery rows
+6. `SEED_19_bio_fix.sql` — force-set Craig / Eric / Jay `BioText` (and Quote) to their own legacy founder-body; use this if `99_verify` still reports a bio LEAK after SEED_18
 
-All five are safe to run twice. A second full `run_all` is also safe: `01_schema.sql` uses `IF NOT EXISTS` / `CREATE OR ALTER`. Optional migrator: edit `DECLARE @MigratorPassword` at the top of `03_app_login.sql` (default `N'__SKIP__'`).
+All six are safe to run twice. A second full `run_all` is also safe: `01_schema.sql` uses `IF NOT EXISTS` / `CREATE OR ALTER`. Optional migrator: edit `DECLARE @MigratorPassword` at the top of `03_app_login.sql` (default `N'__SKIP__'`).
 
 **After those scripts:** open `db/99_verify.sql` (or the identical `db/ssms/99_verify_SSMS.sql`) and Execute. It is read-only and returns one PASS/FAIL/WARN grid (schema, seed counts, SEED_18 bios, data quality, Google tables, DATA_REVIEW flags) plus a summary row. Edit the `@Expect` table at the top if a documented count changes. `db/tools/validate.sql` only points at this file.
 

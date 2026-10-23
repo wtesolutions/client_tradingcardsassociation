@@ -18,6 +18,7 @@ FILES = [
     "seed/SEED_40_about_bios.sql",
     "seed/SEED_50_gallery_media.sql",
     "seed/SEED_18_legacy_content_fix.sql",
+    "seed/SEED_19_bio_fix.sql",
     "seed/SEED_60_manufacturers.sql",
     "seed/SEED_65_glossary_conditions.sql",
     "seed/SEED_70_industry_figures.sql",
