@@ -1468,3 +1468,82 @@ body.dir-ref #dir-grid .dir-link a:hover {
   body.dir-ref .nav-brand img { width: 44px; height: 44px; }
   body.dir-ref #dir-grid .dir-logo { height: 80px; }
 }
+
+/* ── new-to-trading-cards.html (glossary + condition guide) ── */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+.guide-hero-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+  gap: var(--leading) clamp(20px, 4vw, 56px); align-items: start;
+  margin-top: var(--leading); }
+.guide-hero-row .lede { margin-top: 0; text-box: unset; }
+.guide-hero-row .lede + .lede { margin-top: var(--leading); }
+.guide-figure { margin: 0; min-width: 0; }
+.guide-figure img { width: 100%; height: auto; display: block; border-radius: 12px; }
+.guide-figure figcaption { font-size: 13px; line-height: 1.45; margin-top: 10px;
+  color: color-mix(in srgb, var(--color-text) 62%, transparent); text-wrap: pretty; }
+@media (max-width: 767.98px) {
+  .guide-hero-row { grid-template-columns: 1fr; }
+}
+
+.az { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--leading); }
+.az a, .az span { min-width: 32px; min-height: 32px; padding: 4px 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 13px; line-height: 1; letter-spacing: 0.04em;
+  text-decoration: none; border: 1px solid var(--color-neutral-800);
+  border-radius: var(--radius-sm);
+  color: color-mix(in srgb, var(--color-text) 80%, transparent); }
+.az a:hover { color: var(--color-accent-200); border-color: var(--color-accent-700);
+  background: color-mix(in srgb, var(--color-accent-900) 45%, transparent); }
+.az span { opacity: 0.32; cursor: default; }
+
+.glossary-tools { margin-top: var(--leading); max-width: 420px; }
+.glossary-tools .input { width: 100%; box-sizing: border-box; }
+
+.glossary { margin-top: var(--half); min-width: 0; }
+.glossary dl { margin: 0; }
+.glossary-letter { font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 22px; line-height: 28px; letter-spacing: -0.012em;
+  margin: calc(1.5 * var(--leading)) 0 var(--half); color: var(--color-accent);
+  scroll-margin-top: 88px; }
+.glossary-item { display: grid; grid-template-columns: minmax(7.5rem, 15rem) minmax(0, 1fr);
+  gap: var(--space-3) var(--leading); padding: var(--space-4) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+  scroll-margin-top: 88px; }
+.glossary-item dt { font-weight: 600; font-size: 16px; line-height: 24px;
+  margin: 0; overflow-wrap: anywhere; }
+.glossary-item dd { margin: 0; font-size: 15.5px; line-height: var(--leading);
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  overflow-wrap: break-word; }
+@media (max-width: 599.98px) {
+  .glossary-item { grid-template-columns: 1fr; gap: var(--space-2); }
+}
+
+.cond-wrap { margin-top: var(--leading); max-width: 100%;
+  border: 1px solid var(--color-neutral-800); border-radius: var(--radius-md); }
+.cond-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.cond-table caption { caption-side: top; }
+.cond-table th, .cond-table td { padding: 12px var(--space-4); text-align: left;
+  vertical-align: top; overflow-wrap: break-word; hyphens: auto; }
+.cond-table thead th { font-size: 13px; line-height: 17px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--color-accent-200);
+  background: color-mix(in srgb, var(--color-accent-900) 45%, transparent);
+  padding-block: var(--space-4); }
+.cond-table tbody th { width: 38%; font-weight: 600; font-size: 14.5px; line-height: 21px;
+  color: color-mix(in srgb, var(--color-text) 90%, transparent); }
+.cond-table tbody td { font-size: 14.5px; line-height: 21px;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent); }
+.cond-table tbody tr { border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
+.cond-table tbody tr:last-child { border-bottom: 0; }
+.cond-table tbody tr:hover th, .cond-table tbody tr:hover td {
+  background: color-mix(in srgb, var(--color-accent-900) 25%, transparent); }
+.cond-note { margin-top: var(--leading); }
+.sources-note { margin-top: calc(1.5 * var(--leading)); max-width: 68ch; }
+
+@media (max-width: 519.98px) {
+  .cond-table thead th, .cond-table tbody th, .cond-table tbody td {
+    padding: 10px 12px; }
+  .cond-table tbody th { width: 34%; font-size: 13.5px; }
+  .cond-table tbody td { font-size: 13.5px; }
+}
