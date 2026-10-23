@@ -97,7 +97,19 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 - Turnstile is off in Development.
 - Upcoming GaryVee card-show rows were **not** seeded: the 2026-10-22 dossier had no confirmed card show with date + location + his role.
 - Top-100 destination shops are in `SEED_16` (`SourceSystem=TOP100-2026-10-22`). Matched rows fill empty fields only. See `docs/TOP100_SHOPS.md`.
-- Schema apply is idempotent (`IF NOT EXISTS` / `CREATE OR ALTER`). A second full `run_all` succeeds on an existing database.
+
+## Desktop screenshots (1440×900)
+
+Captured from this branch against the local Docker DB:
+
+| Page | File |
+|---|---|
+| Home | `/opt/cursor/artifacts/ntca_home.png` |
+| `/shops` | `/opt/cursor/artifacts/ntca_shops.png` |
+| `/calendar` month | `/opt/cursor/artifacts/ntca_calendar_month.png` |
+| Show (River City) | `/opt/cursor/artifacts/ntca_show_river_city.png` |
+| Manufacturer (Ace Authentic) | `/opt/cursor/artifacts/ntca_manufacturer_ace_authentic.png` |
+| `/SADMIN` dashboard | `/opt/cursor/artifacts/ntca_sadmin_dashboard.png` |
 
 ## Email
 
