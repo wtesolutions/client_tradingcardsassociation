@@ -1,0 +1,23 @@
+@model List<Ntca.Core.Shop>
+@{
+    ViewData["Title"] = "Shops";
+}
+<h1>Shops</h1>
+<form class="tools" method="get" action="/SADMIN/shops">
+    <input name="q" value="@ViewBag.Q" placeholder="Name or city" />
+    <input name="state" value="@ViewBag.State" placeholder="State" maxlength="2" />
+    <button class="btn" type="submit">Filter</button>
+</form>
+<table>
+    <tr><th>Name</th><th>City</th><th>Claim</th><th>Listing</th><th>Source</th></tr>
+    @foreach (var s in Model)
+    {
+        <tr>
+            <td>@s.Name</td>
+            <td>@s.City, @s.StateCode</td>
+            <td>@s.ClaimStatus</td>
+            <td>@s.ListingStatus</td>
+            <td>@s.SourceSystem</td>
+        </tr>
+    }
+</table>

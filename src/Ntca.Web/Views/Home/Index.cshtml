@@ -1,0 +1,40 @@
+﻿@model (List<Ntca.Core.ShopEvent> Shows, List<Ntca.Core.Post> Posts)
+@{
+    ViewData["Title"] = "Home";
+}
+<section>
+    <p class="kicker">National Trading Card Association</p>
+    <h1>Protecting, promoting, and connecting the hobby.</h1>
+    <p class="lede">A live directory of shops, a national card-show calendar, manufacturer pages, and a beginner guide — served from the NTCA database, not a static snapshot.</p>
+    <div class="hero-stats">
+        <div><strong>@ViewBag.ShopCount</strong><span class="meta">active shops</span></div>
+        <div><strong>@ViewBag.ShowCount</strong><span class="meta">calendar shows</span></div>
+        <div><strong>@ViewBag.MfrCount</strong><span class="meta">manufacturers</span></div>
+    </div>
+    <p><a class="btn" href="/signup">Join the Preview list</a> <a class="btn ghost" href="/calendar">See the calendar</a></p>
+</section>
+<section>
+    <h2>Upcoming shows</h2>
+    <div class="grid">
+    @foreach (var e in Model.Shows)
+    {
+        <a class="card" href="@Ntca.Web.Controllers.CalendarController.Loc(e)">
+            <h3>@e.Title</h3>
+            <p class="meta">@e.StartsAt.ToString("MMM d, yyyy") · @(e.City ?? e.Venue?.City), @e.StateCode · @e.Scope</p>
+        </a>
+    }
+    </div>
+</section>
+<section>
+    <h2>From the desk</h2>
+    <div class="grid">
+    @foreach (var p in Model.Posts)
+    {
+        <a class="card" href="/news/@p.Slug">
+            <h3>@p.Title</h3>
+            <p class="meta">@p.PublishedAt?.ToString("MMM d, yyyy") · @p.AuthorName</p>
+            <p>@p.Excerpt</p>
+        </a>
+    }
+    </div>
+</section>

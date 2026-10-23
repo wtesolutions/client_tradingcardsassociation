@@ -1,0 +1,19 @@
+@model List<Ntca.Core.EventSubmission>
+@{
+    ViewData["Title"] = "Event submissions";
+}
+<h1>Event submissions</h1>
+@if (!Model.Any()) { <p class="meta">No event submissions waiting.</p> }
+@foreach (var s in Model)
+{
+    <div class="card" style="margin-bottom:12px">
+        <h3>@s.Title</h3>
+        <p class="meta">@s.SubmitterName · @s.SubmitterEmail · @s.StartsAt.ToString("MMM d, yyyy") · @s.City, @s.StateCode</p>
+        <form method="post" action="/SADMIN/queue/events/@s.EventSubmissionId">
+            @Html.AntiForgeryToken()
+            <input name="reason" placeholder="Note" />
+            <button class="btn" name="decision" value="approve">Approve</button>
+            <button class="btn ghost" name="decision" value="reject">Reject</button>
+        </form>
+    </div>
+}

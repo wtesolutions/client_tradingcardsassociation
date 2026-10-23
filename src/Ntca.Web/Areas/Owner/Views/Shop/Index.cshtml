@@ -1,0 +1,21 @@
+@model Ntca.Core.Shop
+@{
+    ViewData["Title"] = "Edit your shop";
+}
+<h1>Edit @Model.Name</h1>
+@if (TempData["Saved"] is string msg) { <p class="card">@msg</p> }
+<p class="lede">Changes go to the SADMIN owner-edit queue. They are not live until staff approve them.</p>
+<form method="post">
+    @Html.AntiForgeryToken()
+    <p><label>Name<br /><input name="Name" value="@Model.Name" /></label></p>
+    <p><label>Address<br /><input name="AddressLine1" value="@Model.AddressLine1" /></label></p>
+    <p><label>City<br /><input name="City" value="@Model.City" /></label></p>
+    <p><label>State<br /><input name="StateCode" value="@Model.StateCode" maxlength="2" /></label></p>
+    <p><label>Postal<br /><input name="PostalCode" value="@Model.PostalCode" /></label></p>
+    <p><label>Phone<br /><input name="Phone" value="@Model.Phone" /></label></p>
+    <p><label>Website<br /><input name="WebsiteUrl" value="@Model.WebsiteUrl" /></label></p>
+    <p><label>Public email<br /><input name="PublicEmail" value="@Model.PublicEmail" /></label></p>
+    <p><label>Description<br /><textarea name="Description" rows="4">@Model.Description</textarea></label></p>
+    <button class="btn" type="submit">Submit for review</button>
+</form>
+<form method="post" action="/owner/logout">@Html.AntiForgeryToken()<button class="btn ghost" type="submit">Sign out</button></form>

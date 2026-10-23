@@ -1,0 +1,17 @@
+@model List<Ntca.Core.Manufacturer>
+@{
+    ViewData["Title"] = "Manufacturers";
+}
+<p class="kicker">Directory</p>
+<h1>Manufacturers</h1>
+<p class="lede">@Model.Count companies from the Wikipedia Trading card tables plus directory merges. Factual fields only.</p>
+<form class="tools" method="get"><input name="q" value="@ViewBag.Q" placeholder="Search manufacturers" /><button class="btn" type="submit">Search</button></form>
+<div class="grid">
+@foreach (var m in Model)
+{
+    <a class="card" href="/manufacturers/@m.Slug">
+        <h3>@m.Name</h3>
+        <p class="meta">@m.SourceSection @(m.CountryName)</p>
+    </a>
+}
+</div>

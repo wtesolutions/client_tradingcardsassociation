@@ -1,0 +1,28 @@
+@model List<Ntca.Core.Shop>
+@{
+    ViewData["Title"] = "Shop directory";
+}
+<p class="kicker">Directory</p>
+<h1>Hobby shops</h1>
+<p class="lede">@Model.Count listings from the seeded NTCA directory. Search by name or city; filter by state.</p>
+<form class="tools" method="get" action="/shops">
+    <input name="q" value="@ViewBag.Q" placeholder="Search shops" />
+    <select name="state">
+        <option value="">All states</option>
+        @foreach (var st in (List<string>)ViewBag.States)
+        {
+            <option value="@st" selected="@(st == (string)ViewBag.State)">@st</option>
+        }
+    </select>
+    <button class="btn" type="submit">Filter</button>
+</form>
+<div class="grid">
+@foreach (var s in Model)
+{
+    var city = s.City.ToLowerInvariant().Replace(' ', '-').Replace(".", "");
+    <a class="card" href="/shops/@s.StateCode.ToLowerInvariant()/@city/@s.Slug">
+        <h3>@s.Name</h3>
+        <p class="meta">@s.City, @s.StateCode @(s.ClaimStatus == "CLAIMED" ? "· Claimed" : "")</p>
+    </a>
+}
+</div>

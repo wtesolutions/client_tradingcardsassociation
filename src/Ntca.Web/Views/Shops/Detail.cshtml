@@ -1,0 +1,15 @@
+@model Ntca.Core.Shop
+@{
+    ViewData["Title"] = Model.Name;
+}
+<p class="kicker">@Model.City, @Model.StateCode</p>
+<h1>@Model.Name</h1>
+<p class="lede">@Model.Description</p>
+<div class="card">
+    <p>@Model.AddressLine1</p>
+    <p>@Model.City, @Model.StateCode @Model.PostalCode</p>
+    @if (!string.IsNullOrEmpty(Model.Phone)) { <p>@Model.Phone</p> }
+    @if (!string.IsNullOrEmpty(Model.WebsiteUrl)) { <p><a href="@Model.WebsiteUrl" rel="noopener">Website</a></p> }
+    <p class="meta">Claim: @Model.ClaimStatus · Listing: @Model.ListingStatus</p>
+</div>
+<p><a href="/shops">← All shops</a></p>

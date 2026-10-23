@@ -1,0 +1,14 @@
+@model List<Ntca.Core.Post>
+@{
+    ViewData["Title"] = "News";
+}
+<p class="kicker">News</p>
+<h1>From the association</h1>
+@foreach (var p in Model)
+{
+    <a class="card" href="/news/@p.Slug" style="display:block;margin-bottom:12px">
+        <h3>@p.Title</h3>
+        <p class="meta">@p.PublishedAt?.ToString("MMM d, yyyy") · @p.AuthorName</p>
+        <p>@p.Excerpt</p>
+    </a>
+}

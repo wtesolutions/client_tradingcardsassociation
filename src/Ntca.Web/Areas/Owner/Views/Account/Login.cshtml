@@ -1,0 +1,16 @@
+@model Ntca.Web.Areas.Owner.Controllers.OwnerLoginForm
+@{
+    ViewData["Title"] = "Shop owner sign-in";
+}
+<h1>Shop owner sign-in</h1>
+<p class="lede">Passwordless. We email a 6-digit code. In Development the code is also printed in the console when SocketLabs is not configured.</p>
+<form method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All"></div>
+    <p><label>Email<br /><input asp-for="Email" type="email" required /></label></p>
+    @if (ViewBag.Sent as bool? == true)
+    {
+        <p><label>Code<br /><input asp-for="Code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" /></label></p>
+    }
+    <button class="btn" type="submit">@(ViewBag.Sent as bool? == true ? "Sign in" : "Send code")</button>
+</form>

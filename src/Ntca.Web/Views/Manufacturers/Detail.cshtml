@@ -1,0 +1,17 @@
+@model Ntca.Core.Manufacturer
+@{
+    ViewData["Title"] = Model.Name;
+}
+<p class="kicker">Manufacturer</p>
+<h1>@Model.Name</h1>
+<p class="lede">@Model.CountryName · @Model.SourceSection · retrieved @Model.RetrievedOn?.ToString("yyyy-MM-dd")</p>
+@if (!string.IsNullOrEmpty(Model.WebsiteUrl)) { <p><a href="@Model.WebsiteUrl" rel="noopener">Website</a></p> }
+@if (Model.Categories.Any())
+{
+    <p>Categories: @string.Join(", ", Model.Categories.Select(c => c.Category?.Name ?? c.CategoryCode))</p>
+}
+@if (Model.Topics.Any())
+{
+    <p class="meta">Topics: @string.Join(", ", Model.Topics.Select(t => t.TopicName))</p>
+}
+<p><a href="/manufacturers">← All manufacturers</a></p>

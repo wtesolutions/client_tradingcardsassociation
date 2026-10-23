@@ -1,0 +1,36 @@
+@model Ntca.Web.Areas.Sadmin.Controllers.SadminDashboardVm
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<h1>Operations</h1>
+<p class="meta">Site mode: <strong>@Model.Mode</strong></p>
+<form method="post" action="/SADMIN/dashboard/mode">
+    @Html.AntiForgeryToken()
+    <button class="btn" name="mode" value="Preview" type="submit">Set Preview</button>
+    <button class="btn ghost" name="mode" value="Live" type="submit">Set Live</button>
+</form>
+<div class="kpis">
+    <div class="kpi"><b>@Model.Shops</b><span>Active shops</span></div>
+    <div class="kpi"><b>@Model.UpcomingShows</b><span>Upcoming shows</span></div>
+    <div class="kpi"><b>@Model.PendingEvents</b><span>Event submissions</span></div>
+    <div class="kpi"><b>@Model.PendingEdits</b><span>Owner edits</span></div>
+    <div class="kpi"><b>@Model.DraftPosts</b><span>Draft posts</span></div>
+    <div class="kpi"><b>@Model.Signups7d</b><span>Signups (7d)</span></div>
+    <div class="kpi"><b>@Model.Manufacturers</b><span>Manufacturers</span></div>
+</div>
+<h2>Latest shops</h2>
+@if (!Model.LatestShops.Any()) { <p class="meta">No shops yet.</p> }
+<table>
+@foreach (var s in Model.LatestShops)
+{
+    <tr><td>@s.Name</td><td>@s.City, @s.StateCode</td><td>@s.ClaimStatus</td></tr>
+}
+</table>
+<h2>Upcoming shows</h2>
+@if (!Model.Upcoming.Any()) { <p class="meta">No upcoming published shows.</p> }
+<table>
+@foreach (var e in Model.Upcoming)
+{
+    <tr><td>@e.Title</td><td>@e.StartsAt.ToString("MMM d")</td><td>@e.StateCode</td></tr>
+}
+</table>

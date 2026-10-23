@@ -19,8 +19,9 @@ Target: Microsoft SQL Server 2019+ on WTE **HAMMER**. Validated in this branch a
 | 8 | `seed/SEED_40_about_bios.sql` | About-page officer/member bios |
 | 9 | `seed/SEED_50_gallery_media.sql` | Gallery images as `core.MediaAsset` + `cms.GalleryItem` |
 | 10 | `seed/SEED_60_manufacturers.sql` | Wikipedia Trading card manufacturers (factual fields only) |
-| 11 | `seed/SEED_65_glossary_conditions.sql` | Glossary + condition grades when the beginner page lands; TODO until then |
-| 12 | `03_app_login.sql` | Login `ntca_app` (least privilege). Optional `ntca_migrator` |
+| 11 | `seed/SEED_65_glossary_conditions.sql` | Glossary + condition grades from New to Trading Cards |
+| 12 | `seed/SEED_70_industry_figures.sql` | Gary Vaynerchuk figure + DRAFT post (not public; no calendar rows) |
+| 13 | `03_app_login.sql` | Login `ntca_app` (least privilege). Optional `ntca_migrator` |
 
 Regenerate 01 + `seed/SEED_*.sql`:
 

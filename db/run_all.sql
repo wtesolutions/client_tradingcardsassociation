@@ -20,4 +20,5 @@
 :r seed/SEED_50_gallery_media.sql
 :r seed/SEED_60_manufacturers.sql
 :r seed/SEED_65_glossary_conditions.sql
+:r seed/SEED_70_industry_figures.sql
 :r 03_app_login.sql

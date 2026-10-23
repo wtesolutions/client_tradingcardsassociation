@@ -9,6 +9,9 @@ obj/
 *.sln.docstates
 .vs/
 
+# Email pickup fallback
+src/Ntca.Web/App_Data/
+
 # Local / secret config — never commit real passwords or keys
 appsettings.*.local.json
 appsettings.Development.json

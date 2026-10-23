@@ -1,0 +1,42 @@
+@model (List<Ntca.Core.Post> Posts, List<Ntca.Core.IndustryFigure> Figures)
+@{
+    ViewData["Title"] = "Drafts";
+}
+<h1>Content drafts</h1>
+<p class="meta">Unpublished posts and industry figures. The Gary Vaynerchuk briefing is a DRAFT until you publish it.</p>
+<h2>Posts</h2>
+@if (!Model.Posts.Any()) { <p class="meta">No draft posts.</p> }
+@foreach (var p in Model.Posts)
+{
+    <div class="card" style="margin-bottom:12px">
+        <h3>@p.Title</h3>
+        <p class="meta">@p.Slug · @p.AuthorName · updated @p.UpdatedAt.ToString("u")</p>
+        <p>@p.Excerpt</p>
+        <p><a href="/news/@p.Slug">Public URL (404 while draft)</a></p>
+        <form method="post" action="/SADMIN/queue/drafts/post/@p.PostId">
+            @Html.AntiForgeryToken()
+            <button class="btn" name="decision" value="publish">Publish</button>
+            <button class="btn ghost" name="decision" value="archive">Archive</button>
+        </form>
+    </div>
+}
+<h2>Industry figures</h2>
+@if (!Model.Figures.Any()) { <p class="meta">No unpublished figures.</p> }
+@foreach (var f in Model.Figures)
+{
+    <div class="card" style="margin-bottom:12px">
+        <h3>@f.FullName @if (!string.IsNullOrEmpty(f.AlsoKnownAs)) { <span class="meta">(@f.AlsoKnownAs)</span> }</h3>
+        <p>@f.RoleTitle</p>
+        <p>@f.Summary</p>
+        <ul>
+        @foreach (var s in f.Sources.OrderBy(x => x.SortOrder))
+        {
+            <li><a href="@s.Url" rel="noopener">@s.Label</a></li>
+        }
+        </ul>
+        <form method="post" action="/SADMIN/queue/drafts/figure/@f.IndustryFigureId">
+            @Html.AntiForgeryToken()
+            <button class="btn" name="decision" value="publish">Publish figure</button>
+        </form>
+    </div>
+}

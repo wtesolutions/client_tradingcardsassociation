@@ -1,0 +1,14 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost,1433;Database=NTCA;User ID=ntca_app;Password=***REPLACE***;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;Application Name=Ntca.Web"
+  },
+  "SocketLabs": {
+    "ServerId": 0,
+    "ApiKey": ""
+  },
+  "Email": {
+    "FromAddress": "reports@wte.net",
+    "FromName": "National Trading Card Association"
+  },
+  "DetailedErrors": true
+}

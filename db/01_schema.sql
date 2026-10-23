@@ -2211,6 +2211,46 @@ GO
 CREATE INDEX IX_ShopEdit_Queue ON dir.ShopEditRequest (Status, CreatedAt);
 GO
 
+/* ---------------------------------------------------------------------
+   Hobby / industry figures (influencers, executives) for SADMIN review.
+   Public pages only show IsPublished = 1. Staff drafts stay off the site.
+   --------------------------------------------------------------------- */
+CREATE TABLE cms.IndustryFigure
+(
+    IndustryFigureId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_IndustryFigure PRIMARY KEY,
+    PublicId         UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_IndustryFigure_PublicId DEFAULT NEWSEQUENTIALID(),
+    Slug             NVARCHAR(160)  NOT NULL,
+    FullName         NVARCHAR(160)  NOT NULL,
+    AlsoKnownAs      NVARCHAR(80)   NULL,
+    RoleTitle        NVARCHAR(200)  NULL,
+    Summary          NVARCHAR(2000) NULL,
+    WebsiteUrl       NVARCHAR(500)  NULL,
+    SourceNotes      NVARCHAR(1000) NULL,
+    IsPublished      BIT            NOT NULL CONSTRAINT DF_IndustryFigure_Pub DEFAULT 0,
+    CreatedAt        DATETIME2(3)   NOT NULL CONSTRAINT DF_IndustryFigure_Created DEFAULT SYSUTCDATETIME(),
+    UpdatedAt        DATETIME2(3)   NOT NULL CONSTRAINT DF_IndustryFigure_Updated DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT UQ_IndustryFigure_PublicId UNIQUE (PublicId),
+    CONSTRAINT UQ_IndustryFigure_Slug UNIQUE (Slug)
+);
+GO
+
+CREATE TABLE cms.IndustryFigureSource
+(
+    IndustryFigureSourceId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_IndustryFigureSource PRIMARY KEY,
+    IndustryFigureId       BIGINT         NOT NULL CONSTRAINT FK_FigureSource_Figure REFERENCES cms.IndustryFigure(IndustryFigureId),
+    SortOrder              SMALLINT       NOT NULL,
+    Label                  NVARCHAR(300)  NOT NULL,
+    Url                    NVARCHAR(500)  NOT NULL,
+    RetrievedOn            DATE           NULL
+);
+GO
+CREATE INDEX IX_FigureSource_Figure ON cms.IndustryFigureSource (IndustryFigureId, SortOrder);
+GO
+
+ALTER TABLE cms.Post ADD
+    IndustryFigureId BIGINT NULL CONSTRAINT FK_CmsPost_Figure REFERENCES cms.IndustryFigure(IndustryFigureId);
+GO
+
 /* =====================================================================
    Directory extras (manufacturers, organizations) + National Card Show
    Calendar (promoters, venues, exhibitors, submissions, sitemap, feed).

@@ -1,0 +1,39 @@
+﻿@inject Ntca.Web.Services.SiteModeService Mode
+@{
+    var preview = await Mode.IsPreviewAsync();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@(ViewData["Title"] ?? "NTCA") · National Trading Card Association</title>
+    <meta name="description" content="@(ViewData["Description"] ?? "National Trading Card Association — shops, shows, manufacturers, and a beginner guide.")" />
+    <link rel="icon" href="~/ntca-logo.png" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+@if (preview)
+{
+    <div class="preview-bar">Preview mode — pages are live for QA, but robots are told not to index. Staff can flip this in /SADMIN.</div>
+}
+<nav class="nav">
+    <a class="brand" href="/"><img src="~/ntca-logo.png" alt="NTCA" width="40" height="40" /><span>NTCA<em>National Trading Card Association</em></span></a>
+    <a href="/">Home</a>
+    <a href="/shops">Shops</a>
+    <a href="/calendar">Calendar</a>
+    <a href="/manufacturers">Manufacturers</a>
+    <a href="/news">News</a>
+    <a href="/new-to-trading-cards">New to cards</a>
+    <a class="btn" href="/signup">Preview signup</a>
+</nav>
+<main class="wrap">
+    @RenderBody()
+</main>
+<footer class="foot">
+    <span>© 2026 National Trading Card Association</span>
+    <span><a href="/robots.txt">robots</a> · <a href="/llms.txt">llms.txt</a> · <a href="/sitemap.xml">sitemap</a> · <a href="/owner">Shop owner</a> · <a href="/SADMIN">Staff</a></span>
+</footer>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

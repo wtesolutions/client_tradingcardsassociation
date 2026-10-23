@@ -15,7 +15,7 @@ The production host is changing from GitHub Pages to **ASP.NET Core on IIS (Wind
 | `docs/iis/web.config.example` | ANCM notes so discovery routes are not shadowed by static files |
 | `CNAME`, `.nojekyll` | Left at repo root (Pages metadata). Unused once IIS serves the apex |
 
-The .NET 10 solution (`Ntca.Web`, `Ntca.Api`, …) is not in this commit; this branch is the platform foothold (legacy hold + database).
+The runnable site is **.NET 9** under `src/` (`Ntca.Web` MVC + `/api/v1`, `Ntca.Core`, `Ntca.Data`). Schema SQL remains the source of truth — no EF migrations. Laptop QA: [QA_README.md](QA_README.md). **Do not merge to `main`.**
 
 ## Database
 

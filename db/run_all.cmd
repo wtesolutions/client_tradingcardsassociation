@@ -41,6 +41,8 @@ call :run seed\SEED_60_manufacturers.sql
 if errorlevel 1 exit /b 1
 call :run seed\SEED_65_glossary_conditions.sql
 if errorlevel 1 exit /b 1
+call :run seed\SEED_70_industry_figures.sql
+if errorlevel 1 exit /b 1
 call :run 03_app_login.sql
 if errorlevel 1 exit /b 1
 echo ==== done ====

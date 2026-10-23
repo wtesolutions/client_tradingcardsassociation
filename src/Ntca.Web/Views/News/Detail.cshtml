@@ -1,0 +1,18 @@
+@model Ntca.Core.Post
+@{
+    ViewData["Title"] = Model.Title;
+}
+<p class="kicker">@Model.AuthorName · @Model.PublishedAt?.ToString("MMMM d, yyyy")</p>
+<h1>@Model.Title</h1>
+@if (!string.IsNullOrEmpty(Model.Excerpt)) { <p class="lede">@Model.Excerpt</p> }
+<article class="prose">
+    @if (!string.IsNullOrEmpty(Model.Body))
+    {
+        @Html.Raw(Model.Body)
+    }
+    else
+    {
+        <pre style="white-space:pre-wrap">@Model.BodyMarkdown</pre>
+    }
+</article>
+<p><a href="/news">← News</a></p>

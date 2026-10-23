@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@(ViewData["Title"] ?? "SADMIN") · NTCA staff</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="sadmin">
+    <div class="top">
+        <strong>NTCA Staff</strong>
+        <nav>
+            <a href="/SADMIN/dashboard">Dashboard</a> ·
+            <a href="/SADMIN/queue/events">Event queue</a> ·
+            <a href="/SADMIN/queue/edits">Edit queue</a> ·
+            <a href="/SADMIN/queue/drafts">Drafts</a> ·
+            <a href="/SADMIN/shops">Shops</a> ·
+            <a href="/">Public site</a>
+        </nav>
+        <form method="post" action="/SADMIN/logout" style="margin:0">@Html.AntiForgeryToken()<button class="btn ghost" type="submit">Sign out</button></form>
+    </div>
+    <main>
+        @RenderBody()
+    </main>
+</body>
+</html>

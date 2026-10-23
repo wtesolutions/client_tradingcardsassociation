@@ -1,0 +1,24 @@
+@model (List<Ntca.Core.GlossaryTerm> Terms, List<Ntca.Core.ConditionGrade> Grades)
+@{
+    ViewData["Title"] = "New to Trading Cards";
+}
+<p class="kicker">Learn the hobby</p>
+<h1>New to Trading Cards</h1>
+<p class="lede">A beginner’s glossary and raw-card condition scale, ported from the NTCA resource page. Terms and grades come from SQL — we did not invent any of them.</p>
+<h2 id="condition">Card condition guide</h2>
+<table class="cond-table">
+    <thead><tr><th>Condition</th><th>What to look for</th></tr></thead>
+    <tbody>
+    @foreach (var g in Model.Grades)
+    {
+        <tr><th>@g.Name</th><td>@g.Description</td></tr>
+    }
+    </tbody>
+</table>
+<h2 id="lingo">Trading card lingo</h2>
+<p class="meta">@Model.Terms.Count terms</p>
+@foreach (var t in Model.Terms)
+{
+    <div class="glossary-item" id="term-@t.Slug"><dt>@t.Term</dt><dd>@t.Definition</dd></div>
+}
+<p><a href="/shops">Find a shop</a> · <a href="/calendar">Calendar</a></p>
