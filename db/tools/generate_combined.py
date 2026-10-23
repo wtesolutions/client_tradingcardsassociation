@@ -39,6 +39,8 @@ def main() -> int:
         ":setvar NtcaDatabase wte_NtcaDatabase\n",
         ":setvar NtcaAppLogin ntca_app\n",
         ":setvar NtcaAppPassword NtcaAppDev2026x\n",
+        ":setvar NtcaMigratorLogin ntca_migrator\n",
+        ":setvar NtcaMigratorPassword __SKIP__\n",
         ":on error exit\n",
         "\n",
     ]
@@ -57,6 +59,8 @@ def main() -> int:
         ":setvar NtcaDatabase wte_NtcaDatabase\n",
         ":setvar NtcaAppLogin ntca_app\n",
         ":setvar NtcaAppPassword NtcaAppDev2026x\n",
+        ":setvar NtcaMigratorLogin ntca_migrator\n",
+        ":setvar NtcaMigratorPassword __SKIP__\n",
         ":on error exit\n",
         "\n",
     ]

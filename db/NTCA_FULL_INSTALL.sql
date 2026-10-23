@@ -8,6 +8,8 @@
 :setvar NtcaDatabase wte_NtcaDatabase
 :setvar NtcaAppLogin ntca_app
 :setvar NtcaAppPassword NtcaAppDev2026x
+:setvar NtcaMigratorLogin ntca_migrator
+:setvar NtcaMigratorPassword __SKIP__
 :on error exit
 
 
