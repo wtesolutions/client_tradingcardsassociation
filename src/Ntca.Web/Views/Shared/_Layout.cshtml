@@ -1,7 +1,5 @@
-﻿@inject Ntca.Web.Services.SiteModeService Mode
-@inject IHttpContextAccessor Http
+﻿@inject IHttpContextAccessor Http
 @{
-    var preview = await Mode.IsPreviewAsync();
     var ai = Ntca.Web.Services.AgentConciergeMiddleware.Current(Http.HttpContext);
     var path = Http.HttpContext?.Request.Path.Value ?? "";
     var isFunnel = path.StartsWith("/signup", StringComparison.OrdinalIgnoreCase)
@@ -40,10 +38,6 @@
     }
 </head>
 <body class="@bodyClass.Trim()">
-@if (preview)
-{
-    <div class="preview-bar">Preview mode — pages are live for QA, but robots are told not to index. Staff can flip this in /SADMIN.</div>
-}
 <header class="ntca-header">
     <div class="ntca-header-inner">
         <a class="brand" href="/" aria-label="National Trading Card Association home">
@@ -58,7 +52,7 @@
                     <a href="@item.Href">@item.Label</a>
                 }
             </nav>
-            <a class="ntca-primary-action header-cta" href="/signup">Join the association</a>
+            <a class="ntca-primary-action header-cta" href="/signup">Join the association →</a>
             <button type="button" class="menu-toggle" data-menu-open aria-controls="mobile-menu" aria-expanded="false">Menu</button>
         }
     </div>
@@ -80,7 +74,7 @@
                     <a href="/grading">Grading</a>
                     <a href="/news">News</a>
                     <a href="/contact">Contact</a>
-                    <a class="ntca-primary-action" href="/signup">Join the association</a>
+                    <a class="ntca-primary-action" href="/signup">Join the association →</a>
                 </nav>
             </div>
         </div>
@@ -121,7 +115,7 @@
     </div>
     <div class="ntca-footer-meta">
         <span>© 2026 National Trading Card Association</span>
-        <span><a href="/robots.txt">robots</a> · <a href="/llms.txt">llms.txt</a> · <a href="/sitemap.xml">sitemap</a> · <a href="/account">My account</a> · <a href="/owner">Shop owner</a> · <a href="/SADMIN">Staff</a></span>
+        <span><a href="/account">My account</a> · <a href="/owner">Shop owner</a></span>
     </div>
 </footer>
 @if (!hideDock)

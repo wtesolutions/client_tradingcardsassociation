@@ -183,12 +183,42 @@ public sealed class ShopDirectoryTests
     }
 
     [Fact]
-    public void Active_filter_chips_omit_default_radius()
+    public void Active_filter_chips_include_default_radius_when_located()
     {
-        var q = ShopDirectory.Parse("topps", "27601", null, "POKEMON", null, "1", null, null, null, 1);
+        var q = ShopDirectory.Parse("topps", "Raleigh, NC", null, "POKEMON", null, "1", null, 35.78, -78.64, 1);
         var chips = ShopDirectory.Chips(q, hasOrigin: true);
+        Assert.Contains(chips, c => c.Key == "radiusMiles" && c.Label == "Within 25 miles");
         Assert.Contains(chips, c => c.Key == "specialty" && c.Label == "Pokémon");
         Assert.Contains(chips, c => c.Key == "openNow");
-        Assert.DoesNotContain(chips, c => c.Key == "radiusMiles");
+        Assert.Equal("radiusMiles", chips[0].Key);
+    }
+
+    [Fact]
+    public void Removing_radius_chip_sets_any_distance()
+    {
+        var q = ShopDirectory.Parse(null, "Raleigh", null, "POKEMON", "distance", null, null, 35.78, -78.64, 1);
+        var href = ShopDirectory.QueryString(q, drop: "radiusMiles");
+        Assert.Contains("radiusMiles=any", href);
+        Assert.Contains("specialty=POKEMON", href);
+        Assert.Contains("location=Raleigh", href);
+    }
+
+    [Fact]
+    public void Location_label_uses_the_city_part()
+    {
+        var q = ShopDirectory.Parse(null, "Raleigh, NC", null, null, null, null, null, 35.78, -78.64, 1);
+        Assert.Equal("Raleigh", ShopDirectory.LocationLabel(q, true));
+        Assert.Equal("27601", ShopDirectory.LocationLabel(
+            ShopDirectory.Parse(null, "27601", null, null, null, null, null, null, null, 1), false));
+    }
+
+    [Fact]
+    public void Category_tabs_have_icons_for_each_specialty()
+    {
+        foreach (var cat in ShopDirectory.Categories)
+        {
+            var svg = ShopDirectory.CategoryIcon(cat.Key);
+            Assert.Contains("<svg", svg);
+        }
     }
 }

@@ -52,4 +52,24 @@
       el.addEventListener("change", function () { filterForm.submit(); });
     });
   }
+
+  var locInput = document.getElementById("dir-location");
+  var locClear = document.getElementById("dir-loc-clear");
+  function syncLocClear() {
+    if (!locClear || !locInput) return;
+    locClear.hidden = !locInput.value;
+  }
+  if (locClear && locInput) {
+    syncLocClear();
+    locInput.addEventListener("input", syncLocClear);
+    locClear.addEventListener("click", function () {
+      locInput.value = "";
+      document.querySelectorAll("#dir-lat, #dir-lng, input[name=lat], input[name=lng]").forEach(function (el) {
+        if (el.closest("#dir-bar") || el.id === "dir-lat" || el.id === "dir-lng")
+          el.value = "";
+      });
+      syncLocClear();
+      locInput.focus();
+    });
+  }
 })();

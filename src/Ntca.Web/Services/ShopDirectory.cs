@@ -237,18 +237,24 @@ public static class ShopDirectory
     public static IReadOnlyList<DirectoryChip> Chips(DirectoryQuery query, bool hasOrigin)
     {
         var chips = new List<DirectoryChip>();
+        var radius = EffectiveRadius(query, hasOrigin);
+        if (hasOrigin && radius > 0)
+        {
+            chips.Add(new DirectoryChip(
+                "radiusMiles",
+                (query.RadiusMiles ?? DefaultRadiusMiles).ToString(CultureInfo.InvariantCulture),
+                $"Within {radius} miles"));
+        }
+        else if (hasOrigin && query.RadiusMiles is not null && radius == 0)
+        {
+            chips.Add(new DirectoryChip("radiusMiles", "any", "Any distance"));
+        }
         if (query.Specialty.Length > 0)
         {
             var label = Categories.FirstOrDefault(c => c.Key == query.Specialty).Label;
             if (string.IsNullOrEmpty(label))
                 label = query.Specialty;
             chips.Add(new DirectoryChip("specialty", query.Specialty, label));
-        }
-        var radius = EffectiveRadius(query, hasOrigin);
-        if (hasOrigin && query.RadiusMiles is not null && radius != DefaultRadiusMiles)
-        {
-            var text = radius == 0 ? "Any distance" : $"Within {radius} miles";
-            chips.Add(new DirectoryChip("radiusMiles", query.RadiusMiles.Value.ToString(CultureInfo.InvariantCulture), text));
         }
         if (query.OpenNow)
             chips.Add(new DirectoryChip("openNow", "1", "Open now"));
@@ -268,7 +274,12 @@ public static class ShopDirectory
         Add("q", query.Q);
         Add("location", query.Location);
         Add("specialty", query.Specialty);
-        if (query.RadiusMiles is { } r)
+        if (drop != null && drop.Equals("radiusMiles", StringComparison.OrdinalIgnoreCase))
+        {
+            if (query.RadiusMiles is not 0)
+                parts.Add("radiusMiles=any");
+        }
+        else if (query.RadiusMiles is { } r)
             Add("radiusMiles", r.ToString(CultureInfo.InvariantCulture));
         if (query.OpenNow)
             Add("openNow", "1");
@@ -293,11 +304,23 @@ public static class ShopDirectory
     public static string LocationLabel(DirectoryQuery query, bool hasOrigin)
     {
         if (query.Location.Length > 0)
-            return query.Location;
+        {
+            var city = CityPart(query.Location);
+            return city.Length > 0 ? city : query.Location;
+        }
         if (query.Lat is not null && hasOrigin)
             return "your location";
         return "";
     }
+
+    public static string CategoryIcon(string key) => key switch
+    {
+        "SPORTS" => """<svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="10" fill="#e67e22"/><path d="M12 2v20M2 12h20M5.2 5.2c3.2 3 3.2 10.6 0 13.6M18.8 5.2c-3.2 3-3.2 10.6 0 13.6" fill="none" stroke="#7a4310" stroke-width="1.4"/></svg>""",
+        "POKEMON" => """<svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="10" fill="#fff" stroke="#222" stroke-width="1.4"/><path d="M2.1 12h19.8" stroke="#222" stroke-width="1.4"/><path d="M2.1 12a9.9 9.9 0 0 1 19.8 0" fill="#e3350d"/><circle cx="12" cy="12" r="3.3" fill="#fff" stroke="#222" stroke-width="1.4"/><circle cx="12" cy="12" r="1.15" fill="#222"/></svg>""",
+        "MAGIC" => """<svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2.4 14.2 9H21l-5.4 4 2.1 6.6L12 16.2 6.3 19.6 8.4 13 3 9h6.8Z" fill="#c0392b"/></svg>""",
+        "OTHER" => """<svg viewBox="0 0 24 24" width="20" height="20"><rect x="4" y="6" width="12" height="14" rx="1.5" fill="#c5cbd6" stroke="#536077" stroke-width="1.2"/><rect x="8" y="3.5" width="12" height="14" rx="1.5" fill="#eef1f5" stroke="#536077" stroke-width="1.2"/></svg>""",
+        _ => """<svg viewBox="0 0 24 24" width="20" height="20"><rect x="3" y="5" width="8" height="11" rx="1.2" fill="#d7dde8" stroke="#536077" stroke-width="1.1"/><rect x="8" y="4" width="8" height="11" rx="1.2" fill="#eef1f5" stroke="#536077" stroke-width="1.1"/><rect x="13" y="3" width="8" height="11" rx="1.2" fill="#fff" stroke="#536077" stroke-width="1.1"/></svg>"""
+    };
 
     public static int RelevanceRank(Shop shop, string q)
     {
