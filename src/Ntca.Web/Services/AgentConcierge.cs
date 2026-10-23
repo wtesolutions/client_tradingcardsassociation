@@ -112,6 +112,7 @@ public sealed class AgentAsk
     public List<string>? Interests { get; set; }
     public string? Budget { get; set; }
     public string? Dates { get; set; }
+    public int? TravelMiles { get; set; }
     public string? Question { get; set; }
 }
 
@@ -134,6 +135,7 @@ public sealed class AgentAskResult
     public List<string> Interests { get; set; } = [];
     public string? Budget { get; set; }
     public string? Dates { get; set; }
+    public int? TravelMiles { get; set; }
     public string? Question { get; set; }
 }
 
@@ -170,6 +172,13 @@ public static class AgentPrivacy
         result.Interests = NormalizeInterests(ask.Interests);
         result.Budget = Clip(ask.Budget, 40);
         result.Dates = Clip(ask.Dates, 80);
+        result.TravelMiles = ask.TravelMiles;
+        if (result.TravelMiles is null && !string.IsNullOrWhiteSpace(ask.Dates))
+        {
+            var digits = new string(ask.Dates.Where(char.IsDigit).ToArray());
+            if (int.TryParse(digits, out var n) && n is > 0 and < 500)
+                result.TravelMiles = n;
+        }
         var q = Redact(ask.Question ?? "");
         if (q != (ask.Question ?? ""))
         {
@@ -236,8 +245,10 @@ public static class AgentPrivacy
             var i = (raw ?? "").Trim().ToLowerInvariant();
             if (i is "pokemon" or "pokémon" or "poke")
                 i = "pokemon";
-            else if (i is "sports" or "sport" or "sportscards" or "sports cards")
+            else if (i is "sports" or "sport" or "sportscards" or "sports cards"
+                     or "baseball" or "football" or "basketball")
                 i = "sports";
+            else if (i is "vintage" or "graded") { }
             else if (i is "tcg" or "trading card games" or "mixed")
                 i = "tcg";
             else if (i is "nonsport" or "non-sport" or "non_sport")
@@ -329,6 +340,13 @@ public sealed class AgentAnswerBuilder
             if (focused.Count > 0)
                 shops = focused;
         }
+        var geo = ShopCopy.OriginFromAsk(shops, ask.Zip3, ask.City);
+        if (ask.TravelMiles is int miles and > 0 && geo is { } shopOrigin)
+        {
+            var near = shops.Where(s => ShopCopy.MilesFrom(s, shopOrigin.Lat, shopOrigin.Lng) is double d && d <= miles).ToList();
+            if (near.Count > 0)
+                shops = near;
+        }
         shops = shops.OrderBy(s => s.City).ThenBy(s => s.Name).Take(8).ToList();
 
         var showsQ = _db.ShopEvents.AsNoTracking()
@@ -336,7 +354,7 @@ public sealed class AgentAnswerBuilder
             .Where(e => e.EventType == "CARD_SHOW" && (e.Status == "PUBLISHED" || e.Status == "POSTPONED") && e.StartsAt >= now && e.StartsAt <= until);
         if (ask.StateCode is { Length: 2 } st2)
             showsQ = showsQ.Where(e => e.StateCode == st2);
-        var shows = await showsQ.OrderBy(e => e.StartsAt).Take(8).ToListAsync(ct);
+        var shows = await showsQ.OrderBy(e => e.StartsAt).Take(24).ToListAsync(ct);
         if (!string.IsNullOrWhiteSpace(ask.City))
         {
             var city = ask.City;
@@ -344,6 +362,20 @@ public sealed class AgentAnswerBuilder
             if (local.Count > 0)
                 shows = local;
         }
+        if (ask.TravelMiles is int showMiles and > 0 && geo is { } showOrigin)
+        {
+            var nearShows = shows.Where(e =>
+            {
+                var lat = e.Venue?.Latitude;
+                var lng = e.Venue?.Longitude;
+                if (lat is null || lng is null)
+                    return true;
+                return ShopCopy.MilesBetween((double)lat.Value, (double)lng.Value, showOrigin.Lat, showOrigin.Lng) <= showMiles;
+            }).ToList();
+            if (nearShows.Count > 0)
+                shows = nearShows;
+        }
+        shows = shows.Take(8).ToList();
 
         var mfrQ = _db.Manufacturers.AsNoTracking().Where(m => m.IsActive);
         if (ask.Interests.Contains("pokemon"))

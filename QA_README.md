@@ -154,11 +154,11 @@ Expect Triangle Area Trading Cards (Raleigh) and an NC card show when one is pub
 
 ## Signup funnel
 
-`/signup` (also `/join`) is a Care.com-style one-question-per-screen flow. Progress is stored on `crm.SignupFunnel` + `crm.SignupStepEvent` under an HttpOnly cookie before email is collected. Final submit writes `crm.Signup` (PENDING_CONFIRM) and emails a confirm link. Promoter shows go to `mkt.EventSubmission`. Shop-owner “This is my shop” sends the existing claim login code. Turnstile is skipped in Development. `/SADMIN/funnel` is the conversion report.
+`/signup` (also `/join`) is a Care.com-style one-question-per-screen flow: large tappable cards with icons, a progress bar, and a back button. Collector/parent path is **who → ZIP → interests → experience → travel → email → results** (ZIP early, email last). Progress is stored on `crm.SignupFunnel` + `crm.SignupStepEvent` under an HttpOnly cookie before email is collected. Final submit writes `crm.Signup` (PENDING_CONFIRM), emails a confirm link, and shows live directory matches via the same `AgentAsk` schema as `POST /api/v1/agent/ask` (including `travelMiles`). Promoter shows go to `mkt.EventSubmission`. Shop-owner “This is my shop” sends the existing claim login code (SocketLabs from `reports@wte.net`). Parent/beginner results include the New to Trading Cards guide. Turnstile is skipped in Development. Forms work without JavaScript. `/SADMIN/funnel` is the conversion report (step, role, UTM).
 
-Walk Collector → Pokémon → ZIP 27601 → email and confirm Triangle Area + the Raleigh show on the results screen.
+Walk Collector → ZIP 27601 / Raleigh NC → Pokémon + Sports → About a year → 30 miles → email and confirm Triangle Area + the Raleigh show on the results screen. Shop owner: search ZIP/name → claim or add → Free/Featured/Premium (no payment). Promoter: show name/city/date → email.
 
-Screenshots (390×844 unless noted): `/opt/cursor/artifacts/ntca_shops_390.png`, `ntca_shops_1440.png` (1440×900), `ntca_shop_detail_390.png`, `ntca_funnel_who_390.png`, `ntca_funnel_interests_390.png`, `ntca_funnel_experience_390.png`, `ntca_funnel_zip_390.png`, `ntca_funnel_travel_390.png`, `ntca_funnel_email_390.png`, `ntca_funnel_results_390.png`.
+Screenshots (390×844 unless noted): `/opt/cursor/artifacts/ntca_shops_390.png`, `ntca_shops_1440.png` (1440×900), `ntca_shop_detail_390.png`, `ntca_funnel_who_390.png`, `ntca_funnel_zip_390.png`, `ntca_funnel_interests_390.png`, `ntca_funnel_experience_390.png`, `ntca_funnel_travel_390.png`, `ntca_funnel_email_390.png`, `ntca_funnel_results_390.png`, `ntca_funnel_shop_find_390.png`, `ntca_funnel_shop_tier_390.png`, `ntca_funnel_show_390.png`.
 
 ## Desktop screenshots (1440×900)
 

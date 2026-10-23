@@ -19,7 +19,7 @@ public sealed class FunnelController : Controller
         var from = DateTime.UtcNow.AddDays(-30);
         var funnels = await _db.SignupFunnels.AsNoTracking().Where(f => f.CreatedAt >= from).ToListAsync(ct);
         var events = await _db.SignupStepEvents.AsNoTracking().Where(e => e.CreatedAt >= from).ToListAsync(ct);
-        var steps = new[] { "who", "interests", "experience", "zip", "travel", "shop_find", "shop_tier", "show", "email", "results" };
+        var steps = new[] { "who", "zip", "interests", "experience", "travel", "shop_find", "shop_tier", "show", "email", "results" };
         ViewBag.Started = funnels.Count;
         ViewBag.Completed = funnels.Count(f => f.Status == "COMPLETED");
         ViewBag.ByRole = funnels.Where(f => f.HumanRole != null)

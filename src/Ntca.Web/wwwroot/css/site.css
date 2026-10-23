@@ -122,16 +122,24 @@ input, select, textarea {
   .dir-bar { flex-direction: row; flex-wrap: wrap; align-items: center; }
   .dir-bar-row { flex: 1 1 auto; }
 }
+.funnel { max-width: 36rem; }
+.funnel h1 { font-size: 28px; }
 .funnel-progress { height: 8px; background: #12131d; border-radius: 999px; overflow: hidden; margin: 8px 0 16px; }
 .funnel-progress span { display: block; height: 100%; background: var(--accent); }
-.funnel-options { display: flex; flex-direction: column; gap: 10px; max-width: 36rem; }
-.funnel-card { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: start;
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; }
-.funnel-card input { margin-top: 4px; }
-.funnel-card strong { font-size: 17px; }
-.funnel-card span { grid-column: 2; color: var(--muted); font-size: 14px; }
+.funnel-back { margin: 0 0 8px; }
+.funnel-options, .funnel-form { display: flex; flex-direction: column; gap: 10px; max-width: 36rem; border: 0; margin: 0; padding: 0; min-inline-size: 0; }
+.funnel-card { display: grid; grid-template-columns: 20px 44px minmax(0, 1fr); gap: 0 12px; align-items: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 16px; min-height: 80px; cursor: pointer; }
+.funnel-card input { margin: 0; width: 18px; height: 18px; accent-color: var(--accent); }
+.funnel-ico { width: 40px; height: 40px; padding: 8px; border-radius: 12px; background: #12131d;
+  stroke: var(--accent-2); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.funnel-card-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.funnel-card-copy strong { font-size: 17px; line-height: 1.25; }
+.funnel-card-copy span { color: var(--muted); font-size: 14px; }
 .funnel-card:has(input:checked) { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.funnel-options .btn { margin-top: 8px; align-self: start; }
+.funnel-card:focus-within { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+.funnel-options .btn, .funnel-form .btn { margin-top: 8px; align-self: stretch; text-align: center; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 @media (max-width: 420px) {
   .nav { gap: 10px; padding: 12px 14px; }
   .nav .brand em { display: none; }

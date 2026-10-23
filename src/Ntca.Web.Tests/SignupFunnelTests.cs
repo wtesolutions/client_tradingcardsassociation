@@ -6,7 +6,8 @@ namespace Ntca.Web.Tests;
 public sealed class SignupFunnelTests
 {
     [Theory]
-    [InlineData("collector", "who", "interests")]
+    [InlineData("collector", "who", "zip")]
+    [InlineData("collector", "zip", "interests")]
     [InlineData("parent", "travel", "email")]
     [InlineData("shop_owner", "shop_find", "shop_tier")]
     [InlineData("promoter", "show", "email")]
@@ -42,15 +43,25 @@ public sealed class SignupFunnelTests
                 ["interests"] = "pokemon,sports",
                 ["zip"] = "27601",
                 ["state"] = "NC",
-                ["city"] = "Raleigh"
+                ["city"] = "Raleigh",
+                ["travel"] = "30"
             })
         };
         var ask = FunnelFlow.ToAsk(funnel);
         Assert.Equal("collector", ask.HumanRole);
         Assert.Equal("27601", ask.Location?.Zip);
         Assert.Contains("pokemon", ask.Interests!);
+        Assert.Equal(30, ask.TravelMiles);
         var sanitized = AgentPrivacy.Sanitize(default, ask);
+        Assert.Equal(30, sanitized.TravelMiles);
         Assert.Equal("NC", sanitized.StateCode);
         Assert.Equal("276", sanitized.Zip3);
+    }
+
+    [Fact]
+    public void Icon_covers_role_and_interest_cards()
+    {
+        foreach (var key in new[] { "collector", "parent", "shop_owner", "promoter", "dealer", "media", "sports", "pokemon", "vintage", "graded" })
+            Assert.False(string.IsNullOrWhiteSpace(FunnelFlow.Icon(key)));
     }
 }

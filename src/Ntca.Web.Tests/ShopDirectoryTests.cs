@@ -37,6 +37,12 @@ public sealed class ShopDirectoryTests
         Assert.NotNull(origin);
         Assert.Equal(34.18, origin!.Value.Lat, 2);
         Assert.Null(ShopCopy.OriginFromZip(shops, "27601"));
+        var fromCity = ShopCopy.OriginFromAsk(
+            [new Shop { City = "Raleigh", Latitude = 35.78m, Longitude = -78.64m, PostalCode = null }],
+            "27601",
+            "Raleigh");
+        Assert.NotNull(fromCity);
+        Assert.Equal(35.78, fromCity!.Value.Lat, 2);
     }
 
     [Fact]

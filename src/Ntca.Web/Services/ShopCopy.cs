@@ -242,6 +242,22 @@ public static class ShopCopy
         return null;
     }
 
+    public static (double Lat, double Lng)? OriginFromAsk(IEnumerable<Shop> shops, string? zip, string? city)
+    {
+        var fromZip = OriginFromZip(shops, zip);
+        if (fromZip is not null)
+            return fromZip;
+        if (!string.IsNullOrWhiteSpace(city))
+        {
+            var hit = shops.FirstOrDefault(s =>
+                s.City.Contains(city, StringComparison.OrdinalIgnoreCase)
+                && s.Latitude is not null && s.Longitude is not null);
+            if (hit?.Latitude is { } lat && hit.Longitude is { } lng)
+                return ((double)lat, (double)lng);
+        }
+        return null;
+    }
+
     public static string TelHref(string phone)
     {
         var sb = new StringBuilder("tel:");
