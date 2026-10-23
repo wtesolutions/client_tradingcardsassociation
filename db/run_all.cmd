@@ -29,6 +29,8 @@ call :run seed\SEED_10_shops.sql
 if errorlevel 1 exit /b 1
 call :run seed\SEED_15_ctca_members.sql
 if errorlevel 1 exit /b 1
+call :run seed\SEED_16_top100_shops.sql
+if errorlevel 1 exit /b 1
 call :run seed\SEED_20_events.sql
 if errorlevel 1 exit /b 1
 call :run seed\SEED_30_blog_bloggers.sql

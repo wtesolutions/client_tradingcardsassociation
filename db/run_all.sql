@@ -14,6 +14,7 @@
 :r seed/SEED_00_static_pages.sql
 :r seed/SEED_10_shops.sql
 :r seed/SEED_15_ctca_members.sql
+:r seed/SEED_16_top100_shops.sql
 :r seed/SEED_20_events.sql
 :r seed/SEED_30_blog_bloggers.sql
 :r seed/SEED_40_about_bios.sql

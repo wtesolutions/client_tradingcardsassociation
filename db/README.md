@@ -14,14 +14,15 @@ Target: Microsoft SQL Server 2019+ on WTE **HAMMER**. Validated in this branch a
 | 3 | `seed/SEED_00_static_pages.sql` | Marketing URLs from `legacy-site/*.html` |
 | 4 | `seed/SEED_10_shops.sql` | Hobby shops from CSV + `shops.html` (Free / unclaimed) |
 | 5 | `seed/SEED_15_ctca_members.sql` | Directory snapshot 2026-10-22: shops / orgs / manufacturer merges (`SourceSystem` marker, no third-party branding) |
-| 6 | `seed/SEED_20_events.sql` | Association `cms.Event` + national calendar (`mkt.ShopEvent` / Venue / Promoter) from `shows.html` |
-| 7 | `seed/SEED_30_blog_bloggers.sql` | Bloggers directory + news + authored posts in `tools/inputs/posts/` |
-| 8 | `seed/SEED_40_about_bios.sql` | About-page officer/member bios |
-| 9 | `seed/SEED_50_gallery_media.sql` | Gallery images as `core.MediaAsset` + `cms.GalleryItem` |
-| 10 | `seed/SEED_60_manufacturers.sql` | Wikipedia Trading card manufacturers (factual fields only) |
-| 11 | `seed/SEED_65_glossary_conditions.sql` | Glossary + condition grades from New to Trading Cards |
-| 12 | `seed/SEED_70_industry_figures.sql` | Gary Vaynerchuk figure + DRAFT post (not public; no calendar rows) |
-| 13 | `03_app_login.sql` | Login `ntca_app` (least privilege). Optional `ntca_migrator` |
+| 6 | `seed/SEED_16_top100_shops.sql` | 100 US destination shops (`SourceSystem=TOP100-2026-10-22`); match SEED_10+15, fill empty only |
+| 7 | `seed/SEED_20_events.sql` | Association `cms.Event` + national calendar (`mkt.ShopEvent` / Venue / Promoter) from `shows.html` |
+| 8 | `seed/SEED_30_blog_bloggers.sql` | Bloggers directory + news + authored posts in `tools/inputs/posts/` |
+| 9 | `seed/SEED_40_about_bios.sql` | About-page officer/member bios |
+| 10 | `seed/SEED_50_gallery_media.sql` | Gallery images as `core.MediaAsset` + `cms.GalleryItem` |
+| 11 | `seed/SEED_60_manufacturers.sql` | Wikipedia Trading card manufacturers (factual fields only) |
+| 12 | `seed/SEED_65_glossary_conditions.sql` | Glossary + condition grades from New to Trading Cards |
+| 13 | `seed/SEED_70_industry_figures.sql` | Gary Vaynerchuk figure + DRAFT post (not public; no calendar rows) |
+| 14 | `03_app_login.sql` | Login `ntca_app` (least privilege). Optional `ntca_migrator` |
 
 Regenerate 01 + `seed/SEED_*.sql`:
 
@@ -82,5 +83,6 @@ Run `run_all` a **second** time to confirm seeds are idempotent.
 - `tools/inputs/posts/*.md` — authored blog posts kept so regeneration does not drop them
 - `tools/inputs/wikipedia_trading_card.md` + `tools/manufacturers_source.csv`
 - `tools/inputs/ctca_member_directory.csv` — 99-row directory snapshot (skip “Not Displayed”)
+- `tools/inputs/top_us_destination_card_shops.csv` — 100 researched US destination shops (2026-10-22)
 
 Public route docs: [docs/CALENDAR.md](../docs/CALENDAR.md), [docs/MANUFACTURERS.md](../docs/MANUFACTURERS.md), [docs/SEO_DISCOVERY.md](../docs/SEO_DISCOVERY.md).

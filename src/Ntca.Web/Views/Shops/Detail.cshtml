@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = Model.Name;
 }
-<p class="kicker">@Model.City, @Model.StateCode</p>
+<p class="kicker">@Model.City, @Model.StateCode @(Model.IsDestinationShop ? "· Destination shop" : "")</p>
 <h1>@Model.Name</h1>
 <p class="lede">@Model.Description</p>
 <div class="card">

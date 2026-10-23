@@ -78,6 +78,10 @@ public sealed class Shop
     public string? SourceRef { get; set; }
     public string? SourceSystem { get; set; }
     public string? ImportNotes { get; set; }
+    public bool IsDestinationShop =>
+        string.Equals(SourceSystem, "TOP100-2026-10-22", StringComparison.OrdinalIgnoreCase)
+        || (!string.IsNullOrEmpty(ImportNotes)
+            && ImportNotes.Contains("Destination shop", StringComparison.OrdinalIgnoreCase));
     public DateTime? PublishedAt { get; set; }
     public DateTime? ClaimedAt { get; set; }
     public DateTime CreatedAt { get; set; }

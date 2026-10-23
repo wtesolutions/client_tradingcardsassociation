@@ -17,7 +17,7 @@
             <td>@s.City, @s.StateCode</td>
             <td>@s.ClaimStatus</td>
             <td>@s.ListingStatus</td>
-            <td>@s.SourceSystem</td>
+            <td>@s.SourceSystem @(s.IsDestinationShop ? "· dest" : "")</td>
         </tr>
     }
 </table>

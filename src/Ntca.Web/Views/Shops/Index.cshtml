@@ -22,7 +22,7 @@
     var city = s.City.ToLowerInvariant().Replace(' ', '-').Replace(".", "");
     <a class="card" href="/shops/@s.StateCode.ToLowerInvariant()/@city/@s.Slug">
         <h3>@s.Name</h3>
-        <p class="meta">@s.City, @s.StateCode @(s.ClaimStatus == "CLAIMED" ? "· Claimed" : "")</p>
+        <p class="meta">@s.City, @s.StateCode @(s.ClaimStatus == "CLAIMED" ? "· Claimed" : "") @(s.IsDestinationShop ? "· Destination" : "")</p>
     </a>
 }
 </div>

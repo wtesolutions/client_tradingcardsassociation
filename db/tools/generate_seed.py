@@ -5,6 +5,7 @@ Reads:
   - legacy-site/hobby-shop-directory.csv
   - legacy-site/*.html (shops, events, shows, bloggers, news, about, gallery)
   - db/tools/inputs/posts/*.md  (hand-authored posts, e.g. pokemon-trading-at-shows.md)
+  - db/tools/inputs/top_us_destination_card_shops.csv (SEED_16 destination shops)
   - legacy-site New-to-Trading-Cards HTML (glossary + condition grades) when present
   - db/source/ntca_schema.original.sql + 01_schema_additions.sql
 
@@ -1066,10 +1067,12 @@ def main() -> int:
         association_events,
         calendar_shows,
         classify_ctca,
+        classify_top100,
         emit_calendar,
         emit_ctca,
         emit_glossary,
         emit_manufacturers,
+        emit_top100,
         load_ctca_rows,
         manufacturers_from_wikipedia,
         write_manufacturers_csv,
@@ -1081,6 +1084,7 @@ def main() -> int:
     manufacturers = manufacturers_from_wikipedia()
     write_manufacturers_csv(manufacturers)
     ctca = classify_ctca(load_ctca_rows(), shops, manufacturers)
+    top100 = classify_top100(shops, ctca)
     bloggers = bloggers_from_html()
     posts = merge_posts()
     bios = bios_from_about()
@@ -1100,6 +1104,7 @@ def main() -> int:
         write_seed("SEED_00_static_pages.sql", emit_static(pages)),
         write_seed("SEED_10_shops.sql", emit_shops(shops)),
         write_seed("SEED_15_ctca_members.sql", emit_ctca(ctca)),
+        write_seed("SEED_16_top100_shops.sql", emit_top100(top100)),
         write_seed("SEED_20_events.sql", emit_events(events) + "\nGO\n" + emit_calendar(shows)),
         write_seed("SEED_30_blog_bloggers.sql", emit_blog(bloggers, posts)),
         write_seed("SEED_40_about_bios.sql", emit_bios(bios)),
@@ -1132,6 +1137,32 @@ def main() -> int:
         pair_lines.append("| *(none)* | | | | |\n")
     pairs_path.write_text("".join(pair_lines), encoding="utf-8")
 
+    top_path = ROOT / "docs" / "TOP100_SHOPS.md"
+    top_lines = [
+        "# Top-100 destination shops (SEED_16)\n\n",
+        "Source: `db/tools/inputs/top_us_destination_card_shops.csv` ",
+        "(research current **2026-10-22**). CSV fields only — no invented ",
+        "addresses, phones, or websites. `SourceSystem = TOP100-2026-10-22`. ",
+        "Free / unclaimed. Destination tag is `ImportNotes` beginning with ",
+        "`Destination shop` (no extra schema).\n\n",
+        "Match against SEED_10 + CTCA SEED_15 shops: website domain **and** ",
+        "city+state, or 10+ phone digits, or stem+city+state, or normalized ",
+        "name+state. Website-only matches across different cities are skipped ",
+        "so multi-location brands stay separate.\n\n",
+        f"- shops_new = {len(top100['shops_new'])}\n",
+        f"- shops_matched = {len(top100['shops_matched'])}\n",
+        f"- total CSV rows used = {len(top100['shops_new']) + len(top100['shops_matched'])}\n\n",
+        "| Rank | CSV name | Matched to | Reason | Slug |\n",
+        "|---|---|---|---|---|\n",
+    ]
+    for p in top100.get("pairs") or []:
+        top_lines.append(
+            f"| {p['rank']} | {p['csv']} | {p['target']} | {p['reason']} | `{p['slug']}` |\n"
+        )
+    if not top100.get("pairs"):
+        top_lines.append("| *(none)* | | | | |\n")
+    top_path.write_text("".join(top_lines), encoding="utf-8")
+
     print(f"Wrote {schema.relative_to(ROOT)}")
     print(
         f"  shops={len(shops)} cms_events={len(events)} calendar_shows={len(shows)} "
@@ -1139,6 +1170,7 @@ def main() -> int:
         f"ctca_shops_new={len(ctca['shops_new'])} ctca_shops_matched={len(ctca['shops_matched'])} "
         f"ctca_listings_matched={len(ctca.get('listings_matched') or [])} "
         f"ctca_orgs={len(ctca['orgs'])} "
+        f"top100_new={len(top100['shops_new'])} top100_matched={len(top100['shops_matched'])} "
         f"bloggers={len(bloggers)} posts={len(posts)} bios={len(bios)} "
         f"gallery={len(gallery)} static={len(pages)}"
     )

@@ -12,6 +12,7 @@ FILES = [
     "seed/SEED_00_static_pages.sql",
     "seed/SEED_10_shops.sql",
     "seed/SEED_15_ctca_members.sql",
+    "seed/SEED_16_top100_shops.sql",
     "seed/SEED_20_events.sql",
     "seed/SEED_30_blog_bloggers.sql",
     "seed/SEED_40_about_bios.sql",

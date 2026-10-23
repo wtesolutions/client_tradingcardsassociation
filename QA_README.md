@@ -73,7 +73,7 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | Path | What to check |
 |---|---|
 | `/` | Home with real shop / show / manufacturer counts |
-| `/shops` | Directory, state filter |
+| `/shops` | Directory, state filter; destination shops show a Destination chip |
 | `/shops/{state}/{city}/{slug}` | Shop detail (try Burbank Sportscards) |
 | `/calendar` and `/shows` | Show list |
 | `/shows/{state}` | State hub |
@@ -93,6 +93,7 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 - No S3 / CloudFront — uploads go to `wwwroot/uploads`.
 - Turnstile is off in Development.
 - Upcoming GaryVee card-show rows were **not** seeded: the 2026-10-22 dossier had no confirmed card show with date + location + his role.
+- Top-100 destination shops are in `SEED_16` (`SourceSystem=TOP100-2026-10-22`). Matched rows fill empty fields only. See `docs/TOP100_SHOPS.md`.
 - Schema apply is not fully idempotent (`CREATE SCHEMA`). Drop the database to start clean.
 
 ## Email

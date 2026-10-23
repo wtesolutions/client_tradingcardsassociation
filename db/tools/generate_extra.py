@@ -22,8 +22,24 @@ from generate_seed import (
 WIKI_MD = INPUTS / "wikipedia_trading_card.md"
 WIKI_CSV = Path(__file__).resolve().parent / "manufacturers_source.csv"
 CTCA_CSV = INPUTS / "ctca_member_directory.csv"
+TOP100_CSV = INPUTS / "top_us_destination_card_shops.csv"
 SOURCE_SYSTEM_CTCA = "CTCA-2026-10-22"
+SOURCE_SYSTEM_TOP100 = "TOP100-2026-10-22"
 WIKI_RETRIEVED = "2026-10-23"
+
+# Hosts in the top-100 source_links column that are articles / social / directories,
+# not the shop's own site. Used only to pick a WebsiteUrl from CSV links.
+_TOP100_SKIP_HOSTS = {
+    "reddit.com", "youtube.com", "youtu.be", "facebook.com", "instagram.com",
+    "linkedin.com", "x.com", "twitter.com", "onmantel.com", "news.onmantel.com",
+    "sportscollectorsdigest.com", "topps.com", "ripped.topps.com",
+    "yahoo.com", "sports.yahoo.com", "thecardshopfinder.com", "si.com",
+    "ajc.com", "exa.ai", "greekcitytimes.com", "bangordailynews.com",
+    "effinghamdailynews.com", "beckettsportscardinsights.com", "cardsota.com",
+    "allpages.com", "listings.allpages.com", "comedymatterstv.com",
+    "otia.com", "fox17online.com", "cardatlas.app", "eventcreate.com",
+    "simpletix.com", "wikipedia.org", "en.wikipedia.org",
+}
 
 SPORT_HEADERS = [
     "Assoc. football",
@@ -1280,3 +1296,240 @@ def emit_glossary_todo() -> str:
 
 def association_events(all_events: list[dict]) -> list[dict]:
     return [e for e in all_events if e.get("source") != "shows.html"]
+
+
+# ---------------------------------------------------------------------------
+# Top-100 destination shops (CSV only; match SEED_10 + SEED_15 shops)
+# ---------------------------------------------------------------------------
+
+def city_key(text: str) -> str:
+    text = unescape(text or "").lower()
+    text = re.sub(r"\([^)]*\)", " ", text)
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _host_skipped(host: str) -> bool:
+    host = (host or "").lower()
+    if not host:
+        return True
+    return any(host == s or host.endswith("." + s) for s in _TOP100_SKIP_HOSTS)
+
+
+def parse_source_links(raw: str) -> list[str]:
+    return [p.strip() for p in (raw or "").split("|") if p.strip().startswith("http")]
+
+
+def pick_top100_website(name: str, links: list[str]) -> str | None:
+    """First CSV link that looks like the shop's own site. Never invent a URL."""
+    tokens = [t for t in stem_name(name).split() if len(t) >= 3]
+    candidates: list[str] = []
+    for url in links:
+        host = host_of(url)
+        if _host_skipped(host):
+            continue
+        candidates.append(url.split("?", 1)[0].rstrip("/"))
+    if not candidates:
+        return None
+    for url in candidates:
+        host = host_of(url)
+        if any(t in host for t in tokens):
+            return url
+    return candidates[0]
+
+
+def map_top100_specialty(text: str) -> str | None:
+    t = unescape(text or "").lower()
+    if not t:
+        return None
+    has_sports = "sport" in t
+    has_pokemon = "pokémon" in t or "pokemon" in t
+    has_magic = "magic" in t
+    has_tcg = "tcg" in t or "gaming" in t
+    if has_pokemon and not has_sports and not has_magic and not has_tcg:
+        return "POKEMON"
+    if (has_tcg or has_pokemon or has_magic) and has_sports:
+        return "TCG_MIXED"
+    if has_tcg or has_magic:
+        return "TCG_MIXED"
+    if has_sports:
+        return "SPORTS"
+    return None
+
+
+def load_top100_rows() -> list[dict]:
+    if not TOP100_CSV.exists():
+        raise SystemExit(f"Missing {TOP100_CSV}")
+    rows = []
+    with TOP100_CSV.open(newline="", encoding="utf-8") as f:
+        for rec in csv.DictReader(f):
+            name = (rec.get("shop_name") or "").strip()
+            city = (rec.get("city") or "").strip()
+            state = (rec.get("state") or "").strip().upper()
+            if not name or not city or len(state) != 2:
+                continue
+            links = parse_source_links(rec.get("source_links") or "")
+            website = pick_top100_website(name, links)
+            why = unescape(rec.get("why_destination") or "")
+            if len(why) > 2000:
+                why = why[:1997] + "..."
+            rank = (rec.get("rank") or "").strip()
+            rows.append({
+                "rank": rank,
+                "name": name,
+                "city": city,
+                "state": state,
+                "specialty_raw": unescape(rec.get("specialty") or ""),
+                "specialty": map_top100_specialty(rec.get("specialty") or ""),
+                "description": why or None,
+                "website": website,
+                "host": host_of(website),
+                "phone": None,
+                "links": links,
+                "mention_count": (rec.get("mention_count") or "").strip() or None,
+                "stem": stem_name(name),
+                "normalized": norm_name(name),
+                "source_ref": f"top100-rank:{rank}",
+                "import_notes": (
+                    f"Destination shop; top-100 research 2026-10-22; rank {rank}"
+                    + (f"; mentions {rec.get('mention_count')}" if rec.get("mention_count") else "")
+                ),
+            })
+    return rows
+
+
+def _top100_match(rec: dict, shops: list[dict]) -> tuple[dict | None, str]:
+    """Same loosened signals as CTCA, but website-only matches require city+state
+    so multi-location brands (CardVault, Grand Slam) stay separate rows."""
+    rec_stem = rec.get("stem") or stem_name(rec["name"])
+    rec_phone = phone_digits(rec.get("phone"))
+    rec_host = rec.get("host") or ""
+    rec_city = city_key(rec.get("city") or "")
+    rec_state = (rec.get("state") or "").upper()
+
+    for shop in shops:
+        shop_host = shop.get("host") or host_of(shop.get("website"))
+        shop_city = city_key(shop.get("city") or "")
+        shop_state = (shop.get("state") or "").upper()
+        same_place = bool(rec_city and shop_city and rec_city == shop_city and rec_state == shop_state)
+
+        if rec_host and shop_host and rec_host == shop_host:
+            if same_place or not rec_city or not shop_city:
+                return shop, "website"
+        shop_phone = phone_digits(shop.get("phone"))
+        if rec_phone and shop_phone and rec_phone == shop_phone:
+            return shop, "phone"
+        shop_stem = shop.get("stem") or stem_name(shop["name"])
+        if same_place and stems_overlap(rec_stem, shop_stem):
+            return shop, "stem+city+state"
+        if rec_state == shop_state and norm_name(rec["name"]) == norm_name(shop["name"]):
+            return shop, "name+state"
+        if same_place and rec.get("normalized") == norm_name(shop["name"]):
+            return shop, "name+city+state"
+    return None, ""
+
+
+def classify_top100(seed10_shops: list[dict], ctca: dict) -> dict:
+    existing: list[dict] = []
+    used_slugs: set[str] = set()
+    for s in seed10_shops:
+        row = dict(s)
+        row.setdefault("stem", stem_name(row["name"]))
+        row.setdefault("host", host_of(row.get("website")))
+        existing.append(row)
+        if row.get("slug"):
+            used_slugs.add(row["slug"])
+    for s in ctca.get("shops_new") or []:
+        row = dict(s)
+        row.setdefault("stem", stem_name(row["name"]))
+        row.setdefault("host", host_of(row.get("website")))
+        existing.append(row)
+        if row.get("slug"):
+            used_slugs.add(row["slug"])
+
+    result = {"shops_new": [], "shops_matched": [], "pairs": [], "skipped": 0}
+    for rec in load_top100_rows():
+        matched, reason = _top100_match(rec, existing)
+        if matched:
+            result["shops_matched"].append({
+                **rec,
+                "slug": matched["slug"],
+                "match_reason": reason,
+                "matched_name": matched["name"],
+            })
+            result["pairs"].append({
+                "csv": rec["name"],
+                "target": matched["name"],
+                "reason": reason,
+                "slug": matched["slug"],
+                "rank": rec["rank"],
+            })
+            continue
+        slug = unique_slug(
+            slugify(f"{rec['name']}-{rec['city']}-{rec['state']}"), used_slugs
+        )
+        new_row = {**rec, "slug": slug}
+        result["shops_new"].append(new_row)
+        existing.append(new_row)
+    return result
+
+
+def emit_top100(classified: dict) -> str:
+    src = SOURCE_SYSTEM_TOP100
+    lines = [
+        "DECLARE @FreeTier TINYINT = (SELECT TierId FROM dir.ShopTier WHERE TierCode = 'FREE');\n",
+        "IF @FreeTier IS NULL THROW 50001, 'dir.ShopTier FREE must be seeded first (02_seed.sql).', 1;\n",
+        "DECLARE @Now DATETIME2(3) = SYSUTCDATETIME();\n",
+        f"DECLARE @Src NVARCHAR(40) = N'{src}';\n",
+        "/* Fill empty fields only. Never overwrite name/city/phone/website already present. */\n",
+    ]
+    for s in classified["shops_new"]:
+        notes = s["import_notes"]
+        lines.append(f"""
+MERGE dir.Shop AS t
+USING (SELECT {sql_str(s['slug'])} AS Slug) AS s
+ON t.Slug = s.Slug
+WHEN MATCHED THEN UPDATE SET
+    Description = COALESCE(t.Description, {sql_str(s.get('description'))}),
+    PrimarySpecialty = COALESCE(t.PrimarySpecialty, {sql_str(s.get('specialty'))}),
+    WebsiteUrl = COALESCE(t.WebsiteUrl, {sql_str(s.get('website'))}),
+    Source = COALESCE(t.Source, N'top-100-destination'),
+    SourceRef = COALESCE(t.SourceRef, {sql_str(s['source_ref'])}),
+    SourceSystem = COALESCE(t.SourceSystem, @Src),
+    ImportNotes = CASE
+        WHEN t.ImportNotes LIKE N'%Destination shop%' THEN t.ImportNotes
+        ELSE LEFT(CONCAT(COALESCE(t.ImportNotes + N'; ', N''), {sql_str(notes)}), 500)
+    END,
+    UpdatedAt = @Now
+WHEN NOT MATCHED THEN INSERT
+    (Slug, Name, City, StateCode, CountryCode, WebsiteUrl, Description, PrimarySpecialty,
+     CurrentTierId, ClaimStatus, ListingStatus, Source, SourceRef, SourceSystem, ImportNotes, PublishedAt)
+VALUES
+    ({sql_str(s['slug'])}, {sql_str(s['name'])}, {sql_str(s['city'])}, {sql_chr(s['state'])},
+     'US', {sql_str(s.get('website'))}, {sql_str(s.get('description'))}, {sql_str(s.get('specialty'))},
+     @FreeTier, 'UNCLAIMED', 'ACTIVE', N'top-100-destination', {sql_str(s['source_ref'])},
+     @Src, {sql_str(notes)}, @Now);
+""")
+    for s in classified["shops_matched"]:
+        notes = s["import_notes"] + f" (matched via {s['match_reason']})"
+        lines.append(f"""
+UPDATE dir.Shop
+SET Description = COALESCE(Description, {sql_str(s.get('description'))}),
+    PrimarySpecialty = COALESCE(PrimarySpecialty, {sql_str(s.get('specialty'))}),
+    WebsiteUrl = COALESCE(WebsiteUrl, {sql_str(s.get('website'))}),
+    SourceRef = COALESCE(SourceRef, {sql_str(s['source_ref'])}),
+    SourceSystem = COALESCE(SourceSystem, @Src),
+    ImportNotes = CASE
+        WHEN ImportNotes LIKE N'%Destination shop%' THEN ImportNotes
+        ELSE LEFT(CONCAT(COALESCE(ImportNotes + N'; ', N''), {sql_str(notes)}), 500)
+    END,
+    UpdatedAt = @Now
+WHERE Slug = {sql_str(s['slug'])};
+""")
+    n_new = len(classified["shops_new"])
+    n_match = len(classified["shops_matched"])
+    lines.append(
+        f"PRINT 'SEED_16_top100_shops: {n_new} new, {n_match} matched "
+        f"(SourceSystem={src}; Free/unclaimed; destination tag in ImportNotes).';\n"
+    )
+    return "\n".join(lines)
