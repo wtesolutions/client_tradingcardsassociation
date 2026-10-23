@@ -91,7 +91,9 @@ dotnet run --project src/Ntca.Web --urls http://localhost:5290
 | `/manufacturers` + `/{slug}` | Manufacturer pages |
 | `/news` + `/news/pokemon-trading-at-gaming-shows` | Pokémon post |
 | `/new-to-trading-cards` | Glossary + condition guide |
-| `/signup` | Inserts `crm.Signup` |
+| `/signup` and `/join` | Multi-step Preview funnel (who → branch → email last). `/signup/thanks` redirects to results |
+| `/signup/confirm/{token}` | Double opt-in for `crm.Signup` |
+| `/SADMIN/funnel` | Step conversion, role, UTM |
 | `/robots.txt` `/llms.txt` `/sitemap.xml` | Discovery; sitemap has dynamic shop/show/mfr URLs; llms.txt invites assistants |
 | `/agent` | Human-readable concierge; `?role=collector&city=Raleigh&state=NC&interests=pokemon` |
 | `/.well-known/ai-concierge` | JSON manifest for assistants |
@@ -149,6 +151,12 @@ curl -s -A 'ChatGPT-User' -H 'Content-Type: application/json' \
 ```
 
 Expect Triangle Area Trading Cards (Raleigh) and an NC card show when one is published. `name` / `email` / `phone` fields are ignored and listed in `warnings`. `/SADMIN/agents` shows the visit + inquiry after a few seconds (flush interval is 3s).
+
+## Signup funnel
+
+`/signup` (also `/join`) is a Care.com-style one-question-per-screen flow. Progress is stored on `crm.SignupFunnel` + `crm.SignupStepEvent` under an HttpOnly cookie before email is collected. Final submit writes `crm.Signup` (PENDING_CONFIRM) and emails a confirm link. Promoter shows go to `mkt.EventSubmission`. Shop-owner “This is my shop” sends the existing claim login code. Turnstile is skipped in Development. `/SADMIN/funnel` is the conversion report.
+
+Walk Collector → Pokémon → ZIP 27601 → email and confirm Triangle Area + the Raleigh show on the results screen.
 
 ## Desktop screenshots (1440×900)
 

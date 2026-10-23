@@ -2684,6 +2684,57 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_AgentInquiry_Role' AN
     CREATE INDEX IX_AgentInquiry_Role ON analytics.AgentInquiry (HumanRole, CreatedAt DESC);
 GO
 
+IF OBJECT_ID(N'crm.SignupFunnel', N'U') IS NULL
+BEGIN
+CREATE TABLE crm.SignupFunnel (
+    SignupFunnelId  BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_SignupFunnel PRIMARY KEY,
+    SessionId       UNIQUEIDENTIFIER NOT NULL CONSTRAINT UQ_SignupFunnel_Session UNIQUE,
+    HumanRole       VARCHAR(40)   NULL,
+    CurrentStep     VARCHAR(40)   NOT NULL CONSTRAINT DF_SignupFunnel_Step DEFAULT 'who',
+    AnswersJson     NVARCHAR(MAX) NULL,
+    Email           NVARCHAR(320) NULL,
+    FirstName       NVARCHAR(80)  NULL,
+    Status          VARCHAR(20)   NOT NULL CONSTRAINT DF_SignupFunnel_Status DEFAULT 'IN_PROGRESS',
+    ConfirmToken    UNIQUEIDENTIFIER NULL,
+    SignupId        BIGINT        NULL CONSTRAINT FK_SignupFunnel_Signup REFERENCES crm.Signup(SignupId),
+    UtmSource       NVARCHAR(120) NULL,
+    UtmMedium       NVARCHAR(120) NULL,
+    UtmCampaign     NVARCHAR(120) NULL,
+    LandingPath     NVARCHAR(200) NULL,
+    CreatedAt       DATETIME2(3)  NOT NULL CONSTRAINT DF_SignupFunnel_Created DEFAULT SYSUTCDATETIME(),
+    UpdatedAt       DATETIME2(3)  NOT NULL CONSTRAINT DF_SignupFunnel_Updated DEFAULT SYSUTCDATETIME(),
+    LastStepAt      DATETIME2(3)  NOT NULL CONSTRAINT DF_SignupFunnel_Last DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT CK_SignupFunnel_Role CHECK (HumanRole IS NULL OR HumanRole IN
+        ('collector','parent','shop_owner','promoter','dealer','media')),
+    CONSTRAINT CK_SignupFunnel_Status CHECK (Status IN ('IN_PROGRESS','COMPLETED','ABANDONED')),
+    CONSTRAINT CK_SignupFunnel_Json CHECK (AnswersJson IS NULL OR ISJSON(AnswersJson) = 1)
+);
+END
+GO
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_SignupFunnel_Status' AND object_id = OBJECT_ID(N'crm.SignupFunnel'))
+    CREATE INDEX IX_SignupFunnel_Status ON crm.SignupFunnel (Status, LastStepAt DESC);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_SignupFunnel_Role' AND object_id = OBJECT_ID(N'crm.SignupFunnel'))
+    CREATE INDEX IX_SignupFunnel_Role ON crm.SignupFunnel (HumanRole, Status);
+GO
+
+IF OBJECT_ID(N'crm.SignupStepEvent', N'U') IS NULL
+BEGIN
+CREATE TABLE crm.SignupStepEvent (
+    SignupStepEventId BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_SignupStepEvent PRIMARY KEY,
+    SignupFunnelId    BIGINT        NOT NULL CONSTRAINT FK_SignupStep_Funnel REFERENCES crm.SignupFunnel(SignupFunnelId),
+    StepKey           VARCHAR(40)   NOT NULL,
+    Action            VARCHAR(20)   NOT NULL,
+    CreatedAt         DATETIME2(3)  NOT NULL CONSTRAINT DF_SignupStep_Created DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT CK_SignupStep_Action CHECK (Action IN ('ENTER','COMPLETE'))
+);
+END
+GO
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_SignupStep_Funnel' AND object_id = OBJECT_ID(N'crm.SignupStepEvent'))
+    CREATE INDEX IX_SignupStep_Funnel ON crm.SignupStepEvent (SignupFunnelId, CreatedAt);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_SignupStep_Key' AND object_id = OBJECT_ID(N'crm.SignupStepEvent'))
+    CREATE INDEX IX_SignupStep_Key ON crm.SignupStepEvent (StepKey, Action);
+GO
+
 /* =====================================================================
    Directory extras (manufacturers, organizations) + National Card Show
    Calendar (promoters, venues, exhibitors, submissions, sitemap, feed).

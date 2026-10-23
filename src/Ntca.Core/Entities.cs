@@ -354,8 +354,42 @@ public sealed class Signup
     public string Channel { get; set; } = "WEB";
     public string? Referrer { get; set; }
     public string? LandingPath { get; set; }
+    public string? ExtraJson { get; set; }
+    public string? UtmSource { get; set; }
+    public string? UtmMedium { get; set; }
+    public string? UtmCampaign { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+}
+
+public sealed class SignupFunnel
+{
+    public long SignupFunnelId { get; set; }
+    public Guid SessionId { get; set; }
+    public string? HumanRole { get; set; }
+    public string CurrentStep { get; set; } = "who";
+    public string? AnswersJson { get; set; }
+    public string? Email { get; set; }
+    public string? FirstName { get; set; }
+    public string Status { get; set; } = "IN_PROGRESS";
+    public Guid? ConfirmToken { get; set; }
+    public long? SignupId { get; set; }
+    public string? UtmSource { get; set; }
+    public string? UtmMedium { get; set; }
+    public string? UtmCampaign { get; set; }
+    public string? LandingPath { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public DateTime LastStepAt { get; set; }
+}
+
+public sealed class SignupStepEvent
+{
+    public long SignupStepEventId { get; set; }
+    public long SignupFunnelId { get; set; }
+    public string StepKey { get; set; } = "";
+    public string Action { get; set; } = "ENTER";
+    public DateTime CreatedAt { get; set; }
 }
 
 public sealed class Post

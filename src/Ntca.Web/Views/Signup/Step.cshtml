@@ -1,0 +1,193 @@
+@using Ntca.Web.Services
+@{
+    var step = (string)ViewBag.Step;
+    var answers = (Dictionary<string, string>)ViewBag.Answers;
+    var back = ViewBag.Back as string;
+    var progress = (int)ViewBag.Progress;
+    var role = ViewBag.Role as string;
+    ViewData["Title"] = "Join NTCA Preview";
+    string Val(string k) => answers.GetValueOrDefault(k) ?? "";
+}
+<p class="kicker">Preview signup</p>
+<h1>Join the NTCA list</h1>
+<div class="funnel-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@progress" aria-label="Signup progress">
+    <span style="width:@progress%"></span>
+</div>
+<p class="meta">Step progress @progress%. One question at a time. Works without JavaScript.</p>
+@if (ViewBag.Error is string err)
+{
+    <p class="card">@err</p>
+}
+@if (back is not null)
+{
+    <p><a class="btn ghost" href="/signup/@back">← Back</a></p>
+}
+
+@if (step == "who")
+{
+    <h2>Who are you?</h2>
+    <form method="post" action="/signup/who" class="funnel-options">
+        @Html.AntiForgeryToken()
+        @foreach (var r in FunnelFlow.Roles)
+        {
+            <label class="funnel-card">
+                <input type="radio" name="role" value="@r.Role" required @(role == r.Role ? "checked" : null) />
+                <strong>@r.Title</strong>
+                <span>@r.Blurb</span>
+            </label>
+        }
+        <button class="btn" type="submit">Continue</button>
+    </form>
+}
+else if (step == "interests")
+{
+    <h2>What do you collect?</h2>
+    <p class="lede">Pick every group that fits. We’ll use this to tailor shops, shows, and guides.</p>
+    <form method="post" action="/signup/interests" class="funnel-options">
+        @Html.AntiForgeryToken()
+        @{ var picked = Val("interests").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries); }
+        @foreach (var i in FunnelFlow.CollectInterests)
+        {
+            <label class="funnel-card">
+                <input type="checkbox" name="interests" value="@i.Key" @(picked.Contains(i.Key) ? "checked" : null) />
+                <strong>@i.Label</strong>
+            </label>
+        }
+        <button class="btn" type="submit">Continue</button>
+    </form>
+}
+else if (step == "experience")
+{
+    <h2>How long have you been in the hobby?</h2>
+    <form method="post" action="/signup/experience" class="funnel-options">
+        @Html.AntiForgeryToken()
+        @foreach (var e in new[] { ("new", "Brand new"), ("year", "About a year"), ("vet", "Several years") })
+        {
+            <label class="funnel-card">
+                <input type="radio" name="experience" value="@e.Item1" required @(Val("experience") == e.Item1 ? "checked" : null) />
+                <strong>@e.Item2</strong>
+            </label>
+        }
+        <button class="btn" type="submit">Continue</button>
+    </form>
+}
+else if (step == "zip")
+{
+    <h2>Where should we look?</h2>
+    <form method="post" action="/signup/zip">
+        @Html.AntiForgeryToken()
+        <p><label>ZIP code<br /><input name="zip" value="@Val("zip")" inputmode="numeric" maxlength="10" required /></label></p>
+        <p><label>City (optional)<br /><input name="city" value="@Val("city")" /></label></p>
+        <p><label>State<br /><input name="state" value="@Val("state")" maxlength="2" placeholder="NC" /></label></p>
+        <button class="btn" type="submit">Continue</button>
+    </form>
+}
+else if (step == "travel")
+{
+    <h2>How far will you travel to a card show?</h2>
+    <form method="post" action="/signup/travel" class="funnel-options">
+        @Html.AntiForgeryToken()
+        @foreach (var t in new[] { ("15", "15 miles"), ("30", "30 miles"), ("60", "60 miles"), ("120", "2 hours / 120 miles") })
+        {
+            <label class="funnel-card">
+                <input type="radio" name="travel" value="@t.Item1" required @(Val("travel") == t.Item1 ? "checked" : null) />
+                <strong>@t.Item2</strong>
+            </label>
+        }
+        <button class="btn" type="submit">Continue</button>
+    </form>
+}
+else if (step == "shop_find")
+{
+    <h2>Find your shop</h2>
+    <p class="lede">Search the live directory. Claim an existing row or add yours. No payment yet.</p>
+    <form method="post" action="/signup/shop_find" class="tools">
+        @Html.AntiForgeryToken()
+        <input name="shopQ" value="@Val("shopQ")" placeholder="Shop name or city" />
+        <input name="zip" value="@Val("zip")" placeholder="ZIP" style="width:6.5rem" />
+        <button class="btn ghost" type="submit" name="stay" value="1">Search</button>
+    </form>
+    <form method="post" action="/signup/shop_find">
+        @Html.AntiForgeryToken()
+        @if (ViewBag.Shops is List<Ntca.Core.Shop> shops && shops.Count > 0)
+        {
+            <div class="funnel-options">
+            @foreach (var s in shops)
+            {
+                <label class="funnel-card">
+                    <input type="radio" name="shopId" value="@s.ShopId" @(Val("shopId") == s.ShopId.ToString() ? "checked" : null) />
+                    <strong>@s.Name</strong>
+                    <span>@s.City, @s.StateCode · This is my shop</span>
+                </label>
+            }
+            </div>
+        }
+        <p class="meta">Or add a shop that is not listed yet:</p>
+        <p><label>Shop name<br /><input name="shopName" value="@Val("shopName")" /></label></p>
+        <p><label>City<br /><input name="shopCity" value="@Val("shopCity")" /></label></p>
+        <p><label>State<br /><input name="shopState" value="@Val("shopState")" maxlength="2" /></label></p>
+        <button class="btn ghost" type="submit" name="add" value="1">Add my shop</button>
+        <button class="btn" type="submit">Continue</button>
+    </form>
+}
+else if (step == "shop_tier")
+{
+    <h2>Choose a listing tier</h2>
+    <p class="lede">Prices for Featured and Premium are still TBD. Stripe checkout is not on this branch.</p>
+    <form method="post" action="/signup/shop_tier" class="funnel-options">
+        @Html.AntiForgeryToken()
+        @foreach (var t in new[] { ("FREE", "Free Listing", "Unclaimed or claimed directory row."), ("PAID", "Featured Listing", "Paid tier — invoice later."), ("PREMIUM", "Premium Partner", "Paid tier — invoice later.") })
+        {
+            <label class="funnel-card">
+                <input type="radio" name="tier" value="@t.Item1" required @(Val("tier") == t.Item1 ? "checked" : null) />
+                <strong>@t.Item2</strong>
+                <span>@t.Item3</span>
+            </label>
+        }
+        <button class="btn" type="submit">Continue</button>
+    </form>
+}
+else if (step == "show")
+{
+    <h2>Tell us about the show</h2>
+    <form method="post" action="/signup/show">
+        @Html.AntiForgeryToken()
+        <p><label>Show name<br /><input name="showTitle" value="@Val("showTitle")" required /></label></p>
+        <p><label>City<br /><input name="showCity" value="@Val("showCity")" required /></label></p>
+        <p><label>State<br /><input name="showState" value="@Val("showState")" maxlength="2" required /></label></p>
+        <p><label>Start date<br /><input name="showStarts" type="date" value="@Val("showStarts")" required /></label></p>
+        <button class="btn" type="submit">Continue</button>
+    </form>
+}
+else if (step == "email")
+{
+    <h2>Where should we send the confirmation?</h2>
+    <p class="lede">Email is last on purpose — you already told us how to help. SMS is off unless you opt in.</p>
+    <form method="post" action="/signup/email">
+        @Html.AntiForgeryToken()
+        <p><label>Email<br /><input name="email" type="email" value="@Val("email")" required /></label></p>
+        <p><label>First name (optional)<br /><input name="firstName" value="@Val("firstName")" /></label></p>
+        <label class="funnel-card">
+            <input type="checkbox" name="sms" value="1" />
+            <strong>Text me occasional show reminders</strong>
+            <span>Off by default. We will not text unless you check this.</span>
+        </label>
+        <button class="btn" type="submit">See my matches</button>
+    </form>
+}
+else if (step == "results")
+{
+    var answer = (AgentAnswer)ViewBag.Answer;
+    <h2>You’re on the Preview list</h2>
+    <p class="lede">Confirm the email we just sent (Development: watch the console / App_Data/mail). Matches below are live directory rows — same facts the AI concierge uses.</p>
+    @if (role == "parent")
+    {
+        <p class="card"><a href="/new-to-trading-cards">New to Trading Cards</a> — glossary and condition guide for beginners.</p>
+    }
+    @if (role == "shop_owner" && !string.IsNullOrEmpty(Val("shopId")))
+    {
+        <p class="card">We emailed a claim code for that shop. Sign in at <a href="/owner/login">/owner/login</a>.</p>
+    }
+    <pre class="prose">@answer.Markdown</pre>
+    <p><a class="btn" href="/shops">Browse shops</a> <a class="btn ghost" href="/calendar">Calendar</a></p>
+}

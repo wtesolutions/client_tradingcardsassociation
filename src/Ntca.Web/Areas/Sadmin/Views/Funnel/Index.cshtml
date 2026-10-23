@@ -1,0 +1,43 @@
+@model object?
+@{
+    ViewData["Title"] = "Signup funnel";
+}
+<h1>Signup funnel</h1>
+<p class="meta">Last 30 days. Started <strong>@ViewBag.Started</strong> · completed <strong>@ViewBag.Completed</strong>. Anonymous until email. No raw IPs.</p>
+<h2>Step conversion</h2>
+<table>
+    <tr><th>Step</th><th>Entered</th><th>Completed</th></tr>
+    @foreach (var s in (IEnumerable<dynamic>)ViewBag.Steps)
+    {
+        <tr><td>@s.Name</td><td>@s.Enter</td><td>@s.Complete</td></tr>
+    }
+</table>
+<h2>By role</h2>
+<table>
+    <tr><th>Role</th><th>Started</th><th>Completed</th></tr>
+    @foreach (var r in (IEnumerable<dynamic>)ViewBag.ByRole)
+    {
+        <tr><td>@r.Name</td><td>@r.N</td><td>@r.Done</td></tr>
+    }
+</table>
+<h2>UTM source</h2>
+<table>
+    @foreach (var r in (IEnumerable<dynamic>)ViewBag.ByUtm)
+    {
+        <tr><td>@r.Name</td><td>@r.N</td></tr>
+    }
+</table>
+<h2>Recent sessions</h2>
+<table>
+    <tr><th>When</th><th>Role</th><th>Step</th><th>Status</th><th>Email</th></tr>
+    @foreach (var f in (List<Ntca.Core.SignupFunnel>)ViewBag.Recent)
+    {
+        <tr>
+            <td>@f.UpdatedAt.ToString("MMM d HH:mm")</td>
+            <td>@f.HumanRole</td>
+            <td>@f.CurrentStep</td>
+            <td>@f.Status</td>
+            <td>@(string.IsNullOrEmpty(f.Email) ? "—" : "yes")</td>
+        </tr>
+    }
+</table>

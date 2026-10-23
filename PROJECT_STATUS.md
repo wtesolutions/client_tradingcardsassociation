@@ -82,7 +82,8 @@ Solution `src/Ntca.sln` (**net9.0**):
 | `/manufacturers`, `/manufacturers/{slug}` | Manufacturer directory |
 | `/news`, `/news/{slug}` | Blog (Pokémon post is public) |
 | `/new-to-trading-cards`, `/guide` | Glossary + condition scale |
-| `/signup`, `POST /signup`, `/signup/thanks` | Native Preview signup → `crm.Signup` |
+| `/signup`, `/join`, `/signup/{step}` | Multi-step Preview funnel (email last) |
+| `/signup/confirm/{token}` | Double opt-in |
 | `/robots.txt`, `/llms.txt`, `/sitemap.xml` | Discovery (llms.txt invites AI assistants) |
 | `/agent` | AI concierge page (`?role=&city=&state=&zip=&interests=`) |
 | `/.well-known/ai-concierge` | Assistant manifest JSON |
@@ -90,7 +91,7 @@ Solution `src/Ntca.sln` (**net9.0**):
 
 **`/owner`:** `/owner/login`, edit-own-shop (queued `dir.ShopEditRequest`), 7/30/90 impression/view/click cards + 30-day bar chart.
 
-**`/SADMIN`:** login; dashboard KPIs (shops, shows, queues, signups, manufacturers, draft posts, 7-day impressions/views/clicks, top shops, AI visits/inquiries); Preview/Live mode; event / owner-edit / draft queues (approve/reject, publish industry-figure + draft post); shop table with Imp 7d; `/SADMIN/shops/{id}/stats`; `/SADMIN/agents` (visits, inquiries, editable UA catalog).
+**`/SADMIN`:** login; dashboard KPIs (shops, shows, queues, signups, manufacturers, draft posts, 7-day impressions/views/clicks, top shops, AI visits/inquiries); Preview/Live mode; event / owner-edit / draft queues (approve/reject, publish industry-figure + draft post); shop table with Imp 7d; `/SADMIN/shops/{id}/stats`; `/SADMIN/agents` (visits, inquiries, editable UA catalog); `/SADMIN/funnel` (step conversion).
 
 ### Calendar
 
@@ -166,7 +167,7 @@ Update the **Status** column when a later run lands the item.
 | AI-optimized shop JSON-LD + AI summary + `.md` | **Done** (`d5e57c3`, `9bdacc0`) | Real fields only; `llms.txt` lists shop markdown |
 | AI concierge / VIP AI visitors + `POST /api/v1/agent/ask` + SADMIN AI Visitors | **Done** (`881fc67`) | UA catalog (SADMIN-editable), welcome aside (no cloaking), `Link` + `X-NTCA-Agent-*`, `/.well-known/ai-concierge`, `/agent`, rate-limited ask API, anonymized `AgentVisit`/`AgentInquiry`, `/shows/submit` for promoters |
 | Mobile directory cards (SoberNation-style) | **Done** (`eba4172`) | Cards on `/shops` + state/city; sticky ZIP/Near me; `/t/view` clicks; compact shop-detail header |
-| Care.com-style multi-step signup funnel + funnel report | **Queued** | Current `/signup` is a single Preview form |
+| Care.com-style multi-step signup funnel + funnel report | **Done** (this push) | `/signup` + `/join`; `crm.SignupFunnel` / `SignupStepEvent`; SADMIN `/SADMIN/funnel`; same intent model as `/api/v1/agent/ask` |
 
 ### Remaining platform
 

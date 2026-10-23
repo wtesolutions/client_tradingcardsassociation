@@ -32,6 +32,8 @@ public sealed class NtcaDbContext : DbContext
     public DbSet<ShopEvent> ShopEvents => Set<ShopEvent>();
     public DbSet<EventSubmission> EventSubmissions => Set<EventSubmission>();
     public DbSet<Signup> Signups => Set<Signup>();
+    public DbSet<SignupFunnel> SignupFunnels => Set<SignupFunnel>();
+    public DbSet<SignupStepEvent> SignupStepEvents => Set<SignupStepEvent>();
     public DbSet<Post> Posts => Set<Post>();
     public DbSet<IndustryFigure> IndustryFigures => Set<IndustryFigure>();
     public DbSet<IndustryFigureSource> IndustryFigureSources => Set<IndustryFigureSource>();
@@ -271,6 +273,29 @@ public sealed class NtcaDbContext : DbContext
             e.Property(x => x.EmailNormalized).HasMaxLength(320);
             e.Property(x => x.Status).HasMaxLength(20);
             e.Property(x => x.Channel).HasMaxLength(20);
+            e.Property(x => x.ExtraJson);
+            e.Property(x => x.UtmSource).HasMaxLength(120);
+            e.Property(x => x.UtmMedium).HasMaxLength(120);
+            e.Property(x => x.UtmCampaign).HasMaxLength(120);
+        });
+
+        model.Entity<SignupFunnel>(e =>
+        {
+            e.ToTable("SignupFunnel", "crm");
+            e.HasKey(x => x.SignupFunnelId);
+            e.Property(x => x.HumanRole).HasMaxLength(40);
+            e.Property(x => x.CurrentStep).HasMaxLength(40);
+            e.Property(x => x.Status).HasMaxLength(20);
+            e.Property(x => x.Email).HasMaxLength(320);
+            e.Property(x => x.FirstName).HasMaxLength(80);
+        });
+
+        model.Entity<SignupStepEvent>(e =>
+        {
+            e.ToTable("SignupStepEvent", "crm");
+            e.HasKey(x => x.SignupStepEventId);
+            e.Property(x => x.StepKey).HasMaxLength(40);
+            e.Property(x => x.Action).HasMaxLength(20);
         });
 
         model.Entity<Post>(e =>

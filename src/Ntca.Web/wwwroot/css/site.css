@@ -111,6 +111,16 @@ input, select, textarea {
   .dir-side-map { display: block; position: sticky; top: 12px; }
   .shop-card-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 }
+.funnel-progress { height: 8px; background: #12131d; border-radius: 999px; overflow: hidden; margin: 8px 0 16px; }
+.funnel-progress span { display: block; height: 100%; background: var(--accent); }
+.funnel-options { display: flex; flex-direction: column; gap: 10px; max-width: 36rem; }
+.funnel-card { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: start;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; }
+.funnel-card input { margin-top: 4px; }
+.funnel-card strong { font-size: 17px; }
+.funnel-card span { grid-column: 2; color: var(--muted); font-size: 14px; }
+.funnel-card:has(input:checked) { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.funnel-options .btn { margin-top: 8px; align-self: start; }
 @media (max-width: 390px) {
   .shop-card { grid-template-columns: 80px minmax(0, 1fr); padding: 10px; }
   .shop-card-thumb { width: 80px; height: 80px; }
