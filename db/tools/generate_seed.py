@@ -539,9 +539,10 @@ def parse_front_matter(text: str) -> tuple[dict, str]:
 
 
 def md_inline(text: str) -> str:
-    """Escape HTML then restore **bold** as <strong>."""
+    """Escape HTML then restore **bold** and [label](url) links."""
     escaped = html.escape(text, quote=False)
-    return re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", escaped)
+    escaped = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", escaped)
+    return re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', escaped)
 
 
 def md_to_html(md: str) -> str:

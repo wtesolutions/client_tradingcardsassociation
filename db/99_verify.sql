@@ -25,7 +25,7 @@ INSERT INTO @Expect (K, N) VALUES
     (N'manufacturers',          68),
     (N'glossary',               42),
     (N'condition_grades',       10),
-    (N'posts_published',         5),
+    (N'posts_published',        11),
     (N'bloggers',               12),
     (N'gallery',                22),
     (N'social_platforms',       19),
