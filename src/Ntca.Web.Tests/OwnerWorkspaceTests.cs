@@ -119,7 +119,8 @@ public sealed class SadminShellTests
             "shop-featured-ribbon", "sadmin-login-email", "dashboard-h1",
             "impersonate-owner", "owner-logo-input", "owner-photo-input",
             "signup-form", "gallery-grid", "lightbox",
-            "google-places-page", "google-review-approve", "shop-google-reviews"
+            "google-places-page", "google-review-approve", "shop-google-reviews",
+            "shop-google-reviews-summary", "shop-google-reviews-all"
         })
             Assert.Contains($"data-testid=\"{id}\"", blob);
     }

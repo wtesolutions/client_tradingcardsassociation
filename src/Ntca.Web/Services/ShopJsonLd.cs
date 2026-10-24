@@ -30,44 +30,129 @@ public sealed class ShopServiceOffer
 
 public static class ShopJsonLd
 {
-    public static string BuildStateHub(string origin, string stateCode, int shopCount)
+    public static string BuildStateHub(
+        string origin,
+        string stateCode,
+        int shopCount,
+        IReadOnlyList<(string Name, string Url)>? shops = null)
     {
         origin = origin.TrimEnd('/');
         var name = ShopCopy.StateName(stateCode);
         var code = stateCode.Trim().ToLowerInvariant();
         var canonical = origin + "/shops/" + code;
+        return BuildListing(
+            origin,
+            canonical,
+            "Hobby shops in " + name,
+            shopCount + " active listings in " + name + ".",
+            shops ?? [],
+            [
+                (1, origin + "/", "Home"),
+                (2, origin + "/shops", "Shops"),
+                (3, canonical, name)
+            ],
+            shopCount);
+    }
+
+    public static string BuildListing(
+        string origin,
+        string canonical,
+        string name,
+        string description,
+        IReadOnlyList<(string Name, string Url)> shops,
+        IReadOnlyList<(int Position, string Url, string Name)> crumbs,
+        int? numberOfItems = null)
+    {
+        origin = origin.TrimEnd('/');
+        canonical = canonical.TrimEnd('/');
+        var listId = canonical + "#list";
         var crumbId = canonical + "#breadcrumb";
-        var pageId = canonical + "#webpage";
-        var items = new JsonArray
+        var items = new JsonArray();
+        var pos = 1;
+        foreach (var shop in shops)
         {
-            Crumb(1, origin + "/", "Home"),
-            Crumb(2, origin + "/shops", "Shops"),
-            Crumb(3, canonical, name)
+            items.Add(new JsonObject
+            {
+                ["@type"] = "ListItem",
+                ["position"] = pos,
+                ["name"] = shop.Name,
+                ["url"] = shop.Url
+            });
+            pos++;
+        }
+        var list = new JsonObject
+        {
+            ["@type"] = "ItemList",
+            ["@id"] = listId,
+            ["name"] = name,
+            ["url"] = canonical
         };
+        if (!string.IsNullOrWhiteSpace(description))
+            list["description"] = description;
+        var count = numberOfItems ?? shops.Count;
+        if (count > 0)
+            list["numberOfItems"] = count;
+        if (items.Count > 0)
+            list["itemListElement"] = items;
+        var crumbItems = new JsonArray();
+        foreach (var crumb in crumbs)
+            crumbItems.Add(Crumb(crumb.Position, crumb.Url, crumb.Name));
         var graph = new JsonArray
         {
-            new JsonObject
-            {
-                ["@type"] = "CollectionPage",
-                ["@id"] = pageId,
-                ["url"] = canonical,
-                ["name"] = "Hobby shops in " + name,
-                ["breadcrumb"] = new JsonObject { ["@id"] = crumbId }
-            },
+            list,
             new JsonObject
             {
                 ["@type"] = "BreadcrumbList",
                 ["@id"] = crumbId,
-                ["itemListElement"] = items
+                ["itemListElement"] = crumbItems
             }
         };
-        if (shopCount > 0)
-            graph[0]!.AsObject()["numberOfItems"] = shopCount;
         return new JsonObject
         {
             ["@context"] = "https://schema.org",
             ["@graph"] = graph
         }.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+    }
+
+    public static IReadOnlyList<string> ValidateListing(string json)
+    {
+        var errors = new List<string>();
+        JsonNode? root;
+        try
+        {
+            root = JsonNode.Parse(json);
+        }
+        catch (Exception ex)
+        {
+            return ["JSON-LD is not valid JSON: " + ex.Message];
+        }
+        if (root is not JsonObject obj)
+            return ["JSON-LD root must be an object."];
+        if (obj["@context"]?.GetValue<string>() != "https://schema.org")
+            errors.Add("@context must be https://schema.org.");
+        if (obj["@graph"] is not JsonArray graph || graph.Count == 0)
+            return ["@graph must be a non-empty array."];
+        JsonObject? list = null;
+        JsonObject? crumbs = null;
+        foreach (var item in graph)
+        {
+            if (item is not JsonObject node)
+                continue;
+            var type = TypeOf(node);
+            if (type == "ItemList")
+                list = node;
+            else if (type == "BreadcrumbList")
+                crumbs = node;
+        }
+        if (list is null)
+            errors.Add("Listing graph must include ItemList.");
+        else if (!HasText(list, "name") || !HasText(list, "url"))
+            errors.Add("ItemList requires name and url.");
+        if (crumbs is null)
+            errors.Add("Listing graph must include BreadcrumbList.");
+        if (json.Contains("aggregateRating", StringComparison.Ordinal))
+            errors.Add("Listing JSON-LD must not emit aggregateRating.");
+        return errors;
     }
 
     public static string Build(ShopSchemaInput input)
@@ -137,7 +222,7 @@ public static class ShopJsonLd
             }
             AssertNoEmpty(node, "", errors);
             var type = TypeOf(node);
-            if (type is "Store" or "HobbyShop" or "SportingGoodsStore")
+            if (IsStoreType(node))
                 store = node;
             else if (type == "WebPage")
                 page = node;
@@ -189,7 +274,7 @@ public static class ShopJsonLd
         var shop = input.Shop;
         var store = new JsonObject
         {
-            ["@type"] = ShopCopy.StoreType(shop),
+            ["@type"] = StoreTypes(shop),
             ["@id"] = storeId,
             ["additionalType"] = "trading card shop",
             ["name"] = shop.Name,
@@ -271,8 +356,10 @@ public static class ShopJsonLd
         Set(member, "description", string.IsNullOrWhiteSpace(input.TierName) ? null : "NTCA listing tier: " + input.TierName);
         store["memberOf"] = member;
 
-        // Google Places ratings are third-party cache. Do not emit them as
-        // schema.org aggregateRating (Places ToS + Google Search first-party review rules).
+        // First-party ShopReview only. Never emit Google Places ratings/reviews as
+        // schema.org aggregateRating or Review — Google Search review-snippet
+        // guidelines disallow third-party / self-serving review markup.
+        // https://developers.google.com/search/docs/appearance/structured-data/review-snippet
         if (input.ApprovedReviewCount > 0 && input.AverageRating is { } rating)
         {
             store["aggregateRating"] = new JsonObject
@@ -535,14 +622,45 @@ public static class ShopJsonLd
         }
     }
 
-    private static string? TypeOf(JsonObject node)
+    private static JsonArray StoreTypes(Shop shop)
+    {
+        var types = new JsonArray { "LocalBusiness", "Store" };
+        var specific = ShopCopy.StoreType(shop);
+        if (specific is "HobbyShop" or "SportingGoodsStore")
+            types.Add(specific);
+        return types;
+    }
+
+    private static bool IsStoreType(JsonObject node)
+        => TypesOf(node).Any(t => t is "LocalBusiness" or "Store" or "HobbyShop" or "SportingGoodsStore");
+
+    private static IEnumerable<string> TypesOf(JsonObject node)
     {
         var t = node["@type"];
         if (t is JsonValue v)
-            return v.GetValue<string>();
-        if (t is JsonArray a && a.Count > 0)
-            return a[0]?.GetValue<string>();
-        return null;
+        {
+            yield return v.GetValue<string>();
+            yield break;
+        }
+        if (t is JsonArray a)
+        {
+            foreach (var item in a)
+            {
+                if (item is JsonValue iv)
+                    yield return iv.GetValue<string>();
+            }
+        }
+    }
+
+    private static string? TypeOf(JsonObject node)
+    {
+        var types = TypesOf(node).ToList();
+        foreach (var t in types)
+        {
+            if (t is "HobbyShop" or "SportingGoodsStore" or "Store")
+                return t;
+        }
+        return types.FirstOrDefault();
     }
 
     private static bool HasText(JsonObject obj, string name)

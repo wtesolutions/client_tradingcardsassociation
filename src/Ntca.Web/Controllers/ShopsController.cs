@@ -75,7 +75,26 @@ public sealed class ShopsController : Controller
         ViewBag.Google = await _google.LoadViewsAsync(pageItems.Select(s => s.ShopId), ct);
         ViewBag.OwnerMedia = await _media.LoadPublicAsync(pageItems, ct);
         ViewData["MainClass"] = "site-main";
-        ViewData["Title"] = "Find shops";
+        var site = $"{Request.Scheme}://{Request.Host}";
+        var title = searching && dir.Q.Length > 0
+            ? "Shops matching “" + dir.Q + "”"
+            : "Find trading card shops";
+        var desc = searching
+            ? "Search results from the National Trading Card Association shop directory."
+            : "Find trading card and hobby shops in the National Trading Card Association directory.";
+        var crumbs = new List<(int, string, string)>
+        {
+            (1, site + "/", "Home"),
+            (2, site + "/shops", "Shops")
+        };
+        SiteMeta.Apply(this, title, desc, "/shops" + Request.QueryString, jsonLd: ShopJsonLd.BuildListing(
+            site,
+            site + "/shops",
+            title,
+            desc,
+            ListingItems(site, pageItems),
+            crumbs,
+            matches.Count));
         return View(pageItems);
     }
 
@@ -99,10 +118,17 @@ public sealed class ShopsController : Controller
         _track.RecordMany(shops, ImpressionSurfaces.DirectoryState, "/shops/" + code.ToLowerInvariant());
         ViewBag.State = code;
         ViewBag.StateName = ShopCopy.StateName(code);
-        ViewBag.JsonLd = ShopJsonLd.BuildStateHub($"{Request.Scheme}://{Request.Host}", code, shops.Count);
         ViewBag.Google = await _google.LoadViewsAsync(shops.Select(s => s.ShopId), ct);
         ViewBag.OwnerMedia = await _media.LoadPublicAsync(shops, ct);
         ViewData["MainClass"] = "site-main";
+        var origin = $"{Request.Scheme}://{Request.Host}";
+        var stateName = ShopCopy.StateName(code);
+        SiteMeta.Apply(
+            this,
+            stateName + " trading card shops",
+            "Hobby shops in " + stateName + " — the NTCA directory of trading card stores.",
+            "/shops/" + code.ToLowerInvariant(),
+            jsonLd: ShopJsonLd.BuildStateHub(origin, code, shops.Count, ListingItems(origin, shops)));
         return View(shops);
     }
 
@@ -125,6 +151,27 @@ public sealed class ShopsController : Controller
         ViewBag.Google = await _google.LoadViewsAsync(shops.Select(s => s.ShopId), ct);
         ViewBag.OwnerMedia = await _media.LoadPublicAsync(shops, ct);
         ViewData["MainClass"] = "site-main";
+        var origin = $"{Request.Scheme}://{Request.Host}";
+        var cityName = shops[0].City;
+        var stateName = ShopCopy.StateName(code);
+        var path = $"/shops/{code.ToLowerInvariant()}/{slug}";
+        SiteMeta.Apply(
+            this,
+            cityName + ", " + stateName + " trading card shops",
+            "Trading card shops in " + cityName + ", " + stateName + ".",
+            path,
+            jsonLd: ShopJsonLd.BuildListing(
+                origin,
+                origin + path,
+                "Hobby shops in " + cityName + ", " + stateName,
+                shops.Count + " active listing" + (shops.Count == 1 ? "" : "s") + ".",
+                ListingItems(origin, shops),
+                [
+                    (1, origin + "/", "Home"),
+                    (2, origin + "/shops", "Shops"),
+                    (3, origin + "/shops/" + code.ToLowerInvariant(), stateName),
+                    (4, origin + path, cityName)
+                ]));
         return View(shops);
     }
 
@@ -225,8 +272,16 @@ public sealed class ShopsController : Controller
             return Content(ShopMarkdown.Render(shop, summary, hours, events, shop.Tier?.Name, socials), "text/markdown; charset=utf-8");
 
         _track.Record(shop.ShopId, ImpressionSurfaces.Detail, pageUrl: ShopCopy.Loc(shop));
-        ViewData["Title"] = shop.Name;
-        ViewData["Description"] = summary;
+        SiteMeta.Apply(
+            this,
+            shop.Name + " in " + shop.City + ", " + shop.StateCode,
+            summary,
+            ShopCopy.Loc(shop),
+            ogType: "place",
+            image: imageUrl,
+            imageWidth: imageUrl is null ? null : 1200,
+            imageHeight: imageUrl is null ? null : 675,
+            jsonLd: jsonLd);
         ViewData["MainClass"] = "site-main";
         ViewData["BodyClass"] = "is-shop-detail";
         ViewData["HideDock"] = true;
@@ -247,6 +302,9 @@ public sealed class ShopsController : Controller
             Photos = ownerMedia?.Photos ?? []
         });
     }
+
+    private static IReadOnlyList<(string Name, string Url)> ListingItems(string origin, IEnumerable<Shop> shops)
+        => shops.Select(s => (s.Name, origin.TrimEnd('/') + ShopCopy.Loc(s))).ToList();
 
     private IQueryable<Shop> Active()
         => _db.Shops.AsNoTracking().Where(s => s.ListingStatus == "ACTIVE");

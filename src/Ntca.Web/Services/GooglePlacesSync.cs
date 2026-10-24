@@ -150,6 +150,13 @@ public static class GooglePlacesMatchScore
 
 public sealed class GooglePlacesSync
 {
+    // TODO(places-cache-compliance): Places API (New) policies (updated 2026-10-21)
+    // and Maps Service Specific Terms allow indefinite storage of place_id only,
+    // and lat/lng for ≤30 days (SST §14.3). Reviews, ratings, photos, hours, and
+    // other Places content must not be stored as a long-term cache. This 30-day
+    // TTL on dir.GooglePlaceCache / GooglePlaceReview / cached photo bytes is
+    // likely non-compliant. Do not change the design in this pass — see
+    // docs/PLACES.md § Caching compliance.
     public static readonly TimeSpan CacheTtl = TimeSpan.FromDays(30);
 
     private readonly NtcaDbContext _db;

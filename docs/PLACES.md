@@ -133,7 +133,88 @@ At `--rate-ms 1500`, 300 calls take about 7.5 minutes.
 2. Open `/SADMIN/google` (`google-places-page`).
 3. Low-confidence rows: Approve (stores Place ID, Featured stays false), Reject, or paste a manual Place ID.
 4. After approve, re-run `places enrich --limit 5` (or `--shop ID`) to pull details + photos + website.
-5. Public shop page shows rating + **Reviews from Google** (`shop-google-reviews`) with required Google attribution. Those reviews are **not** emitted as schema.org `aggregateRating`.
+5. Public shop page shows rating + **Reviews from Google** (`shop-google-reviews`) with required Google Maps attribution, reviewer name/avatar/profile link, stars, relative time, and “See all reviews on Google”. Those reviews are **not** emitted as schema.org `aggregateRating` or `Review`.
+
+## SEO / structured data
+
+Shop detail JSON-LD is `LocalBusiness` + `Store` (+ `HobbyShop` / `SportingGoodsStore` when appropriate) with `PostalAddress`, `geo`, `openingHoursSpecification`, `sameAs`, `image`, `telephone`, and a `BreadcrumbList`. Listing pages emit `ItemList` + `BreadcrumbList`. News posts emit `BlogPosting`.
+
+**Do not** emit `aggregateRating` or `Review` markup sourced from Google Places reviews. Google Search review-snippet guidelines say: “Don't aggregate reviews or ratings from other websites,” and LocalBusiness pages that mark up third-party widgets (including Google Business reviews) are ineligible for the star review feature. First-party `dir.ShopReview` rows with `ApprovedReviewCount > 0` remain the only allowed `aggregateRating` source.
+
+- [Review snippet structured data](https://developers.google.com/search/docs/appearance/structured-data/review-snippet)
+
+## Attribution (Places API New)
+
+New implementations must attribute **Google Maps** (not only “Google”). Last checked **2026-10-21**.
+
+Required where Places content is shown:
+
+- Google Maps text/logo near ratings, photos, hours, and reviews
+- Photo `authorAttributions` (name + profile link) on the large photo, not necessarily on listing thumbnails if the detail photo has full credit
+- Review author avatar, name, and profile link (`authorAttribution.uri`); relative time (`relativePublishTimeDescription`); a `googleMapsUri` so users can open the source review
+- Reviews notice describing order (“shown by relevance, as returned by Google Maps”)
+
+Policy: [Places API (New) policies](https://developers.google.com/maps/documentation/places/web-service/policies)
+
+## Caching compliance (report only — design unchanged)
+
+**Verdict: the current batch-cache design is not compliant with current Places API (New) + Maps Platform terms.** Only `place_id` may be stored indefinitely. Latitude/longitude may be cached up to 30 days. Reviews, ratings, editorial summaries, hours, photo bytes, and other Places content are not in the allowed cache exceptions.
+
+Quoted rules (checked 2026-10-24):
+
+1. Places policies, “Exceptions from caching restrictions”:
+
+   > “the place ID, used to uniquely identify a place, is exempt from the caching restrictions. You can therefore store place ID values indefinitely.”
+
+   And the page summary: “You must not pre-fetch, cache, or store Places API content beyond the allowed exceptions, although the `place_id` is exempt from caching restrictions.”
+
+   Source: [Places API (New) policies](https://developers.google.com/maps/documentation/places/web-service/policies) (last updated 2026-10-21).
+
+2. Google Maps Platform Terms of Service §3.2.3(a) No Scraping:
+
+   > “Customer will not export, extract, or otherwise scrape Google Maps Content for use outside the Services. For example, Customer will not: (i) pre-fetch, index, store, reshare, or rehost Google Maps Content outside the services; … (iii) copy and save business names, addresses, or user reviews; …”
+
+   Source: [Maps Platform Terms](https://cloud.google.com/maps-platform/terms) §3.2.3(a).
+
+3. Same terms §3.2.3(b) No Caching:
+
+   > “Customer will not cache Google Maps Content except as expressly permitted under the Maps Service Specific Terms.”
+
+   Source: [Maps Platform Terms](https://cloud.google.com/maps-platform/terms) §3.2.3(b).
+
+4. Service Specific Terms, A.3 Google ID Caching:
+
+   > “Customer may cache the Google ID values from the Services that return such field and allow caching, in accordance with its Documentation. For example, Customer may cache (a) place_id from Places API, …”
+
+   Source: [Maps Service Specific Terms](https://cloud.google.com/maps-platform/terms/maps-service-terms) §A.3.
+
+5. Service Specific Terms §14.3 Places API Caching:
+
+   > “Customer may temporarily cache latitude and longitude values from the Places API for up to 30 consecutive calendar days, after which Customer must delete the cached latitude and longitude values.”
+
+   Source: [Maps Service Specific Terms](https://cloud.google.com/maps-platform/terms/maps-service-terms) §14.3.
+
+What we store today vs those rules:
+
+| Stored field | Table / path | Allowed? |
+|---|---|---|
+| `place_id` | `dir.GooglePlaceCache.GooglePlaceId` | Yes, indefinitely |
+| lat/lng | `dir.GooglePlaceCache.Latitude/Longitude` | Yes, **≤30 days** then delete |
+| rating, review count, hours, editorial summary, phones, website, types | `dir.GooglePlaceCache` (30-day TTL) | **No** — not in SST exceptions |
+| review text, author, stars | `dir.GooglePlaceReview` (30-day TTL) | **No** — ToS §3.2.3(a)(iii) forbids copying/saving user reviews |
+| photo bytes | `IFileStorage` + `dir.GooglePlacePhoto` | **No** — storing/rehosting Places photos is caching Google Maps Content |
+
+The older “everything except place_id for 30 days” reading does **not** match current SST: Places API only names lat/lng for a 30-day cache. A 30-day TTL on reviews/photos/ratings does not make that storage compliant.
+
+Recommended follow-up (not done here; TODOs are in `GooglePlacesSync.CacheTtl` and `PlacesEnrich.FreshTtl`):
+
+1. Keep `place_id` forever; keep lat/lng with a hard 30-day delete.
+2. Stop persisting reviews, ratings, hours, editorial text, and photo bytes.
+3. On shop detail, fetch Place Details (and Photo media) at request time, or use a short in-memory/CDN cache only if counsel confirms a transient display cache is acceptable.
+4. Serve photos via the Places Photo URI / media endpoint instead of stored bytes.
+5. If live Atmosphere calls are too expensive, hide reviews/photos on the public page and keep Place IDs for matching only.
+
+Counsel should review before changing the cache; this section is an engineering reading of the public terms, not legal advice.
 
 ## New-shop discovery
 

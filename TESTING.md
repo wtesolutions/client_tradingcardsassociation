@@ -80,9 +80,9 @@ dotnet run --project src/Ntca.Web -- places enrich --dry-run
 
 Public chrome: `public-body`, `site-header`, `nav-home`, `nav-primary`, `nav-find-shops`, `header-join`, `nav-menu`, `site-footer`, `footer-nav`, `impersonate-banner`, `impersonate-stop`
 
-Home / directory: `home-search`, `shops-search`, `shops-q`, `shops-location`, `shops-location-clear`, `shops-search-submit`, `shops-categories`, `cat-all`, `cat-sports`, `shops-filters-open`, `shops-filters`, `shops-chips`, `chip-*`, `shops-clear-all`, `shops-result-count`, `shop-card-{slug}`, `shop-featured-{slug}`, `shop-logo-{slug}`, `shop-placeholder-{slug}`
+Home / directory: `home-search`, `shops-search`, `shops-q`, `shops-location`, `shops-location-clear`, `shops-search-submit`, `shops-categories`, `cat-all`, `cat-sports`, `shops-filters-open`, `shops-filters`, `shops-chips`, `chip-*`, `shops-clear-all`, `shops-result-count`, `shop-card-{slug}`, `shop-thumb-link-{slug}`, `shop-name-{slug}`, `shop-cover-{slug}`, `shop-featured-{slug}`, `shop-logo-{slug}`, `shop-placeholder-{slug}`, `gmaps-attribution`
 
-Shop detail: `shop-detail`, `shop-detail-name`, `shop-featured-ribbon`, `shop-detail-logo`, `shop-detail-cover`, `shop-detail-placeholder`, `shop-gallery`, `shop-owner-photos`, `shop-photo-{id}`, `shop-socials`, `shop-google-reviews`, `shop-google-review`
+Shop detail: `shop-detail`, `shop-detail-name`, `shop-featured-ribbon`, `shop-detail-logo`, `shop-detail-cover`, `shop-detail-placeholder`, `shop-gallery`, `shop-owner-photos`, `shop-photo-{id}`, `shop-google-photos`, `shop-gphoto-{slot}`, `shop-socials`, `shop-google-reviews`, `shop-google-reviews-summary`, `shop-google-reviews-all`, `shop-google-review`, `shop-google-review-author`, `shop-google-review-stars`, `shop-google-review-time`, `shop-google-review-text`, `shop-google-review-more`
 
 Manufacturers: `mfr-logo`, `mfr-description`
 
@@ -128,15 +128,15 @@ BASE_URL=http://localhost:5290 npx playwright test
 
 - **Route:** `/`
 - **Steps:** Open home. Confirm header Join CTA, hero search, Discover shops.
-- **Expected:** H1 “Protecting, Promoting and Powering the Hobby.” Featured/destination cards render. No preview banner text. If SEED_21 ran, Hobby Tyme may appear with a gold Featured ribbon.
-- **Selectors:** `nav-primary`, `header-join`, `home-search`, `shop-card-hobby-tyme-sports-cards-toys-mebane-nc` (if in the six), `shop-featured-hobby-tyme-sports-cards-toys-mebane-nc`
+- **Expected:** H1 “Protecting, Promoting and Powering the Hobby.” Featured/destination cards render. No preview banner text. If SEED_21 ran, Hobby Tyme may appear with a gold Featured ribbon. Each card thumbnail (`shop-thumb-link-{slug}`) is a link to the same href as `shop-name-{slug}`; image `alt` is the shop name. Tab to the thumbnail outlines the whole card; Enter opens the detail page. `<title>` is “National Trading Card Association”; head has unique description, canonical, Open Graph, and Twitter card tags.
+- **Selectors:** `nav-primary`, `header-join`, `home-search`, `shop-card-hobby-tyme-sports-cards-toys-mebane-nc` (if in the six), `shop-thumb-link-hobby-tyme-sports-cards-toys-mebane-nc`, `shop-name-hobby-tyme-sports-cards-toys-mebane-nc`, `shop-featured-hobby-tyme-sports-cards-toys-mebane-nc`
 
 ### P02 — /shops search
 
 - **Route:** `/shops`
 - **Steps:** Type `hobby` in `shops-q`. Submit `shops-search-submit`.
-- **Expected:** Result count updates. Hobby Tyme card is in the list when the shop is ACTIVE.
-- **Selectors:** `shops-search`, `shops-q`, `shops-search-submit`, `shops-result-count`, `shop-card-hobby-tyme-sports-cards-toys-mebane-nc`
+- **Expected:** Result count updates. Hobby Tyme card is in the list when the shop is ACTIVE. Thumbnail and name share the detail href. Head title is unique for the search; JSON-LD is `ItemList` + `BreadcrumbList` (no Google `aggregateRating`).
+- **Selectors:** `shops-search`, `shops-q`, `shops-search-submit`, `shops-result-count`, `shop-card-hobby-tyme-sports-cards-toys-mebane-nc`, `shop-thumb-link-hobby-tyme-sports-cards-toys-mebane-nc`, `shop-name-hobby-tyme-sports-cards-toys-mebane-nc`
 
 ### P03 — Filters + category tabs + chips
 
@@ -149,15 +149,15 @@ BASE_URL=http://localhost:5290 npx playwright test
 
 - **Route:** `/shops/mo` and `/shops/nc`
 - **Steps:** Open each. Confirm shops for that state only.
-- **Expected:** Heading uses the state name. Cards link to city/slug URLs.
-- **Selectors:** `shop-card-*` (any), `nav-find-shops`
+- **Expected:** Heading uses the state name. Cards link to city/slug URLs. Thumbnail (`shop-thumb-link-*`) uses the same href as `shop-name-*`. JSON-LD is `ItemList` + `BreadcrumbList`.
+- **Selectors:** `shop-card-*` (any), `shop-thumb-link-*`, `shop-name-*`, `nav-find-shops`
 
 ### P05 — Shop detail · Hobby Tyme Featured
 
 - **Route:** `/shops/nc/mebane/hobby-tyme-sports-cards-toys-mebane-nc`
-- **Steps:** Open the listing. Note ribbons, socials, photos.
-- **Expected:** Gold **Featured** ribbon (navy text), not “Sponsored”. Destination copy is secondary if both flags apply. Social icons render when links exist. Before owner uploads: `shop-detail-placeholder` or Google photos. After owner uploads: `shop-detail-logo` + `shop-owner-photos` (6 items).
-- **Selectors:** `shop-detail`, `shop-detail-name`, `shop-featured-ribbon`, `shop-socials`, `shop-detail-placeholder`, `shop-detail-logo`, `shop-gallery`, `shop-owner-photos`
+- **Steps:** Open the listing. Note ribbons, socials, photos. If Places reviews exist, exercise the review cards.
+- **Expected:** Gold **Featured** ribbon (navy text), not “Sponsored”. Destination copy is secondary if both flags apply. Social icons render when links exist. Before owner uploads: `shop-detail-placeholder` or Google photos. After owner uploads: `shop-detail-logo` + `shop-owner-photos` (6 items). Head has unique `<title>`, description, canonical, OG (`og:type` place, `og:image` absolute with width/height, `og:site_name`), and Twitter card. JSON-LD is LocalBusiness/Store (HobbyShop when appropriate) + BreadcrumbList and has **no** Google `aggregateRating`. If reviews exist: `shop-google-reviews-summary` shows stars + count; `shop-google-reviews-all` opens `googleMapsUri`; each `shop-google-review` has author (linked when `authorUri` exists), avatar initials, star bar, relative time, text clamped to ~4 lines with `shop-google-review-more`, and a Google Maps attribution (`gmaps-attribution`).
+- **Selectors:** `shop-detail`, `shop-detail-name`, `shop-featured-ribbon`, `shop-socials`, `shop-detail-placeholder`, `shop-detail-logo`, `shop-gallery`, `shop-owner-photos`, `shop-google-reviews`, `shop-google-reviews-summary`, `shop-google-reviews-all`, `shop-google-review`, `gmaps-attribution`
 
 ### P06 — Placeholder images
 
@@ -358,7 +358,7 @@ dotnet run --project src/Ntca.Web -- places status
 ```
 
 - **Expected:** `--top 100 --dry-run` prints a ranked list (rank, shop id, name, city/ST, featured/owner/pop/complete/nc, already enriched?) and the call/cost estimate for shops in that list that still need work. `--limit 30` processes only the first 30 not-yet-enriched of those 100; a second run resumes with the next 30. `--export ranked.csv` writes the same list. No invented score weights. See `docs/PLACES.md`.
-- **Public check after a successful enrich:** shop detail `shop-google-reviews` shows author / stars / text + “Reviews from Google”. JSON-LD still has no third-party `aggregateRating`.
+- **Public check after a successful enrich:** shop detail `shop-google-reviews` shows author (profile link), avatar, star bar, relative time, clamped text + Read more, summary + “See all reviews on Google”, and Google Maps attribution. JSON-LD still has no third-party `aggregateRating`. See `docs/PLACES.md` for caching-compliance notes (cache design unchanged).
 
 ---
 

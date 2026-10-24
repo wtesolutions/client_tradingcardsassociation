@@ -18,18 +18,20 @@
 }
 <article class="shop-card" data-shop="@Model.ShopId" data-name="@Model.Name" data-loc="@loc" data-where="@Model.City, @Model.StateCode" data-testid="shop-card-@Model.Slug">
     <div class="shop-card-media">
+        <a class="shop-card-media-link" href="@loc" aria-label="@Model.Name" data-testid="shop-thumb-link-@Model.Slug">
         @if (!string.IsNullOrEmpty(ownerCover))
         {
-            <img src="@ownerCover" alt="" width="640" height="360" loading="lazy" decoding="async" data-testid="shop-cover-@Model.Slug" />
+            <img src="@ownerCover" alt="@Model.Name" width="640" height="360" loading="lazy" decoding="async" data-testid="shop-cover-@Model.Slug" />
         }
         else if (photo is not null)
         {
-            <img src="/media/gplace/@Model.ShopId/@photo.Slot" alt="" width="640" height="360" loading="lazy" decoding="async" />
+            <img src="/media/gplace/@Model.ShopId/@photo.Slot" alt="@Model.Name" width="640" height="360" loading="lazy" decoding="async" data-testid="shop-cover-@Model.Slug" />
         }
         else
         {
             <div class="shop-card-ph" aria-hidden="true" data-testid="shop-placeholder-@Model.Slug">NTCA<small>Photo coming soon</small></div>
         }
+        </a>
         @if (!string.IsNullOrEmpty(logo))
         {
             <img class="shop-card-logo" src="@logo" alt="@Model.Name logo" width="48" height="48" data-testid="shop-logo-@Model.Slug" />
@@ -47,7 +49,7 @@
         </button>
     </div>
     <div class="shop-card-body">
-        <h3><a href="@loc">@Model.Name</a></h3>
+        <h3><a href="@loc" data-testid="shop-name-@Model.Slug">@Model.Name</a></h3>
         @if (spec.Length > 0)
         {
             <p class="shop-card-specs">@spec</p>
@@ -71,7 +73,8 @@
         @if (google?.Cache.Rating is { } rating)
         {
             <p class="gplace-rating">
-                <span aria-hidden="true">★</span> @rating.ToString("0.0")
+                <span aria-hidden="true">@Ntca.Web.Services.GooglePlacesUi.StarBar(rating)</span>
+                <span>@rating.ToString("0.0")</span>
                 @if (google.Cache.UserRatingCount is { } n)
                 {
                     if (!string.IsNullOrEmpty(google.Cache.GoogleMapsUri))
@@ -82,6 +85,19 @@
                     {
                         <span>(@n Google reviews)</span>
                     }
+                }
+            </p>
+        }
+        @if ((photo is not null && string.IsNullOrEmpty(ownerCover)) || google?.Cache.Rating is not null || google?.Cache.OpenNow is true)
+        {
+            <p class="gmaps-attr" data-testid="gmaps-attribution" translate="no">
+                @if (!string.IsNullOrEmpty(google?.Cache.GoogleMapsUri))
+                {
+                    <a href="@google.Cache.GoogleMapsUri" rel="noopener nofollow" target="_blank">Google Maps</a>
+                }
+                else
+                {
+                    <a href="https://maps.google.com/" rel="noopener nofollow" target="_blank">Google Maps</a>
                 }
             </p>
         }

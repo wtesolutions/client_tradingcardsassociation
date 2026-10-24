@@ -117,4 +117,22 @@
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") closeLightbox();
   });
+
+  document.querySelectorAll("[data-review-clamp]").forEach(function (el) {
+    var btn = el.parentElement && el.parentElement.querySelector("[data-review-more]");
+    if (!btn) return;
+    if (el.scrollHeight > el.clientHeight + 2) btn.hidden = false;
+    btn.addEventListener("click", function () {
+      var open = el.classList.toggle("is-open");
+      btn.textContent = open ? "Read less" : "Read more";
+    });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    var card = e.target.closest(".shop-card[data-loc]");
+    if (!card || e.target !== card) return;
+    e.preventDefault();
+    window.location.href = card.getAttribute("data-loc");
+  });
 })();

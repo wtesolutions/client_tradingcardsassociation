@@ -44,6 +44,9 @@ public sealed record PlacesEnrichResult(
 
 public sealed class PlacesEnrich
 {
+    // TODO(places-cache-compliance): 30-day persist of reviews/ratings/photos/hours
+    // is likely non-compliant. place_id may be stored indefinitely; lat/lng ≤30 days.
+    // See docs/PLACES.md § Caching compliance. Do not change the design in this pass.
     public static readonly TimeSpan FreshTtl = TimeSpan.FromDays(30);
     public const int DefaultRateMs = 1500;
     public const int DefaultMatchRadiusMeters = 16093;

@@ -126,8 +126,13 @@ public sealed class PlacesEnrichTests
     {
         var cshtml = File.ReadAllText(TestPaths.WebFile("Views/Shops/Detail.cshtml"));
         Assert.Contains("data-testid=\"shop-google-reviews\"", cshtml);
-        Assert.Contains("Reviews from", cshtml);
-        Assert.Contains("Google", cshtml);
+        Assert.Contains("data-testid=\"shop-google-reviews-summary\"", cshtml);
+        Assert.Contains("data-testid=\"shop-google-reviews-all\"", cshtml);
+        Assert.Contains("See all reviews on Google", cshtml);
+        Assert.Contains("data-review-clamp", cshtml);
+        Assert.Contains("Read more", cshtml);
+        Assert.Contains("gmaps-attr", cshtml);
+        Assert.Contains("Google Maps", cshtml);
     }
 
     [Fact]
@@ -140,6 +145,10 @@ public sealed class PlacesEnrichTests
         Assert.Contains("places enrich --top 100 --dry-run", md);
         Assert.Contains("Place Details Enterprise + Atmosphere", md);
         Assert.Contains("Text Search Enterprise", md);
+        Assert.Contains("Caching compliance", md);
+        Assert.Contains("place ID values indefinitely", md);
+        Assert.Contains("14.3", md);
+        Assert.Contains("TODO(places-cache-compliance)", File.ReadAllText(TestPaths.WebFile("Services/GooglePlacesSync.cs")));
     }
 
     private static HttpResponseMessage Html(string body)

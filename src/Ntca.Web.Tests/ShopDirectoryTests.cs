@@ -81,7 +81,9 @@ public sealed class ShopDirectoryTests
         Assert.Contains("Hobby shops in Missouri", names);
         Assert.DoesNotContain("MO", names);
         Assert.Contains("BreadcrumbList", json);
+        Assert.Contains("ItemList", json);
         Assert.Contains("/shops/mo", json);
+        Assert.Empty(ShopJsonLd.ValidateListing(json));
     }
 
     private static void CollectNames(System.Text.Json.JsonElement el, List<string> names)

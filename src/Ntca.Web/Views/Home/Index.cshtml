@@ -1,7 +1,5 @@
 ﻿@model (List<Ntca.Core.ShopEvent> Shows, List<Ntca.Core.Post> Posts)
 @{
-    ViewData["Title"] = "Home";
-    ViewData["Description"] = "Protecting, Promoting and Powering the Hobby. A national community of collectors, shops and events uniting the trading card hobby.";
     var featured = (List<Ntca.Core.Shop>)ViewBag.Featured;
     var rotation = (List<Ntca.Core.Shop>)ViewBag.Rotation;
     var discover = featured.Count > 0 ? featured.Take(4).ToList() : rotation.Take(4).ToList();
