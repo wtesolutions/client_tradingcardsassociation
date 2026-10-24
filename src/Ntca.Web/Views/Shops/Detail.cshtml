@@ -35,7 +35,8 @@
         @if (Model.Google?.Cache.Rating is { } rating)
         {
             <span class="gplace-rating">
-                <span aria-hidden="true">★</span> @rating.ToString("0.0")
+                <span aria-hidden="true">@Ntca.Web.Services.GooglePlacesUi.StarBar(rating)</span>
+                @rating.ToString("0.0")
                 @if (Model.Google.Cache.UserRatingCount is { } n)
                 {
                     if (!string.IsNullOrEmpty(Model.Google.Cache.GoogleMapsUri))
@@ -128,7 +129,8 @@
                 <li>@line</li>
             }
             </ul>
-            <p class="meta">Hours from Google. Confirm with the shop before you visit.</p>
+            <p class="meta">Hours from Google Maps. Confirm with the shop before you visit.</p>
+            <p class="gmaps-attr" data-testid="gmaps-attribution" translate="no"><a href="https://maps.google.com/" rel="noopener nofollow" target="_blank">Google Maps</a></p>
         }
         else
         {
@@ -156,6 +158,10 @@
 <nav class="shop-tabs" aria-label="Shop sections">
     <a href="#overview">Overview</a>
     <a href="#photos">Photos</a>
+    @if (Model.Google?.Reviews.Count > 0)
+    {
+        <a href="#google-reviews">Reviews</a>
+    }
     <a href="#events">Events</a>
     <a href="#details">Details</a>
 </nav>
@@ -200,25 +206,112 @@
     }
     else if (Model.Google?.Photos.Count > 0)
     {
-        <div class="shop-card-list" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
+        <div class="shop-card-list gplace-photos" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))" data-testid="shop-google-photos">
         @foreach (var photo in Model.Google.Photos)
         {
-            <figure>
+            <figure class="gplace-photo" data-testid="shop-gphoto-@photo.Slot">
                 <img src="/media/gplace/@s.ShopId/@photo.Slot" alt="Photo of @s.Name" width="640" height="360" loading="lazy" />
-                @if (!string.IsNullOrEmpty(photo.AuthorName))
-                {
-                    <figcaption class="meta">Photo: @photo.AuthorName</figcaption>
-                }
+                <figcaption class="gplace-photo-credit">
+                    @if (!string.IsNullOrEmpty(photo.AuthorName))
+                    {
+                        <span>Photo:
+                        @if (!string.IsNullOrEmpty(photo.AuthorUri))
+                        {
+                            <a href="@photo.AuthorUri" rel="noopener nofollow" target="_blank">@photo.AuthorName</a>
+                        }
+                        else
+                        {
+                            @photo.AuthorName
+                        }
+                        </span>
+                    }
+                    <span class="gmaps-attr" translate="no"><a href="https://maps.google.com/" rel="noopener nofollow" target="_blank">Google Maps</a></span>
+                </figcaption>
             </figure>
         }
         </div>
-        <p class="meta">Photos from Google. <a href="https://www.google.com/" rel="noopener">Google</a></p>
     }
     else
     {
         <p class="meta">No photos have been uploaded for this listing yet.</p>
     }
 </section>
+@if (Model.Google?.Reviews.Count > 0)
+{
+    <section id="google-reviews" class="g-reviews" data-testid="shop-google-reviews">
+        <div class="g-reviews-head">
+            <h2>Reviews from Google</h2>
+            <p class="g-reviews-summary" data-testid="shop-google-reviews-summary">
+                @if (Model.Google.Cache.Rating is { } overall)
+                {
+                    <span class="g-reviews-stars" aria-hidden="true">@Ntca.Web.Services.GooglePlacesUi.StarBar(overall)</span>
+                    <strong>@overall.ToString("0.0")</strong>
+                }
+                @if (Model.Google.Cache.UserRatingCount is { } count)
+                {
+                    <span>· @count review@(count == 1 ? "" : "s")</span>
+                }
+                @if (!string.IsNullOrEmpty(Model.Google.Cache.GoogleMapsUri))
+                {
+                    <a class="g-reviews-all" href="@Model.Google.Cache.GoogleMapsUri" rel="noopener nofollow" target="_blank" data-testid="shop-google-reviews-all">See all reviews on Google</a>
+                }
+            </p>
+            <p class="meta">Shown by relevance, as returned by Google Maps. These are Google reviews, not first-party NTCA reviews.</p>
+        </div>
+        <div class="g-reviews-grid">
+        @foreach (var review in Model.Google.Reviews)
+        {
+            <article class="g-review" data-testid="shop-google-review">
+                <header class="g-review-head">
+                    <span class="g-review-avatar" aria-hidden="true">@Ntca.Web.Services.GooglePlacesUi.Initials(review.AuthorName)</span>
+                    <div>
+                        @if (!string.IsNullOrEmpty(review.AuthorName))
+                        {
+                            if (!string.IsNullOrEmpty(review.AuthorUri))
+                            {
+                                <a class="g-review-author" href="@review.AuthorUri" rel="noopener nofollow" target="_blank" data-testid="shop-google-review-author">@review.AuthorName</a>
+                            }
+                            else
+                            {
+                                <span class="g-review-author" data-testid="shop-google-review-author">@review.AuthorName</span>
+                            }
+                        }
+                        <p class="g-review-meta">
+                            @if (review.Rating is { } stars)
+                            {
+                                <span class="g-review-stars" aria-label="@stars.ToString("0") of 5" data-testid="shop-google-review-stars">@Ntca.Web.Services.GooglePlacesUi.StarBar(stars)</span>
+                            }
+                            @if (!string.IsNullOrEmpty(review.RelativeTime))
+                            {
+                                <time class="g-review-time" data-testid="shop-google-review-time">@review.RelativeTime</time>
+                            }
+                        </p>
+                    </div>
+                </header>
+                @if (!string.IsNullOrEmpty(review.ReviewText))
+                {
+                    <p class="g-review-text" data-review-clamp data-testid="shop-google-review-text">@review.ReviewText</p>
+                    <button type="button" class="g-review-more" hidden data-review-more data-testid="shop-google-review-more">Read more</button>
+                }
+                @if (!string.IsNullOrEmpty(review.AttributionUri))
+                {
+                    <p class="g-review-source"><a href="@review.AttributionUri" rel="noopener nofollow" target="_blank">View on Google Maps</a></p>
+                }
+            </article>
+        }
+        </div>
+        <p class="gmaps-attr" data-testid="gmaps-attribution" translate="no">
+            @if (!string.IsNullOrEmpty(Model.Google.Cache.GoogleMapsUri))
+            {
+                <a href="@Model.Google.Cache.GoogleMapsUri" rel="noopener nofollow" target="_blank">Google Maps</a>
+            }
+            else
+            {
+                <a href="https://maps.google.com/" rel="noopener nofollow" target="_blank">Google Maps</a>
+            }
+        </p>
+    </section>
+}
 <section id="events">
     <h2>Upcoming events</h2>
     @if (Model.Events.Count == 0)
@@ -282,9 +375,4 @@
             @await Html.PartialAsync("~/Views/Shared/_SocialIcons.cshtml", Model.Socials)
         }
     </div>
-}
-@section Scripts {
-@Html.Raw("<script type=\"application/ld+json\">\n")
-@Html.Raw(Model.JsonLd)
-@Html.Raw("\n</script>")
 }

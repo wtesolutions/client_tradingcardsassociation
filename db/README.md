@@ -21,6 +21,7 @@ DEV login hardcoded in `03_app_login.sql`: `ntca_app` / `NtcaAppDev2026x` (chang
 | 4 | `06_shop_social.sql` | Social platform catalog + `dir.ShopSocial`; migrates Website / Facebook / Instagram |
 | 5 | `07_manufacturer_detail.sql` | `dir.Manufacturer.DescriptionHtml` + `LogoUrl` |
 | 6 | `08_owner_workspace.sql` | Editorial Featured, owner field locks, logo key, photo sort/cover/alt, edit-request kind + FYI status |
+| 6b | `09_places_enrich.sql` | Rich Place Details cache columns, Google reviews, field-source timestamps, enrich resume tracker |
 | 7 | `02_seed.sql` | Lookup data: roles (incl. SUPERADMIN), shop tiers, features, entitlements, rotation, karma, badges, perks, `Site:Mode=Preview` |
 | 6 | `seed/SEED_00_static_pages.sql` | Marketing URLs from `legacy-site/*.html` |
 | 7 | `seed/SEED_10_shops.sql` | Hobby shops from CSV + `shops.html` (Free / unclaimed) |
@@ -40,7 +41,7 @@ DEV login hardcoded in `03_app_login.sql`: `ntca_app` / `NtcaAppDev2026x` (chang
 | 18b | `seed/SEED_21_hobby_tyme_featured.sql` | Editorial Featured on Hobby Tyme (Mebane NC). Optional `@OwnerEmail` |
 | 19 | `03_app_login.sql` | Login `ntca_app` (least privilege). Optional `ntca_migrator` via `@MigratorPassword` |
 
-**Existing QA database (already has shops):** run `04`, `05`, `06`, `07`, `08`, `SEED_17`, `SEED_18`, then `SEED_19` if bios still leak, `SEED_61`, `SEED_21`. All are idempotent. Then run `99_verify.sql` (read-only PASS/FAIL/WARN grid; identical copy `db/ssms/99_verify_SSMS.sql`). Active manufacturers expected **68** (66 Wikipedia + Fanatics + Onit Athlete from SEED_15).
+**Existing QA database (already has shops):** run `04`, `05`, `06`, `07`, `08`, `09`, `SEED_17`, `SEED_18`, then `SEED_19` if bios still leak, `SEED_61`, `SEED_21`. All are idempotent. Then run `99_verify.sql` (read-only PASS/FAIL/WARN grid; identical copy `db/ssms/99_verify_SSMS.sql`). Active manufacturers expected **68** (66 Wikipedia + Fanatics + Onit Athlete from SEED_15).
 
 Regenerate 01 + `seed/SEED_*.sql` (except hand-written 17/18):
 

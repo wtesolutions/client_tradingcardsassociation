@@ -78,6 +78,12 @@ public sealed class HomeController : Controller
             .Where(e => e.Status == "PUBLISHED" && e.Slug == "ntca-community-kickoff")
             .FirstOrDefaultAsync(ct);
         ViewData["MainClass"] = "site-main";
+        SiteMeta.Apply(
+            this,
+            SiteMeta.SiteName,
+            "Protecting, Promoting and Powering the Hobby. A national community of collectors, shops and events uniting the trading card hobby.",
+            "/",
+            titleExact: true);
         return View((shows, posts));
     }
 

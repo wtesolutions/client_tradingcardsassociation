@@ -1,7 +1,6 @@
 @using Ntca.Web.Services
 @model List<Ntca.Core.Shop>
 @{
-    ViewData["Title"] = "Find shops";
     ViewData["BodyClass"] = "is-shops-dir";
     var query = ViewBag.Query as DirectoryQuery ?? new DirectoryQuery();
     var total = ViewBag.Total as int? ?? Model.Count;

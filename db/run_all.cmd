@@ -19,6 +19,12 @@ call :run 05_google_places.sql
 if errorlevel 1 exit /b 1
 call :run 06_shop_social.sql
 if errorlevel 1 exit /b 1
+call :run 07_manufacturer_detail.sql
+if errorlevel 1 exit /b 1
+call :run 08_owner_workspace.sql
+if errorlevel 1 exit /b 1
+call :run 09_places_enrich.sql
+if errorlevel 1 exit /b 1
 call :run 02_seed.sql
 if errorlevel 1 exit /b 1
 call :run seed\SEED_00_static_pages.sql

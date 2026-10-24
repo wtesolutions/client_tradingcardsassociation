@@ -18,8 +18,10 @@ public sealed class ShopJsonLdTests
         var root = JsonNode.Parse(json)!.AsObject();
         Assert.Equal("https://schema.org", root["@context"]!.GetValue<string>());
         var graph = root["@graph"]!.AsArray();
-        var store = graph.OfType<JsonObject>().First(o => TypeOf(o) is "HobbyShop" or "Store" or "SportingGoodsStore");
-        Assert.Equal("HobbyShop", store["@type"]!.GetValue<string>());
+        var store = graph.OfType<JsonObject>().First(o => Types(o).Any(t => t is "HobbyShop" or "Store" or "SportingGoodsStore"));
+        Assert.Contains("LocalBusiness", Types(store));
+        Assert.Contains("Store", Types(store));
+        Assert.Contains("HobbyShop", Types(store));
         Assert.Equal("trading card shop", store["additionalType"]!.GetValue<string>());
         Assert.EndsWith("#store", store["@id"]!.GetValue<string>());
         Assert.Equal(input.AiSummary, store["description"]!.GetValue<string>());
@@ -74,8 +76,9 @@ public sealed class ShopJsonLdTests
         var errors = ShopJsonLd.Validate(json);
         Assert.True(errors.Count == 0, string.Join("\n", errors));
         var store = JsonNode.Parse(json)!["@graph"]!.AsArray().OfType<JsonObject>()
-            .First(o => TypeOf(o) is "HobbyShop" or "Store" or "SportingGoodsStore");
-        Assert.Equal("SportingGoodsStore", store["@type"]!.GetValue<string>());
+            .First(o => Types(o).Any(t => t is "HobbyShop" or "Store" or "SportingGoodsStore"));
+        Assert.Contains("LocalBusiness", Types(store));
+        Assert.Contains("SportingGoodsStore", Types(store));
         Assert.Equal("818-843-2600", store["telephone"]!.GetValue<string>());
         Assert.Null(store["sameAs"]);
         Assert.Null(store["aggregateRating"]);
@@ -189,5 +192,49 @@ public sealed class ShopJsonLdTests
         };
     }
 
-    private static string? TypeOf(JsonObject node) => node["@type"]?.GetValue<string>();
+    [Fact]
+    public void Listing_json_ld_is_item_list_and_breadcrumb()
+    {
+        var json = ShopJsonLd.BuildListing(
+            "https://tradingcardsassociation.com",
+            "https://tradingcardsassociation.com/shops/az/phoenix",
+            "Hobby shops in Phoenix, Arizona",
+            "2 active listings.",
+            [
+                ("Boxseat Collectibles", "https://tradingcardsassociation.com/shops/az/phoenix/boxseat-collectibles-phoenix-az"),
+                ("Hobby Tyme", "https://tradingcardsassociation.com/shops/nc/mebane/hobby-tyme-sports-cards-toys-mebane-nc")
+            ],
+            [
+                (1, "https://tradingcardsassociation.com/", "Home"),
+                (2, "https://tradingcardsassociation.com/shops", "Shops"),
+                (3, "https://tradingcardsassociation.com/shops/az", "Arizona"),
+                (4, "https://tradingcardsassociation.com/shops/az/phoenix", "Phoenix")
+            ]);
+        Assert.Empty(ShopJsonLd.ValidateListing(json));
+        Assert.Contains("ItemList", json);
+        Assert.Contains("BreadcrumbList", json);
+        Assert.Contains("Boxseat Collectibles", json);
+        Assert.DoesNotContain("aggregateRating", json, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Google_places_ratings_are_never_accepted_as_schema_input()
+    {
+        var input = DaveAndAdams();
+        var json = ShopJsonLd.Build(input);
+        Assert.DoesNotContain("aggregateRating", json, StringComparison.Ordinal);
+        Assert.Contains("LocalBusiness", json);
+    }
+
+    private static IReadOnlyList<string> Types(JsonObject node)
+    {
+        var t = node["@type"];
+        if (t is JsonValue v)
+            return [v.GetValue<string>()];
+        if (t is JsonArray a)
+            return a.OfType<JsonValue>().Select(x => x.GetValue<string>()).ToList();
+        return [];
+    }
+
+    private static string? TypeOf(JsonObject node) => Types(node).FirstOrDefault();
 }

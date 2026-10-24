@@ -707,6 +707,58 @@ public sealed class GooglePlaceCache
     public decimal? Longitude { get; set; }
     public DateTime? RefreshedUtc { get; set; }
     public DateTime? ExpiresUtc { get; set; }
+    public string? WebsiteUri { get; set; }
+    public string? NationalPhone { get; set; }
+    public string? InternationalPhone { get; set; }
+    public string? BusinessStatus { get; set; }
+    public string? EditorialSummary { get; set; }
+    public string? TypesJson { get; set; }
+    public string? PrimaryType { get; set; }
+    public string? PriceLevel { get; set; }
+    public string? PlusCode { get; set; }
+    public string? AttributesJson { get; set; }
+    public string? CurrentHoursJson { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public Shop? Shop { get; set; }
+}
+
+public sealed class GooglePlaceReview
+{
+    public long ReviewId { get; set; }
+    public long ShopId { get; set; }
+    public string GooglePlaceId { get; set; } = "";
+    public string? AuthorName { get; set; }
+    public string? AuthorUri { get; set; }
+    public decimal? Rating { get; set; }
+    public string? ReviewText { get; set; }
+    public string? RelativeTime { get; set; }
+    public DateTime? PublishTime { get; set; }
+    public string? AttributionUri { get; set; }
+    public byte SortOrder { get; set; }
+    public DateTime FetchedUtc { get; set; }
+    public DateTime ExpiresUtc { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public Shop? Shop { get; set; }
+}
+
+public sealed class ShopFieldSource
+{
+    public long ShopId { get; set; }
+    public string FieldName { get; set; } = "";
+    public string Source { get; set; } = "";
+    public DateTime FetchedUtc { get; set; }
+    public Shop? Shop { get; set; }
+}
+
+public sealed class ShopPlaceEnrich
+{
+    public long ShopId { get; set; }
+    public DateTime? LastMatchUtc { get; set; }
+    public DateTime? LastDetailsUtc { get; set; }
+    public DateTime? LastWebsiteUtc { get; set; }
+    public string? LastError { get; set; }
+    public string? WebsiteEmails { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public Shop? Shop { get; set; }

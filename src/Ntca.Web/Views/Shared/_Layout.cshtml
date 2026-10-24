@@ -19,13 +19,51 @@
         ("/about", "About NTCA")
     };
 }
+@{
+    var req = Http.HttpContext?.Request;
+    var pageTitle = ViewData["Title"] as string ?? "NTCA";
+    var titleExact = ViewData["TitleExact"] as bool? == true;
+    var fullTitle = titleExact ? pageTitle : pageTitle + " · National Trading Card Association";
+    var pageDesc = ViewData["Description"] as string ?? Ntca.Web.Services.SiteMeta.DefaultDescription;
+    var canonical = ViewData["Canonical"] as string
+        ?? ViewBag.Canonical as string
+        ?? (req is null ? "" : Ntca.Web.Services.SiteMeta.Absolute(req, (req.Path.Value ?? "/") + req.QueryString.Value));
+    var ogType = ViewData["OgType"] as string ?? "website";
+    var ogImage = ViewData["OgImage"] as string
+        ?? ViewBag.ImageUrl as string
+        ?? (req is null ? Ntca.Web.Services.SiteMeta.DefaultImagePath : Ntca.Web.Services.SiteMeta.Absolute(req, Ntca.Web.Services.SiteMeta.DefaultImagePath));
+    if (req is not null && !ogImage.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+        ogImage = Ntca.Web.Services.SiteMeta.Absolute(req, ogImage);
+    var ogWidth = ViewData["OgImageWidth"] as int? ?? Ntca.Web.Services.SiteMeta.DefaultImageWidth;
+    var ogHeight = ViewData["OgImageHeight"] as int? ?? Ntca.Web.Services.SiteMeta.DefaultImageHeight;
+    var jsonLd = ViewData["JsonLd"] as string;
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@(ViewData["Title"] ?? "NTCA") · National Trading Card Association</title>
-    <meta name="description" content="@(ViewData["Description"] ?? "National Trading Card Association — shops, shows, manufacturers, and a beginner guide.")" />
+    <title>@fullTitle</title>
+    <meta name="description" content="@pageDesc" />
+    @if (!string.IsNullOrEmpty(canonical))
+    {
+        <link rel="canonical" href="@canonical" />
+    }
+    <meta property="og:type" content="@ogType" />
+    <meta property="og:title" content="@fullTitle" />
+    <meta property="og:description" content="@pageDesc" />
+    @if (!string.IsNullOrEmpty(canonical))
+    {
+        <meta property="og:url" content="@canonical" />
+    }
+    <meta property="og:image" content="@ogImage" />
+    <meta property="og:image:width" content="@ogWidth" />
+    <meta property="og:image:height" content="@ogHeight" />
+    <meta property="og:site_name" content="@Ntca.Web.Services.SiteMeta.SiteName" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@fullTitle" />
+    <meta name="twitter:description" content="@pageDesc" />
+    <meta name="twitter:image" content="@ogImage" />
     <link rel="icon" href="~/ntca-logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -153,6 +191,10 @@
             Saved
         </a>
     </nav>
+}
+@if (!string.IsNullOrEmpty(jsonLd))
+{
+    <script type="application/ld+json">@Html.Raw(jsonLd)</script>
 }
 <script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)

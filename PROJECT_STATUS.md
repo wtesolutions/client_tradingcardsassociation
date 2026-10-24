@@ -4,7 +4,7 @@ Draft branch only. **Do not merge or push to `main`** (GitHub Pages on `main` st
 
 This file describes what is **actually on the branch**. Update it at the end of each later run.
 
-**2026-10-23 (this run):** `/SADMIN` navy/gold shell (`docs/design/sadmin/SPEC.md`), Hobby Tyme editorial Featured + owner workspace (logo + 12 photos, claim, identity queue vs immediate details), staff Impersonate (60 min, audited banner), Google Places skips owner-locked hours/photos, `TESTING.md` + generated `tests/fixtures/` + optional `tests/e2e` Playwright smoke (not CI).
+**2026-10-23 (this run):** Local-only `places enrich` CLI (match + rich Place Details + website social scrape). SQL `09`. Reviews on the public shop page with Google attribution. `/SADMIN/google` is the low-confidence review list. New-shop `places discover` is **not** in this pass.
 
 ---
 
@@ -31,6 +31,8 @@ This file describes what is **actually on the branch**. Update it at the end of 
 | `db/06_shop_social.sql` | Social platform catalog + `dir.ShopSocial`; migrates Website/Facebook/Instagram |
 | `db/07_manufacturer_detail.sql` | `dir.Manufacturer.DescriptionHtml` + `LogoUrl` |
 | `db/08_owner_workspace.sql` | Editorial Featured, owner locks/logo, photo columns, FYI/UNDONE edit status |
+| `db/09_places_enrich.sql` | Rich Place Details columns, `GooglePlaceReview`, `ShopFieldSource`, `ShopPlaceEnrich` |
+| `docs/PLACES.md` | How to set the key, dry-run, cost SKUs, `/SADMIN/google` review |
 | `db/seed/SEED_21_hobby_tyme_featured.sql` | Hobby Tyme editorial Featured (`Featured by Eric 2026-10-23 (editorial)`). Optional `@OwnerEmail` |
 | `db/seed/SEED_61_skybox_logo.sql` | SkyBox `LogoUrl` = `/media/manufacturers/skybox.jpg` |
 | `TESTING.md` | Playwright-followable cases + `data-testid` catalog. Fixtures in `tests/fixtures/`. Smoke spec in `tests/e2e/` (not CI) |
@@ -198,6 +200,8 @@ Update the **Status** column when a later run lands the item.
 | Directory QA: no Free Listing badge, name links, full state name, no `/shops` map | **Done** | cards + state hubs + `/shops` |
 | Public restyle (navy/gold homepage, directory, shop detail) | **Done** (`ffd1616`) | specs in `docs/design/` |
 | Google Places batch sync | **Done** | Text Search match + nightly Details/photos; no Google calls on visitor paths; `/SADMIN/google`; SQL `05` |
+| Places enrich existing shops (local CLI) | **Done** | `places enrich\|refresh\|status`; rich Details + reviews + website regex; SQL `09`; see `docs/PLACES.md` |
+| Places discover new shops | **Not this pass** | City sweep / `ShopCandidate` staging left as follow-up |
 | Robust shop social links | **Done** (`9ad319b`) | `dir.SocialPlatform` + `dir.ShopSocial`; FA6 icons + Whatnot badge; `/t` click tracking; owner + SADMIN editors; SQL `06` |
 | SEED_17 manual shop enrichment | **Done** | Official-page socials for Boxseat / Burbank / GAC; Beckett WEBSITE for Bakersfield + Wonder Water; lat/lng `manual-maps-2026-10-23`; Burbank + Bakersfield hours (owner-confirm). Review flags in `docs/DATA_REVIEW.md`. |
 | Every `.sql` is plain T-SQL | **Done** | No `:setvar` / `:on error` / `:r` / sqlcmd variables. SSMS works with SQLCMD Mode off. `db/ssms/*_SSMS.sql` are identical copies. `SqlCmdFreeTests` fails CI if a line starts with `:` or contains a dollar-paren token. |
@@ -301,7 +305,7 @@ A second `run_all` is safe. App login is hardcoded `ntca_app` / `NtcaAppDev2026x
 
 SSMS / Azure Data Studio: open `db/NTCA_FULL_INSTALL.sql` (or the identical `db/ssms/NTCA_FULL_INSTALL_SSMS.sql`) and Execute. SQLCMD Mode is not required.
 
-**Existing QA database:** run `04_onboarding_funnel.sql`, `05_google_places.sql`, `06_shop_social.sql`, `SEED_17_shop_enrichment_manual.sql`, `SEED_18_legacy_content_fix.sql`, `07_manufacturer_detail.sql`, `SEED_61_skybox_logo.sql` in that order.
+**Existing QA database:** run `04_onboarding_funnel.sql`, `05_google_places.sql`, `06_shop_social.sql`, `SEED_17_shop_enrichment_manual.sql`, `SEED_18_legacy_content_fix.sql`, `07_manufacturer_detail.sql`, `SEED_61_skybox_logo.sql`, `08_owner_workspace.sql`, `09_places_enrich.sql`, `SEED_21_hobby_tyme_featured.sql` in that order.
 
 ### 3.6 App connection
 

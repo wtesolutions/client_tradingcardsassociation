@@ -9,6 +9,7 @@ FILES = [
     "06_shop_social.sql",
     "07_manufacturer_detail.sql",
     "08_owner_workspace.sql",
+    "09_places_enrich.sql",
     "02_seed.sql",
     "seed/SEED_00_static_pages.sql",
     "seed/SEED_10_shops.sql",

@@ -34,7 +34,7 @@ On an existing QA database (already has shops):
 1. `db/08_owner_workspace.sql` (copy: `db/ssms/08_owner_workspace_SSMS.sql`) — `IsEditorialFeatured`, locks, `LogoObjectKey`, photo columns, `ShopEditRequest.RequestKind`
 2. `db/seed/SEED_21_hobby_tyme_featured.sql` (copy: `db/ssms/SEED_21_hobby_tyme_featured_SSMS.sql`) — Hobby Tyme editorial Featured. Optional `@OwnerEmail` at the top — **do not invent Jay Dudley’s email**. Leave empty to skip owner login; Impersonate can create one.
 
-Also required from earlier QA (if not already applied): `04`, `05`, `06`, `07`, `SEED_17`–`SEED_19`, `SEED_61`.
+Also required from earlier QA (if not already applied): `04`, `05`, `06`, `07`, `08`, `09`, `SEED_17`–`SEED_19`, `SEED_61`. `09` is required before `places enrich` writes reviews / field sources.
 
 Demo shop (do not substitute Cards And Stuff):
 
@@ -71,6 +71,7 @@ Signup confirmation lands in `src/Ntca.Web/App_Data/dev-mail/` (and the console)
 ```bash
 dotnet run --project src/Ntca.Web -- storage check
 dotnet run --project src/Ntca.Web -- email test --to you@example.com
+dotnet run --project src/Ntca.Web -- places enrich --dry-run
 ```
 
 ---
@@ -79,9 +80,9 @@ dotnet run --project src/Ntca.Web -- email test --to you@example.com
 
 Public chrome: `public-body`, `site-header`, `nav-home`, `nav-primary`, `nav-find-shops`, `header-join`, `nav-menu`, `site-footer`, `footer-nav`, `impersonate-banner`, `impersonate-stop`
 
-Home / directory: `home-search`, `shops-search`, `shops-q`, `shops-location`, `shops-location-clear`, `shops-search-submit`, `shops-categories`, `cat-all`, `cat-sports`, `shops-filters-open`, `shops-filters`, `shops-chips`, `chip-*`, `shops-clear-all`, `shops-result-count`, `shop-card-{slug}`, `shop-featured-{slug}`, `shop-logo-{slug}`, `shop-placeholder-{slug}`
+Home / directory: `home-search`, `shops-search`, `shops-q`, `shops-location`, `shops-location-clear`, `shops-search-submit`, `shops-categories`, `cat-all`, `cat-sports`, `shops-filters-open`, `shops-filters`, `shops-chips`, `chip-*`, `shops-clear-all`, `shops-result-count`, `shop-card-{slug}`, `shop-thumb-link-{slug}`, `shop-name-{slug}`, `shop-cover-{slug}`, `shop-featured-{slug}`, `shop-logo-{slug}`, `shop-placeholder-{slug}`, `gmaps-attribution`
 
-Shop detail: `shop-detail`, `shop-detail-name`, `shop-featured-ribbon`, `shop-detail-logo`, `shop-detail-cover`, `shop-detail-placeholder`, `shop-gallery`, `shop-owner-photos`, `shop-photo-{id}`, `shop-socials`
+Shop detail: `shop-detail`, `shop-detail-name`, `shop-featured-ribbon`, `shop-detail-logo`, `shop-detail-cover`, `shop-detail-placeholder`, `shop-gallery`, `shop-owner-photos`, `shop-photo-{id}`, `shop-google-photos`, `shop-gphoto-{slot}`, `shop-socials`, `shop-google-reviews`, `shop-google-reviews-summary`, `shop-google-reviews-all`, `shop-google-review`, `shop-google-review-author`, `shop-google-review-stars`, `shop-google-review-time`, `shop-google-review-text`, `shop-google-review-more`
 
 Manufacturers: `mfr-logo`, `mfr-description`
 
@@ -89,7 +90,7 @@ Pages: `page-about`, `page-people`, `page-grading`, `gallery-grid`, `gallery-ite
 
 Signup / onboarding: `signup-form`, `signup-name`, `signup-email`, `signup-submit`, `onboarding-step`, `onboarding-roles`, `onboarding-shop-q`
 
-SADMIN: `sadmin-shell`, `sadmin-masthead`, `sadmin-brand`, `sadmin-public-site`, `sadmin-sign-out`, `sadmin-nav`, `sadmin-nav-dashboard`, `sadmin-nav-shops`, `sadmin-login-form`, `sadmin-login-email`, `sadmin-login-code`, `sadmin-login-submit`, `dashboard-h1`, `site-mode`, `site-mode-value`, `manage-mode`, `mode-form`, `mode-confirm`, `mode-save`, `inventory-strip`, `kpi-shops`, `kpi-manufacturers`, `shops-filters`, `shops-filter-q`, `shops-apply`, `shops-table`, `shop-row-{id}`, `shop-inspector`, `impersonate-owner`, `create-owner-email`, `create-owner-impersonate`, `impersonate-form`, `impersonate-confirm`, `impersonate-start`, `edits-pending`, `edit-approve-{id}`, `fyi-undo-{id}`
+SADMIN: `sadmin-shell`, `sadmin-masthead`, `sadmin-brand`, `sadmin-public-site`, `sadmin-sign-out`, `sadmin-nav`, `sadmin-nav-dashboard`, `sadmin-nav-shops`, `sadmin-login-form`, `sadmin-login-email`, `sadmin-login-code`, `sadmin-login-submit`, `dashboard-h1`, `site-mode`, `site-mode-value`, `manage-mode`, `mode-form`, `mode-confirm`, `mode-save`, `inventory-strip`, `kpi-shops`, `kpi-manufacturers`, `shops-filters`, `shops-filter-q`, `shops-apply`, `shops-table`, `shop-row-{id}`, `shop-inspector`, `impersonate-owner`, `create-owner-email`, `create-owner-impersonate`, `impersonate-form`, `impersonate-confirm`, `impersonate-start`, `edits-pending`, `edit-approve-{id}`, `fyi-undo-{id}`, `google-places-page`, `google-kpi-matched`, `google-kpi-pending`, `google-review-table`, `google-review-empty`, `google-review-row-{id}`, `google-review-form-{id}`, `google-review-approve`, `google-review-reject`
 
 Owner: `owner-login-form`, `owner-login-email`, `owner-login-code`, `owner-login-submit`, `owner-h1`, `owner-logo-input`, `owner-photo-input`, `owner-logo-upload`, `owner-photo-upload`, `owner-photo-list`, `owner-public-link`, `owner-claim-q`, `owner-claim-submit`
 
@@ -127,15 +128,15 @@ BASE_URL=http://localhost:5290 npx playwright test
 
 - **Route:** `/`
 - **Steps:** Open home. Confirm header Join CTA, hero search, Discover shops.
-- **Expected:** H1 “Protecting, Promoting and Powering the Hobby.” Featured/destination cards render. No preview banner text. If SEED_21 ran, Hobby Tyme may appear with a gold Featured ribbon.
-- **Selectors:** `nav-primary`, `header-join`, `home-search`, `shop-card-hobby-tyme-sports-cards-toys-mebane-nc` (if in the six), `shop-featured-hobby-tyme-sports-cards-toys-mebane-nc`
+- **Expected:** H1 “Protecting, Promoting and Powering the Hobby.” Featured/destination cards render. No preview banner text. If SEED_21 ran, Hobby Tyme may appear with a gold Featured ribbon. Each card thumbnail (`shop-thumb-link-{slug}`) is a link to the same href as `shop-name-{slug}`; image `alt` is the shop name. Tab to the thumbnail outlines the whole card; Enter opens the detail page. `<title>` is “National Trading Card Association”; head has unique description, canonical, Open Graph, and Twitter card tags.
+- **Selectors:** `nav-primary`, `header-join`, `home-search`, `shop-card-hobby-tyme-sports-cards-toys-mebane-nc` (if in the six), `shop-thumb-link-hobby-tyme-sports-cards-toys-mebane-nc`, `shop-name-hobby-tyme-sports-cards-toys-mebane-nc`, `shop-featured-hobby-tyme-sports-cards-toys-mebane-nc`
 
 ### P02 — /shops search
 
 - **Route:** `/shops`
 - **Steps:** Type `hobby` in `shops-q`. Submit `shops-search-submit`.
-- **Expected:** Result count updates. Hobby Tyme card is in the list when the shop is ACTIVE.
-- **Selectors:** `shops-search`, `shops-q`, `shops-search-submit`, `shops-result-count`, `shop-card-hobby-tyme-sports-cards-toys-mebane-nc`
+- **Expected:** Result count updates. Hobby Tyme card is in the list when the shop is ACTIVE. Thumbnail and name share the detail href. Head title is unique for the search; JSON-LD is `ItemList` + `BreadcrumbList` (no Google `aggregateRating`).
+- **Selectors:** `shops-search`, `shops-q`, `shops-search-submit`, `shops-result-count`, `shop-card-hobby-tyme-sports-cards-toys-mebane-nc`, `shop-thumb-link-hobby-tyme-sports-cards-toys-mebane-nc`, `shop-name-hobby-tyme-sports-cards-toys-mebane-nc`
 
 ### P03 — Filters + category tabs + chips
 
@@ -148,15 +149,15 @@ BASE_URL=http://localhost:5290 npx playwright test
 
 - **Route:** `/shops/mo` and `/shops/nc`
 - **Steps:** Open each. Confirm shops for that state only.
-- **Expected:** Heading uses the state name. Cards link to city/slug URLs.
-- **Selectors:** `shop-card-*` (any), `nav-find-shops`
+- **Expected:** Heading uses the state name. Cards link to city/slug URLs. Thumbnail (`shop-thumb-link-*`) uses the same href as `shop-name-*`. JSON-LD is `ItemList` + `BreadcrumbList`.
+- **Selectors:** `shop-card-*` (any), `shop-thumb-link-*`, `shop-name-*`, `nav-find-shops`
 
 ### P05 — Shop detail · Hobby Tyme Featured
 
 - **Route:** `/shops/nc/mebane/hobby-tyme-sports-cards-toys-mebane-nc`
-- **Steps:** Open the listing. Note ribbons, socials, photos.
-- **Expected:** Gold **Featured** ribbon (navy text), not “Sponsored”. Destination copy is secondary if both flags apply. Social icons render when links exist. Before owner uploads: `shop-detail-placeholder` or Google photos. After owner uploads: `shop-detail-logo` + `shop-owner-photos` (6 items).
-- **Selectors:** `shop-detail`, `shop-detail-name`, `shop-featured-ribbon`, `shop-socials`, `shop-detail-placeholder`, `shop-detail-logo`, `shop-gallery`, `shop-owner-photos`
+- **Steps:** Open the listing. Note ribbons, socials, photos. If Places reviews exist, exercise the review cards.
+- **Expected:** Gold **Featured** ribbon (navy text), not “Sponsored”. Destination copy is secondary if both flags apply. Social icons render when links exist. Before owner uploads: `shop-detail-placeholder` or Google photos. After owner uploads: `shop-detail-logo` + `shop-owner-photos` (6 items). Head has unique `<title>`, description, canonical, OG (`og:type` place, `og:image` absolute with width/height, `og:site_name`), and Twitter card. JSON-LD is LocalBusiness/Store (HobbyShop when appropriate) + BreadcrumbList and has **no** Google `aggregateRating`. If reviews exist: `shop-google-reviews-summary` shows stars + count; `shop-google-reviews-all` opens `googleMapsUri`; each `shop-google-review` has author (linked when `authorUri` exists), avatar initials, star bar, relative time, text clamped to ~4 lines with `shop-google-review-more`, and a Google Maps attribution (`gmaps-attribution`).
+- **Selectors:** `shop-detail`, `shop-detail-name`, `shop-featured-ribbon`, `shop-socials`, `shop-detail-placeholder`, `shop-detail-logo`, `shop-gallery`, `shop-owner-photos`, `shop-google-reviews`, `shop-google-reviews-summary`, `shop-google-reviews-all`, `shop-google-review`, `gmaps-attribution`
 
 ### P06 — Placeholder images
 
@@ -310,6 +311,13 @@ BASE_URL=http://localhost:5290 npx playwright test
 - **Expected:** Identity fields go live only after Approve. FYI undo restores previous logo or removes the uploaded photo.
 - **Selectors:** `edits-pending`, `edit-approve-{id}`, `edits-fyi`, `fyi-undo-{id}`, `owner-identity-submit`
 
+### A08b — Google Places low-confidence review
+
+- **Route:** `/SADMIN/google`
+- **Steps:** After `places enrich --limit 5` (or the in-page match), open the page. If `google-review-table` has rows, Approve one (`google-review-approve`) or Reject (`google-review-reject`). Confirm Featured is not flipped.
+- **Expected:** H1 `google-places-page`. KPIs `google-kpi-matched` / `google-kpi-pending`. Empty copy uses `google-review-empty`. Approve stores Place ID only; owner-edited fields stay. Visitor pages still do not call Google.
+- **Selectors:** `google-places-page`, `google-kpi-matched`, `google-kpi-pending`, `google-review-table`, `google-review-row-{id}`, `google-review-approve`, `google-review-reject`
+
 ### A09 — Manufacturers staff table
 
 - **Route:** `/SADMIN/manufacturers`
@@ -338,6 +346,20 @@ dotnet run --project src/Ntca.Web -- email test --to you@example.com
 
 - **Expected:** SMTP path in Development/Staging when `Email:SmtpHost` is set; otherwise honest failure / file sink. Do not print the SMTP password.
 
+### C03 — Places enrich (local Mac only)
+
+```bash
+dotnet user-secrets set "GooglePlaces:ApiKey" "<KEY>" --project src/Ntca.Web
+dotnet run --project src/Ntca.Web -- places enrich --top 100 --dry-run
+dotnet run --project src/Ntca.Web -- places enrich --top 100 --dry-run --export ranked.csv
+dotnet run --project src/Ntca.Web -- places enrich --top 100 --limit 30
+dotnet run --project src/Ntca.Web -- places enrich --top 100 --limit 30
+dotnet run --project src/Ntca.Web -- places status
+```
+
+- **Expected:** `--top 100 --dry-run` prints a ranked list (rank, shop id, name, city/ST, featured/owner/pop/complete/nc, already enriched?) and the call/cost estimate for shops in that list that still need work. `--limit 30` processes only the first 30 not-yet-enriched of those 100; a second run resumes with the next 30. `--export ranked.csv` writes the same list. No invented score weights. See `docs/PLACES.md`.
+- **Public check after a successful enrich:** shop detail `shop-google-reviews` shows author (profile link), avatar, star bar, relative time, clamped text + Read more, summary + “See all reviews on Google”, and Google Maps attribution. JSON-LD still has no third-party `aggregateRating`. See `docs/PLACES.md` for caching-compliance notes (cache design unchanged).
+
 ---
 
 ## Known not-yet-built
@@ -351,6 +373,7 @@ dotnet run --project src/Ntca.Web -- email test --to you@example.com
 - Owner self-service **Featured / Destination / claim** flags (staff only)
 - Jay Dudley email/phone (never seeded; owner email is opt-in via `@OwnerEmail`)
 - Cards And Stuff remains `DATA_REVIEW` — not the demo owner shop
+- `places discover` (new-shop city sweep + `ShopCandidate` staging) — enrich existing shops shipped first
 
 ---
 

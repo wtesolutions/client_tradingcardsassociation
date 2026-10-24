@@ -117,7 +117,14 @@ public sealed class ShopSocialTests
         });
         Assert.Empty(ShopJsonLd.Validate(json));
         var store = JsonNode.Parse(json)!["@graph"]!.AsArray().OfType<JsonObject>()
-            .First(o => o["@type"]?.GetValue<string>() is "HobbyShop" or "Store" or "SportingGoodsStore");
+            .First(o =>
+            {
+                var t = o["@type"];
+                if (t is JsonValue v)
+                    return v.GetValue<string>() is "HobbyShop" or "Store" or "SportingGoodsStore" or "LocalBusiness";
+                return t is JsonArray a && a.OfType<JsonValue>().Select(x => x.GetValue<string>())
+                    .Any(x => x is "HobbyShop" or "Store" or "SportingGoodsStore" or "LocalBusiness");
+            });
         var same = store["sameAs"]!.AsArray().Select(n => n!.GetValue<string>()).ToList();
         Assert.Contains("https://boxseatcards.com/", same);
         Assert.Contains("https://www.whatnot.com/user/boxseat", same);

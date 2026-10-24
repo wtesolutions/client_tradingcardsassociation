@@ -74,6 +74,116 @@ public sealed class GooglePlacesTests
     }
 
     [Fact]
+    public void Phone_and_street_corroborate_auto_apply()
+    {
+        var shop = new Shop
+        {
+            Name = "Hobby Tyme Sports Cards",
+            AddressLine1 = "198 S Fifth St",
+            City = "Mebane",
+            StateCode = "NC",
+            Phone = "(919) 555-0100",
+            Latitude = 36.095m,
+            Longitude = -79.267m
+        };
+        var hit = new PlacesSearchHit(
+            "ChIJ-ht",
+            "Hobby Tyme Sports Cards & Toys",
+            "198 S 5th St, Mebane, NC 27302",
+            36.096m,
+            -79.268m,
+            null,
+            "+1 919-555-0100");
+        Assert.True(GooglePlacesMatchScore.PhoneMatch(shop.Phone, hit.NationalPhone));
+        Assert.True(GooglePlacesMatchScore.StreetNumberMatch(shop, hit));
+        Assert.True(GooglePlacesMatchScore.CloseDistance(shop, hit, 0.5));
+        Assert.True(GooglePlacesMatchScore.AutoApply(GooglePlacesMatchScore.Score(shop, hit), shop, hit));
+    }
+
+    [Fact]
+    public void Same_name_far_away_without_phone_stays_in_review()
+    {
+        var shop = new Shop
+        {
+            Name = "Ace Hobby",
+            City = "Raleigh",
+            StateCode = "NC",
+            Latitude = 35.78m,
+            Longitude = -78.64m
+        };
+        var hit = new PlacesSearchHit(
+            "ChIJ-far",
+            "Ace Hobby",
+            "Phoenix, AZ 85001",
+            33.45m,
+            -112.07m,
+            null);
+        Assert.False(GooglePlacesMatchScore.AutoApply(GooglePlacesMatchScore.Score(shop, hit), shop, hit));
+    }
+
+    [Fact]
+    public async Task Match_search_sends_location_bias_and_phone_mask()
+    {
+        HttpRequestMessage? seen = null;
+        string? body = null;
+        var client = NewClient("test-key", req =>
+        {
+            seen = req;
+            body = req.Content?.ReadAsStringAsync().GetAwaiter().GetResult();
+            return Json("""{"places":[{"id":"ChIJ1","displayName":{"text":"Hobby Tyme"},"formattedAddress":"Mebane, NC","nationalPhoneNumber":"(919) 555-0100","location":{"latitude":36.1,"longitude":-79.2}}]}""");
+        });
+        var hits = await client.SearchTextNearAsync("Hobby Tyme Mebane NC", 36.1m, -79.2m, 16093, CancellationToken.None);
+        Assert.Equal(HttpMethod.Post, seen!.Method);
+        Assert.EndsWith("/v1/places:searchText", seen.RequestUri!.AbsoluteUri);
+        Assert.Equal(GooglePlacesClient.MatchFieldMask, seen.Headers.GetValues("X-Goog-FieldMask").Single());
+        Assert.Contains("nationalPhoneNumber", GooglePlacesClient.MatchFieldMask);
+        Assert.Contains("locationBias", body);
+        Assert.Contains("pageSize", body);
+        Assert.Single(hits);
+        Assert.Equal("(919) 555-0100", hits[0].NationalPhone);
+    }
+
+    [Fact]
+    public async Task Rich_details_mask_is_enterprise_atmosphere_and_parses_reviews()
+    {
+        HttpRequestMessage? seen = null;
+        var client = NewClient("test-key", req =>
+        {
+            seen = req;
+            return Json("""
+                {
+                  "id":"ChIJ1",
+                  "displayName":{"text":"Hobby Tyme"},
+                  "rating":4.8,
+                  "userRatingCount":42,
+                  "websiteUri":"https://hobbytyme.example",
+                  "nationalPhoneNumber":"(919) 555-0100",
+                  "businessStatus":"OPERATIONAL",
+                  "editorialSummary":{"text":"Local card shop."},
+                  "types":["store","point_of_interest"],
+                  "primaryType":"store",
+                  "reviews":[{
+                    "rating":5,
+                    "text":{"text":"Great singles wall."},
+                    "relativePublishTimeDescription":"2 months ago",
+                    "authorAttribution":{"displayName":"Pat","uri":"https://maps.google.com/pat"}
+                  }]
+                }
+                """);
+        });
+        var details = await client.GetDetailsRichAsync("ChIJ1", CancellationToken.None);
+        Assert.Equal(GooglePlacesClient.DetailsRichMask, seen!.Headers.GetValues("X-Goog-FieldMask").Single());
+        Assert.Contains("reviews", GooglePlacesClient.DetailsRichMask);
+        Assert.Contains("editorialSummary", GooglePlacesClient.DetailsRichMask);
+        Assert.Equal(4.8m, details!.Rating);
+        Assert.Equal("https://hobbytyme.example", details.WebsiteUri);
+        Assert.Equal("OPERATIONAL", details.BusinessStatus);
+        Assert.Single(details.Reviews);
+        Assert.Equal("Pat", details.Reviews[0].AuthorName);
+        Assert.Equal("Great singles wall.", details.Reviews[0].Text);
+    }
+
+    [Fact]
     public async Task Details_mask_omits_hours_and_photos_when_owner_data_wins()
     {
         HttpRequestMessage? seen = null;

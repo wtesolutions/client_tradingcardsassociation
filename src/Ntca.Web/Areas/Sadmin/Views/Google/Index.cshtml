@@ -2,16 +2,16 @@
 @{
     ViewData["Title"] = "Google Places";
 }
-<h1>Google Places</h1>
-<p class="meta">Batch only. Visitor pages never call Google. Cache TTL is 30 days. Photos live in <code>wwwroot/uploads/gplace</code>.</p>
+<h1 data-testid="google-places-page">Google Places</h1>
+<p class="meta">Batch only. Visitor pages never call Google. Cache TTL is 30 days. Photos live in <code>wwwroot/uploads/gplace</code>. Enrich existing shops from Eric’s Mac with <code>dotnet run --project src/Ntca.Web -- places enrich --dry-run</code> — never from IIS.</p>
 @if (!string.IsNullOrEmpty(Model.Result))
 {
     <p class="card">@Model.Result</p>
 }
 <div class="kpis">
     <div class="kpi"><b>@(Model.KeyConfigured ? "yes" : "no")</b><span>API key</span></div>
-    <div class="kpi"><b>@Model.Matched</b><span>Matched</span></div>
-    <div class="kpi"><b>@Model.PendingReview</b><span>Low confidence</span></div>
+    <div class="kpi" data-testid="google-kpi-matched"><b>@Model.Matched</b><span>Matched</span></div>
+    <div class="kpi" data-testid="google-kpi-pending"><b>@Model.PendingReview</b><span>Low confidence</span></div>
     <div class="kpi"><b>@Model.Unmatched</b><span>Unmatched</span></div>
     <div class="kpi"><b>@Model.Rejected</b><span>Rejected</span></div>
     <div class="kpi"><b>@Model.TodayCalls / @Model.DailyLimit</b><span>Calls today</span></div>
@@ -51,28 +51,29 @@ else
         }
     </table>
 }
-<h2>Low-confidence review</h2>
+<h2>Low-confidence match review</h2>
+<p class="meta">Enrich auto-links only when name + city/phone/address/distance agree. Everything else waits here. Approving stores the Place ID permanently and does not publish Featured.</p>
 @if (Model.Review.Count == 0)
 {
-    <p class="meta">Nothing waiting.</p>
+    <p class="meta" data-testid="google-review-empty">Nothing waiting.</p>
 }
 else
 {
-    <table>
+    <table data-testid="google-review-table">
         <tr><th>Shop</th><th>Candidate</th><th>Confidence</th><th>Action</th></tr>
         @foreach (var row in Model.Review)
         {
-            <tr>
+            <tr data-testid="google-review-row-@row.ShopId">
                 <td>@row.Shop?.Name<br /><span class="meta">@row.Shop?.City, @row.Shop?.StateCode · #@row.ShopId</span></td>
                 <td>@row.CandidateName<br /><span class="meta">@row.CandidateAddress<br />@row.CandidatePlaceId</span></td>
                 <td>@row.Confidence</td>
                 <td>
-                    <form method="post" action="/SADMIN/google/review/@row.ShopId">
+                    <form method="post" action="/SADMIN/google/review/@row.ShopId" data-testid="google-review-form-@row.ShopId">
                         @Html.AntiForgeryToken()
                         <input name="placeId" placeholder="manual place id" />
-                        <button class="btn" name="decision" value="approve" type="submit">Approve</button>
+                        <button class="btn" name="decision" value="approve" type="submit" data-testid="google-review-approve">Approve</button>
                         <button class="btn ghost" name="decision" value="manual" type="submit">Save place id</button>
-                        <button class="btn ghost" name="decision" value="reject" type="submit">Reject</button>
+                        <button class="btn ghost" name="decision" value="reject" type="submit" data-testid="google-review-reject">Reject</button>
                     </form>
                 </td>
             </tr>

@@ -1,8 +1,6 @@
 @model List<Ntca.Core.Shop>
 @{
     var stateName = (string)ViewBag.StateName;
-    var code = ((string)ViewBag.State).ToLowerInvariant();
-    ViewData["Title"] = stateName + " shops";
 }
 <div class="ntca-container shop-page">
 <nav class="crumbs" aria-label="Breadcrumb">
@@ -21,8 +19,3 @@
 </div>
 <p><a href="/shops">← All shops</a></p>
 </div>
-@section Scripts {
-@Html.Raw("<script type=\"application/ld+json\">\n")
-@Html.Raw((string)ViewBag.JsonLd)
-@Html.Raw("\n</script>")
-}

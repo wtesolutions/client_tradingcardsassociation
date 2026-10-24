@@ -106,6 +106,7 @@ public sealed class SadminShellTests
             "Areas/Sadmin/Views/Shared/_SadminLayout.cshtml",
             "Areas/Sadmin/Views/Account/Login.cshtml",
             "Areas/Sadmin/Views/Dashboard/Index.cshtml",
+            "Areas/Sadmin/Views/Google/Index.cshtml",
             "Areas/Sadmin/Views/Queue/Shops.cshtml",
             "Areas/Owner/Views/Shop/Index.cshtml",
             "Views/Signup/Index.cshtml",
@@ -117,7 +118,9 @@ public sealed class SadminShellTests
             "header-join", "shops-q", "shops-search-submit", "shops-result-count",
             "shop-featured-ribbon", "sadmin-login-email", "dashboard-h1",
             "impersonate-owner", "owner-logo-input", "owner-photo-input",
-            "signup-form", "gallery-grid", "lightbox"
+            "signup-form", "gallery-grid", "lightbox",
+            "google-places-page", "google-review-approve", "shop-google-reviews",
+            "shop-google-reviews-summary", "shop-google-reviews-all"
         })
             Assert.Contains($"data-testid=\"{id}\"", blob);
     }

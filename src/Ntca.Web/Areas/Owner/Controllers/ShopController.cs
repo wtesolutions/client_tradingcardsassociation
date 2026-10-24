@@ -92,7 +92,7 @@ public sealed class ShopController : Controller
 
     [HttpPost("/owner/logo")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Logo(long shopId, IFormFile file, CancellationToken ct)
+    public async Task<IActionResult> Logo(long shopId, IFormFile? file, CancellationToken ct)
     {
         var userId = UserId();
         var shop = await _work.OwnedAsync(userId, shopId, ct);
@@ -105,7 +105,7 @@ public sealed class ShopController : Controller
 
     [HttpPost("/owner/photos")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Photos(long shopId, IFormFile file, string? alt, string? caption, CancellationToken ct)
+    public async Task<IActionResult> Photos(long shopId, IFormFile? file, string? alt, string? caption, CancellationToken ct)
     {
         var userId = UserId();
         var shop = await _work.OwnedAsync(userId, shopId, ct);

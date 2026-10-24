@@ -45,9 +45,10 @@ SSMS: open `db/NTCA_FULL_INSTALL.sql` (or the identical `db/ssms/NTCA_FULL_INSTA
 7. `07_manufacturer_detail.sql` — `dir.Manufacturer.DescriptionHtml` + `LogoUrl`
 8. `SEED_61_skybox_logo.sql` — SkyBox `LogoUrl` = `/media/manufacturers/skybox.jpg`
 9. `08_owner_workspace.sql` — editorial Featured, owner locks/logo, photo columns, FYI edit status
-10. `SEED_21_hobby_tyme_featured.sql` — Hobby Tyme editorial Featured (optional `@OwnerEmail`; do not invent Jay’s email)
+10. `09_places_enrich.sql` — rich Place Details columns, Google reviews, field sources, enrich resume
+11. `SEED_21_hobby_tyme_featured.sql` — Hobby Tyme editorial Featured (optional `@OwnerEmail`; do not invent Jay’s email)
 
-All ten are safe to run twice. Playwright cases: **[TESTING.md](TESTING.md)** at the repo root (`dotnet run` → http://localhost:5290). A second full `run_all` is also safe: `01_schema.sql` uses `IF NOT EXISTS` / `CREATE OR ALTER`. Optional migrator: edit `DECLARE @MigratorPassword` at the top of `03_app_login.sql` (default `N'__SKIP__'`).
+All eleven are safe to run twice. Playwright cases: **[TESTING.md](TESTING.md)** at the repo root (`dotnet run` → http://localhost:5290). A second full `run_all` is also safe: `01_schema.sql` uses `IF NOT EXISTS` / `CREATE OR ALTER`. Optional migrator: edit `DECLARE @MigratorPassword` at the top of `03_app_login.sql` (default `N'__SKIP__'`).
 
 **After those scripts:** open `db/99_verify.sql` (or the identical `db/ssms/99_verify_SSMS.sql`) and Execute. It is read-only and returns one PASS/FAIL/WARN grid (schema, seed counts, SEED_18 bios, data quality, Google tables, DATA_REVIEW flags) plus a summary row. Edit the `@Expect` table at the top if a documented count changes. `db/tools/validate.sql` only points at this file.
 
@@ -74,10 +75,18 @@ dotnet run --project src/Ntca.Web -- email test --to you@example.com
 Optional Google Places (batch only — visitor pages never call Google):
 
 ```bash
-dotnet user-secrets set GooglePlaces:ApiKey "YOUR-KEY" --project src/Ntca.Web
+dotnet user-secrets set "GooglePlaces:ApiKey" "<KEY>" --project src/Ntca.Web
 ```
 
-Enable **Places API (New)** on the Google Cloud project. Leave the key unset to no-op. Daily/monthly caps default to 300 / 3000 (`GooglePlaces:DailyCallLimit` / `MonthlyCallLimit`). First match:
+Enable **Places API (New)** on the Google Cloud project. Leave the key unset to no-op. Daily/monthly caps default to 300 / 3000 (`GooglePlaces:DailyCallLimit` / `MonthlyCallLimit`). Enrich existing shops (local Mac CLI — see `docs/PLACES.md`):
+
+```bash
+dotnet run --project src/Ntca.Web -- places enrich --dry-run
+dotnet run --project src/Ntca.Web -- places enrich --limit 5
+dotnet run --project src/Ntca.Web -- places status
+```
+
+Older match-only CLI still works:
 
 ```bash
 dotnet run --project src/Ntca.Web -- google-places match --dry-run

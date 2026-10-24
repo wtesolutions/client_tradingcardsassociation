@@ -84,6 +84,9 @@ INSERT INTO @Need (Area, Kind, FullName) VALUES
     (N'05',     N'table', N'dir.GooglePlaceCache'),
     (N'05',     N'table', N'dir.GooglePlacePhoto'),
     (N'05',     N'table', N'analytics.GoogleApiCallLog'),
+    (N'09',     N'table', N'dir.GooglePlaceReview'),
+    (N'09',     N'table', N'dir.ShopFieldSource'),
+    (N'09',     N'table', N'dir.ShopPlaceEnrich'),
     (N'06',     N'table', N'dir.SocialPlatform'),
     (N'06',     N'table', N'dir.ShopSocial'),
     (N'schema', N'view',  N'feed.vw_NewShopRotation'),
@@ -122,7 +125,12 @@ INSERT INTO @Cols VALUES
     (N'04', N'crm.SignupStepEvent',  N'Stage'),
     (N'04', N'crm.SignupStepEvent',  N'RoleKey'),
     (N'07', N'dir.Manufacturer',     N'DescriptionHtml'),
-    (N'07', N'dir.Manufacturer',     N'LogoUrl');
+    (N'07', N'dir.Manufacturer',     N'LogoUrl'),
+    (N'09', N'dir.GooglePlaceCache', N'WebsiteUri'),
+    (N'09', N'dir.GooglePlaceCache', N'NationalPhone'),
+    (N'09', N'dir.GooglePlaceCache', N'BusinessStatus'),
+    (N'09', N'dir.GooglePlaceCache', N'EditorialSummary'),
+    (N'09', N'dir.GooglePlaceCache', N'TypesJson');
 
 INSERT INTO @Out (Area, [Check], Expected, Actual, Result)
 SELECT
@@ -140,7 +148,8 @@ INSERT INTO @Idx VALUES
     (N'schema', N'IX_ShopEvent_Calendar',        N'mkt.ShopEvent'),
     (N'04',     N'IX_OnboardSub_Queue',          N'crm.OnboardingSubmission'),
     (N'05',     N'IX_GooglePlacePhoto_Expires',  N'dir.GooglePlacePhoto'),
-    (N'06',     N'IX_ShopSocial_Shop',           N'dir.ShopSocial');
+    (N'06',     N'IX_ShopSocial_Shop',           N'dir.ShopSocial'),
+    (N'09',     N'IX_GooglePlaceReview_Shop',    N'dir.GooglePlaceReview');
 
 INSERT INTO @Out (Area, [Check], Expected, Actual, Result)
 SELECT
