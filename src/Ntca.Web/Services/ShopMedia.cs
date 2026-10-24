@@ -98,12 +98,12 @@ public sealed class ShopMediaService
         await _db.SaveChangesAsync(ct);
     }
 
-    public async Task<string?> SaveLogoAsync(Shop shop, long userId, IFormFile file, CancellationToken ct)
+    public async Task<string?> SaveLogoAsync(Shop shop, long userId, IFormFile? file, CancellationToken ct)
     {
         var err = Validate(file);
         if (err is not null)
             return err;
-        await using var input = file.OpenReadStream();
+        await using var input = file!.OpenReadStream();
         var webp = await EncodeAsync(input, 400, 400, square: true, ct);
         var key = $"shops/{shop.ShopId}/logo.webp";
         await using var ms = new MemoryStream(webp);
@@ -119,7 +119,7 @@ public sealed class ShopMediaService
         return null;
     }
 
-    public async Task<string?> SavePhotoAsync(Shop shop, long userId, IFormFile file, string? alt, string? caption, CancellationToken ct)
+    public async Task<string?> SavePhotoAsync(Shop shop, long userId, IFormFile? file, string? alt, string? caption, CancellationToken ct)
     {
         var count = await _db.ShopPhotos.CountAsync(p => p.ShopId == shop.ShopId && p.ModerationStatus == "APPROVED", ct);
         if (count >= MaxPhotos)
@@ -127,7 +127,7 @@ public sealed class ShopMediaService
         var err = Validate(file);
         if (err is not null)
             return err;
-        await using var input = file.OpenReadStream();
+        await using var input = file!.OpenReadStream();
         using var buf = new MemoryStream();
         await input.CopyToAsync(buf, ct);
         var bytes = buf.ToArray();
@@ -228,9 +228,9 @@ public sealed class ShopMediaService
         return await _files.SaveAsync(key, ms, "image/webp", ct);
     }
 
-    private static string? Validate(IFormFile file)
+    private static string? Validate(IFormFile? file)
     {
-        if (file.Length <= 0)
+        if (file is null || file.Length <= 0)
             return "Choose a photo.";
         if (file.Length > MaxBytes)
             return "Photos must be 10 MB or smaller.";
